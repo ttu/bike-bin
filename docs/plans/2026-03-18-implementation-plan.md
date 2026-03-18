@@ -611,19 +611,19 @@ git commit -m "test: add test data factories and renderWithProviders utility"
 - Create: `src/features/auth/index.ts`
 - Test: `src/features/auth/__tests__/useAuth.test.tsx`
 
-- [ ] **Step 1: Write test for useAuth hook**
+- [x] **Step 1: Write test for useAuth hook**
 
 Test: returns `null` session when not logged in. Test: returns user session after login. Test: `signOut` clears session. Test: `isAuthenticated` boolean is correct.
 
-- [ ] **Step 2: Implement AuthContext and AuthProvider**
+- [x] **Step 2: Implement AuthContext and AuthProvider**
 
 `context.ts` — defines `AuthContextType` with `session`, `user`, `isAuthenticated`, `isLoading`, `signInWithGoogle`, `signInWithApple`, `signOut`. `provider.tsx` — wraps children, subscribes to `supabase.auth.onAuthStateChange`, manages session state.
 
-- [ ] **Step 3: Implement useAuth hook**
+- [x] **Step 3: Implement useAuth hook**
 
 Consumes context, throws if used outside provider.
 
-- [ ] **Step 4: Run tests, commit**
+- [x] **Step 4: Run tests, commit**
 
 ```bash
 git commit -m "feat: add auth context, provider, and useAuth hook"

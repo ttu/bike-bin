@@ -1,0 +1,54 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/shared/api/supabase';
+import { AuthContext } from './context';
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setIsLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signInWithGoogle = useCallback(async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'google' });
+  }, []);
+
+  const signInWithApple = useCallback(async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'apple' });
+  }, []);
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+  }, []);
+
+  const user: User | null = session?.user ?? null;
+  const isAuthenticated = user !== null;
+
+  const value = useMemo(
+    () => ({
+      session,
+      user,
+      isAuthenticated,
+      isLoading,
+      signInWithGoogle,
+      signInWithApple,
+      signOut,
+    }),
+    [session, user, isAuthenticated, isLoading, signInWithGoogle, signInWithApple, signOut],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
