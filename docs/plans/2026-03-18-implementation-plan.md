@@ -723,19 +723,19 @@ git commit -m "feat: add onboarding screens (profile setup, location setup)"
 - Create: `src/features/auth/utils/localStorage.ts`
 - Test: `src/features/auth/__tests__/useLocalInventory.test.ts`
 
-- [ ] **Step 1: Write test for local inventory storage**
+- [x] **Step 1: Write test for local inventory storage**
 
 Test: saves items to AsyncStorage. Test: loads items from AsyncStorage. Test: items persist across hook re-renders.
 
-- [ ] **Step 2: Implement useLocalInventory hook**
+- [x] **Step 2: Implement useLocalInventory hook**
 
 Stores items in AsyncStorage as JSON array. Used when user is not authenticated. On sign-in, items are uploaded to Supabase and local storage is cleared (implemented in Phase 4 when inventory CRUD exists).
 
-- [ ] **Step 3: Implement sync banner component**
+- [x] **Step 3: Implement sync banner component**
 
 Yellow warning banner: "Your items are saved on this device only. Sign in to sync and share them." per [feature-design.md §3.4](2026-03-17-feature-design.md).
 
-- [ ] **Step 4: Run tests, commit**
+- [x] **Step 4: Run tests, commit**
 
 ```bash
 git commit -m "feat: add local inventory for unauthenticated users"
