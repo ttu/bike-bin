@@ -1,0 +1,21 @@
+{
+  "app": {
+    "name": "Bike Bin"
+  },
+  "tabs": {
+    "inventory": "Inventory",
+    "search": "Search",
+    "messages": "Messages",
+    "profile": "Profile"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "done": "Done",
+    "close": "Close",
+    "retry": "Retry"
+  }
+}
