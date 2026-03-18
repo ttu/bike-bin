@@ -1,0 +1,247 @@
+# Bike Bin — Security
+
+> **Purpose:** Comprehensive security plan covering authentication, authorization, data privacy, infrastructure, and compliance. Referenced by all other planning docs for security decisions.  
+> **Context:** See [functional-specs.md](functional-specs.md) for trust & safety (§14), [technical-specs.md](technical-specs.md) §6 for security summary, [architecture.md](architecture.md) for secrets management.
+
+---
+
+## 1. Authentication
+
+### 1.1 Login methods
+
+- **OAuth only:** Google and Apple via Supabase Auth. No email+password or magic link for MVP.
+- **Email verification:** Handled by the identity provider (Google/Apple verify the email address). No separate in-app email confirmation flow needed.
+- **No password storage:** Since we use OAuth exclusively, we never store or manage passwords. Supabase Auth stores the OAuth identity link and session tokens.
+
+### 1.2 Session management
+
+- **Tokens:** Supabase Auth issues a JWT access token + refresh token. The Supabase client SDK handles token storage, refresh, and expiry transparently.
+- **Token storage:** Stored in secure device storage via Supabase client SDK (uses `expo-secure-store` on native, or AsyncStorage fallback).
+- **Session lifetime:** Access token expires after 1 hour (Supabase default). Refresh token used to obtain a new access token automatically. Refresh token lifetime: 7 days (configurable in Supabase dashboard).
+- **Session revocation:** User can log out (clears tokens). Admin can revoke sessions from Supabase dashboard.
+
+### 1.3 Unauthenticated access
+
+- Unauthenticated users can **browse public listings** (items marked as visible to "All users").
+- Unauthenticated users **cannot**: create items, send messages, submit borrow requests, rate users, or join groups.
+- Enforced via Supabase RLS policies (`auth.uid() IS NOT NULL` checks on write operations).
+
+---
+
+## 2. Authorization
+
+### 2.1 Row Level Security (RLS)
+
+RLS is enabled on **all tables**. No table is accessible without an explicit policy. Policies follow the principle of least privilege.
+
+| Table | SELECT | INSERT | UPDATE | DELETE |
+|-------|--------|--------|--------|--------|
+| **users (profile)** | Public (username, avatar, rating) | Own profile only | Own profile only | Own profile only (account deletion) |
+| **items** | Public listings + group-scoped (via group membership) + own items | Authenticated, own items | Own items only | Own items only (not while Loaned/Reserved) |
+| **bikes** | Own bikes only | Authenticated, own bikes | Own bikes only | Own bikes only |
+| **saved_locations** | Own locations only | Authenticated, own locations | Own locations only | Own locations only |
+| **groups** | Public groups: all. Private groups: members only | Authenticated | Admins only | Admins only |
+| **group_members** | Members of the group | Admins (invite) or self (join public) | Admins (role change) | Admins (remove) or self (leave) |
+| **borrow_requests** | Requester or item owner | Authenticated (requester) | Item owner (accept/reject) or requester (cancel) | Not allowed (soft delete / status change) |
+| **conversations** | Participants only | Authenticated (item-context) | Not allowed | Not allowed |
+| **messages** | Conversation participants | Conversation participants | Not allowed (messages are immutable) | Not allowed |
+| **ratings** | Public (read) | Authenticated, after completed transaction | Not allowed (ratings are immutable) | Not allowed |
+| **item_photos** | Same as parent item | Item owner | Item owner | Item owner |
+| **notifications** | Own notifications only | System only (Edge Functions / triggers) | Own (mark as read) | Own |
+
+### 2.2 Role-based access (groups)
+
+- **Admin:** Can invite/remove members, edit group details, promote/demote admins, delete group.
+- **Member:** Can view group items, share own items to the group, leave the group.
+- **Non-member:** Cannot see private group content or group-scoped items.
+- Group creator is the first admin. At least one admin must remain (cannot demote the last admin).
+
+### 2.3 API-level enforcement
+
+- All data access goes through Supabase PostgREST, which enforces RLS automatically.
+- Edge Functions use the **service role key** (bypasses RLS) only for system operations (notifications, geocoding). Service role key is never exposed to the client.
+- No custom REST endpoints bypass RLS.
+
+---
+
+## 3. Data privacy
+
+### 3.1 Location privacy
+
+- **Coordinates are never sent to other clients.** User coordinates (`geography` type) are stored server-side for distance calculations only.
+- **Only the area name** (postcode/ZIP level) is shown publicly on listings.
+- **Exact address** is shared only when both parties agree (communicated in item-linked messaging).
+- Distance filtering uses server-side PostGIS queries (`ST_DWithin`) — the client sends its own coordinates to the server for the query, but never receives other users' coordinates.
+
+### 3.2 Personal Identifiable Information (PII)
+
+| Data | Storage | Visibility |
+|------|---------|------------|
+| Email address | Supabase Auth only (not in public tables) | Never shown to other users |
+| Username | Public profile table | Public |
+| Profile photo | Supabase Storage | Public |
+| Coordinates (lat/lng) | `saved_locations` table (server-side) | Never sent to clients; used for distance queries only |
+| Area name (postcode) | `saved_locations` table | Public (shown on listings) |
+| OAuth provider ID | Supabase Auth | Never shown |
+| Push notification token | User profile / device table | Never shown to other users |
+| Messages | `messages` table | Conversation participants only |
+
+### 3.3 Data minimization
+
+- Collect only what's needed. No phone number, no real name required (username only).
+- OAuth profile data: we store only username, email (in auth), and avatar URL. We do not request or store contacts, calendar, or other OAuth scopes beyond basic profile + email.
+
+---
+
+## 4. Encryption & transport
+
+### 4.1 In transit
+
+- **All communication over HTTPS/TLS.** Supabase enforces TLS for all API, Realtime, and Storage connections.
+- **WebSocket connections** (Supabase Realtime) use WSS (TLS-encrypted).
+- **Edge Function calls** to external services (Resend, Nominatim, Expo Push) use HTTPS.
+
+### 4.2 At rest
+
+- **Database:** Supabase PostgreSQL uses encryption at rest (AES-256, managed by the cloud provider — AWS).
+- **Object storage:** Supabase Storage (S3-backed) uses server-side encryption at rest (SSE-S3).
+- **Client-side cache:** TanStack Query cache in AsyncStorage is **not encrypted** on device. Sensitive data (coordinates, messages) may be cached. Acceptable for MVP; consider `expo-secure-store` for sensitive fields if needed later.
+- **No field-level encryption** for MVP. Coordinates are protected by RLS (never exposed to other clients), not by encryption.
+
+---
+
+## 5. Secrets & key management
+
+| Secret | Storage location | Access |
+|--------|-----------------|--------|
+| **Supabase anon key** | Expo config (`.env.*`), GitHub Actions secrets | Client-side (safe — RLS enforces access) |
+| **Supabase service role key** | Supabase Edge Function secrets, GitHub Actions secrets | Server-side only. **Never in client code.** |
+| **Google OAuth client ID/secret** | Supabase Auth dashboard (per environment) | Server-side (Supabase Auth) |
+| **Apple OAuth credentials** | Supabase Auth dashboard (per environment) | Server-side (Supabase Auth) |
+| **Resend API key** | Supabase Edge Function secrets (per environment) | Edge Functions only |
+| **Expo Push access token** | Supabase Edge Function secrets | Edge Functions only |
+
+### 5.1 Key rotation
+
+- OAuth client secrets: Rotate via provider dashboard + update Supabase Auth config.
+- Resend API key: Rotate via Resend dashboard + update Edge Function secrets.
+- Supabase keys: Rotate via Supabase dashboard (generates new anon key / service role key). Update all environment configs.
+- **No secrets in source code.** `.env*` files are in `.gitignore`. CI secrets in GitHub Actions encrypted secrets.
+
+---
+
+## 6. Input validation & abuse prevention
+
+### 6.1 Input validation
+
+- **Client-side:** TypeScript types + form validation (required fields, length limits, format checks) before submission.
+- **Server-side:** PostgreSQL constraints (NOT NULL, CHECK, UNIQUE) and RLS policies enforce data integrity regardless of client.
+- **Image uploads:** Client-side compression to ≤2 MB. Supabase Storage bucket policy enforces max file size. Only allowed MIME types (image/jpeg, image/png, image/webp).
+- **Text fields:** Max length constraints on name, description, messages (enforced in DB schema). Sanitize for display (no HTML injection in React Native, but be cautious with web views if added later).
+
+### 6.2 Rate limiting
+
+- **Supabase built-in:** PostgREST has configurable rate limits per IP / per user.
+- **Auth:** Supabase Auth rate-limits login attempts automatically (protection against brute force — less relevant with OAuth, but still active).
+- **Nominatim:** Max 1 request/sec (enforced by caching results in DB, calling via Edge Function).
+- **Messaging:** Consider rate-limiting message sends per user (e.g., max 60 messages/minute) to prevent spam. Implement via database function or Edge Function if needed.
+- **Listing creation:** Consider rate-limiting item creation (e.g., max 20 items/hour) to prevent automated spam.
+
+### 6.3 Reporting & moderation
+
+- **Report flow:** Users can report a listing or a user (reason + optional description). Reports stored in a `reports` table.
+- **Moderation queue:** Admin/moderator reviews reports. Actions: warn user, remove listing, suspend/ban user.
+- **MVP scope:** Basic report submission + admin review (can use Supabase dashboard or a simple admin screen). Automated moderation (ML, keyword filters) is post-MVP.
+- **Blocked users:** Users can block other users. Blocked users cannot message or see each other's listings.
+
+---
+
+## 7. GDPR & compliance
+
+### 7.1 Data subject rights
+
+| Right | Implementation |
+|-------|---------------|
+| **Right to access** | User can view all their data in the app (profile, items, messages, ratings). Export functionality TBD for MVP. |
+| **Right to rectification** | User can edit their profile, items, saved locations at any time. |
+| **Right to erasure** | **Account deletion** — user can delete their account. Cascading delete: profile, items, bikes, saved locations, messages (or anonymize), conversations, ratings, group memberships, notifications, photos (Storage). Implemented via database cascade + Storage cleanup Edge Function. |
+| **Right to data portability** | Export user data as JSON. Post-MVP but the data model supports it (all data is in structured tables). |
+| **Right to restrict processing** | User can set items to Private, leave groups, disable notifications. |
+
+### 7.2 Consent
+
+- **Account creation:** By signing up, users agree to Terms of Service and Privacy Policy (shown during onboarding).
+- **Location:** Users explicitly choose to add saved locations. No background location tracking.
+- **Push notifications:** Explicit OS-level permission prompt (standard iOS/Android flow via `expo-notifications`).
+- **Email notifications:** Opt-in / configurable in profile settings. Default: enabled for new messages, disabled for marketing.
+
+### 7.3 Data retention
+
+| Data | Retention |
+|------|-----------|
+| Active accounts | Retained while account exists |
+| Deleted accounts | Hard delete within 30 days. Anonymize messages (replace sender with "Deleted User") rather than delete, to preserve conversation context for the other party. |
+| Photos | Deleted with the item or account |
+| Notifications | Auto-expire after 90 days |
+| Reports / moderation logs | Retained for 1 year (for appeals and safety) |
+| Geocoding cache | Indefinite (public postcode data, not PII) |
+
+### 7.4 Legal
+
+- **Privacy Policy** and **Terms of Service** required before launch. Content TBD (legal review needed).
+- **Cookie policy:** N/A (native mobile app, no cookies).
+- **Data Processing Agreement (DPA):** Supabase provides a DPA for GDPR compliance. Resend/email provider: ensure DPA is in place.
+
+---
+
+## 8. Infrastructure security
+
+### 8.1 Supabase platform
+
+- Supabase runs on AWS. SOC 2 Type II compliant.
+- Database connections encrypted (TLS). Database not directly accessible from the internet (accessed via PostgREST/Realtime APIs).
+- Supabase dashboard access: use strong password + 2FA for team members.
+
+### 8.2 CI/CD security
+
+- **GitHub Actions:** Secrets stored as encrypted repository/environment secrets. No secrets in workflow logs.
+- **Supabase Branching (PR previews):** Preview databases are isolated. Cleaned up when PR is closed.
+- **EAS Build:** Expo EAS handles signing credentials (iOS certificates, Android keystores) securely.
+- **Dependency scanning:** Use `npm audit` or Dependabot to detect vulnerable dependencies. Run in CI.
+
+### 8.3 Client security
+
+- **No secrets in client bundle.** Only the Supabase anon key is in the client (this is safe — it's a public key; RLS enforces access control).
+- **Deep link validation:** Expo Router deep links should validate parameters to prevent open redirect or injection.
+- **Certificate pinning:** Not required for MVP (Supabase uses standard CA certificates). Consider if high-security is needed later.
+
+---
+
+## 9. Security checklist (per feature)
+
+When building a new feature, verify:
+
+- [ ] RLS policies exist for any new tables
+- [ ] RLS policies tested (both allow and deny cases)
+- [ ] No server-side secrets exposed to the client
+- [ ] Input validation on both client and server (DB constraints)
+- [ ] Image uploads validated (size, MIME type)
+- [ ] New API operations respect authentication requirements
+- [ ] Sensitive data (coordinates, email) not leaked to unauthorized users
+- [ ] Rate limiting considered for user-facing write operations
+- [ ] Error messages don't expose internal details (stack traces, SQL errors)
+- [ ] i18n: error messages use translation keys, not hardcoded strings
+
+---
+
+## 10. Security testing
+
+- **RLS policy tests:** Write integration tests that verify RLS policies — test that user A cannot read/write user B's data. Use Supabase test helpers or direct SQL with different auth contexts.
+- **Auth flow tests:** E2E tests for login, logout, session expiry, unauthenticated access restrictions.
+- **Input validation tests:** Unit tests for validation functions. Integration tests for DB constraint enforcement.
+- **Dependency audit:** `npm audit` in CI. Fail build on high/critical vulnerabilities.
+- **Manual review:** Security review for new features touching auth, RLS, or PII before merge.
+
+---
+
+*Last updated: 2026-03-17*
