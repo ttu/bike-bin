@@ -10,3 +10,4 @@ export {
   useUpdateItemStatus,
   useDeleteItem,
 } from './hooks/useItems';
+export { usePhotoUpload } from './hooks/usePhotoUpload';
