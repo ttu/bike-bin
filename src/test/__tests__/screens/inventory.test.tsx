@@ -1,7 +1,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
-import InventoryScreen from './index';
+import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),

@@ -98,7 +98,7 @@ Scripts: `lint`, `lint:fix`, `format`, `format:check`, `test`, `test:watch`, `te
 
 Target: auto for project, 80% for patch, 1% threshold. Exclude test files.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add -A
@@ -114,7 +114,7 @@ git commit -m "chore: initialize Expo project with TypeScript and dev tooling"
 - Create: `src/shared/theme/index.ts`
 - Test: `src/shared/theme/__tests__/theme.test.ts`
 
-- [ ] **Step 1: Write test for theme tokens**
+- [x] **Step 1: Write test for theme tokens**
 
 ```typescript
 // src/shared/theme/__tests__/theme.test.ts
@@ -141,19 +141,19 @@ describe('Theme', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 npm test -- --testPathPattern="theme.test"
 ```
 
-- [ ] **Step 3: Implement theme**
+- [x] **Step 3: Implement theme**
 
 Create `theme.ts` extending Paper's `MD3LightTheme` / `MD3DarkTheme` with the color palette from [technical-specs.md §2](technical-specs.md) (teal/slate palette). Create `spacing.ts` with spacing scale (xs=4, sm=8, md=12, base=16, lg=24, xl=32, 2xl=48), border radius (sm=8, md=12, lg=16, full=9999), icon sizes (sm=20, md=24, lg=32, xl=48), elevation styles. Export all from `index.ts`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/shared/theme/
@@ -169,15 +169,15 @@ git commit -m "feat: add MD3 theme with teal palette, spacing, and design tokens
 - Create: `src/i18n/en/common.json`
 - Test: `src/shared/i18n/__tests__/config.test.ts`
 
-- [ ] **Step 1: Write test for i18n initialization**
+- [x] **Step 1: Write test for i18n initialization**
 
 Test that i18n initializes with English default, returns keys for missing translations, and exports `t` function.
 
-- [ ] **Step 2: Implement i18n config**
+- [x] **Step 2: Implement i18n config**
 
 Configure react-i18next with `expo-localization` for device locale detection. English as default and fallback. Namespace-based loading (common + per-feature). Create `src/i18n/en/common.json` with initial keys for tab labels, common actions (save, cancel, delete, edit, back), and app name.
 
-- [ ] **Step 3: Run tests, commit**
+- [x] **Step 3: Run tests, commit**
 
 ```bash
 git commit -m "feat: add i18n framework with English translations"
@@ -194,19 +194,19 @@ git commit -m "feat: add i18n framework with English translations"
 - Create: `app/(tabs)/messages/index.tsx` (placeholder)
 - Create: `app/(tabs)/profile/index.tsx` (placeholder)
 
-- [ ] **Step 1: Create root layout with providers**
+- [x] **Step 1: Create root layout with providers**
 
 `app/_layout.tsx` wraps the app with `PaperProvider` (theme), `QueryClientProvider` (TanStack Query), i18n initialization, and `SafeAreaProvider`. Uses `useColorScheme()` to pick light/dark theme.
 
-- [ ] **Step 2: Create tab layout**
+- [x] **Step 2: Create tab layout**
 
 `app/(tabs)/_layout.tsx` configures 4 tabs using Expo Router `<Tabs>`: Inventory (home icon), Search (search icon), Messages (chat icon), Profile (person icon). Teal active icon, `onSurfaceVariant` inactive. Use `MaterialCommunityIcons` from `@expo/vector-icons`.
 
-- [ ] **Step 3: Create placeholder screens**
+- [x] **Step 3: Create placeholder screens**
 
 Each tab gets a placeholder screen with the tab name as a heading, using Paper `<Text variant="headlineLarge">` and theme background color. Enough to verify navigation works.
 
-- [ ] **Step 4: Write integration test for tab navigation**
+- [x] **Step 4: Write integration test for tab navigation**
 
 Test that all 4 tabs render and are navigable. Use `renderWithProviders` wrapper (create `src/test/utils.tsx` with providers).
 
@@ -218,7 +218,7 @@ npx expo start --web
 
 Visual check: 4 tabs visible, active tab highlighted teal, theme applied, light/dark mode works.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git commit -m "feat: add 4-tab navigation shell with themed layout"
@@ -230,11 +230,11 @@ git commit -m "feat: add 4-tab navigation shell with themed layout"
 
 - Create: `.github/workflows/ci.yml`
 
-- [ ] **Step 1: Create basic CI workflow**
+- [x] **Step 1: Create basic CI workflow**
 
 Initial CI with parallel jobs: `lint` (ESLint + Prettier), `type-check` (TypeScript), `test` (Jest + coverage → Codecov). Triggers on push to `main` and PRs. Additional jobs (`storybook`, `e2e`, `a11y`, `visual`, `build`) added as features are implemented.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git commit -m "ci: add initial GitHub Actions CI pipeline"
@@ -246,7 +246,7 @@ git commit -m "ci: add initial GitHub Actions CI pipeline"
 
 - Modify: `app/_layout.tsx`
 
-- [ ] **Step 1: Install and configure Sentry**
+- [x] **Step 1: Install and configure Sentry**
 
 ```bash
 npx expo install @sentry/react-native
@@ -254,7 +254,7 @@ npx expo install @sentry/react-native
 
 Initialize Sentry in root layout with DSN from env var. Wrap root layout with `Sentry.wrap()`.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git commit -m "chore: add Sentry error tracking from day one"
@@ -271,23 +271,23 @@ git commit -m "chore: add Sentry error tracking from day one"
 - Test: `src/shared/components/EmptyState/__tests__/EmptyState.test.tsx`
 - Story: `src/shared/components/EmptyState/EmptyState.stories.tsx`
 
-- [ ] **Step 1: Write test for EmptyState component**
+- [x] **Step 1: Write test for EmptyState component**
 
 Test: renders icon, title, description, and optional CTA button. Test: CTA button fires onPress.
 
-- [ ] **Step 2: Implement EmptyState**
+- [x] **Step 2: Implement EmptyState**
 
 Props: `icon` (string — MaterialCommunityIcons name), `title` (string), `description` (string), `ctaLabel?` (string), `onCtaPress?` (function). Uses theme tokens for spacing and colors. Centered layout per [feature-design.md §4.2](2026-03-17-feature-design.md).
 
-- [ ] **Step 3: Create Storybook story**
+- [ ] **Step 3: Create Storybook story** _(deferred — Storybook not yet configured)_
 
 Show EmptyState with and without CTA button.
 
-- [ ] **Step 4: Implement LoadingScreen (skeleton placeholder)**
+- [x] **Step 4: Implement LoadingScreen (skeleton placeholder)**
 
 Simple centered `ActivityIndicator` for now. Skeleton screens added per-feature later.
 
-- [ ] **Step 5: Run tests, commit**
+- [x] **Step 5: Run tests, commit**
 
 ```bash
 git commit -m "feat: add EmptyState and LoadingScreen shared components"
@@ -305,17 +305,17 @@ git commit -m "feat: add EmptyState and LoadingScreen shared components"
 - Create: `.env.local` (gitignored)
 - Create: `.env.example`
 
-- [ ] **Step 1: Initialize Supabase**
+- [x] **Step 1: Initialize Supabase**
 
 ```bash
 supabase init
 ```
 
-- [ ] **Step 2: Configure local environment**
+- [x] **Step 2: Configure local environment**
 
 Create `.env.local` with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` for local dev. Create `.env.example` as template. Add `.env.local` to `.gitignore`.
 
-- [ ] **Step 3: Enable PostGIS**
+- [x] **Step 3: Enable PostGIS**
 
 Create migration to enable PostGIS extension:
 
@@ -324,13 +324,13 @@ Create migration to enable PostGIS extension:
 CREATE EXTENSION IF NOT EXISTS postgis;
 ```
 
-- [ ] **Step 4: Start and verify**
+- [x] **Step 4: Start and verify**
 
 ```bash
 supabase start
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git commit -m "chore: initialize Supabase with PostGIS extension"
@@ -342,7 +342,7 @@ git commit -m "chore: initialize Supabase with PostGIS extension"
 
 - Create: `supabase/migrations/00002_create_core_tables.sql`
 
-- [ ] **Step 1: Write migration for profiles, saved_locations, items, item_photos, bikes**
+- [x] **Step 1: Write migration for profiles, saved_locations, items, item_photos, bikes**
 
 Tables based on [technical-specs.md §4](technical-specs.md):
 
@@ -354,13 +354,13 @@ Tables based on [technical-specs.md §4](technical-specs.md):
 
 Spatial index on `saved_locations.coordinates`. Indexes on `items.owner_id`, `items.status`, `items.category`.
 
-- [ ] **Step 2: Apply migration**
+- [x] **Step 2: Apply migration**
 
 ```bash
 supabase db reset
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git commit -m "feat: add core database tables (profiles, items, locations, bikes)"
@@ -372,7 +372,7 @@ git commit -m "feat: add core database tables (profiles, items, locations, bikes
 
 - Create: `supabase/migrations/00003_create_social_tables.sql`
 
-- [ ] **Step 1: Write migration for groups, group_members, borrow_requests, conversations, messages, ratings, notifications, support_requests**
+- [x] **Step 1: Write migration for groups, group_members, borrow_requests, conversations, messages, ratings, notifications, support_requests**
 
 Tables based on [technical-specs.md §4](technical-specs.md):
 
@@ -390,7 +390,7 @@ Tables based on [technical-specs.md §4](technical-specs.md):
 
 Also add to `profiles` table: `notification_preferences` (jsonb, default all enabled), `push_token` (text, nullable).
 
-- [ ] **Step 2: Apply migration, commit**
+- [x] **Step 2: Apply migration, commit**
 
 ```bash
 git commit -m "feat: add social database tables (groups, messaging, borrow, ratings)"
@@ -402,7 +402,7 @@ git commit -m "feat: add social database tables (groups, messaging, borrow, rati
 
 - Create: `supabase/migrations/00004_rls_policies.sql`
 
-- [ ] **Step 1: Write RLS policies for all tables**
+- [x] **Step 1: Write RLS policies for all tables**
 
 Based on [security.md §2](security.md). Enable RLS on every table. Key policies:
 
@@ -417,7 +417,7 @@ Based on [security.md §2](security.md). Enable RLS on every table. Key policies
 - `notifications`: own only
 - `support_requests`: own or unauthenticated INSERT; own SELECT
 
-- [ ] **Step 2: Apply migration, commit**
+- [x] **Step 2: Apply migration, commit**
 
 ```bash
 git commit -m "feat: add RLS policies for all tables"
@@ -429,13 +429,13 @@ git commit -m "feat: add RLS policies for all tables"
 
 - Create: `supabase/migrations/00005_functions.sql`
 
-- [ ] **Step 1: Write database functions**
+- [x] **Step 1: Write database functions**
 
 - `search_nearby_items(query text, lat float, lng float, max_distance_meters int, ...)` — PostGIS `ST_DWithin` query returning items with distance, filtered by availability, category, condition, offer type, price range, group
 - `update_user_rating_avg()` — trigger function to recalculate `profiles.rating_avg` and `rating_count` on rating INSERT/UPDATE/DELETE
 - `create_profile_on_signup()` — trigger on `auth.users` INSERT to auto-create a `profiles` row
 
-- [ ] **Step 2: Apply migration, commit**
+- [x] **Step 2: Apply migration, commit**
 
 ```bash
 git commit -m "feat: add database functions (search, rating triggers, profile creation)"
@@ -451,7 +451,7 @@ git commit -m "feat: add database functions (search, rating triggers, profile cr
 - Create: `src/shared/types/index.ts`
 - Test: `src/shared/types/__tests__/enums.test.ts`
 
-- [ ] **Step 1: Define branded ID types**
+- [x] **Step 1: Define branded ID types**
 
 ```typescript
 // src/shared/types/ids.ts
@@ -470,7 +470,7 @@ export type RatingId = Brand<string, 'RatingId'>;
 export type NotificationId = Brand<string, 'NotificationId'>;
 ```
 
-- [ ] **Step 2: Define enums**
+- [x] **Step 2: Define enums**
 
 ```typescript
 // src/shared/types/enums.ts
@@ -530,11 +530,11 @@ export const BikeType = {
 export type BikeType = (typeof BikeType)[keyof typeof BikeType];
 ```
 
-- [ ] **Step 3: Define domain model interfaces**
+- [x] **Step 3: Define domain model interfaces**
 
 `models.ts` with interfaces for: `UserProfile`, `SavedLocation`, `Item`, `ItemPhoto`, `Bike`, `Group`, `GroupMember`, `BorrowRequest`, `Conversation`, `Message`, `Rating`, `Notification`, `SupportRequest`. All using branded IDs. JSON-serializable (no methods).
 
-- [ ] **Step 4: Write tests for enum values, commit**
+- [x] **Step 4: Write tests for enum values, commit**
 
 ```bash
 git commit -m "feat: add shared TypeScript types (branded IDs, enums, domain models)"
@@ -549,21 +549,21 @@ git commit -m "feat: add shared TypeScript types (branded IDs, enums, domain mod
 - Create: `src/shared/api/index.ts`
 - Test: `src/shared/api/__tests__/queryClient.test.ts`
 
-- [ ] **Step 1: Create Supabase client**
+- [x] **Step 1: Create Supabase client**
 
 `supabase.ts` — initialize `createClient` with env vars. Export typed client.
 
-- [ ] **Step 2: Create TanStack Query client**
+- [x] **Step 2: Create TanStack Query client**
 
 `queryClient.ts` — configure `QueryClient` with defaults (staleTime: 5 min, retry: 2, refetchOnWindowFocus). Configure AsyncStorage persister for offline cache. Export `queryClient` and `QueryClientProvider` wrapper.
 
-- [ ] **Step 3: Write test for query client defaults**
+- [x] **Step 3: Write test for query client defaults**
 
-- [ ] **Step 4: Update root layout to use new providers**
+- [x] **Step 4: Update root layout to use new providers**
 
 Update `app/_layout.tsx` to import and use the configured `QueryClientProvider` and pass the Supabase-connected query client.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git commit -m "feat: add Supabase client and TanStack Query configuration"
@@ -577,17 +577,17 @@ git commit -m "feat: add Supabase client and TanStack Query configuration"
 - Create: `src/test/utils.tsx` (update — add renderWithProviders)
 - Test: `src/test/__tests__/factories.test.ts`
 
-- [ ] **Step 1: Create factories using faker**
+- [x] **Step 1: Create factories using faker**
 
 `factories.ts` — `createMockUser()`, `createMockItem()`, `createMockBike()`, `createMockLocation()`, `createMockConversation()`, `createMockMessage()`, `createMockBorrowRequest()`, `createMockRating()`, `createMockGroup()`. Each returns a full typed object with randomized data. Support overrides via partial parameter.
 
-- [ ] **Step 2: Create renderWithProviders utility**
+- [x] **Step 2: Create renderWithProviders utility**
 
 `utils.tsx` — wraps component with `PaperProvider`, `QueryClientProvider` (fresh client per test), i18n mock, `SafeAreaProvider`. Export as `renderWithProviders(ui, options?)`.
 
-- [ ] **Step 3: Write test verifying factories produce valid typed objects**
+- [x] **Step 3: Write test verifying factories produce valid typed objects**
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git commit -m "test: add test data factories and renderWithProviders utility"

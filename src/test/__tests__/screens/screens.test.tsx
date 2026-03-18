@@ -1,10 +1,10 @@
 import React from 'react';
 import { screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
-import InventoryScreen from '../inventory/index';
-import SearchScreen from '../search/index';
-import MessagesScreen from '../messages/index';
-import ProfileScreen from '../profile/index';
+import InventoryScreen from '../../../../app/(tabs)/inventory/index';
+import SearchScreen from '../../../../app/(tabs)/search/index';
+import MessagesScreen from '../../../../app/(tabs)/messages/index';
+import ProfileScreen from '../../../../app/(tabs)/profile/index';
 
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
