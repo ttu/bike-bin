@@ -663,15 +663,15 @@ git commit -m "feat: add welcome screen with Google/Apple sign-in"
 - Modify: `app/_layout.tsx`
 - Create: `src/features/auth/components/AuthGate/AuthGate.tsx`
 
-- [ ] **Step 1: Implement auth-based routing**
+- [x] **Step 1: Implement auth-based routing**
 
 Root layout checks auth state: no session → show `(auth)` group. Has session but profile incomplete → show `(onboarding)` group. Has session + profile complete → show `(tabs)` group. "Browse without signing in" → show `(tabs)` with limited access.
 
-- [ ] **Step 2: Create AuthGate component**
+- [x] **Step 2: Create AuthGate component**
 
 Wraps screens that require auth. Shows login prompt modal (per [feature-design.md §3.4](2026-03-17-feature-design.md)) when unauthenticated user tries a protected action.
 
-- [ ] **Step 3: Test routing logic, commit**
+- [x] **Step 3: Test routing logic, commit**
 
 ```bash
 git commit -m "feat: add auth routing and AuthGate for protected actions"

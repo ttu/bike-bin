@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/react-native';
 import { lightTheme, darkTheme } from '@/shared/theme';
 import '@/shared/i18n/config';
 import { queryClient } from '@/shared/api';
+import { AuthProvider } from '@/features/auth';
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -20,7 +21,9 @@ function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={theme}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <AuthProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </AuthProvider>
         </PaperProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
