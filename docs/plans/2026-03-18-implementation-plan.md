@@ -210,7 +210,7 @@ Each tab gets a placeholder screen with the tab name as a heading, using Paper `
 
 Test that all 4 tabs render and are navigable. Use `renderWithProviders` wrapper (create `src/test/utils.tsx` with providers).
 
-- [ ] **Step 5: Verify app runs**
+- [x] **Step 5: Verify app runs**
 
 ```bash
 npx expo start --web

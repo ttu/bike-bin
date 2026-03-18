@@ -10,20 +10,17 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.outline,
         },
-        headerStyle: {
-          backgroundColor: theme.colors.surface,
-        },
-        headerTintColor: theme.colors.onSurface,
       }}
     >
       <Tabs.Screen
-        name="inventory"
+        name="inventory/index"
         options={{
           title: t('tabs.inventory'),
           tabBarIcon: ({ color, size }) => (
@@ -32,7 +29,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="search/index"
         options={{
           title: t('tabs.search'),
           tabBarIcon: ({ color, size }) => (
@@ -41,7 +38,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="messages"
+        name="messages/index"
         options={{
           title: t('tabs.messages'),
           tabBarIcon: ({ color, size }) => (
@@ -50,7 +47,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="profile/index"
         options={{
           title: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => (
