@@ -1,17 +1,16 @@
 import { useColorScheme } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
 import { lightTheme, darkTheme } from '@/shared/theme';
 import '@/shared/i18n/config';
+import { queryClient } from '@/shared/api';
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
 });
-
-const queryClient = new QueryClient();
 
 function RootLayout() {
   const colorScheme = useColorScheme();
