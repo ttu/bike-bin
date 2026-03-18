@@ -69,9 +69,9 @@ describe('Tab screens render visible content', () => {
     expect(screen.getByText('Inventory')).toBeVisible();
   });
 
-  it('Search screen shows heading', () => {
+  it('Search screen shows search bar', () => {
     renderWithProviders(<SearchScreen />);
-    expect(screen.getByText('Search')).toBeVisible();
+    expect(screen.getByTestId('search-bar')).toBeVisible();
   });
 
   it('Messages screen shows heading', () => {

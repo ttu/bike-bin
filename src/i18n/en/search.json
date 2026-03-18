@@ -1,0 +1,84 @@
+{
+  "title": "Search",
+  "searchPlaceholder": "Parts, tools, bikes...",
+  "locationLine": "within {{distance}} km",
+  "changeLocation": "Change",
+  "empty": {
+    "title": "Find what you need",
+    "description": "Search for parts, tools, or bikes from cyclists nearby"
+  },
+  "noResults": {
+    "title": "No items found nearby",
+    "description": "Try increasing your distance or changing filters."
+  },
+  "results": {
+    "count_one": "{{count}} result within {{distance}} km",
+    "count_other": "{{count}} results within {{distance}} km",
+    "sortClosest": "Closest first",
+    "sortNewest": "Newest first",
+    "sortRecent": "Recently available"
+  },
+  "sort": {
+    "distance": "Closest first",
+    "newest": "Newest first",
+    "recently_available": "Recently available"
+  },
+  "quickFilter": {
+    "borrow": "Borrow",
+    "donate": "Donate",
+    "sell": "Sell"
+  },
+  "filter": {
+    "title": "Filters",
+    "reset": "Reset",
+    "category": "Category",
+    "condition": "Condition",
+    "offerType": "Offer type",
+    "priceRange": "Price range",
+    "priceMin": "Min",
+    "priceMax": "Max",
+    "group": "Group",
+    "groupAll": "All groups",
+    "showResults": "Show results"
+  },
+  "distance": {
+    "km": "{{distance}} km",
+    "meters": "{{distance}} m"
+  },
+  "category": {
+    "component": "Component",
+    "tool": "Tool",
+    "accessory": "Accessory",
+    "bike": "Bike"
+  },
+  "condition": {
+    "new": "New",
+    "good": "Good",
+    "worn": "Worn",
+    "broken": "Broken"
+  },
+  "availability": {
+    "borrowable": "Borrowable",
+    "donatable": "Donatable",
+    "sellable": "Sellable"
+  },
+  "listing": {
+    "report": "Report",
+    "ownerCard": {
+      "viewProfile": "View profile",
+      "rating": "{{avg}} ({{count}})"
+    },
+    "location": "{{area}} · {{distance}}",
+    "detail": {
+      "conditionLabel": "Condition",
+      "ageLabel": "Age",
+      "usageLabel": "Usage"
+    },
+    "actions": {
+      "requestBorrow": "Request Borrow",
+      "contact": "Contact",
+      "comingSoon": "Coming soon",
+      "signInToContact": "Sign in to contact"
+    }
+  }
+}

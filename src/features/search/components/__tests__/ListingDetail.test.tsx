@@ -1,0 +1,137 @@
+import { renderWithProviders } from '@/test/utils';
+import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import type { ItemId, UserId } from '@/shared/types';
+import { ListingDetail } from '../ListingDetail/ListingDetail';
+import type { SearchResultItem } from '../../types';
+
+// Mock useAuth
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({
+    user: { id: 'user-123' },
+    isAuthenticated: true,
+    session: {},
+  }),
+}));
+
+function createSearchResult(overrides?: Partial<SearchResultItem>): SearchResultItem {
+  return {
+    id: 'item-1' as ItemId,
+    ownerId: 'owner-1' as UserId,
+    name: 'Shimano Cassette',
+    category: ItemCategory.Component,
+    brand: 'Shimano',
+    model: '105 R7000',
+    description: 'Great condition cassette for road bikes',
+    condition: ItemCondition.Good,
+    availabilityTypes: [AvailabilityType.Borrowable],
+    price: undefined,
+    deposit: undefined,
+    borrowDuration: undefined,
+    visibility: 'all',
+    pickupLocationId: undefined,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-15T00:00:00Z',
+    distanceMeters: 2500,
+    ownerDisplayName: 'Alice',
+    ownerAvatarUrl: undefined,
+    ownerRatingAvg: 4.5,
+    ownerRatingCount: 12,
+    areaName: 'Berlin Mitte',
+    ...overrides,
+  };
+}
+
+describe('ListingDetail', () => {
+  it('renders item name and subtitle', () => {
+    const item = createSearchResult();
+    const { getByText, getAllByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} />,
+    );
+    expect(getByText('Shimano Cassette')).toBeTruthy();
+    expect(getByText(/Component/)).toBeTruthy();
+    // Brand "Shimano" appears in both the name and the subtitle
+    const shimanoTexts = getAllByText(/Shimano/);
+    expect(shimanoTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders availability chips', () => {
+    const item = createSearchResult({
+      availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Donatable],
+    });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Donatable')).toBeTruthy();
+  });
+
+  it('renders owner card with display name', () => {
+    const item = createSearchResult({ ownerDisplayName: 'Alice' });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText('Alice')).toBeTruthy();
+    expect(getByText(/View profile/)).toBeTruthy();
+  });
+
+  it('renders owner rating when available', () => {
+    const item = createSearchResult({ ownerRatingAvg: 4.5, ownerRatingCount: 12 });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText(/4.5/)).toBeTruthy();
+    expect(getByText(/12/)).toBeTruthy();
+  });
+
+  it('renders area and distance', () => {
+    const item = createSearchResult({ areaName: 'Kreuzberg', distanceMeters: 3200 });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText(/Kreuzberg/)).toBeTruthy();
+    expect(getByText(/3.2 km/)).toBeTruthy();
+  });
+
+  it('renders description', () => {
+    const item = createSearchResult({ description: 'Great condition cassette for road bikes' });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText('Great condition cassette for road bikes')).toBeTruthy();
+  });
+
+  it('renders condition in detail grid', () => {
+    const item = createSearchResult();
+    const { getAllByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    // "Good" appears in both subtitle and detail grid
+    const goodTexts = getAllByText('Good');
+    expect(goodTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows disabled borrow button for borrowable-only items', () => {
+    const item = createSearchResult({
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText(/Request Borrow/)).toBeTruthy();
+    expect(getByText(/Coming soon/)).toBeTruthy();
+  });
+
+  it('shows disabled contact button for donatable-only items', () => {
+    const item = createSearchResult({
+      availabilityTypes: [AvailabilityType.Donatable],
+    });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText(/Contact/)).toBeTruthy();
+    expect(getByText(/Coming soon/)).toBeTruthy();
+  });
+
+  it('shows both buttons for mixed availability', () => {
+    const item = createSearchResult({
+      availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
+      price: 50,
+    });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText(/Contact/)).toBeTruthy();
+    expect(getByText(/Request Borrow/)).toBeTruthy();
+  });
+
+  it('renders price for sellable items', () => {
+    const item = createSearchResult({
+      availabilityTypes: [AvailabilityType.Sellable],
+      price: 42,
+    });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText(/42/)).toBeTruthy();
+  });
+});
