@@ -1,0 +1,89 @@
+{
+  "title": "Inventory",
+  "bikesLink": "Bikes →",
+  "empty": {
+    "title": "No items yet",
+    "description": "Add your first bike part to get started",
+    "cta": "Add item"
+  },
+  "category": {
+    "all": "All",
+    "component": "Components",
+    "tool": "Tools",
+    "accessory": "Accessories"
+  },
+  "status": {
+    "stored": "Stored",
+    "mounted": "Mounted",
+    "loaned": "Loaned",
+    "reserved": "Reserved",
+    "donated": "Donated",
+    "sold": "Sold",
+    "archived": "Archived"
+  },
+  "availability": {
+    "borrowable": "Borrowable",
+    "donatable": "Donatable",
+    "sellable": "Sellable",
+    "private": "Private"
+  },
+  "condition": {
+    "new": "New",
+    "good": "Good",
+    "worn": "Worn",
+    "broken": "Broken"
+  },
+  "syncBanner": "Your items are saved on this device only. Sign in to sync and share them.",
+  "addItem": "Add item",
+  "editItem": "Edit item",
+  "deleteItem": "Delete item",
+  "deleteConfirm": "Are you sure you want to delete this item?",
+  "detail": {
+    "edit": "Edit",
+    "pickupArea": "Pickup area",
+    "visibility": "Visible to",
+    "markDonated": "Mark as Donated",
+    "markSold": "Mark as Sold",
+    "markReturned": "Mark as Returned",
+    "archive": "Archive",
+    "conditionLabel": "Condition",
+    "ageLabel": "Age",
+    "usageLabel": "Usage",
+    "storageLabel": "Storage"
+  },
+  "form": {
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Shimano 105 Cassette",
+    "categoryLabel": "Category",
+    "conditionLabel": "Condition",
+    "brandLabel": "Brand",
+    "brandPlaceholder": "e.g. Shimano",
+    "modelLabel": "Model",
+    "modelPlaceholder": "e.g. 105 R7000",
+    "availabilityLabel": "Availability",
+    "priceLabel": "Price",
+    "pricePlaceholder": "0.00",
+    "depositLabel": "Deposit",
+    "depositPlaceholder": "0.00",
+    "durationLabel": "Suggested duration",
+    "durationPlaceholder": "e.g. 7 days",
+    "pickupLabel": "Pickup location",
+    "pickupChange": "Change",
+    "visibilityLabel": "Visible to",
+    "visibilityAll": "All users",
+    "visibilityGroups": "Groups...",
+    "visibilityPrivate": "Only me",
+    "optionalSection": "More details",
+    "ageLabel": "Age",
+    "agePlaceholder": "e.g. 2 years",
+    "usageLabel": "Usage (km)",
+    "usagePlaceholder": "0",
+    "purchaseDateLabel": "Purchase date",
+    "storageLabel": "Storage location",
+    "storagePlaceholder": "e.g. Garage shelf",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Additional notes...",
+    "save": "Save",
+    "photos": "Photos ({{count}}/5)"
+  }
+}
