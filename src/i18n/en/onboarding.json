@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "title": "Set up your profile",
+    "photoLabel": "Add a photo",
+    "displayNameLabel": "Display name",
+    "displayNamePlaceholder": "How others will see you",
+    "skip": "Skip for now",
+    "continue": "Continue"
+  },
+  "location": {
+    "title": "Add your location",
+    "postcodeLabel": "Postcode / ZIP",
+    "postcodePlaceholder": "Enter your postcode",
+    "labelLabel": "Label",
+    "labelPlaceholder": "e.g. Home, Workshop",
+    "privacyCallout": "Only the area name is visible to others. Your exact address is never shared.",
+    "skip": "Skip for now",
+    "done": "Done"
+  },
+  "steps": "Step {{current}} of {{total}}"
+}

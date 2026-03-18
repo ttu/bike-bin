@@ -689,27 +689,27 @@ git commit -m "feat: add auth routing and AuthGate for protected actions"
 - Test: `app/(onboarding)/__tests__/profile.test.tsx`
 - Test: `app/(onboarding)/__tests__/location.test.tsx`
 
-- [ ] **Step 1: Write tests for profile setup screen**
+- [x] **Step 1: Write tests for profile setup screen**
 
 Test: renders progress dots (step 1 of 2). Test: renders photo upload area. Test: renders display name input (pre-filled from OAuth if available). Test: "Skip for now" navigates forward. Test: "Continue" saves profile and navigates to step 2.
 
-- [ ] **Step 2: Implement profile setup screen**
+- [x] **Step 2: Implement profile setup screen**
 
 Per [feature-design.md §3.2](2026-03-17-feature-design.md). Progress dots, circular photo upload placeholder, display name input, skip/continue buttons. Save to `profiles` table via Supabase.
 
-- [ ] **Step 3: Write tests for location setup screen**
+- [x] **Step 3: Write tests for location setup screen**
 
 Test: renders progress dots (step 2 of 2). Test: renders postcode input. Test: renders label input. Test: shows privacy callout. Test: "Done" saves location and navigates to main app.
 
-- [ ] **Step 4: Implement location setup screen**
+- [x] **Step 4: Implement location setup screen**
 
 Per [feature-design.md §3.3](2026-03-17-feature-design.md). Postcode/ZIP input, private label, privacy callout, area preview (placeholder for now — geocoding added in Phase 5). "Done" saves to `saved_locations` with `is_primary = true`.
 
-- [ ] **Step 5: Implement useOnboardingStatus hook**
+- [x] **Step 5: Implement useOnboardingStatus hook**
 
 Checks if profile is complete (has display_name) and has at least one saved location. Used by auth routing to decide whether to show onboarding.
 
-- [ ] **Step 6: Add onboarding translations, run tests, commit**
+- [x] **Step 6: Add onboarding translations, run tests, commit**
 
 ```bash
 git commit -m "feat: add onboarding screens (profile setup, location setup)"
