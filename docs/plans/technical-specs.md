@@ -7,47 +7,47 @@
 
 ## 1. Tech stack
 
-| Layer     | Choice                          | Notes |
-|----------|----------------------------------|--------|
-| Frontend | **Expo** + **React Native** + **React Native Web** + **TypeScript** | iOS, Android, and Web — single codebase. Expo for tooling, OTA, and native builds. |
-| Navigation | **Expo Router**               | File-based routing. 4-tab layout (Inventory, Search, Messages, Profile). |
-| Server state | **TanStack Query** (React Query) | Caching, stale-while-revalidate, offline persistence, retry. |
-| Client state | **React Context API**        | Auth session, UI state, filters. Not for server data. |
-| Offline  | **AsyncStorage** + TanStack Query persister | Cache persistence + offline write queue. NetInfo for connectivity detection. |
-| Backend  | **Supabase**                    | Auth, API (PostgREST), realtime, storage. |
-| Data     | **Supabase (PostgreSQL + PostGIS)** | Database, auth users, object storage for photos. PostGIS for geospatial queries. |
-| Hosting  | **Supabase** + **Expo EAS** + **Vercel** (or Netlify) | Backend on Supabase; native builds via EAS; web deployed to Vercel/Netlify (continuous deploy on merge). |
-| i18n     | **react-i18next** + **expo-localization** | i18n-ready from start; English default. Device locale detection via expo-localization. |
-| Push     | **Expo Push Notifications** | Native only (iOS/Android): token management via Expo's push service (APNs/FCM). Web: no push — in-app notifications only (shown on login / while app is open). |
-| Email    | **Resend** (or Postmark) via **Supabase Edge Functions** | Transactional emails for notifications (new messages, borrow requests, etc.). Supabase built-in email for auth flows. |
-| UI       | **React Native Paper** (Material Design 3) | Component library. Custom theme tokens. Light + dark mode from start. |
-| Storybook | **React Native Storybook** (`@storybook/react-native`) | Component explorer for isolated development and visual testing. |
-| CI       | **GitHub Actions**              | Lint, type-check, test, coverage, build. Triggers EAS Build for native builds. |
-| Error tracking | **Sentry** (`@sentry/react-native`) | Client-side error tracking, crash reporting, performance monitoring. Free tier (50k errors/month). Initialized in root layout. |
+| Layer          | Choice                                                              | Notes                                                                                                                                                          |
+| -------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | **Expo** + **React Native** + **React Native Web** + **TypeScript** | iOS, Android, and Web — single codebase. Expo for tooling, OTA, and native builds.                                                                             |
+| Navigation     | **Expo Router**                                                     | File-based routing. 4-tab layout (Inventory, Search, Messages, Profile).                                                                                       |
+| Server state   | **TanStack Query** (React Query)                                    | Caching, stale-while-revalidate, offline persistence, retry.                                                                                                   |
+| Client state   | **React Context API**                                               | Auth session, UI state, filters. Not for server data.                                                                                                          |
+| Offline        | **AsyncStorage** + TanStack Query persister                         | Cache persistence + offline write queue. NetInfo for connectivity detection.                                                                                   |
+| Backend        | **Supabase**                                                        | Auth, API (PostgREST), realtime, storage.                                                                                                                      |
+| Data           | **Supabase (PostgreSQL + PostGIS)**                                 | Database, auth users, object storage for photos. PostGIS for geospatial queries.                                                                               |
+| Hosting        | **Supabase** + **Expo EAS** + **Vercel** (or Netlify)               | Backend on Supabase; native builds via EAS; web deployed to Vercel/Netlify (continuous deploy on merge).                                                       |
+| i18n           | **react-i18next** + **expo-localization**                           | i18n-ready from start; English default. Device locale detection via expo-localization.                                                                         |
+| Push           | **Expo Push Notifications**                                         | Native only (iOS/Android): token management via Expo's push service (APNs/FCM). Web: no push — in-app notifications only (shown on login / while app is open). |
+| Email          | **Resend** (or Postmark) via **Supabase Edge Functions**            | Transactional emails for notifications (new messages, borrow requests, etc.). Supabase built-in email for auth flows.                                          |
+| UI             | **React Native Paper** (Material Design 3)                          | Component library. Custom theme tokens. Light + dark mode from start.                                                                                          |
+| Storybook      | **React Native Storybook** (`@storybook/react-native`)              | Component explorer for isolated development and visual testing.                                                                                                |
+| CI             | **GitHub Actions**                                                  | Lint, type-check, test, coverage, build. Triggers EAS Build for native builds.                                                                                 |
+| Error tracking | **Sentry** (`@sentry/react-native`)                                 | Client-side error tracking, crash reporting, performance monitoring. Free tier (50k errors/month). Initialized in root layout.                                 |
 
 ### Supported platforms
 
-| Platform | Build / Deploy | Release cadence |
-|----------|---------------|-----------------|
-| **Web** | `expo export:web` → **Vercel** (or Netlify) | **Continuous** — deployed on every merge to `main`. Instant availability, no store review. |
-| **iOS** | **EAS Build** → **App Store** (via EAS Submit) | Store review required (1–3 days). OTA updates for JS-only changes via EAS Update. |
-| **Android** | **EAS Build** → **Google Play** (via EAS Submit) | Store review required (hours–days). OTA updates for JS-only changes via EAS Update. |
+| Platform    | Build / Deploy                                   | Release cadence                                                                            |
+| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| **Web**     | `expo export:web` → **Vercel** (or Netlify)      | **Continuous** — deployed on every merge to `main`. Instant availability, no store review. |
+| **iOS**     | **EAS Build** → **App Store** (via EAS Submit)   | Store review required (1–3 days). OTA updates for JS-only changes via EAS Update.          |
+| **Android** | **EAS Build** → **Google Play** (via EAS Submit) | Store review required (hours–days). OTA updates for JS-only changes via EAS Update.        |
 
 **Web-first advantage:** The web version is continuously deployed, so new features are available immediately. Mobile store releases follow once stable. This means faster iteration cycles and user feedback.
 
 ### Platform-specific considerations
 
-| Feature | iOS / Android | Web |
-|---------|--------------|-----|
-| **Push notifications** | Expo Push (APNs / FCM) | No push. In-app notifications only (shown when user is logged in / app is open). |
-| **Camera / photos** | `expo-image-picker` (camera + gallery) | `expo-image-picker` (file picker — no direct camera access on most browsers without `getUserMedia`) |
-| **Image compression** | `expo-image-manipulator` | `expo-image-manipulator` (web support) or browser-native Canvas API fallback |
-| **Offline / storage** | AsyncStorage (SQLite-backed) | AsyncStorage web adapter (localStorage / IndexedDB). Storage limits vary by browser (~5–10 MB localStorage, larger for IndexedDB). |
-| **OAuth (Google/Apple)** | Native OAuth flows via Supabase Auth | Redirect-based OAuth flows via Supabase Auth |
-| **Deep linking** | Universal Links (iOS) / App Links (Android) | Standard URL routing |
-| **Location** | `expo-location` for device GPS (optional refinement) | Browser Geolocation API (permission-gated) |
-| **Realtime** | Supabase Realtime (WebSocket) | Same — WebSocket works in browsers |
-| **App updates** | EAS Update (OTA for JS) + store updates for native changes | Instant on deploy — browser loads latest version |
+| Feature                  | iOS / Android                                              | Web                                                                                                                                |
+| ------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Push notifications**   | Expo Push (APNs / FCM)                                     | No push. In-app notifications only (shown when user is logged in / app is open).                                                   |
+| **Camera / photos**      | `expo-image-picker` (camera + gallery)                     | `expo-image-picker` (file picker — no direct camera access on most browsers without `getUserMedia`)                                |
+| **Image compression**    | `expo-image-manipulator`                                   | `expo-image-manipulator` (web support) or browser-native Canvas API fallback                                                       |
+| **Offline / storage**    | AsyncStorage (SQLite-backed)                               | AsyncStorage web adapter (localStorage / IndexedDB). Storage limits vary by browser (~5–10 MB localStorage, larger for IndexedDB). |
+| **OAuth (Google/Apple)** | Native OAuth flows via Supabase Auth                       | Redirect-based OAuth flows via Supabase Auth                                                                                       |
+| **Deep linking**         | Universal Links (iOS) / App Links (Android)                | Standard URL routing                                                                                                               |
+| **Location**             | `expo-location` for device GPS (optional refinement)       | Browser Geolocation API (permission-gated)                                                                                         |
+| **Realtime**             | Supabase Realtime (WebSocket)                              | Same — WebSocket works in browsers                                                                                                 |
+| **App updates**          | EAS Update (OTA for JS) + store updates for native changes | Instant on deploy — browser loads latest version                                                                                   |
 
 **Design approach:** Build with the shared API surface first. Where platform behavior diverges (push notifications, camera), use `Platform.OS` checks or platform-specific file extensions (`.web.ts`, `.native.ts`) to provide appropriate implementations.
 
@@ -55,7 +55,7 @@
 
 ## 2. Architecture decisions & patterns
 
-*(Guidance adapted from [emergency-supply-tracker](https://github.com/ttu/emergency-supply-tracker/tree/main/docs).)*
+_(Guidance adapted from [emergency-supply-tracker](https://github.com/ttu/emergency-supply-tracker/tree/main/docs).)_
 
 ### Project structure
 
@@ -102,44 +102,44 @@ Minimal, clean, and modern — inspired by Airbnb and Apple apps. Content-first:
 
 **Primary accent:** Teal / cyan — fresh, modern, outdoorsy.
 
-| Token | Light mode | Dark mode | Usage |
-|-------|-----------|-----------|-------|
-| `primary` | `#0D9488` (teal-600) | `#2DD4BF` (teal-400) | Buttons, links, active tab, FAB, toggles |
-| `onPrimary` | `#FFFFFF` | `#042F2E` (teal-950) | Text/icons on primary-colored surfaces |
-| `primaryContainer` | `#CCFBF1` (teal-100) | `#134E4A` (teal-900) | Chips, selected states, subtle highlights |
-| `secondary` | `#64748B` (slate-500) | `#94A3B8` (slate-400) | Secondary actions, metadata text |
-| `background` | `#FFFFFF` | `#0F172A` (slate-900) | Screen background |
-| `surface` | `#F8FAFC` (slate-50) | `#1E293B` (slate-800) | Cards, sheets, elevated surfaces |
-| `surfaceVariant` | `#F1F5F9` (slate-100) | `#334155` (slate-700) | Input fields, dividers, subtle backgrounds |
-| `outline` | `#CBD5E1` (slate-300) | `#475569` (slate-600) | Borders, dividers |
-| `error` | `#DC2626` (red-600) | `#F87171` (red-400) | Errors, destructive actions |
-| `success` | `#16A34A` (green-600) | `#4ADE80` (green-400) | Success states, available indicators |
-| `warning` | `#D97706` (amber-600) | `#FBBF24` (amber-400) | Warnings, expiring states |
-| `onBackground` | `#0F172A` (slate-900) | `#F1F5F9` (slate-100) | Primary text |
-| `onSurface` | `#1E293B` (slate-800) | `#E2E8F0` (slate-200) | Text on cards/surfaces |
-| `onSurfaceVariant` | `#64748B` (slate-500) | `#94A3B8` (slate-400) | Secondary/caption text |
+| Token              | Light mode            | Dark mode             | Usage                                      |
+| ------------------ | --------------------- | --------------------- | ------------------------------------------ |
+| `primary`          | `#0D9488` (teal-600)  | `#2DD4BF` (teal-400)  | Buttons, links, active tab, FAB, toggles   |
+| `onPrimary`        | `#FFFFFF`             | `#042F2E` (teal-950)  | Text/icons on primary-colored surfaces     |
+| `primaryContainer` | `#CCFBF1` (teal-100)  | `#134E4A` (teal-900)  | Chips, selected states, subtle highlights  |
+| `secondary`        | `#64748B` (slate-500) | `#94A3B8` (slate-400) | Secondary actions, metadata text           |
+| `background`       | `#FFFFFF`             | `#0F172A` (slate-900) | Screen background                          |
+| `surface`          | `#F8FAFC` (slate-50)  | `#1E293B` (slate-800) | Cards, sheets, elevated surfaces           |
+| `surfaceVariant`   | `#F1F5F9` (slate-100) | `#334155` (slate-700) | Input fields, dividers, subtle backgrounds |
+| `outline`          | `#CBD5E1` (slate-300) | `#475569` (slate-600) | Borders, dividers                          |
+| `error`            | `#DC2626` (red-600)   | `#F87171` (red-400)   | Errors, destructive actions                |
+| `success`          | `#16A34A` (green-600) | `#4ADE80` (green-400) | Success states, available indicators       |
+| `warning`          | `#D97706` (amber-600) | `#FBBF24` (amber-400) | Warnings, expiring states                  |
+| `onBackground`     | `#0F172A` (slate-900) | `#F1F5F9` (slate-100) | Primary text                               |
+| `onSurface`        | `#1E293B` (slate-800) | `#E2E8F0` (slate-200) | Text on cards/surfaces                     |
+| `onSurfaceVariant` | `#64748B` (slate-500) | `#94A3B8` (slate-400) | Secondary/caption text                     |
 
 Colors sourced from [Tailwind CSS](https://tailwindcss.com/docs/colors) palette for consistency. Defined in `theme.ts` as Paper `MD3LightTheme` / `MD3DarkTheme` overrides.
 
 #### Typography
 
-| MD3 role | Usage | Size / Weight |
-|----------|-------|---------------|
-| `displayLarge` | Not used in MVP | — |
-| `displayMedium` | Not used in MVP | — |
-| `displaySmall` | Not used in MVP | — |
-| `headlineLarge` | Screen titles (e.g. "Inventory", "Search") | 28 / 700 |
-| `headlineMedium` | Section headers | 24 / 600 |
-| `headlineSmall` | Card titles, item names | 20 / 600 |
-| `titleLarge` | Dialog titles, large labels | 20 / 500 |
-| `titleMedium` | List item primary text, tab labels | 16 / 500 |
-| `titleSmall` | Chip labels, small titles | 14 / 500 |
-| `bodyLarge` | Primary body text, messages | 16 / 400 |
-| `bodyMedium` | Secondary body text, descriptions | 14 / 400 |
-| `bodySmall` | Captions, timestamps, metadata | 12 / 400 |
-| `labelLarge` | Button text | 14 / 500 |
-| `labelMedium` | Input labels | 12 / 500 |
-| `labelSmall` | Badges, tiny labels | 11 / 500 |
+| MD3 role         | Usage                                      | Size / Weight |
+| ---------------- | ------------------------------------------ | ------------- |
+| `displayLarge`   | Not used in MVP                            | —             |
+| `displayMedium`  | Not used in MVP                            | —             |
+| `displaySmall`   | Not used in MVP                            | —             |
+| `headlineLarge`  | Screen titles (e.g. "Inventory", "Search") | 28 / 700      |
+| `headlineMedium` | Section headers                            | 24 / 600      |
+| `headlineSmall`  | Card titles, item names                    | 20 / 600      |
+| `titleLarge`     | Dialog titles, large labels                | 20 / 500      |
+| `titleMedium`    | List item primary text, tab labels         | 16 / 500      |
+| `titleSmall`     | Chip labels, small titles                  | 14 / 500      |
+| `bodyLarge`      | Primary body text, messages                | 16 / 400      |
+| `bodyMedium`     | Secondary body text, descriptions          | 14 / 400      |
+| `bodySmall`      | Captions, timestamps, metadata             | 12 / 400      |
+| `labelLarge`     | Button text                                | 14 / 500      |
+| `labelMedium`    | Input labels                               | 12 / 500      |
+| `labelSmall`     | Badges, tiny labels                        | 11 / 500      |
 
 - **Font family:** System font initially (San Francisco on iOS, Roboto on Android, system sans-serif on web). Custom font TBD — consider Inter or Plus Jakarta Sans for a modern feel.
 - **All text via Paper's `<Text>` component** with `variant` prop. No inline font sizes.
@@ -148,47 +148,47 @@ Colors sourced from [Tailwind CSS](https://tailwindcss.com/docs/colors) palette 
 
 Consistent spacing scale used everywhere. No magic numbers.
 
-| Token | Value | Common usage |
-|-------|-------|-------------|
-| `xs` | 4px | Icon padding, tight gaps |
-| `sm` | 8px | Between related elements, chip padding |
-| `md` | 12px | Input padding, list item internal spacing |
-| `base` | 16px | Card padding, section gaps, standard margin |
-| `lg` | 24px | Between sections, modal padding |
-| `xl` | 32px | Screen-level padding (top/bottom), major section breaks |
-| `2xl` | 48px | Hero spacing, onboarding illustrations |
+| Token  | Value | Common usage                                            |
+| ------ | ----- | ------------------------------------------------------- |
+| `xs`   | 4px   | Icon padding, tight gaps                                |
+| `sm`   | 8px   | Between related elements, chip padding                  |
+| `md`   | 12px  | Input padding, list item internal spacing               |
+| `base` | 16px  | Card padding, section gaps, standard margin             |
+| `lg`   | 24px  | Between sections, modal padding                         |
+| `xl`   | 32px  | Screen-level padding (top/bottom), major section breaks |
+| `2xl`  | 48px  | Hero spacing, onboarding illustrations                  |
 
 Defined as constants in `theme.ts` (e.g. `spacing.base = 16`). Used via `StyleSheet.create` references.
 
 #### Border radius
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `sm` | 8px | Chips, small buttons, inputs |
-| `md` | 12px | Cards, images, modals |
-| `lg` | 16px | Bottom sheets, large cards |
+| Token  | Value  | Usage                            |
+| ------ | ------ | -------------------------------- |
+| `sm`   | 8px    | Chips, small buttons, inputs     |
+| `md`   | 12px   | Cards, images, modals            |
+| `lg`   | 16px   | Bottom sheets, large cards       |
 | `full` | 9999px | Avatars, circular buttons, pills |
 
 #### Elevation & shadows
 
 Minimal elevation — prefer subtle borders (`outline` color) over heavy shadows to keep the clean look.
 
-| Level | Usage | Style |
-|-------|-------|-------|
-| 0 | Most content (flat) | No shadow, optional 1px border |
-| 1 | Cards, bottom tab bar | Very subtle shadow (`0 1px 3px rgba(0,0,0,0.08)`) |
-| 2 | FAB, bottom sheets | Light shadow (`0 2px 8px rgba(0,0,0,0.12)`) |
-| 3 | Modals, dialogs | Medium shadow (`0 4px 16px rgba(0,0,0,0.16)`) |
+| Level | Usage                 | Style                                             |
+| ----- | --------------------- | ------------------------------------------------- |
+| 0     | Most content (flat)   | No shadow, optional 1px border                    |
+| 1     | Cards, bottom tab bar | Very subtle shadow (`0 1px 3px rgba(0,0,0,0.08)`) |
+| 2     | FAB, bottom sheets    | Light shadow (`0 2px 8px rgba(0,0,0,0.12)`)       |
+| 3     | Modals, dialogs       | Medium shadow (`0 4px 16px rgba(0,0,0,0.16)`)     |
 
 #### Responsive layout (web)
 
 The web version uses a **max-width container** centered on screen — the app feels like a mobile app on desktop. No multi-column layouts.
 
-| Breakpoint | Max content width | Behavior |
-|-----------|-------------------|----------|
-| Mobile (< 480px) | 100% | Full-width, standard mobile layout |
-| Tablet / small desktop (480–768px) | 480px | Centered container, comfortable reading width |
-| Desktop (> 768px) | 480px | Centered container with background color visible on sides |
+| Breakpoint                         | Max content width | Behavior                                                  |
+| ---------------------------------- | ----------------- | --------------------------------------------------------- |
+| Mobile (< 480px)                   | 100%              | Full-width, standard mobile layout                        |
+| Tablet / small desktop (480–768px) | 480px             | Centered container, comfortable reading width             |
+| Desktop (> 768px)                  | 480px             | Centered container with background color visible on sides |
 
 - Container centered with `marginHorizontal: 'auto'`.
 - Background behind the container uses `surfaceVariant` color for a subtle framing effect on desktop.
@@ -198,12 +198,12 @@ The web version uses a **max-width container** centered on screen — the app fe
 
 **`@expo/vector-icons`** (MaterialCommunityIcons set) — consistent with Material Design 3. Standard icon sizes:
 
-| Size | Value | Usage |
-|------|-------|-------|
-| `sm` | 20px | Inline with body text, chips, input icons |
-| `md` | 24px | List items, buttons, tab bar (default) |
-| `lg` | 32px | Empty states, feature icons |
-| `xl` | 48px | Onboarding illustrations, hero icons |
+| Size | Value | Usage                                     |
+| ---- | ----- | ----------------------------------------- |
+| `sm` | 20px  | Inline with body text, chips, input icons |
+| `md` | 24px  | List items, buttons, tab bar (default)    |
+| `lg` | 32px  | Empty states, feature icons               |
+| `xl` | 48px  | Onboarding illustrations, hero icons      |
 
 #### Light + dark mode
 
@@ -215,54 +215,65 @@ The web version uses a **max-width container** centered on screen — the app fe
 #### UI patterns & component usage
 
 **Navigation:**
+
 - **Bottom tab bar:** 4 tabs (Inventory, Search, Messages, Profile). Teal active icon + label; `onSurfaceVariant` for inactive. Subtle top border, minimal elevation.
 - **Screen headers:** Paper `Appbar.Header` — left-aligned title, clean background (`surface`), optional right actions.
 - **Back navigation:** Arrow icon in header for sub-screens. No hamburger menu.
 
 **Lists:**
+
 - Item lists use Paper `Card` (elevation 1) with image thumbnail on left, title + metadata on right.
 - Conversation list: avatar + item thumbnail, last message preview, timestamp.
 - Pull-to-refresh on all list screens.
 
 **Cards:**
+
 - `borderRadius: md (12px)`, `elevation: 1`, `padding: base (16px)`.
 - Item card: photo (aspect ratio 4:3, `borderRadius: md`), title, condition chip, availability chips, area name, distance.
 
 **Forms & inputs:**
+
 - Paper `TextInput` (outlined mode) — `borderRadius: sm (8px)`, `surfaceVariant` fill.
 - Labels above inputs (not floating) for clarity.
 - Error text in `error` color below the field.
 - Primary button: filled teal. Secondary button: outlined or tonal.
 
 **Chips & badges:**
+
 - Availability types (Borrowable, Donatable, Sellable) as colored chips.
 - Condition (New, Good, Fair, Poor) as outlined chips.
 - Unread message count as a small teal badge on the Messages tab icon.
 
 **Empty states:**
+
 - Centered illustration icon (`xl` size, `onSurfaceVariant` color), headline, body text, and a primary CTA button.
 - Examples: "No items yet — add your first part", "No messages — start a conversation from a listing".
 
 **Loading states:**
+
 - Skeleton placeholders (animated) matching the shape of the content they replace (card, list item, text block).
 - No spinners for initial page loads; use skeleton screens instead.
 - Inline spinner only for short actions (button submitting, pull-to-refresh).
 
 **Error states:**
+
 - Inline error banner (Paper `Banner` or custom) at the top of the screen for network/server errors.
 - Retry button. Dismissible.
 - Form field errors shown inline below the field.
 
 **Image display:**
+
 - Item photos: 4:3 aspect ratio in lists, full-width in detail view.
 - Placeholder: tinted `surfaceVariant` background with a bicycle icon when no photo.
 - Avatar: circular (`borderRadius: full`), 40px in lists, 80px on profile.
 
 **Modals & bottom sheets:**
+
 - Paper `Modal` / `BottomSheet` — `borderRadius: lg (16px)` top corners, `surface` background.
 - Used for: filters, confirmations, item quick actions.
 
 **Onboarding:**
+
 - Full-screen pages (no tab bar). Center-aligned content.
 - Large icon/illustration at top, headline, body text, primary CTA at bottom.
 - Progress indicator (dots or step counter) at top.
@@ -284,12 +295,12 @@ The web version uses a **max-width container** centered on screen — the app fe
 
 ## 3. External integrations
 
-| Integration | Purpose | Auth / constraints |
-|------------|---------|--------------------|
-| **OpenStreetMap Nominatim** | Geocoding — convert postcode/area to coordinates for distance filtering | Free; respect [usage policy](https://operations.osmfoundation.org/policies/nominatim/) (max 1 req/sec, caching required). No API key needed. |
-| **Expo Push Notifications** | Deliver push notifications to iOS (APNs) and Android (FCM) | Via Expo's push service; requires `expo-notifications` and push token registration. |
-| **Resend** (or Postmark) | Transactional email delivery (new message notifications, borrow requests, etc.) | API key; called from Supabase Edge Functions. |
-| **Supabase Auth (Google + Apple OAuth)** | Social login | OAuth client ID/secret configured in Supabase dashboard. Email verified by provider. |
+| Integration                              | Purpose                                                                         | Auth / constraints                                                                                                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **OpenStreetMap Nominatim**              | Geocoding — convert postcode/area to coordinates for distance filtering         | Free; respect [usage policy](https://operations.osmfoundation.org/policies/nominatim/) (max 1 req/sec, caching required). No API key needed. |
+| **Expo Push Notifications**              | Deliver push notifications to iOS (APNs) and Android (FCM)                      | Via Expo's push service; requires `expo-notifications` and push token registration.                                                          |
+| **Resend** (or Postmark)                 | Transactional email delivery (new message notifications, borrow requests, etc.) | API key; called from Supabase Edge Functions.                                                                                                |
+| **Supabase Auth (Google + Apple OAuth)** | Social login                                                                    | OAuth client ID/secret configured in Supabase dashboard. Email verified by provider.                                                         |
 
 ---
 
@@ -297,28 +308,29 @@ The web version uses a **max-width container** centered on screen — the app fe
 
 Core entities (detailed attributes TBD during implementation):
 
-| Entity | Key fields | Notes |
-|--------|-----------|-------|
-| **User** | id, username, avatar_url, rating_avg, rating_count | Supabase Auth user + public profile table |
-| **SavedLocation** | id, user_id, label, area_name, coordinates (PostGIS `geography`) | Coordinates for distance queries; only area_name is public |
-| **Item** | id, owner_id, name, category, brand, model, condition, status, pickup_location_id, availability_types[] | Status enum (stored, mounted, loaned, reserved, donated, sold, archived). Availability is an array (borrowable, donatable, sellable). |
-| **Bike** | id, owner_id, name, brand, model, type, year | Parts attached via Item.bike_id |
-| **Group** | id, name, description, is_public | |
-| **GroupMember** | group_id, user_id, role (admin/member) | Creator is first admin |
-| **BorrowRequest** | id, item_id, requester_id, status (pending/accepted/rejected/returned) | Formal request/accept flow |
-| **Conversation** | id, item_id, participant_ids | Always linked to a specific item listing |
-| **Message** | id, conversation_id, sender_id, body, created_at | Delivered via Supabase Realtime |
-| **Rating** | id, from_user_id, to_user_id, item_id, score (1–5), text | After borrow/donate/sell completion |
-| **ItemPhoto** | id, item_id, storage_path, sort_order | References Supabase Storage object |
-| **SupportRequest** | id, user_id (nullable), subject, body, screenshot_path, app_version, device_info, status, created_at | In-app feedback form (§14.1 of functional spec). user_id nullable for unauthenticated submissions. |
+| Entity             | Key fields                                                                                              | Notes                                                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **User**           | id, username, avatar_url, rating_avg, rating_count                                                      | Supabase Auth user + public profile table                                                                                             |
+| **SavedLocation**  | id, user_id, label, area_name, coordinates (PostGIS `geography`)                                        | Coordinates for distance queries; only area_name is public                                                                            |
+| **Item**           | id, owner_id, name, category, brand, model, condition, status, pickup_location_id, availability_types[] | Status enum (stored, mounted, loaned, reserved, donated, sold, archived). Availability is an array (borrowable, donatable, sellable). |
+| **Bike**           | id, owner_id, name, brand, model, type, year                                                            | Parts attached via Item.bike_id                                                                                                       |
+| **Group**          | id, name, description, is_public                                                                        |                                                                                                                                       |
+| **GroupMember**    | group_id, user_id, role (admin/member)                                                                  | Creator is first admin                                                                                                                |
+| **BorrowRequest**  | id, item_id, requester_id, status (pending/accepted/rejected/returned)                                  | Formal request/accept flow                                                                                                            |
+| **Conversation**   | id, item_id, participant_ids                                                                            | Always linked to a specific item listing                                                                                              |
+| **Message**        | id, conversation_id, sender_id, body, created_at                                                        | Delivered via Supabase Realtime                                                                                                       |
+| **Rating**         | id, from_user_id, to_user_id, item_id, score (1–5), text                                                | After borrow/donate/sell completion                                                                                                   |
+| **ItemPhoto**      | id, item_id, storage_path, sort_order                                                                   | References Supabase Storage object                                                                                                    |
+| **SupportRequest** | id, user_id (nullable), subject, body, screenshot_path, app_version, device_info, status, created_at    | In-app feedback form (§14.1 of functional spec). user_id nullable for unauthenticated submissions.                                    |
 
 **Geospatial:**
+
 - Enable **PostGIS** extension on Supabase PostgreSQL.
 - `SavedLocation.coordinates` stored as `geography(Point, 4326)`.
 - Distance queries use `ST_DWithin(location, user_location, max_distance_meters)` for radius-based search.
 - Geocode postcodes via **Nominatim** (server-side, cached) or let users pin on a map.
 
-**Schema documentation:** Maintain a **data schema** doc (e.g. `docs/datamodel.md`) that describes TypeScript types and Supabase tables. **Source of truth:** `src/shared/types/` and Supabase migrations. Use branded types for IDs (e.g. `ItemId`, `UserId`) for type safety. *(Pattern from [emergency-supply-tracker DATA_SCHEMA](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/DATA_SCHEMA.md).)*
+**Schema documentation:** Maintain a **data schema** doc (e.g. `docs/datamodel.md`) that describes TypeScript types and Supabase tables. **Source of truth:** `src/shared/types/` and Supabase migrations. Use branded types for IDs (e.g. `ItemId`, `UserId`) for type safety. _(Pattern from [emergency-supply-tracker DATA_SCHEMA](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/DATA_SCHEMA.md).)_
 
 ---
 
@@ -328,17 +340,19 @@ Core entities (detailed attributes TBD during implementation):
 
 **Additional server-side logic via Supabase Edge Functions:**
 
-| Edge Function | Purpose |
-|--------------|---------|
+| Edge Function             | Purpose                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
 | `send-notification-email` | Triggered by database webhook (new message, borrow request); sends email via Resend/Postmark |
-| `send-push-notification` | Triggered by database webhook; sends push via Expo Push API |
-| `geocode-postcode` | Geocode a postcode/area via Nominatim; cache results in DB to respect rate limits |
+| `send-push-notification`  | Triggered by database webhook; sends push via Expo Push API                                  |
+| `geocode-postcode`        | Geocode a postcode/area via Nominatim; cache results in DB to respect rate limits            |
 
 **Real-time:**
+
 - **Supabase Realtime** (Postgres Changes) for messaging — client subscribes to new rows in `messages` table filtered by conversation_id.
 - Realtime subscriptions also used for: borrow request status changes, new notifications.
 
 **Key operations (via PostgREST):**
+
 - Item CRUD, search with PostGIS distance filter (via RPC / database function for `ST_DWithin`)
 - Bike CRUD, attach/detach parts
 - Borrow request create/accept/reject/return
@@ -365,21 +379,21 @@ Core entities (detailed attributes TBD during implementation):
 
 ## 7. Non-functional requirements
 
-| Area          | Requirement |
-|--------------|-------------|
-| Performance  | Item list and search results load within **1s** on 4G. Messaging delivery under **500ms** (realtime). |
-| Availability | Dependent on Supabase uptime (99.9% SLA on Pro plan). App should handle backend downtime gracefully. |
-| Scalability  | Supabase scales with plan tier. PostGIS spatial indexes for efficient distance queries. Image storage via Supabase Storage (S3-backed). |
-| Observability | Supabase dashboard for DB/API metrics. **Sentry** (`@sentry/react-native`) for client-side error tracking, crash reporting, and performance monitoring. |
-| **Offline**  | **Optimistic offline support:** show cached/stale data when offline; queue write operations (item create/edit, messages) and sync when connection returns. Use local storage or AsyncStorage for cache. Clear offline indicator in the UI. |
-| **Images**   | Client-side compression and resize before upload (via `expo-image-manipulator`). Max image size: ~2 MB after compression. Supabase Image Transformation for thumbnails (list views). Store originals in Supabase Storage. |
-| **Error handling** | Failed API calls show user-friendly error messages. Retry with exponential backoff for transient failures. Offline queue for write operations (see above). |
+| Area               | Requirement                                                                                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Performance        | Item list and search results load within **1s** on 4G. Messaging delivery under **500ms** (realtime).                                                                                                                                      |
+| Availability       | Dependent on Supabase uptime (99.9% SLA on Pro plan). App should handle backend downtime gracefully.                                                                                                                                       |
+| Scalability        | Supabase scales with plan tier. PostGIS spatial indexes for efficient distance queries. Image storage via Supabase Storage (S3-backed).                                                                                                    |
+| Observability      | Supabase dashboard for DB/API metrics. **Sentry** (`@sentry/react-native`) for client-side error tracking, crash reporting, and performance monitoring.                                                                                    |
+| **Offline**        | **Optimistic offline support:** show cached/stale data when offline; queue write operations (item create/edit, messages) and sync when connection returns. Use local storage or AsyncStorage for cache. Clear offline indicator in the UI. |
+| **Images**         | Client-side compression and resize before upload (via `expo-image-manipulator`). Max image size: ~2 MB after compression. Supabase Image Transformation for thumbnails (list views). Store originals in Supabase Storage.                  |
+| **Error handling** | Failed API calls show user-friendly error messages. Retry with exponential backoff for transient failures. Offline queue for write operations (see above).                                                                                 |
 
 ---
 
 ## 8. Testing strategy
 
-*(Guidance from [emergency-supply-tracker TESTING_STRATEGY](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/TESTING_STRATEGY.md) and [CODE_COVERAGE](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/CODE_COVERAGE.md).)*
+_(Guidance from [emergency-supply-tracker TESTING_STRATEGY](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/TESTING_STRATEGY.md) and [CODE_COVERAGE](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/CODE_COVERAGE.md).)_
 
 ### Testing diamond (distribution)
 
@@ -390,11 +404,11 @@ Core entities (detailed attributes TBD during implementation):
 ### Coverage requirements
 
 | Metric     | Threshold (target) |
-|-----------|---------------------|
-| Branches  | 80%                 |
-| Functions | 80%                 |
-| Lines     | 80%                 |
-| Statements| 80%                 |
+| ---------- | ------------------ |
+| Branches   | 80%                |
+| Functions  | 80%                |
+| Lines      | 80%                |
+| Statements | 80%                |
 
 - **Patch coverage (Codecov):** New/modified code must have ≥80% coverage. Project coverage must not decrease (1% tolerance for fluctuation). Codecov posts PR comments with coverage diffs and sets status checks.
 - **Codecov config:** `codecov.yml` in repo root — `target: auto` for project, `target: 80%` for patch, `threshold: 1%`. Exclude `src/test/**` from coverage.
@@ -427,7 +441,7 @@ Core entities (detailed attributes TBD during implementation):
 
 ### Mutation testing (StrykerJS)
 
-*(Pattern from [emergency-supply-tracker](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/TESTING_STRATEGY.md).)*
+_(Pattern from [emergency-supply-tracker](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/TESTING_STRATEGY.md).)_
 
 - **Purpose:** Verify test quality by introducing small code mutations and checking if tests catch them. Survived mutants = weak tests.
 - **Tool:** **StrykerJS** (`@stryker-mutator/core`) with Jest test runner.
@@ -435,7 +449,7 @@ Core entities (detailed attributes TBD during implementation):
 - **Thresholds:**
 
 | Threshold | Score | Meaning               |
-|-----------|-------|-----------------------|
+| --------- | ----- | --------------------- |
 | High      | 80%   | Target mutation score |
 | Low       | 70%   | Warning threshold     |
 | Break     | 60%   | Minimum acceptable    |
@@ -467,18 +481,18 @@ Core entities (detailed attributes TBD during implementation):
 
 ## 9. Code quality & conventions
 
-*(From [emergency-supply-tracker CODE_QUALITY](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/CODE_QUALITY.md).)*
+_(From [emergency-supply-tracker CODE_QUALITY](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/CODE_QUALITY.md).)_
 
 ### Tools
 
-| Tool        | Purpose              | Config |
-|-------------|----------------------|--------|
-| ESLint      | Linting              | `eslint.config.js` |
-| Prettier    | Formatting           | `.prettierrc` |
-| TypeScript  | Type checking        | `tsconfig.json` (strict mode) |
-| Husky       | Git hooks            | `.husky/` |
-| lint-staged | Pre-commit checks    | `package.json` |
-| Codecov     | Coverage tracking & PR enforcement | `codecov.yml` + GitHub integration |
+| Tool        | Purpose                                            | Config                                              |
+| ----------- | -------------------------------------------------- | --------------------------------------------------- |
+| ESLint      | Linting                                            | `eslint.config.js`                                  |
+| Prettier    | Formatting                                         | `.prettierrc`                                       |
+| TypeScript  | Type checking                                      | `tsconfig.json` (strict mode)                       |
+| Husky       | Git hooks                                          | `.husky/`                                           |
+| lint-staged | Pre-commit checks                                  | `package.json`                                      |
+| Codecov     | Coverage tracking & PR enforcement                 | `codecov.yml` + GitHub integration                  |
 | SonarCloud  | Static analysis, quality gates, tech debt tracking | Configured via SonarCloud website (no local config) |
 
 ### External quality services
@@ -498,15 +512,15 @@ Core entities (detailed attributes TBD during implementation):
 
 ### Naming
 
-| Kind        | Convention   | Example |
-|-------------|--------------|---------|
-| Components  | PascalCase   | `ItemCard.tsx` |
-| Hooks       | camelCase + use | `useInventory.ts` |
-| Utils       | camelCase    | `calculateStatus.ts` |
-| Types/Interfaces | PascalCase | `InventoryItem` |
-| Constants   | UPPER_SNAKE  | `DEFAULT_PAGE_SIZE` |
-| Test files  | `.test.ts` / `.test.tsx` | `status.test.ts` |
-| Stories     | `.stories.tsx` | `ItemCard.stories.tsx` |
+| Kind             | Convention               | Example                |
+| ---------------- | ------------------------ | ---------------------- |
+| Components       | PascalCase               | `ItemCard.tsx`         |
+| Hooks            | camelCase + use          | `useInventory.ts`      |
+| Utils            | camelCase                | `calculateStatus.ts`   |
+| Types/Interfaces | PascalCase               | `InventoryItem`        |
+| Constants        | UPPER_SNAKE              | `DEFAULT_PAGE_SIZE`    |
+| Test files       | `.test.ts` / `.test.tsx` | `status.test.ts`       |
+| Stories          | `.stories.tsx`           | `ItemCard.stories.tsx` |
 
 ### Commit messages
 
@@ -518,16 +532,16 @@ type: short description
 - Optional detail
 ```
 
-| Type       | Use for |
-|------------|---------|
-| `feat`     | New features |
-| `fix`      | Bug fixes |
+| Type       | Use for                        |
+| ---------- | ------------------------------ |
+| `feat`     | New features                   |
+| `fix`      | Bug fixes                      |
 | `refactor` | Refactors (no behavior change) |
-| `test`     | Adding/updating tests |
-| `docs`     | Documentation |
-| `style`    | Formatting only |
-| `chore`    | Deps, tooling |
-| `ci`       | CI/CD config |
+| `test`     | Adding/updating tests          |
+| `docs`     | Documentation                  |
+| `style`    | Formatting only                |
+| `chore`    | Deps, tooling                  |
+| `ci`       | CI/CD config                   |
 
 ### Scripts (target)
 
@@ -544,4 +558,4 @@ type: short description
 
 ---
 
-*Last updated: 2026-03-17*
+_Last updated: 2026-03-17_

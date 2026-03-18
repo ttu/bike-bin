@@ -264,42 +264,49 @@ Event (DB change) → Supabase Database Webhook
 ## 6. Data flow (examples)
 
 ### Load inventory
+
 App launch → TanStack Query restores cached data from AsyncStorage (instant UI) → background refetch from Supabase (`items` where `owner_id = user`) → cache updated → UI re-renders with fresh data.
 
 ### Search nearby items
+
 User enters query + max distance → `useNearbyListings({ query, maxDistance, location })` hook → Supabase RPC call (`search_nearby_items` database function using `ST_DWithin`) → results cached in TanStack Query → UI shows list sorted by distance.
 
 ### Borrow request
+
 User taps "Request" on a borrowable item → `useCreateBorrowRequest()` mutation → Supabase insert into `borrow_requests` → DB webhook triggers Edge Functions → push + email notification to owner → owner's app receives Realtime event → owner sees request in UI; owner accepts → update status to Loaned → both UIs update via cache invalidation.
 
 ### Messaging (realtime)
+
 User taps "Contact" on a listing → conversation created (or existing one opened) → `useSendMessage()` mutation inserts into `messages` table → Supabase Realtime subscription (`postgres_changes` on `messages` where `conversation_id = X`) delivers new message to the other participant's client → TanStack Query cache updated → both UIs show the message.
 
 ### Offline write queue
+
 User creates an item while offline → `useCreateItem()` mutation fails (no network) → mutation stored in AsyncStorage offline queue → UI shows item optimistically with "pending sync" indicator → network returns (detected via NetInfo) → queue replays: Supabase insert → on success, cache invalidated, optimistic state replaced with server data → "pending sync" indicator removed.
 
 ### Photos
+
 User takes photo → client-side resize/compress via `expo-image-manipulator` (≤2 MB) → upload to Supabase Storage (`items/{userId}/{itemId}/`) → store storage path in Item row → Supabase Image Transformation generates thumbnails for list views.
 
 ### Notifications
+
 DB insert (e.g. new message) → Supabase Database Webhook → Edge Function `send-push-notification` → Expo Push API → device receives push → user taps push → deep link via Expo Router opens the relevant conversation/request screen.
 
 ---
 
 ## 7. Components
 
-| Component              | Responsibility                            | Interfaces                          |
-|------------------------|-------------------------------------------|-------------------------------------|
-| Expo/RN app            | UI, navigation, forms, offline cache      | Supabase client, TanStack Query     |
-| Supabase Auth          | Authentication (Google OAuth), sessions   | OAuth, JWT                          |
-| Supabase PostgREST     | REST API for CRUD operations              | REST (auto-generated from schema)   |
-| Supabase Realtime      | Live messaging, notification delivery     | WebSocket subscriptions             |
-| Supabase Storage       | Photo storage, image transformation       | Storage API, CDN                    |
-| Supabase Edge Functions | Notifications, geocoding                 | HTTP (invoked by DB webhooks)       |
-| PostgreSQL + PostGIS   | Persistence, geospatial queries           | SQL / PostgREST / RPC               |
-| Nominatim (OSM)        | Postcode → coordinates geocoding          | HTTP REST (free, rate-limited)      |
-| Expo Push              | Push notification delivery (APNs/FCM)     | Expo Push API                       |
-| Resend                 | Transactional email delivery              | REST API                            |
+| Component               | Responsibility                          | Interfaces                        |
+| ----------------------- | --------------------------------------- | --------------------------------- |
+| Expo/RN app             | UI, navigation, forms, offline cache    | Supabase client, TanStack Query   |
+| Supabase Auth           | Authentication (Google OAuth), sessions | OAuth, JWT                        |
+| Supabase PostgREST      | REST API for CRUD operations            | REST (auto-generated from schema) |
+| Supabase Realtime       | Live messaging, notification delivery   | WebSocket subscriptions           |
+| Supabase Storage        | Photo storage, image transformation     | Storage API, CDN                  |
+| Supabase Edge Functions | Notifications, geocoding                | HTTP (invoked by DB webhooks)     |
+| PostgreSQL + PostGIS    | Persistence, geospatial queries         | SQL / PostgREST / RPC             |
+| Nominatim (OSM)         | Postcode → coordinates geocoding        | HTTP REST (free, rate-limited)    |
+| Expo Push               | Push notification delivery (APNs/FCM)   | Expo Push API                     |
+| Resend                  | Transactional email delivery            | REST API                          |
 
 ---
 
@@ -318,18 +325,18 @@ Development follows an **incremental, visual-first** principle (see [technical-s
 
 ### Environments
 
-| Environment | Supabase | App build | Purpose |
-|-------------|----------|-----------|---------|
-| **Local** | Supabase CLI (`supabase start`) — local PostgreSQL + PostGIS, local Auth, local Storage | Expo Go / dev client + `expo start --web` | Day-to-day development |
-| **PR Preview** | **Supabase Branching** — automatic preview database per PR (branched from staging, includes migrations) | **EAS Update** preview channel + **Vercel** preview deployment (automatic per PR) | Test new features in isolation before merge. PR description includes QR code / link to preview build + web preview URL. |
-| **Staging** | Hosted Supabase project (staging) | EAS Build staging channel + Vercel staging deployment | Integration testing, E2E (Maestro), QA before production release |
-| **Production** | Hosted Supabase project (prod) | EAS Build production channel (App Store / Play Store) + **Vercel production** deployment | Live users. Web is continuously deployed; mobile releases go through store review. |
+| Environment    | Supabase                                                                                                | App build                                                                                | Purpose                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Local**      | Supabase CLI (`supabase start`) — local PostgreSQL + PostGIS, local Auth, local Storage                 | Expo Go / dev client + `expo start --web`                                                | Day-to-day development                                                                                                  |
+| **PR Preview** | **Supabase Branching** — automatic preview database per PR (branched from staging, includes migrations) | **EAS Update** preview channel + **Vercel** preview deployment (automatic per PR)        | Test new features in isolation before merge. PR description includes QR code / link to preview build + web preview URL. |
+| **Staging**    | Hosted Supabase project (staging)                                                                       | EAS Build staging channel + Vercel staging deployment                                    | Integration testing, E2E (Maestro), QA before production release                                                        |
+| **Production** | Hosted Supabase project (prod)                                                                          | EAS Build production channel (App Store / Play Store) + **Vercel production** deployment | Live users. Web is continuously deployed; mobile releases go through store review.                                      |
 
 ### CI/CD flow
 
 #### CI job structure (GitHub Actions)
 
-*(Pattern from [emergency-supply-tracker CI](https://github.com/ttu/emergency-supply-tracker/blob/main/.github/workflows/ci.yml).)*
+_(Pattern from [emergency-supply-tracker CI](https://github.com/ttu/emergency-supply-tracker/blob/main/.github/workflows/ci.yml).)_
 
 ```
 ┌──────┐ ┌────────────┐ ┌──────┐ ┌───────────┐ ┌─────┐ ┌──────┐
@@ -342,20 +349,21 @@ Development follows an **incremental, visual-first** principle (see [technical-s
                          └─────────┘    └────────┘
 ```
 
-| Job          | What it does | Blocks build? |
-|-------------|-------------|---------------|
-| `lint`       | ESLint + Prettier check + `validate:i18n` (missing translation keys) | Yes |
-| `type-check` | TypeScript type checking (all tsconfig files) | Yes |
-| `test`       | Jest unit/integration tests with coverage → upload to Codecov | Yes |
-| `storybook`  | Storybook interaction/component tests | Yes |
-| `e2e`        | Maestro E2E tests against development build. Upload report as artifact. | Yes |
-| `a11y`       | Accessibility E2E tests (axe-core). Upload report as artifact. | Yes |
-| `visual`     | Visual regression screenshot tests. Non-blocking — failed diffs uploaded as artifacts. | **No** |
-| `build`      | EAS Build (native) + Expo web export (runs after all blocking jobs pass) | — |
+| Job          | What it does                                                                           | Blocks build? |
+| ------------ | -------------------------------------------------------------------------------------- | ------------- |
+| `lint`       | ESLint + Prettier check + `validate:i18n` (missing translation keys)                   | Yes           |
+| `type-check` | TypeScript type checking (all tsconfig files)                                          | Yes           |
+| `test`       | Jest unit/integration tests with coverage → upload to Codecov                          | Yes           |
+| `storybook`  | Storybook interaction/component tests                                                  | Yes           |
+| `e2e`        | Maestro E2E tests against development build. Upload report as artifact.                | Yes           |
+| `a11y`       | Accessibility E2E tests (axe-core). Upload report as artifact.                         | Yes           |
+| `visual`     | Visual regression screenshot tests. Non-blocking — failed diffs uploaded as artifacts. | **No**        |
+| `build`      | EAS Build (native) + Expo web export (runs after all blocking jobs pass)               | —             |
 
 **Triggers:** Push to `main`, pull requests to `main`.
 
 **External checks (automatic):**
+
 - **Codecov** — coverage diff comment + status check on every PR.
 - **SonarCloud** — static analysis + quality gate status on every PR.
 
@@ -399,7 +407,7 @@ Do **not** create a design doc for:
 
 - Simple bug fixes, UI-only tweaks, minor refactors, or doc-only updates.
 
-*(Pattern from [emergency-supply-tracker DESIGN_DOCS_INDEX](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/DESIGN_DOCS_INDEX.md).)*
+_(Pattern from [emergency-supply-tracker DESIGN_DOCS_INDEX](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/DESIGN_DOCS_INDEX.md).)_
 
 ---
 
@@ -410,4 +418,4 @@ Do **not** create a design doc for:
 
 ---
 
-*Last updated: 2026-03-17*
+_Last updated: 2026-03-17_

@@ -34,20 +34,20 @@
 
 RLS is enabled on **all tables**. No table is accessible without an explicit policy. Policies follow the principle of least privilege.
 
-| Table | SELECT | INSERT | UPDATE | DELETE |
-|-------|--------|--------|--------|--------|
-| **users (profile)** | Public (username, avatar, rating) | Own profile only | Own profile only | Own profile only (account deletion) |
-| **items** | Public listings + group-scoped (via group membership) + own items | Authenticated, own items | Own items only | Own items only (not while Loaned/Reserved) |
-| **bikes** | Own bikes only | Authenticated, own bikes | Own bikes only | Own bikes only |
-| **saved_locations** | Own locations only | Authenticated, own locations | Own locations only | Own locations only |
-| **groups** | Public groups: all. Private groups: members only | Authenticated | Admins only | Admins only |
-| **group_members** | Members of the group | Admins (invite) or self (join public) | Admins (role change) | Admins (remove) or self (leave) |
-| **borrow_requests** | Requester or item owner | Authenticated (requester) | Item owner (accept/reject) or requester (cancel) | Not allowed (soft delete / status change) |
-| **conversations** | Participants only | Authenticated (item-context) | Not allowed | Not allowed |
-| **messages** | Conversation participants | Conversation participants | Not allowed (messages are immutable) | Not allowed |
-| **ratings** | Public (read) | Authenticated, after completed transaction | Not allowed (ratings are immutable) | Not allowed |
-| **item_photos** | Same as parent item | Item owner | Item owner | Item owner |
-| **notifications** | Own notifications only | System only (Edge Functions / triggers) | Own (mark as read) | Own |
+| Table               | SELECT                                                            | INSERT                                     | UPDATE                                           | DELETE                                     |
+| ------------------- | ----------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------ | ------------------------------------------ |
+| **users (profile)** | Public (username, avatar, rating)                                 | Own profile only                           | Own profile only                                 | Own profile only (account deletion)        |
+| **items**           | Public listings + group-scoped (via group membership) + own items | Authenticated, own items                   | Own items only                                   | Own items only (not while Loaned/Reserved) |
+| **bikes**           | Own bikes only                                                    | Authenticated, own bikes                   | Own bikes only                                   | Own bikes only                             |
+| **saved_locations** | Own locations only                                                | Authenticated, own locations               | Own locations only                               | Own locations only                         |
+| **groups**          | Public groups: all. Private groups: members only                  | Authenticated                              | Admins only                                      | Admins only                                |
+| **group_members**   | Members of the group                                              | Admins (invite) or self (join public)      | Admins (role change)                             | Admins (remove) or self (leave)            |
+| **borrow_requests** | Requester or item owner                                           | Authenticated (requester)                  | Item owner (accept/reject) or requester (cancel) | Not allowed (soft delete / status change)  |
+| **conversations**   | Participants only                                                 | Authenticated (item-context)               | Not allowed                                      | Not allowed                                |
+| **messages**        | Conversation participants                                         | Conversation participants                  | Not allowed (messages are immutable)             | Not allowed                                |
+| **ratings**         | Public (read)                                                     | Authenticated, after completed transaction | Not allowed (ratings are immutable)              | Not allowed                                |
+| **item_photos**     | Same as parent item                                               | Item owner                                 | Item owner                                       | Item owner                                 |
+| **notifications**   | Own notifications only                                            | System only (Edge Functions / triggers)    | Own (mark as read)                               | Own                                        |
 
 ### 2.2 Role-based access (groups)
 
@@ -75,16 +75,16 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ### 3.2 Personal Identifiable Information (PII)
 
-| Data | Storage | Visibility |
-|------|---------|------------|
-| Email address | Supabase Auth only (not in public tables) | Never shown to other users |
-| Username | Public profile table | Public |
-| Profile photo | Supabase Storage | Public |
-| Coordinates (lat/lng) | `saved_locations` table (server-side) | Never sent to clients; used for distance queries only |
-| Area name (postcode) | `saved_locations` table | Public (shown on listings) |
-| OAuth provider ID | Supabase Auth | Never shown |
-| Push notification token | User profile / device table | Never shown to other users |
-| Messages | `messages` table | Conversation participants only |
+| Data                    | Storage                                   | Visibility                                            |
+| ----------------------- | ----------------------------------------- | ----------------------------------------------------- |
+| Email address           | Supabase Auth only (not in public tables) | Never shown to other users                            |
+| Username                | Public profile table                      | Public                                                |
+| Profile photo           | Supabase Storage                          | Public                                                |
+| Coordinates (lat/lng)   | `saved_locations` table (server-side)     | Never sent to clients; used for distance queries only |
+| Area name (postcode)    | `saved_locations` table                   | Public (shown on listings)                            |
+| OAuth provider ID       | Supabase Auth                             | Never shown                                           |
+| Push notification token | User profile / device table               | Never shown to other users                            |
+| Messages                | `messages` table                          | Conversation participants only                        |
 
 ### 3.3 Data minimization
 
@@ -112,14 +112,14 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ## 5. Secrets & key management
 
-| Secret | Storage location | Access |
-|--------|-----------------|--------|
-| **Supabase anon key** | Expo config (`.env.*`), GitHub Actions secrets | Client-side (safe — RLS enforces access) |
-| **Supabase service role key** | Supabase Edge Function secrets, GitHub Actions secrets | Server-side only. **Never in client code.** |
-| **Google OAuth client ID/secret** | Supabase Auth dashboard (per environment) | Server-side (Supabase Auth) |
-| **Apple OAuth credentials** | Supabase Auth dashboard (per environment) | Server-side (Supabase Auth) |
-| **Resend API key** | Supabase Edge Function secrets (per environment) | Edge Functions only |
-| **Expo Push access token** | Supabase Edge Function secrets | Edge Functions only |
+| Secret                            | Storage location                                       | Access                                      |
+| --------------------------------- | ------------------------------------------------------ | ------------------------------------------- |
+| **Supabase anon key**             | Expo config (`.env.*`), GitHub Actions secrets         | Client-side (safe — RLS enforces access)    |
+| **Supabase service role key**     | Supabase Edge Function secrets, GitHub Actions secrets | Server-side only. **Never in client code.** |
+| **Google OAuth client ID/secret** | Supabase Auth dashboard (per environment)              | Server-side (Supabase Auth)                 |
+| **Apple OAuth credentials**       | Supabase Auth dashboard (per environment)              | Server-side (Supabase Auth)                 |
+| **Resend API key**                | Supabase Edge Function secrets (per environment)       | Edge Functions only                         |
+| **Expo Push access token**        | Supabase Edge Function secrets                         | Edge Functions only                         |
 
 ### 5.1 Key rotation
 
@@ -160,13 +160,13 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ### 7.1 Data subject rights
 
-| Right | Implementation |
-|-------|---------------|
-| **Right to access** | User can view all their data in the app (profile, items, messages, ratings). Export functionality TBD for MVP. |
-| **Right to rectification** | User can edit their profile, items, saved locations at any time. |
-| **Right to erasure** | **Account deletion** — user can delete their account. Cascading delete: profile, items, bikes, saved locations, messages (or anonymize), conversations, ratings, group memberships, notifications, photos (Storage). Implemented via database cascade + Storage cleanup Edge Function. |
-| **Right to data portability** | Export user data as JSON. Post-MVP but the data model supports it (all data is in structured tables). |
-| **Right to restrict processing** | User can set items to Private, leave groups, disable notifications. |
+| Right                            | Implementation                                                                                                                                                                                                                                                                         |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Right to access**              | User can view all their data in the app (profile, items, messages, ratings). Export functionality TBD for MVP.                                                                                                                                                                         |
+| **Right to rectification**       | User can edit their profile, items, saved locations at any time.                                                                                                                                                                                                                       |
+| **Right to erasure**             | **Account deletion** — user can delete their account. Cascading delete: profile, items, bikes, saved locations, messages (or anonymize), conversations, ratings, group memberships, notifications, photos (Storage). Implemented via database cascade + Storage cleanup Edge Function. |
+| **Right to data portability**    | Export user data as JSON. Post-MVP but the data model supports it (all data is in structured tables).                                                                                                                                                                                  |
+| **Right to restrict processing** | User can set items to Private, leave groups, disable notifications.                                                                                                                                                                                                                    |
 
 ### 7.2 Consent
 
@@ -177,14 +177,14 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ### 7.3 Data retention
 
-| Data | Retention |
-|------|-----------|
-| Active accounts | Retained while account exists |
-| Deleted accounts | Hard delete within 30 days. Anonymize messages (replace sender with "Deleted User") rather than delete, to preserve conversation context for the other party. |
-| Photos | Deleted with the item or account |
-| Notifications | Auto-expire after 90 days |
-| Reports / moderation logs | Retained for 1 year (for appeals and safety) |
-| Geocoding cache | Indefinite (public postcode data, not PII) |
+| Data                      | Retention                                                                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Active accounts           | Retained while account exists                                                                                                                                 |
+| Deleted accounts          | Hard delete within 30 days. Anonymize messages (replace sender with "Deleted User") rather than delete, to preserve conversation context for the other party. |
+| Photos                    | Deleted with the item or account                                                                                                                              |
+| Notifications             | Auto-expire after 90 days                                                                                                                                     |
+| Reports / moderation logs | Retained for 1 year (for appeals and safety)                                                                                                                  |
+| Geocoding cache           | Indefinite (public postcode data, not PII)                                                                                                                    |
 
 ### 7.4 Legal
 
@@ -244,4 +244,4 @@ When building a new feature, verify:
 
 ---
 
-*Last updated: 2026-03-17*
+_Last updated: 2026-03-17_

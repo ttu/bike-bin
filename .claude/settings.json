@@ -11,7 +11,9 @@
       "Bash(./node_modules/.bin/jest --passWithNoTests)",
       "Bash(npm test:*)",
       "Bash(lsof -ti:8081)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_claude-mem_mcp-search__search"
     ],
     "additionalDirectories": ["/Users/ttu/src/github/bike-bin/docs/superpowers"]
   }

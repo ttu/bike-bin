@@ -75,11 +75,11 @@ Users can skip and complete setup later, but the app should encourage completing
 
 The app uses a **4-tab layout**:
 
-| Tab          | Purpose                                          |
-|-------------|--------------------------------------------------|
-| **Inventory** | User's own items and bikes (home screen)         |
-| **Search**    | Discover nearby items — borrow, donate, sell     |
-| **Messages**  | Item-linked conversations                        |
+| Tab           | Purpose                                                         |
+| ------------- | --------------------------------------------------------------- |
+| **Inventory** | User's own items and bikes (home screen)                        |
+| **Search**    | Discover nearby items — borrow, donate, sell                    |
+| **Messages**  | Item-linked conversations                                       |
 | **Profile**   | User profile, settings, groups, saved locations, help & support |
 
 ---
@@ -133,15 +133,15 @@ To protect privacy and support discovery, listings use a **general area** for pi
 
 Items can have the following states:
 
-| Status     | Description                              |
-|-----------|------------------------------------------|
-| **Stored**   | Item is available in inventory           |
-| **Mounted**  | Installed on a bike                      |
-| **Loaned**   | Currently borrowed by someone            |
-| **Reserved** | Someone requested the item               |
-| **Donated**  | Given away                               |
-| **Sold**     | Item sold                                |
-| **Archived** | No longer tracked                        |
+| Status       | Description                    |
+| ------------ | ------------------------------ |
+| **Stored**   | Item is available in inventory |
+| **Mounted**  | Installed on a bike            |
+| **Loaned**   | Currently borrowed by someone  |
+| **Reserved** | Someone requested the item     |
+| **Donated**  | Given away                     |
+| **Sold**     | Item sold                      |
+| **Archived** | No longer tracked              |
 
 ### 3.4 Editing and Deleting Items
 
@@ -152,7 +152,7 @@ Items can have the following states:
 
 ---
 
-## 4. Bike Management *(MVP)*
+## 4. Bike Management _(MVP)_
 
 Users can add bikes and track mounted parts.
 
@@ -203,7 +203,7 @@ Example groups: local ride club, friends, workshop community.
 
 ---
 
-## 6. Borrow Workflow *(MVP)*
+## 6. Borrow Workflow _(MVP)_
 
 Typical flow:
 
@@ -213,7 +213,7 @@ Typical flow:
 4. Item status becomes **Loaned**
 5. When returned, status returns to **Stored**
 
-## 6.1 Donate / Sell Workflow *(MVP)*
+## 6.1 Donate / Sell Workflow _(MVP)_
 
 Unlike borrowing, donate and sell use **direct messaging** rather than a formal request/accept flow:
 
@@ -224,7 +224,7 @@ Unlike borrowing, donate and sell use **direct messaging** rather than a formal 
 
 ---
 
-## 7. Messaging System *(MVP — in-app)*
+## 7. Messaging System _(MVP — in-app)_
 
 Users can communicate regarding items. All conversations are **linked to a specific listing** — there are no general direct messages. This keeps conversations focused and reduces spam.
 
@@ -265,7 +265,7 @@ Users search for **what they need** (e.g. “crank puller”, “handlebar”, �
 
 ---
 
-## 9. Notifications *(MVP — in-app + push + email)*
+## 9. Notifications _(MVP — in-app + push + email)_
 
 Users receive notifications for:
 
@@ -297,7 +297,7 @@ Users can attach photos to:
 
 ---
 
-## 11. Groups *(MVP)*
+## 11. Groups _(MVP)_
 
 Groups represent communities where items can be shared.
 
@@ -376,19 +376,19 @@ Users can contact the app maintainers directly from within the app without needi
 
 ## 16. Non-Functional Requirements (summary)
 
-| Area          | Requirement                                      |
-|--------------|---------------------------------------------------|
-| Platforms    | **iOS, Android, Web** — full feature parity. Single React Native codebase. |
-| Performance  | Fast item browsing, low-latency messaging         |
-| Security     | Authenticated users only, privacy controls        |
-| Scalability  | Growing user communities, efficient image storage |
+| Area         | Requirement                                                                                                                             |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Platforms    | **iOS, Android, Web** — full feature parity. Single React Native codebase.                                                              |
+| Performance  | Fast item browsing, low-latency messaging                                                                                               |
+| Security     | Authenticated users only, privacy controls                                                                                              |
+| Scalability  | Growing user communities, efficient image storage                                                                                       |
 | Localization | **i18n-ready from start** — English as default language; internationalization framework in place so adding languages is straightforward |
-| Units        | Distance displayed in **km** (metric default); user-configurable to miles if needed later |
+| Units        | Distance displayed in **km** (metric default); user-configurable to miles if needed later                                               |
 
-*(Detailed NFRs live in [technical-specs.md](technical-specs.md).)*
+_(Detailed NFRs live in [technical-specs.md](technical-specs.md).)_
 
-*(Sections 14–15 informed by marketplace/pitch description: tagline, pitch, auth, pickup area, trust & safety, resolved decisions.)*
+_(Sections 14–15 informed by marketplace/pitch description: tagline, pitch, auth, pickup area, trust & safety, resolved decisions.)_
 
 ---
 
-*Last updated: 2026-03-17*
+_Last updated: 2026-03-17_

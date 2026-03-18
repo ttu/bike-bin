@@ -9,91 +9,91 @@
 
 ### 1.1 Auth & Identity
 
-| Decision | Resolution |
-|----------|-----------|
+| Decision                | Resolution                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Username → Display name | **Display name + internal ID.** Display names are not unique. Users are identified internally by UUID. No "taken" errors during onboarding. **Note:** The functional spec uses "username" — this design supersedes that terminology. All references to "username" in the functional spec should be read as "display name." |
-| OAuth providers | Google + Apple only. No email/password or magic link. |
-| Email verification | Handled by OAuth provider. No in-app verification. |
+| OAuth providers         | Google + Apple only. No email/password or magic link.                                                                                                                                                                                                                                                                      |
+| Email verification      | Handled by OAuth provider. No in-app verification.                                                                                                                                                                                                                                                                         |
 
 ### 1.2 Account Deletion (GDPR)
 
-| Data type | On deletion |
-|-----------|------------|
-| Listings (items) | **Deleted immediately.** Removed from search, conversations about them closed with notification. |
-| Conversations | **Preserved.** Messages remain visible to the other party. Author shown as "[Deleted user]". |
-| Ratings given | **Anonymized.** Scores remain (affects recipient's average). Author shown as "[Deleted user]". Admin can remove if needed. |
-| Account data | Fully deleted from Supabase Auth and profile tables. |
+| Data type        | On deletion                                                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Listings (items) | **Deleted immediately.** Removed from search, conversations about them closed with notification.                           |
+| Conversations    | **Preserved.** Messages remain visible to the other party. Author shown as "[Deleted user]".                               |
+| Ratings given    | **Anonymized.** Scores remain (affects recipient's average). Author shown as "[Deleted user]". Admin can remove if needed. |
+| Account data     | Fully deleted from Supabase Auth and profile tables.                                                                       |
 
 ### 1.3 Inventory
 
-| Decision | Resolution |
-|----------|-----------|
+| Decision                                   | Resolution                                                                                                                                                                   |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | "Bike" as item category vs Bike Management | **Both coexist.** "Bike" item category = listing a complete bike for borrow/donate/sell. Bike Management = tracking your own builds with mounted parts. Different use cases. |
-| Max photos per item | **5.** First photo is primary (shown in lists/search). User can reorder to change primary. |
-| Item categories | Component, Tool, Accessory, Bike. |
+| Max photos per item                        | **5.** First photo is primary (shown in lists/search). User can reorder to change primary.                                                                                   |
+| Item categories                            | Component, Tool, Accessory, Bike.                                                                                                                                            |
 
 ### 1.4 Search & Discovery
 
-| Decision | Resolution |
-|----------|-----------|
-| Default search behavior | **Empty state with search prompt.** No auto-feed or browsing. Intentional search only. |
-| Default max distance | **25 km.** |
-| Search origin | **Primary saved location.** User designates one saved location as primary. Can switch before searching. |
-| Distance presets | 5, 10, 25, 50, 100 km. |
+| Decision                | Resolution                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| Default search behavior | **Empty state with search prompt.** No auto-feed or browsing. Intentional search only.                  |
+| Default max distance    | **25 km.**                                                                                              |
+| Search origin           | **Primary saved location.** User designates one saved location as primary. Can switch before searching. |
+| Distance presets        | 5, 10, 25, 50, 100 km.                                                                                  |
 
 ### 1.5 Borrow Workflow
 
-| Decision | Resolution |
-|----------|-----------|
-| Borrow duration expiry | **Reminder notification only.** No automatic status change. Owner manually marks item as returned. |
-| Return flow | Owner marks returned → item status back to Stored → both parties prompted to rate (14-day window starts). |
+| Decision               | Resolution                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------- |
+| Borrow duration expiry | **Reminder notification only.** No automatic status change. Owner manually marks item as returned.        |
+| Return flow            | Owner marks returned → item status back to Stored → both parties prompted to rate (14-day window starts). |
 
 ### 1.6 Messaging
 
-| Decision | Resolution |
-|----------|-----------|
+| Decision                       | Resolution                                                                                                |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | Conversation after transaction | **Stays open.** Conversations remain open after item is marked Donated/Sold for last-minute coordination. |
-| Scope | Text only in initial release. No image sharing in chat. |
-| Conversation creation | Initiated from listing detail via "Contact" button. Always linked to a specific item. |
+| Scope                          | Text only in initial release. No image sharing in chat.                                                   |
+| Conversation creation          | Initiated from listing detail via "Contact" button. Always linked to a specific item.                     |
 
 ### 1.7 Notifications
 
-| Decision | Resolution |
-|----------|-----------|
+| Decision            | Resolution                                                                                                                                                                    |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Configuration model | **Granular per-event, per-channel.** Three categories (Messages, Borrow Activity, Reminders) with per-channel toggles (push, email) for each. In-app notifications always on. |
-| Push on web | No push on web. In-app notifications only (shown when logged in). |
+| Push on web         | No push on web. In-app notifications only (shown when logged in).                                                                                                             |
 
 ### 1.8 Groups
 
-| Decision | Resolution |
-|----------|-----------|
-| Public group joining | **Admin approval required.** User requests to join, admin approves/declines. |
-| Group discovery | Users can **search/browse public groups.** |
-| Private groups | **Main focus.** Invite-only (via link or username). Not shown in search. |
-| Roles | Admin (invite/remove/edit/promote) + Member (view/share). Creator is first admin. Multiple admins supported. |
+| Decision             | Resolution                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Public group joining | **Admin approval required.** User requests to join, admin approves/declines.                                 |
+| Group discovery      | Users can **search/browse public groups.**                                                                   |
+| Private groups       | **Main focus.** Invite-only (via link or username). Not shown in search.                                     |
+| Roles                | Admin (invite/remove/edit/promote) + Member (view/share). Creator is first admin. Multiple admins supported. |
 
 ### 1.9 Ratings & Reviews
 
-| Decision | Resolution |
-|----------|-----------|
-| Rating window | **14 days** after transaction completion. |
-| Editability | **Editable within the 14-day window.** |
-| Deletability | **Deletable anytime** by the person who left the rating. |
-| Rating scale | 1–5 stars + optional short text. |
+| Decision      | Resolution                                               |
+| ------------- | -------------------------------------------------------- |
+| Rating window | **14 days** after transaction completion.                |
+| Editability   | **Editable within the 14-day window.**                   |
+| Deletability  | **Deletable anytime** by the person who left the rating. |
+| Rating scale  | 1–5 stars + optional short text.                         |
 
 ### 1.10 Help & Support
 
-| Decision | Resolution |
-|----------|-----------|
-| Format | **Contact form only.** No FAQ/knowledge base. Subject + message + optional screenshot. Auto-included context (app version, device info, user ID). |
+| Decision | Resolution                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Format   | **Contact form only.** No FAQ/knowledge base. Subject + message + optional screenshot. Auto-included context (app version, device info, user ID). |
 
 ### 1.11 Unauthenticated Experience
 
-| Decision | Resolution |
-|----------|-----------|
-| Browsing | Can browse public listings via Search tab (read-only). |
+| Decision        | Resolution                                                                                                                                                                                                             |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browsing        | Can browse public listings via Search tab (read-only).                                                                                                                                                                 |
 | Local inventory | **Can create inventory items locally** (stored on device only, not synced). Clear banner: "Your items are saved on this device only. Sign in to sync and share them." On sign-in, local items upload to their account. |
-| Blocked actions | Contact seller, request borrow, messages, groups → login prompt modal. |
+| Blocked actions | Contact seller, request borrow, messages, groups → login prompt modal.                                                                                                                                                 |
 
 ---
 
@@ -129,16 +129,17 @@ App Launch
 
 ### 2.2 Tab Structure
 
-| Tab | Icon | Purpose |
-|-----|------|---------|
-| **Inventory** | Home | User's own items and bikes |
-| **Search** | Search | Discover nearby items — borrow, donate, sell |
-| **Messages** | Chat (with unread badge) | Item-linked conversations |
-| **Profile** | Person | Settings, groups, locations, help |
+| Tab           | Icon                     | Purpose                                      |
+| ------------- | ------------------------ | -------------------------------------------- |
+| **Inventory** | Home                     | User's own items and bikes                   |
+| **Search**    | Search                   | Discover nearby items — borrow, donate, sell |
+| **Messages**  | Chat (with unread badge) | Item-linked conversations                    |
+| **Profile**   | Person                   | Settings, groups, locations, help            |
 
 ### 2.3 Screen Tree
 
 #### Inventory Tab
+
 ```
 Item List (home)
   ├─► Add Item
@@ -154,6 +155,7 @@ Item List (home)
 ```
 
 #### Search Tab
+
 ```
 Search (empty state)
   ├─► Search Results
@@ -165,6 +167,7 @@ Search (empty state)
 ```
 
 #### Messages Tab
+
 ```
 Conversation List
   └─► Conversation Detail [id]
@@ -174,6 +177,7 @@ Conversation List
 ```
 
 #### Profile Tab
+
 ```
 My Profile & Settings
   ├─► Edit Profile (name, photo, delete account)
@@ -203,13 +207,13 @@ My Profile & Settings
 
 ### 2.4 Cross-Tab Navigation
 
-| From | Action | To |
-|------|--------|-----|
-| Search → Listing Detail | "Contact" | Messages tab → Conversation |
-| Search → Listing Detail | Owner name | Profile tab → User Profile |
-| Messages → Conversation | Item card tap | Item/Listing Detail |
-| Messages → Conversation | User avatar tap | Profile tab → User Profile |
-| Push notification tap | Deep link | Relevant screen (conversation, borrow request) |
+| From                    | Action          | To                                             |
+| ----------------------- | --------------- | ---------------------------------------------- |
+| Search → Listing Detail | "Contact"       | Messages tab → Conversation                    |
+| Search → Listing Detail | Owner name      | Profile tab → User Profile                     |
+| Messages → Conversation | Item card tap   | Item/Listing Detail                            |
+| Messages → Conversation | User avatar tap | Profile tab → User Profile                     |
+| Push notification tap   | Deep link       | Relevant screen (conversation, borrow request) |
 
 ---
 
@@ -450,6 +454,7 @@ My Profile & Settings
 ### 4.1 Confirmation Dialogs
 
 Used for irreversible or significant actions:
+
 - Mark as Donated/Sold
 - Delete item
 - Delete account
@@ -461,19 +466,20 @@ Used for irreversible or significant actions:
 ### 4.2 Empty States
 
 Every list screen has a dedicated empty state with:
+
 - Centered icon (xl size, onSurfaceVariant color)
 - Headline text
 - Body text explaining what the screen shows
 - Primary CTA button (when applicable)
 
-| Screen | Empty state CTA |
-|--------|----------------|
-| Inventory | "Add your first item" |
-| Search results | "Try increasing your distance or changing filters" |
-| Messages | "Start one by contacting a listing owner" |
-| Borrow requests | "No requests yet" |
-| Groups | "Create or join a group" |
-| Bike parts | "Attach a part from your inventory" |
+| Screen          | Empty state CTA                                    |
+| --------------- | -------------------------------------------------- |
+| Inventory       | "Add your first item"                              |
+| Search results  | "Try increasing your distance or changing filters" |
+| Messages        | "Start one by contacting a listing owner"          |
+| Borrow requests | "No requests yet"                                  |
+| Groups          | "Create or join a group"                           |
+| Bike parts      | "Attach a part from your inventory"                |
 
 ### 4.3 Loading States
 
@@ -519,4 +525,4 @@ These items can be decided during development:
 
 ---
 
-*Last updated: 2026-03-17*
+_Last updated: 2026-03-17_
