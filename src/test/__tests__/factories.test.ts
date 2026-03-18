@@ -107,8 +107,8 @@ describe('createMockConversation', () => {
   });
 
   it('applies overrides', () => {
-    const conversation = createMockConversation({ itemId: null });
-    expect(conversation.itemId).toBeNull();
+    const conversation = createMockConversation({ itemId: undefined });
+    expect(conversation.itemId).toBeUndefined();
   });
 });
 

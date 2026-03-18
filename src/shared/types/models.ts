@@ -24,8 +24,8 @@ import {
 
 export interface UserProfile {
   id: UserId;
-  displayName: string | null;
-  avatarUrl: string | null;
+  displayName: string | undefined;
+  avatarUrl: string | undefined;
   ratingAvg: number;
   ratingCount: number;
   createdAt: string;
@@ -36,9 +36,9 @@ export interface SavedLocation {
   id: LocationId;
   userId: UserId;
   label: string;
-  areaName: string | null;
-  postcode: string | null;
-  coordinates: { latitude: number; longitude: number } | null;
+  areaName: string | undefined;
+  postcode: string | undefined;
+  coordinates: { latitude: number; longitude: number } | undefined;
   isPrimary: boolean;
   createdAt: string;
 }
@@ -48,20 +48,20 @@ export interface Item {
   ownerId: UserId;
   name: string;
   category: ItemCategory;
-  brand: string | null;
-  model: string | null;
-  description: string | null;
+  brand: string | undefined;
+  model: string | undefined;
+  description: string | undefined;
   condition: ItemCondition;
   status: ItemStatus;
   availabilityTypes: AvailabilityType[];
-  price: number | null;
-  deposit: number | null;
-  borrowDuration: string | null;
-  storageLocation: string | null;
-  age: string | null;
-  usageKm: number | null;
-  purchaseDate: string | null;
-  pickupLocationId: LocationId | null;
+  price: number | undefined;
+  deposit: number | undefined;
+  borrowDuration: string | undefined;
+  storageLocation: string | undefined;
+  age: string | undefined;
+  usageKm: number | undefined;
+  purchaseDate: string | undefined;
+  pickupLocationId: LocationId | undefined;
   visibility: Visibility;
   createdAt: string;
   updatedAt: string;
@@ -79,10 +79,10 @@ export interface Bike {
   id: BikeId;
   ownerId: UserId;
   name: string;
-  brand: string | null;
-  model: string | null;
+  brand: string | undefined;
+  model: string | undefined;
   type: BikeType;
-  year: number | null;
+  year: number | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -90,7 +90,7 @@ export interface Bike {
 export interface Group {
   id: GroupId;
   name: string;
-  description: string | null;
+  description: string | undefined;
   isPublic: boolean;
   createdAt: string;
 }
@@ -107,14 +107,14 @@ export interface BorrowRequest {
   itemId: ItemId;
   requesterId: UserId;
   status: BorrowRequestStatus;
-  message: string | null;
+  message: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface Conversation {
   id: ConversationId;
-  itemId: ItemId | null;
+  itemId: ItemId | undefined;
   createdAt: string;
 }
 
@@ -130,11 +130,11 @@ export interface Rating {
   id: RatingId;
   fromUserId: UserId;
   toUserId: UserId;
-  itemId: ItemId | null;
+  itemId: ItemId | undefined;
   transactionType: TransactionType;
   score: number;
-  text: string | null;
-  editableUntil: string | null;
+  text: string | undefined;
+  editableUntil: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -144,7 +144,7 @@ export interface Notification {
   userId: UserId;
   type: string;
   title: string;
-  body: string | null;
+  body: string | undefined;
   data: Record<string, unknown>;
   isRead: boolean;
   createdAt: string;
@@ -152,13 +152,13 @@ export interface Notification {
 
 export interface SupportRequest {
   id: string;
-  userId: UserId | null;
-  email: string | null;
+  userId: UserId | undefined;
+  email: string | undefined;
   subject: string;
   body: string;
-  screenshotPath: string | null;
-  appVersion: string | null;
-  deviceInfo: string | null;
+  screenshotPath: string | undefined;
+  appVersion: string | undefined;
+  deviceInfo: string | undefined;
   status: 'open' | 'closed';
   createdAt: string;
 }
