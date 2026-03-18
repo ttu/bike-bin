@@ -108,7 +108,11 @@ Code:
 ## Commands
 
 ```bash
-npm run dev                    # Expo dev server
+npm run dev                    # Supabase + Expo dev server
+npm run db:start               # Start local Supabase
+npm run db:stop                # Stop local Supabase
+npm run db:reset               # Re-run all migrations
+npm run db:status              # Show services, ports, keys
 npm run lint                   # ESLint
 npm run lint:fix               # ESLint fix
 npm run format                 # Prettier write
@@ -131,19 +135,19 @@ npm run storybook              # React Native Storybook
 
 ## Documentation
 
-| Doc | Purpose |
-|-----|---------|
-| [docs/plans/functional-specs.md](docs/plans/functional-specs.md) | Product scope, features, user flows |
-| [docs/plans/technical-specs.md](docs/plans/technical-specs.md) | Tech stack, patterns, testing, code quality |
-| [docs/plans/architecture.md](docs/plans/architecture.md) | System design, feature slices, data flow |
-| [docs/plans/security.md](docs/plans/security.md) | Auth, RLS, privacy, GDPR |
-| [docs/plans/2026-03-17-feature-design.md](docs/plans/2026-03-17-feature-design.md) | Design decisions, screen-level UX specs |
-| [docs/description.md](docs/description.md) | App description (update with implementation) |
-| [docs/development.md](docs/development.md) | Dev setup, run, debug |
-| [docs/architecture.md](docs/architecture.md) | Current architecture (update with implementation) |
-| [docs/datamodel.md](docs/datamodel.md) | Entities, types, Supabase schema |
-| [docs/testing.md](docs/testing.md) | How to run and write tests |
-| [docs/code-quality.md](docs/code-quality.md) | ESLint, Prettier, hooks, CI |
+| Doc                                                                                | Purpose                                           |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------- |
+| [docs/plans/functional-specs.md](docs/plans/functional-specs.md)                   | Product scope, features, user flows               |
+| [docs/plans/technical-specs.md](docs/plans/technical-specs.md)                     | Tech stack, patterns, testing, code quality       |
+| [docs/plans/architecture.md](docs/plans/architecture.md)                           | System design, feature slices, data flow          |
+| [docs/plans/security.md](docs/plans/security.md)                                   | Auth, RLS, privacy, GDPR                          |
+| [docs/plans/2026-03-17-feature-design.md](docs/plans/2026-03-17-feature-design.md) | Design decisions, screen-level UX specs           |
+| [docs/description.md](docs/description.md)                                         | App description (update with implementation)      |
+| [docs/development.md](docs/development.md)                                         | Dev setup, run, debug                             |
+| [docs/architecture.md](docs/architecture.md)                                       | Current architecture (update with implementation) |
+| [docs/datamodel.md](docs/datamodel.md)                                             | Entities, types, Supabase schema                  |
+| [docs/testing.md](docs/testing.md)                                                 | How to run and write tests                        |
+| [docs/code-quality.md](docs/code-quality.md)                                       | ESLint, Prettier, hooks, CI                       |
 
 **Keeping docs updated:** When implementing or changing features, update the matching doc. Planning docs in `docs/plans/`. Reference docs describe the current implementation.
 

@@ -7,7 +7,11 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev": "expo start",
+    "dev": "npm run db:start && expo start",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:status": "supabase status",
     "dev:web": "expo start --web",
     "dev:android": "expo start --android",
     "dev:ios": "expo start --ios",

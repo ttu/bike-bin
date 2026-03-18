@@ -20,15 +20,15 @@ iOS, Android, and Web — single codebase, full feature parity.
 
 ## Tech stack
 
-| Layer | Choice |
-|-------|--------|
-| Frontend | Expo + React Native + TypeScript |
-| Navigation | Expo Router (file-based) |
-| Server state | TanStack Query |
-| Backend | Supabase (Auth, PostgREST, Realtime, Storage, Edge Functions) |
-| Database | PostgreSQL + PostGIS |
-| UI | React Native Paper (Material Design 3) |
-| i18n | react-i18next + expo-localization |
+| Layer        | Choice                                                        |
+| ------------ | ------------------------------------------------------------- |
+| Frontend     | Expo + React Native + TypeScript                              |
+| Navigation   | Expo Router (file-based)                                      |
+| Server state | TanStack Query                                                |
+| Backend      | Supabase (Auth, PostgREST, Realtime, Storage, Edge Functions) |
+| Database     | PostgreSQL + PostGIS                                          |
+| UI           | React Native Paper (Material Design 3)                        |
+| i18n         | react-i18next + expo-localization                             |
 
 ## Documentation
 
@@ -43,11 +43,10 @@ Planning and reference docs live in [`docs/`](docs/README.md):
 ## Development
 
 ```bash
-# Prerequisites: Node.js, npm, Expo CLI, Supabase CLI
+# Prerequisites: Node.js, npm, Expo CLI, Supabase CLI, Docker
 
 npm install
-npx expo start          # Start dev server
-supabase start          # Start local Supabase
+npm run dev              # Start Supabase + Expo dev server
 ```
 
 See [docs/development.md](docs/development.md) for full setup instructions.
