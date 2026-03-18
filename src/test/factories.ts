@@ -1,4 +1,9 @@
 import { faker } from '@faker-js/faker';
+
+function maybeNull<T>(fn: () => T): T | null {
+  return faker.datatype.boolean() ? fn() : null;
+}
+
 import type {
   UserProfile,
   Item,
@@ -60,14 +65,14 @@ export function createMockItem(overrides?: Partial<Item>): Item {
       min: 1,
       max: 2,
     }),
-    price: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 500, fractionDigits: 2 })),
-    deposit: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 100, fractionDigits: 2 })),
-    borrowDuration: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`),
-    storageLocation: faker.helpers.maybe(() => faker.location.city()),
-    age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
-    usageKm: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })),
-    purchaseDate: faker.helpers.maybe(() => faker.date.past().toISOString()),
-    pickupLocationId: faker.helpers.maybe(() => faker.string.uuid() as LocationId),
+    price: maybeNull(() => faker.number.float({ min: 1, max: 500, fractionDigits: 2 })),
+    deposit: maybeNull(() => faker.number.float({ min: 1, max: 100, fractionDigits: 2 })),
+    borrowDuration: maybeNull(() => `${faker.number.int({ min: 1, max: 30 })} days`),
+    storageLocation: maybeNull(() => faker.location.city()),
+    age: maybeNull(() => `${faker.number.int({ min: 1, max: 10 })} years`),
+    usageKm: maybeNull(() => faker.number.int({ min: 0, max: 10000 })),
+    purchaseDate: maybeNull(() => faker.date.past().toISOString()),
+    pickupLocationId: maybeNull(() => faker.string.uuid() as LocationId),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
@@ -83,7 +88,7 @@ export function createMockBike(overrides?: Partial<Bike>): Bike {
     brand: faker.company.name(),
     model: faker.commerce.product(),
     type: faker.helpers.arrayElement(Object.values(BikeType)),
-    year: faker.helpers.maybe(() => faker.number.int({ min: 2000, max: 2026 })),
+    year: maybeNull(() => faker.number.int({ min: 2000, max: 2026 })),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
@@ -110,7 +115,7 @@ export function createMockLocation(overrides?: Partial<SavedLocation>): SavedLoc
 export function createMockConversation(overrides?: Partial<Conversation>): Conversation {
   return {
     id: faker.string.uuid() as ConversationId,
-    itemId: faker.helpers.maybe(() => faker.string.uuid() as ItemId),
+    itemId: maybeNull(() => faker.string.uuid() as ItemId),
     createdAt: faker.date.past().toISOString(),
     ...overrides,
   };
@@ -133,7 +138,7 @@ export function createMockBorrowRequest(overrides?: Partial<BorrowRequest>): Bor
     itemId: faker.string.uuid() as ItemId,
     requesterId: faker.string.uuid() as UserId,
     status: faker.helpers.arrayElement(Object.values(BorrowRequestStatus)),
-    message: faker.helpers.maybe(() => faker.lorem.sentence()),
+    message: maybeNull(() => faker.lorem.sentence()),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
@@ -145,11 +150,11 @@ export function createMockRating(overrides?: Partial<Rating>): Rating {
     id: faker.string.uuid() as RatingId,
     fromUserId: faker.string.uuid() as UserId,
     toUserId: faker.string.uuid() as UserId,
-    itemId: faker.helpers.maybe(() => faker.string.uuid() as ItemId),
+    itemId: maybeNull(() => faker.string.uuid() as ItemId),
     transactionType: faker.helpers.arrayElement(Object.values(TransactionType)),
     score: faker.number.int({ min: 1, max: 5 }),
-    text: faker.helpers.maybe(() => faker.lorem.sentence()),
-    editableUntil: faker.helpers.maybe(() => faker.date.future().toISOString()),
+    text: maybeNull(() => faker.lorem.sentence()),
+    editableUntil: maybeNull(() => faker.date.future().toISOString()),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
@@ -160,7 +165,7 @@ export function createMockGroup(overrides?: Partial<Group>): Group {
   return {
     id: faker.string.uuid() as GroupId,
     name: faker.company.name(),
-    description: faker.helpers.maybe(() => faker.lorem.sentence()),
+    description: maybeNull(() => faker.lorem.sentence()),
     isPublic: faker.datatype.boolean(),
     createdAt: faker.date.past().toISOString(),
     ...overrides,
