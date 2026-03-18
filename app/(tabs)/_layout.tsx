@@ -20,7 +20,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="inventory/index"
+        name="inventory"
         options={{
           title: t('tabs.inventory'),
           tabBarIcon: ({ color, size }) => (
