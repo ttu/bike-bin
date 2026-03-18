@@ -638,19 +638,19 @@ git commit -m "feat: add auth context, provider, and useAuth hook"
 - Create: `src/i18n/en/auth.json`
 - Test: `app/(auth)/__tests__/login.test.tsx`
 
-- [ ] **Step 1: Write test for welcome screen**
+- [x] **Step 1: Write test for welcome screen**
 
 Test: renders app logo/title. Test: renders "Continue with Apple" button. Test: renders "Continue with Google" button. Test: renders "Browse without signing in" link. Test: tapping sign-in calls auth method.
 
-- [ ] **Step 2: Implement welcome screen**
+- [x] **Step 2: Implement welcome screen**
 
 Per [feature-design.md §3.1](2026-03-17-feature-design.md). App logo + tagline, Apple sign-in button (dark), Google sign-in button (outlined), "Browse without signing in" link. Use Paper components + theme tokens.
 
-- [ ] **Step 3: Add auth translations to en/auth.json**
+- [x] **Step 3: Add auth translations to en/auth.json**
 
 Keys: `auth.welcome.title`, `auth.welcome.tagline`, `auth.welcome.continueWithApple`, `auth.welcome.continueWithGoogle`, `auth.welcome.browseWithout`.
 
-- [ ] **Step 4: Run tests, commit**
+- [x] **Step 4: Run tests, commit**
 
 ```bash
 git commit -m "feat: add welcome screen with Google/Apple sign-in"
