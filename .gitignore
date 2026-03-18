@@ -1,2 +1,8 @@
 .superpowers/
 AGENTS.local.md
+node_modules/
+.expo/
+dist/
+coverage/
+*.tsbuildinfo
+.env.local

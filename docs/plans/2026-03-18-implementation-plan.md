@@ -16,22 +16,22 @@
 
 Each phase produces a visible, runnable app. Phases are sequential — each builds on the previous.
 
-| Phase | What it builds | Runnable result |
-|-------|---------------|-----------------|
-| 1 | Project scaffold + theme + navigation shell | App with 4 tabs, themed, i18n-ready |
-| 2 | Supabase setup + shared types + API layer | Database schema, types, Supabase client |
-| 3 | Auth + onboarding | Sign in with Google/Apple, guided setup |
-| 4 | Inventory (items) | Add/edit/delete items, photo upload, status |
-| 5 | Locations | Saved locations, geocoding, primary location |
-| 6 | Search & discovery | Search, filters, distance, listing detail |
-| 7 | Messaging | Item-linked conversations, realtime chat |
-| 8 | Borrow workflow | Request/accept/reject/return flow |
-| 9 | Donate & sell | Mark as donated/sold, exchange coordination |
-| 10 | Bikes | Bike management, mounted parts |
-| 11 | Groups | Group CRUD, membership, visibility scoping |
-| 12 | Ratings & reviews | Post-transaction ratings, public profile |
-| 13 | Notifications | In-app center, push (native), email |
-| 14 | Profile, support & polish | Settings, help form, account deletion, CI |
+| Phase | What it builds                              | Runnable result                              |
+| ----- | ------------------------------------------- | -------------------------------------------- |
+| 1     | Project scaffold + theme + navigation shell | App with 4 tabs, themed, i18n-ready          |
+| 2     | Supabase setup + shared types + API layer   | Database schema, types, Supabase client      |
+| 3     | Auth + onboarding                           | Sign in with Google/Apple, guided setup      |
+| 4     | Inventory (items)                           | Add/edit/delete items, photo upload, status  |
+| 5     | Locations                                   | Saved locations, geocoding, primary location |
+| 6     | Search & discovery                          | Search, filters, distance, listing detail    |
+| 7     | Messaging                                   | Item-linked conversations, realtime chat     |
+| 8     | Borrow workflow                             | Request/accept/reject/return flow            |
+| 9     | Donate & sell                               | Mark as donated/sold, exchange coordination  |
+| 10    | Bikes                                       | Bike management, mounted parts               |
+| 11    | Groups                                      | Group CRUD, membership, visibility scoping   |
+| 12    | Ratings & reviews                           | Post-transaction ratings, public profile     |
+| 13    | Notifications                               | In-app center, push (native), email          |
+| 14    | Profile, support & polish                   | Settings, help form, account deletion, CI    |
 
 ---
 
@@ -44,18 +44,19 @@ Each phase produces a visible, runnable app. Phases are sequential — each buil
 #### Task 1.1: Initialize Expo project
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `app.json`, `babel.config.js`
 - Create: `.eslintrc.js`, `.prettierrc`, `.husky/pre-commit`
 - Create: `codecov.yml`
 
-- [ ] **Step 1: Create Expo project with TypeScript template**
+- [x] **Step 1: Create Expo project with TypeScript template**
 
 ```bash
 npx create-expo-app@latest bike-bin --template blank-typescript
 cd bike-bin
 ```
 
-- [ ] **Step 2: Install core dependencies**
+- [x] **Step 2: Install core dependencies**
 
 ```bash
 npx expo install expo-router react-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar
@@ -66,7 +67,7 @@ npm install @supabase/supabase-js
 npm install @react-native-community/netinfo
 ```
 
-- [ ] **Step 3: Install dev dependencies**
+- [x] **Step 3: Install dev dependencies**
 
 ```bash
 npm install -D eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser prettier eslint-config-prettier
@@ -77,23 +78,23 @@ npm install -D @faker-js/faker
 npx husky init
 ```
 
-- [ ] **Step 4: Configure TypeScript strict mode**
+- [x] **Step 4: Configure TypeScript strict mode**
 
 `tsconfig.json` — enable `strict`, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`. Extend Expo's base config.
 
-- [ ] **Step 5: Configure ESLint + Prettier**
+- [x] **Step 5: Configure ESLint + Prettier**
 
 Create `.eslintrc.js` with TypeScript + React Native rules. Create `.prettierrc` with project defaults (single quotes, trailing commas, 100 print width). Configure `lint-staged` in `package.json` for pre-commit.
 
-- [ ] **Step 6: Configure Jest**
+- [x] **Step 6: Configure Jest**
 
 Create `jest.config.js` with `jest-expo` preset. Configure coverage thresholds (80% branches/functions/lines/statements). Setup `src/test/setup.ts` for RNTL and i18n mock.
 
-- [ ] **Step 7: Add npm scripts to package.json**
+- [x] **Step 7: Add npm scripts to package.json**
 
 Scripts: `lint`, `lint:fix`, `format`, `format:check`, `test`, `test:watch`, `test:coverage`, `validate`, `validate:i18n`, `storybook`. Match scripts listed in [technical-specs.md §9](technical-specs.md).
 
-- [ ] **Step 8: Create codecov.yml**
+- [x] **Step 8: Create codecov.yml**
 
 Target: auto for project, 80% for patch, 1% threshold. Exclude test files.
 
@@ -107,6 +108,7 @@ git commit -m "chore: initialize Expo project with TypeScript and dev tooling"
 #### Task 1.2: Theme system
 
 **Files:**
+
 - Create: `src/shared/theme/theme.ts`
 - Create: `src/shared/theme/spacing.ts`
 - Create: `src/shared/theme/index.ts`
@@ -161,6 +163,7 @@ git commit -m "feat: add MD3 theme with teal palette, spacing, and design tokens
 #### Task 1.3: i18n setup
 
 **Files:**
+
 - Create: `src/shared/i18n/config.ts`
 - Create: `src/shared/i18n/index.ts`
 - Create: `src/i18n/en/common.json`
@@ -183,6 +186,7 @@ git commit -m "feat: add i18n framework with English translations"
 #### Task 1.4: Navigation shell (4-tab layout)
 
 **Files:**
+
 - Create: `app/_layout.tsx` (root layout — providers)
 - Create: `app/(tabs)/_layout.tsx` (tab bar config)
 - Create: `app/(tabs)/inventory/index.tsx` (placeholder)
@@ -223,6 +227,7 @@ git commit -m "feat: add 4-tab navigation shell with themed layout"
 #### Task 1.5: CI pipeline (GitHub Actions)
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Create basic CI workflow**
@@ -238,6 +243,7 @@ git commit -m "ci: add initial GitHub Actions CI pipeline"
 #### Task 1.6: Sentry error tracking
 
 **Files:**
+
 - Modify: `app/_layout.tsx`
 
 - [ ] **Step 1: Install and configure Sentry**
@@ -257,6 +263,7 @@ git commit -m "chore: add Sentry error tracking from day one"
 #### Task 1.7: Shared components (EmptyState, LoadingScreen)
 
 **Files:**
+
 - Create: `src/shared/components/EmptyState/EmptyState.tsx`
 - Create: `src/shared/components/EmptyState/index.ts`
 - Create: `src/shared/components/LoadingScreen/LoadingScreen.tsx`
@@ -293,6 +300,7 @@ git commit -m "feat: add EmptyState and LoadingScreen shared components"
 #### Task 2.1: Initialize Supabase project
 
 **Files:**
+
 - Create: `supabase/config.toml`
 - Create: `.env.local` (gitignored)
 - Create: `.env.example`
@@ -331,6 +339,7 @@ git commit -m "chore: initialize Supabase with PostGIS extension"
 #### Task 2.2: Database schema — core tables
 
 **Files:**
+
 - Create: `supabase/migrations/00002_create_core_tables.sql`
 
 - [ ] **Step 1: Write migration for profiles, saved_locations, items, item_photos, bikes**
@@ -360,6 +369,7 @@ git commit -m "feat: add core database tables (profiles, items, locations, bikes
 #### Task 2.3: Database schema — social tables
 
 **Files:**
+
 - Create: `supabase/migrations/00003_create_social_tables.sql`
 
 - [ ] **Step 1: Write migration for groups, group_members, borrow_requests, conversations, messages, ratings, notifications, support_requests**
@@ -389,6 +399,7 @@ git commit -m "feat: add social database tables (groups, messaging, borrow, rati
 #### Task 2.4: Row Level Security policies
 
 **Files:**
+
 - Create: `supabase/migrations/00004_rls_policies.sql`
 
 - [ ] **Step 1: Write RLS policies for all tables**
@@ -415,6 +426,7 @@ git commit -m "feat: add RLS policies for all tables"
 #### Task 2.5: Database functions
 
 **Files:**
+
 - Create: `supabase/migrations/00005_functions.sql`
 
 - [ ] **Step 1: Write database functions**
@@ -432,6 +444,7 @@ git commit -m "feat: add database functions (search, rating triggers, profile cr
 #### Task 2.6: Shared TypeScript types
 
 **Files:**
+
 - Create: `src/shared/types/ids.ts` (branded IDs)
 - Create: `src/shared/types/models.ts` (domain models)
 - Create: `src/shared/types/enums.ts` (status, category, etc.)
@@ -461,28 +474,59 @@ export type NotificationId = Brand<string, 'NotificationId'>;
 
 ```typescript
 // src/shared/types/enums.ts
-export const ItemCategory = { Component: 'component', Tool: 'tool', Accessory: 'accessory', Bike: 'bike' } as const;
+export const ItemCategory = {
+  Component: 'component',
+  Tool: 'tool',
+  Accessory: 'accessory',
+  Bike: 'bike',
+} as const;
 export type ItemCategory = (typeof ItemCategory)[keyof typeof ItemCategory];
 
 export const ItemCondition = { New: 'new', Good: 'good', Worn: 'worn', Broken: 'broken' } as const;
 export type ItemCondition = (typeof ItemCondition)[keyof typeof ItemCondition];
 
-export const ItemStatus = { Stored: 'stored', Mounted: 'mounted', Loaned: 'loaned', Reserved: 'reserved', Donated: 'donated', Sold: 'sold', Archived: 'archived' } as const;
+export const ItemStatus = {
+  Stored: 'stored',
+  Mounted: 'mounted',
+  Loaned: 'loaned',
+  Reserved: 'reserved',
+  Donated: 'donated',
+  Sold: 'sold',
+  Archived: 'archived',
+} as const;
 export type ItemStatus = (typeof ItemStatus)[keyof typeof ItemStatus];
 
-export const AvailabilityType = { Borrowable: 'borrowable', Donatable: 'donatable', Sellable: 'sellable', Private: 'private' } as const;
+export const AvailabilityType = {
+  Borrowable: 'borrowable',
+  Donatable: 'donatable',
+  Sellable: 'sellable',
+  Private: 'private',
+} as const;
 export type AvailabilityType = (typeof AvailabilityType)[keyof typeof AvailabilityType];
 
 export const Visibility = { Private: 'private', Groups: 'groups', All: 'all' } as const;
 export type Visibility = (typeof Visibility)[keyof typeof Visibility];
 
-export const BorrowRequestStatus = { Pending: 'pending', Accepted: 'accepted', Rejected: 'rejected', Returned: 'returned', Cancelled: 'cancelled' } as const;
+export const BorrowRequestStatus = {
+  Pending: 'pending',
+  Accepted: 'accepted',
+  Rejected: 'rejected',
+  Returned: 'returned',
+  Cancelled: 'cancelled',
+} as const;
 export type BorrowRequestStatus = (typeof BorrowRequestStatus)[keyof typeof BorrowRequestStatus];
 
 export const GroupRole = { Admin: 'admin', Member: 'member' } as const;
 export type GroupRole = (typeof GroupRole)[keyof typeof GroupRole];
 
-export const BikeType = { Road: 'road', Gravel: 'gravel', MTB: 'mtb', City: 'city', Touring: 'touring', Other: 'other' } as const;
+export const BikeType = {
+  Road: 'road',
+  Gravel: 'gravel',
+  MTB: 'mtb',
+  City: 'city',
+  Touring: 'touring',
+  Other: 'other',
+} as const;
 export type BikeType = (typeof BikeType)[keyof typeof BikeType];
 ```
 
@@ -499,6 +543,7 @@ git commit -m "feat: add shared TypeScript types (branded IDs, enums, domain mod
 #### Task 2.7: Supabase client + TanStack Query setup
 
 **Files:**
+
 - Create: `src/shared/api/supabase.ts`
 - Create: `src/shared/api/queryClient.ts`
 - Create: `src/shared/api/index.ts`
@@ -527,6 +572,7 @@ git commit -m "feat: add Supabase client and TanStack Query configuration"
 #### Task 2.8: Test data factories
 
 **Files:**
+
 - Create: `src/test/factories.ts`
 - Create: `src/test/utils.tsx` (update — add renderWithProviders)
 - Test: `src/test/__tests__/factories.test.ts`
@@ -558,6 +604,7 @@ git commit -m "test: add test data factories and renderWithProviders utility"
 #### Task 3.1: Auth context + provider
 
 **Files:**
+
 - Create: `src/features/auth/context.ts`
 - Create: `src/features/auth/provider.tsx`
 - Create: `src/features/auth/hooks/useAuth.ts`
@@ -585,6 +632,7 @@ git commit -m "feat: add auth context, provider, and useAuth hook"
 #### Task 3.2: Welcome screen (login)
 
 **Files:**
+
 - Create: `app/(auth)/login.tsx`
 - Create: `app/(auth)/_layout.tsx`
 - Create: `src/i18n/en/auth.json`
@@ -611,6 +659,7 @@ git commit -m "feat: add welcome screen with Google/Apple sign-in"
 #### Task 3.3: Auth routing (protected routes)
 
 **Files:**
+
 - Modify: `app/_layout.tsx`
 - Create: `src/features/auth/components/AuthGate/AuthGate.tsx`
 
@@ -631,6 +680,7 @@ git commit -m "feat: add auth routing and AuthGate for protected actions"
 #### Task 3.4: Onboarding screens
 
 **Files:**
+
 - Create: `app/(onboarding)/_layout.tsx`
 - Create: `app/(onboarding)/profile.tsx`
 - Create: `app/(onboarding)/location.tsx`
@@ -668,6 +718,7 @@ git commit -m "feat: add onboarding screens (profile setup, location setup)"
 #### Task 3.5: Unauthenticated experience (local inventory)
 
 **Files:**
+
 - Create: `src/features/auth/hooks/useLocalInventory.ts`
 - Create: `src/features/auth/utils/localStorage.ts`
 - Test: `src/features/auth/__tests__/useLocalInventory.test.ts`
@@ -701,6 +752,7 @@ git commit -m "feat: add local inventory for unauthenticated users"
 #### Task 4.1: Inventory types and utils
 
 **Files:**
+
 - Create: `src/features/inventory/types.ts`
 - Create: `src/features/inventory/utils/status.ts`
 - Create: `src/features/inventory/utils/validation.ts`
@@ -728,6 +780,7 @@ git commit -m "feat: add inventory status and validation utils"
 #### Task 4.2: Inventory TanStack Query hooks
 
 **Files:**
+
 - Create: `src/features/inventory/hooks/useItems.ts`
 - Create: `src/features/inventory/hooks/useItem.ts`
 - Create: `src/features/inventory/hooks/useCreateItem.ts`
@@ -760,6 +813,7 @@ git commit -m "feat: add inventory TanStack Query hooks (CRUD)"
 #### Task 4.3: Item list screen
 
 **Files:**
+
 - Modify: `app/(tabs)/inventory/index.tsx`
 - Create: `src/features/inventory/components/ItemCard/ItemCard.tsx`
 - Create: `src/features/inventory/components/CategoryFilter/CategoryFilter.tsx`
@@ -796,6 +850,7 @@ git commit -m "feat: add item list screen with category filters"
 #### Task 4.4: Add/Edit item form
 
 **Files:**
+
 - Create: `app/(tabs)/inventory/new.tsx`
 - Create: `app/(tabs)/inventory/edit/[id].tsx`
 - Create: `src/features/inventory/components/ItemForm/ItemForm.tsx`
@@ -822,6 +877,7 @@ git commit -m "feat: add item creation and editing form"
 #### Task 4.5: Item detail screen
 
 **Files:**
+
 - Create: `app/(tabs)/inventory/[id].tsx`
 - Create: `src/features/inventory/components/ItemDetail/ItemDetail.tsx`
 - Create: `src/features/inventory/components/PhotoGallery/PhotoGallery.tsx`
@@ -848,6 +904,7 @@ git commit -m "feat: add item detail screen with photo gallery"
 #### Task 4.6: Photo upload
 
 **Files:**
+
 - Create: `src/features/inventory/hooks/usePhotoUpload.ts`
 - Create: `src/features/inventory/components/PhotoPicker/PhotoPicker.tsx`
 - Test: `src/features/inventory/hooks/__tests__/usePhotoUpload.test.ts`
@@ -875,6 +932,7 @@ git commit -m "feat: add photo upload with compression and reordering"
 #### Task 4.7: E2E tests for inventory
 
 **Files:**
+
 - Create: `e2e/inventory.yaml`
 
 - [ ] **Step 1: Write Maestro E2E test for add item flow**
@@ -903,6 +961,7 @@ git commit -m "test: add Maestro E2E tests for inventory flows"
 #### Task 5.1: Locations feature
 
 **Files:**
+
 - Create: `src/features/locations/hooks/useLocations.ts`
 - Create: `src/features/locations/hooks/useCreateLocation.ts`
 - Create: `src/features/locations/hooks/useUpdateLocation.ts`
@@ -956,6 +1015,7 @@ git commit -m "feat: add location management with geocoding"
 #### Task 5.2: Saved locations screen
 
 **Files:**
+
 - Create: `app/(tabs)/profile/locations.tsx`
 - Create: `src/features/locations/components/LocationCard/LocationCard.tsx`
 - Create: `src/features/locations/components/LocationForm/LocationForm.tsx`
@@ -986,6 +1046,7 @@ git commit -m "feat: add saved locations screen with geocoding integration"
 #### Task 6.1: Search hooks
 
 **Files:**
+
 - Create: `src/features/search/hooks/useSearchItems.ts`
 - Create: `src/features/search/hooks/useSearchFilters.ts`
 - Create: `src/features/search/types.ts`
@@ -1025,6 +1086,7 @@ git commit -m "feat: add search hooks with distance-based filtering"
 #### Task 6.2: Search screens
 
 **Files:**
+
 - Modify: `app/(tabs)/search/index.tsx`
 - Create: `app/(tabs)/search/[id].tsx` (listing detail)
 - Create: `src/features/search/components/SearchBar/SearchBar.tsx`
@@ -1060,6 +1122,7 @@ git commit -m "feat: add search screens with filters and listing detail"
 #### Task 6.3: E2E tests for search
 
 **Files:**
+
 - Create: `e2e/search.yaml`
 
 - [ ] **Step 1: Write Maestro E2E test for search flow**
@@ -1087,6 +1150,7 @@ git commit -m "test: add Maestro E2E tests for search flows"
 #### Task 7.1: Messaging hooks
 
 **Files:**
+
 - Create: `src/features/messaging/hooks/useConversations.ts`
 - Create: `src/features/messaging/hooks/useConversation.ts`
 - Create: `src/features/messaging/hooks/useMessages.ts`
@@ -1119,6 +1183,7 @@ git commit -m "feat: add messaging hooks with realtime subscription"
 #### Task 7.2: Messaging screens
 
 **Files:**
+
 - Modify: `app/(tabs)/messages/index.tsx`
 - Create: `app/(tabs)/messages/[id].tsx`
 - Create: `src/features/messaging/components/ConversationCard/ConversationCard.tsx`
@@ -1153,6 +1218,7 @@ git commit -m "feat: add messaging screens with realtime chat"
 #### Task 7.3: Unread badge on Messages tab
 
 **Files:**
+
 - Create: `src/features/messaging/hooks/useUnreadCount.ts`
 - Modify: `app/(tabs)/_layout.tsx`
 
@@ -1177,6 +1243,7 @@ git commit -m "feat: add unread message badge on Messages tab"
 #### Task 8.1: Borrow hooks and utils
 
 **Files:**
+
 - Create: `src/features/borrow/hooks/useBorrowRequests.ts`
 - Create: `src/features/borrow/hooks/useCreateBorrowRequest.ts`
 - Create: `src/features/borrow/hooks/useAcceptBorrowRequest.ts`
@@ -1204,6 +1271,7 @@ git commit -m "feat: add borrow workflow hooks and utils"
 #### Task 8.2: Borrow request screens
 
 **Files:**
+
 - Create: `app/(tabs)/profile/borrow-requests.tsx`
 - Create: `src/features/borrow/components/BorrowRequestCard/BorrowRequestCard.tsx`
 - Create: `src/i18n/en/borrow.json`
@@ -1234,6 +1302,7 @@ git commit -m "feat: add borrow request screens and workflow"
 #### Task 9.1: Exchange actions
 
 **Files:**
+
 - Create: `src/features/exchange/hooks/useMarkDonated.ts`
 - Create: `src/features/exchange/hooks/useMarkSold.ts`
 - Create: `src/features/exchange/index.ts`
@@ -1258,6 +1327,7 @@ git commit -m "feat: add donate/sell status actions with confirmation"
 #### Task 9.2: E2E tests for messaging and borrow
 
 **Files:**
+
 - Create: `e2e/messaging.yaml`
 - Create: `e2e/borrow.yaml`
 
@@ -1286,6 +1356,7 @@ git commit -m "test: add Maestro E2E tests for messaging and borrow"
 #### Task 10.1: Bike CRUD and mounted parts
 
 **Files:**
+
 - Create: `src/features/bikes/hooks/useBikes.ts`
 - Create: `src/features/bikes/hooks/useCreateBike.ts`
 - Create: `src/features/bikes/hooks/useAttachPart.ts`
@@ -1325,6 +1396,7 @@ git commit -m "feat: add bike management with mounted parts"
 #### Task 11.1: Groups feature
 
 **Files:**
+
 - Create: `src/features/groups/hooks/useGroups.ts`
 - Create: `src/features/groups/hooks/useGroup.ts`
 - Create: `src/features/groups/hooks/useCreateGroup.ts`
@@ -1369,6 +1441,7 @@ git commit -m "feat: add groups with membership and item visibility scoping"
 #### Task 12.1: Ratings feature
 
 **Files:**
+
 - Create: `src/features/ratings/hooks/useCreateRating.ts`
 - Create: `src/features/ratings/hooks/useUserRatings.ts`
 - Create: `src/features/ratings/hooks/useUpdateRating.ts`
@@ -1418,6 +1491,7 @@ git commit -m "feat: add ratings, reviews, and public user profile"
 #### Task 13.1: In-app notifications
 
 **Files:**
+
 - Create: `src/features/notifications/hooks/useNotifications.ts`
 - Create: `src/features/notifications/hooks/useMarkNotificationRead.ts`
 - Create: `src/features/notifications/hooks/useUnreadNotificationCount.ts`
@@ -1453,6 +1527,7 @@ git commit -m "feat: add in-app notification center with realtime"
 #### Task 13.2: Notification settings screen
 
 **Files:**
+
 - Create: `app/(tabs)/profile/notification-settings.tsx`
 - Create: `src/features/notifications/hooks/useNotificationPreferences.ts`
 
@@ -1473,6 +1548,7 @@ git commit -m "feat: add notification settings screen"
 #### Task 13.3: Push notifications (native) + Email (Edge Functions)
 
 **Files:**
+
 - Create: `src/features/notifications/hooks/usePushToken.ts`
 - Create: `supabase/functions/send-push-notification/index.ts`
 - Create: `supabase/functions/send-notification-email/index.ts`
@@ -1506,6 +1582,7 @@ git commit -m "feat: add push notifications and email via Edge Functions"
 #### Task 14.1: Profile settings screen
 
 **Files:**
+
 - Modify: `app/(tabs)/profile/index.tsx`
 - Create: `src/features/profile/hooks/useProfile.ts`
 - Create: `src/features/profile/hooks/useUpdateProfile.ts`
@@ -1534,6 +1611,7 @@ git commit -m "feat: add profile settings screen with appearance toggle"
 #### Task 14.2: Help & Support
 
 **Files:**
+
 - Create: `app/(tabs)/profile/support.tsx`
 - Create: `src/features/profile/hooks/useSubmitSupport.ts`
 - Create: `supabase/functions/notify-support/index.ts`
@@ -1555,6 +1633,7 @@ git commit -m "feat: add help and support form"
 #### Task 14.3: Account deletion
 
 **Files:**
+
 - Create: `src/features/profile/hooks/useDeleteAccount.ts`
 - Create: `supabase/functions/delete-account/index.ts`
 
@@ -1571,6 +1650,7 @@ git commit -m "feat: add GDPR account deletion with data anonymization"
 #### Task 14.4: Expand CI pipeline
 
 **Files:**
+
 - Modify: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Add remaining CI jobs**
@@ -1590,6 +1670,7 @@ git commit -m "ci: expand CI with storybook, e2e, a11y, visual, and build jobs"
 #### Task 14.5: Responsive web layout
 
 **Files:**
+
 - Create: `src/shared/components/MaxWidthContainer/MaxWidthContainer.tsx`
 - Test: `src/shared/components/MaxWidthContainer/__tests__/MaxWidthContainer.test.tsx`
 
@@ -1606,6 +1687,7 @@ git commit -m "feat: add responsive MaxWidthContainer for web"
 #### Task 14.6: Offline support polish
 
 **Files:**
+
 - Create: `src/shared/hooks/useNetworkStatus.ts`
 - Create: `src/shared/hooks/useOfflineQueue.ts`
 - Create: `src/shared/components/OfflineBanner/OfflineBanner.tsx`
@@ -1631,6 +1713,7 @@ git commit -m "feat: add offline support with sync queue and banner"
 #### Task 14.7: Deep linking
 
 **Files:**
+
 - Modify: `app.json`
 - Modify: `app/_layout.tsx`
 
@@ -1647,6 +1730,7 @@ git commit -m "feat: configure deep linking for push notification navigation"
 #### Task 14.8: Report/moderation flow
 
 **Files:**
+
 - Create: `src/shared/components/ReportDialog/ReportDialog.tsx`
 - Create: `src/shared/hooks/useReport.ts`
 
@@ -1686,4 +1770,4 @@ After each phase, run the app and visually verify the new screens work correctly
 
 ---
 
-*Plan version: 1.0 · Created: 2026-03-18*
+_Plan version: 1.0 · Created: 2026-03-18_

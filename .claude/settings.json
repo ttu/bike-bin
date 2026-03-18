@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/ttu/.claude/plugins/cache/superpowers-marketplace/superpowers/5.0.0/skills/brainstorming/**)",
+      "Read(//Users/ttu/.claude/**)",
+      "Bash(/Users/ttu/.claude/plugins/cache/superpowers-marketplace/superpowers/5.0.0/lib/brainstorm-server/stop-server.sh /Users/ttu/src/github/bike-bin/.superpowers/brainstorm/84112-1773779328)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(./node_modules/.bin/husky init:*)",
+      "Bash(./node_modules/.bin/eslint --ext .ts,.tsx src/)",
+      "Bash(./node_modules/.bin/jest --passWithNoTests)"
+    ],
+    "additionalDirectories": ["/Users/ttu/src/github/bike-bin/docs/superpowers"]
+  }
+}
