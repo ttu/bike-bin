@@ -11,6 +11,36 @@ jest.mock('expo-router', () => ({
   },
 }));
 
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    functions: {
+      invoke: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user-id', user_metadata: { full_name: 'Test User' } },
+    isAuthenticated: true,
+    session: null,
+    isLoading: false,
+    signInWithGoogle: jest.fn(),
+    signInWithApple: jest.fn(),
+    signOut: jest.fn(),
+  }),
+}));
+
+const mockMutateAsync = jest.fn();
+jest.mock('@/features/locations', () => ({
+  useCreateLocation: () => ({
+    mutateAsync: mockMutateAsync,
+    isPending: false,
+  }),
+  geocodePostcode: jest.fn(),
+  GeocodeError: class GeocodeError extends Error {},
+}));
+
 describe('Location setup screen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -44,7 +74,7 @@ describe('Location setup screen', () => {
     ).toBeTruthy();
   });
 
-  it('Done navigates to main app', () => {
+  it('Done navigates to main app when postcode is empty', () => {
     const { getByText } = renderWithProviders(<LocationSetupScreen />);
     fireEvent.press(getByText('Done'));
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/inventory');
