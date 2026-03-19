@@ -3,6 +3,8 @@ AGENTS.local.md
 node_modules/
 .expo/
 dist/
+ios/
+android/
 coverage/
 *.tsbuildinfo
 .env.local

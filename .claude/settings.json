@@ -13,7 +13,11 @@
       "Bash(lsof -ti:8081)",
       "Bash(xargs kill:*)",
       "mcp__plugin_playwright_playwright__browser_snapshot",
-      "mcp__plugin_claude-mem_mcp-search__search"
+      "mcp__plugin_claude-mem_mcp-search__search",
+      "Bash(pod install:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm info:*)",
+      "Bash(/usr/bin/env npx:*)"
     ],
     "additionalDirectories": ["/Users/ttu/src/github/bike-bin/docs/superpowers"]
   }
