@@ -6,9 +6,10 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { Notification } from '@/shared/types';
+import { NotificationType } from '@/shared/types';
 
 /** Map notification type to an icon name. */
-function getNotificationIcon(type: string): string {
+function getNotificationIcon(type: NotificationType): string {
   switch (type) {
     case 'new_message':
       return 'message-text-outline';

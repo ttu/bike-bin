@@ -26,6 +26,7 @@ import type {
   RatingId,
   NotificationId,
   ReportId,
+  SupportRequestId,
 } from '@/shared/types';
 import {
   ItemCategory,
@@ -210,7 +211,7 @@ export function createMockNotification(overrides?: Partial<Notification>): Notif
 
 export function createMockSupportRequest(overrides?: Partial<SupportRequest>): SupportRequest {
   return {
-    id: faker.string.uuid(),
+    id: faker.string.uuid() as SupportRequestId,
     userId: faker.helpers.maybe(() => faker.string.uuid() as UserId),
     email: faker.helpers.maybe(() => faker.internet.email()),
     subject: faker.lorem.sentence({ min: 3, max: 8 }),
@@ -233,7 +234,7 @@ export function createMockReport(overrides?: Partial<Report>): Report {
     id: faker.string.uuid() as ReportId,
     reporterId: faker.string.uuid() as UserId,
     targetType: faker.helpers.arrayElement(['item', 'user'] as const),
-    targetId: faker.string.uuid(),
+    targetId: faker.string.uuid() as ItemId,
     reason: faker.helpers.arrayElement([...REPORT_REASONS]),
     text: faker.helpers.maybe(() => faker.lorem.sentence()),
     status: faker.helpers.arrayElement(['open', 'reviewed', 'closed'] as const),

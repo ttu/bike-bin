@@ -65,6 +65,16 @@ export const BikeType = {
 } as const;
 export type BikeType = (typeof BikeType)[keyof typeof BikeType];
 
+export const NotificationType = {
+  NewMessage: 'new_message',
+  BorrowRequestReceived: 'borrow_request_received',
+  BorrowRequestAccepted: 'borrow_request_accepted',
+  BorrowRequestDeclined: 'borrow_request_declined',
+  ReturnReminder: 'return_reminder',
+  RatingPrompt: 'rating_prompt',
+} as const;
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
+
 export const TransactionType = {
   Borrow: 'borrow',
   Donate: 'donate',

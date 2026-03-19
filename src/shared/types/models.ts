@@ -9,7 +9,9 @@ import {
   BorrowRequestId,
   RatingId,
   NotificationId,
+  ItemPhotoId,
   ReportId,
+  SupportRequestId,
 } from './ids';
 import {
   ItemCategory,
@@ -21,6 +23,7 @@ import {
   GroupRole,
   BikeType,
   TransactionType,
+  NotificationType,
 } from './enums';
 
 export interface UserProfile {
@@ -70,7 +73,7 @@ export interface Item {
 }
 
 export interface ItemPhoto {
-  id: string;
+  id: ItemPhotoId;
   itemId: ItemId;
   storagePath: string;
   sortOrder: number;
@@ -144,7 +147,7 @@ export interface Rating {
 export interface Notification {
   id: NotificationId;
   userId: UserId;
-  type: string;
+  type: NotificationType;
   title: string;
   body: string | undefined;
   data: Record<string, unknown>;
@@ -153,7 +156,7 @@ export interface Notification {
 }
 
 export interface SupportRequest {
-  id: string;
+  id: SupportRequestId;
   userId: UserId | undefined;
   email: string | undefined;
   subject: string;
@@ -172,7 +175,7 @@ export interface Report {
   id: ReportId;
   reporterId: UserId;
   targetType: ReportTargetType;
-  targetId: string;
+  targetId: ItemId | UserId;
   reason: string;
   text: string | undefined;
   status: ReportStatus;
