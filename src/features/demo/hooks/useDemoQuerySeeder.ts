@@ -30,7 +30,14 @@ export function seedDemoData(queryClient: QueryClient) {
   });
 
   queryClient.setQueryData(['items', uid], DEMO_ITEMS);
+  for (const item of DEMO_ITEMS) {
+    queryClient.setQueryData(['items', item.id], item);
+    queryClient.setQueryData(['item_photos', item.id], []);
+  }
   queryClient.setQueryData(['bikes', uid], DEMO_BIKES);
+  for (const bike of DEMO_BIKES) {
+    queryClient.setQueryData(['bikes', bike.id], bike);
+  }
   queryClient.setQueryData(['conversations', uid], DEMO_CONVERSATIONS);
   queryClient.setQueryData(['borrowRequests', uid], DEMO_BORROW_REQUESTS);
   queryClient.setQueryData(['unread_message_count', uid], DEMO_UNREAD_MESSAGE_COUNT);
