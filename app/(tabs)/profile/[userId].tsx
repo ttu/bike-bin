@@ -1,4 +1,5 @@
-import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { useState } from 'react';
+import { View, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import { Text, Avatar, Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -6,7 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { supabase } from '@/shared/api/supabase';
-import { LoadingScreen } from '@/shared/components';
+import { LoadingScreen, ReportDialog } from '@/shared/components';
+import type { ReportReason } from '@/shared/components';
+import { useReport } from '@/shared/hooks/useReport';
+import { useAuth } from '@/features/auth';
 import { spacing, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { UserId, ItemId } from '@/shared/types';
@@ -38,8 +42,12 @@ interface PublicListing {
 export default function PublicUserProfileScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('ratings');
+  const { t: tProfile } = useTranslation('profile');
   const router = useRouter();
   const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { user } = useAuth();
+  const [reportVisible, setReportVisible] = useState(false);
+  const reportMutation = useReport();
 
   // Fetch public profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -101,11 +109,38 @@ export default function PublicUserProfileScreen() {
 
   const formattedRating = profile.ratingCount > 0 ? profile.ratingAvg.toFixed(1) : '—';
 
+  const handleReportSubmit = (reason: ReportReason, text: string | undefined) => {
+    if (!user) return;
+    reportMutation.mutate(
+      {
+        reporterId: user.id as string as UserId,
+        targetType: 'user',
+        targetId: userId!,
+        reason,
+        text,
+      },
+      {
+        onSuccess: () => {
+          setReportVisible(false);
+          Alert.alert(tProfile('report.successTitle'), tProfile('report.successMessage'));
+        },
+        onError: () => {
+          Alert.alert(tProfile('report.errorTitle'), tProfile('report.errorMessage'));
+        },
+      },
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />
+        <Appbar.Action
+          icon="flag-outline"
+          onPress={() => setReportVisible(true)}
+          accessibilityLabel={t('profile.report')}
+        />
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -215,6 +250,13 @@ export default function PublicUserProfileScreen() {
           )}
         </View>
       </ScrollView>
+
+      <ReportDialog
+        visible={reportVisible}
+        onDismiss={() => setReportVisible(false)}
+        onSubmit={handleReportSubmit}
+        loading={reportMutation.isPending}
+      />
     </SafeAreaView>
   );
 }

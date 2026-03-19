@@ -11,6 +11,8 @@ import type {
   Group,
   GroupMember,
   Notification,
+  SupportRequest,
+  Report,
 } from '@/shared/types';
 import type {
   UserId,
@@ -23,6 +25,7 @@ import type {
   BorrowRequestId,
   RatingId,
   NotificationId,
+  ReportId,
 } from '@/shared/types';
 import {
   ItemCategory,
@@ -200,6 +203,40 @@ export function createMockNotification(overrides?: Partial<Notification>): Notif
     body: faker.helpers.maybe(() => faker.lorem.sentence()),
     data: {},
     isRead: faker.datatype.boolean(),
+    createdAt: faker.date.recent().toISOString(),
+    ...overrides,
+  };
+}
+
+export function createMockSupportRequest(overrides?: Partial<SupportRequest>): SupportRequest {
+  return {
+    id: faker.string.uuid(),
+    userId: faker.helpers.maybe(() => faker.string.uuid() as UserId),
+    email: faker.helpers.maybe(() => faker.internet.email()),
+    subject: faker.lorem.sentence({ min: 3, max: 8 }),
+    body: faker.lorem.paragraph(),
+    screenshotPath: faker.helpers.maybe(() => `screenshots/${faker.string.uuid()}.png`),
+    appVersion: faker.helpers.maybe(() => faker.system.semver()),
+    deviceInfo: faker.helpers.maybe(
+      () => `${faker.commerce.product()} / iOS ${faker.number.int({ min: 15, max: 18 })}`,
+    ),
+    status: faker.helpers.arrayElement(['open', 'closed'] as const),
+    createdAt: faker.date.recent().toISOString(),
+    ...overrides,
+  };
+}
+
+const REPORT_REASONS = ['spam', 'inappropriate', 'fake_listing', 'harassment', 'other'] as const;
+
+export function createMockReport(overrides?: Partial<Report>): Report {
+  return {
+    id: faker.string.uuid() as ReportId,
+    reporterId: faker.string.uuid() as UserId,
+    targetType: faker.helpers.arrayElement(['item', 'user'] as const),
+    targetId: faker.string.uuid(),
+    reason: faker.helpers.arrayElement([...REPORT_REASONS]),
+    text: faker.helpers.maybe(() => faker.lorem.sentence()),
+    status: faker.helpers.arrayElement(['open', 'reviewed', 'closed'] as const),
     createdAt: faker.date.recent().toISOString(),
     ...overrides,
   };

@@ -9,6 +9,7 @@ import {
   BorrowRequestId,
   RatingId,
   NotificationId,
+  ReportId,
 } from './ids';
 import {
   ItemCategory,
@@ -161,5 +162,19 @@ export interface SupportRequest {
   appVersion: string | undefined;
   deviceInfo: string | undefined;
   status: 'open' | 'closed';
+  createdAt: string;
+}
+
+export type ReportTargetType = 'item' | 'user';
+export type ReportStatus = 'open' | 'reviewed' | 'closed';
+
+export interface Report {
+  id: ReportId;
+  reporterId: UserId;
+  targetType: ReportTargetType;
+  targetId: string;
+  reason: string;
+  text: string | undefined;
+  status: ReportStatus;
   createdAt: string;
 }

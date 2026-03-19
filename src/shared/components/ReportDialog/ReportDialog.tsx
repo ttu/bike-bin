@@ -1,0 +1,148 @@
+import { useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Portal, Dialog, Button, RadioButton, TextInput, Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { spacing, borderRadius } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
+
+/** All report reason keys, matching i18n profile.report.reasons.* */
+export const REPORT_REASONS = [
+  'inappropriate',
+  'spam',
+  'stolenGoods',
+  'misleadingCondition',
+  'harassment',
+  'other',
+] as const;
+
+export type ReportReason = (typeof REPORT_REASONS)[number];
+
+interface ReportDialogProps {
+  visible: boolean;
+  onDismiss: () => void;
+  onSubmit: (reason: ReportReason, text: string | undefined) => void;
+  loading?: boolean;
+}
+
+/**
+ * Modal dialog for reporting a user or item.
+ * Shows a reason radio selector and an optional details text field.
+ */
+export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: ReportDialogProps) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation('profile');
+  const [selectedReason, setSelectedReason] = useState<ReportReason | ''>('');
+  const [details, setDetails] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = () => {
+    if (!selectedReason) {
+      setError(t('report.validationReason'));
+      return;
+    }
+    setError('');
+    onSubmit(selectedReason, details.trim() || undefined);
+  };
+
+  const handleDismiss = () => {
+    setSelectedReason('');
+    setDetails('');
+    setError('');
+    onDismiss();
+  };
+
+  return (
+    <Portal>
+      <Dialog
+        visible={visible}
+        onDismiss={handleDismiss}
+        style={[styles.dialog, { backgroundColor: theme.colors.surface }]}
+      >
+        <Dialog.Title>{t('report.title')}</Dialog.Title>
+        <Dialog.ScrollArea style={styles.scrollArea}>
+          <ScrollView>
+            <Text
+              variant="bodyMedium"
+              style={[styles.reasonLabel, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t('report.reasonLabel')}
+            </Text>
+
+            <RadioButton.Group
+              value={selectedReason}
+              onValueChange={(value) => {
+                setSelectedReason(value as ReportReason);
+                if (error) setError('');
+              }}
+            >
+              {REPORT_REASONS.map((reason) => (
+                <RadioButton.Item
+                  key={reason}
+                  label={t(`report.reasons.${reason}`)}
+                  value={reason}
+                  style={styles.radioItem}
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+              ))}
+            </RadioButton.Group>
+
+            {error ? (
+              <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
+                {error}
+              </Text>
+            ) : null}
+
+            <View style={styles.detailsContainer}>
+              <TextInput
+                label={t('report.detailsLabel')}
+                placeholder={t('report.detailsPlaceholder')}
+                value={details}
+                onChangeText={setDetails}
+                multiline
+                numberOfLines={3}
+                mode="outlined"
+                style={styles.textInput}
+              />
+            </View>
+          </ScrollView>
+        </Dialog.ScrollArea>
+        <Dialog.Actions>
+          <Button onPress={handleDismiss} disabled={loading}>
+            {t('signOutConfirm.cancel')}
+          </Button>
+          <Button mode="contained" onPress={handleSubmit} loading={loading} disabled={loading}>
+            {loading ? t('report.submitting') : t('report.submit')}
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  );
+}
+
+const styles = StyleSheet.create({
+  dialog: {
+    borderRadius: borderRadius.lg,
+  },
+  scrollArea: {
+    paddingHorizontal: 0,
+  },
+  reasonLabel: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  radioItem: {
+    paddingHorizontal: spacing.md,
+  },
+  error: {
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.xs,
+  },
+  detailsContainer: {
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.base,
+    paddingBottom: spacing.base,
+  },
+  textInput: {
+    minHeight: 80,
+  },
+});

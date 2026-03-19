@@ -11,3 +11,5 @@ export type LocationId = Brand<string, 'LocationId'>;
 export type BorrowRequestId = Brand<string, 'BorrowRequestId'>;
 export type RatingId = Brand<string, 'RatingId'>;
 export type NotificationId = Brand<string, 'NotificationId'>;
+export type ReportId = Brand<string, 'ReportId'>;
+export type SupportRequestId = Brand<string, 'SupportRequestId'>;
