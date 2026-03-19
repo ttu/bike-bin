@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet, TextInput as RNTextInput } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +50,7 @@ export function FilterSheet({
 }: FilterSheetProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
+  const themed = useThemedStyles(theme);
 
   const toggleChip = <T extends string>(list: T[], item: T, setter: (items: T[]) => void) => {
     if (list.includes(item)) {
@@ -64,7 +66,7 @@ export function FilterSheet({
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.header}>
-        <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
+        <Text variant="titleLarge" style={themed.onSurface}>
           {t('filter.title')}
         </Text>
         <Button mode="text" onPress={onReset} compact>
@@ -74,7 +76,7 @@ export function FilterSheet({
 
       {/* Category */}
       <View style={styles.section}>
-        <Text variant="titleSmall" style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+        <Text variant="titleSmall" style={[styles.sectionLabel, themed.onSurface]}>
           {t('filter.category')}
         </Text>
         <View style={styles.chipRow}>
@@ -85,7 +87,7 @@ export function FilterSheet({
                 key={cat}
                 selected={active}
                 onPress={() => toggleChip(categories, cat, onCategoriesChange)}
-                style={[active && { backgroundColor: theme.colors.primaryContainer }]}
+                style={[active && themed.activeChipBg]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
@@ -98,7 +100,7 @@ export function FilterSheet({
 
       {/* Condition */}
       <View style={styles.section}>
-        <Text variant="titleSmall" style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+        <Text variant="titleSmall" style={[styles.sectionLabel, themed.onSurface]}>
           {t('filter.condition')}
         </Text>
         <View style={styles.chipRow}>
@@ -109,7 +111,7 @@ export function FilterSheet({
                 key={cond}
                 selected={active}
                 onPress={() => toggleChip(conditions, cond, onConditionsChange)}
-                style={[active && { backgroundColor: theme.colors.primaryContainer }]}
+                style={[active && themed.activeChipBg]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
@@ -122,7 +124,7 @@ export function FilterSheet({
 
       {/* Offer type */}
       <View style={styles.section}>
-        <Text variant="titleSmall" style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+        <Text variant="titleSmall" style={[styles.sectionLabel, themed.onSurface]}>
           {t('filter.offerType')}
         </Text>
         <View style={styles.chipRow}>
@@ -133,7 +135,7 @@ export function FilterSheet({
                 key={offer}
                 selected={active}
                 onPress={() => toggleChip(offerTypes, offer, onOfferTypesChange)}
-                style={[active && { backgroundColor: theme.colors.primaryContainer }]}
+                style={[active && themed.activeChipBg]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
@@ -147,15 +149,12 @@ export function FilterSheet({
       {/* Price range (shown when Sell is selected) */}
       {showPriceRange && (
         <View style={styles.section}>
-          <Text
-            variant="titleSmall"
-            style={[styles.sectionLabel, { color: theme.colors.onSurface }]}
-          >
+          <Text variant="titleSmall" style={[styles.sectionLabel, themed.onSurface]}>
             {t('filter.priceRange')}
           </Text>
           <View style={styles.priceRow}>
-            <View style={[styles.priceInput, { borderColor: theme.colors.outline }]}>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <View style={[styles.priceInput, themed.outlineBorder]}>
+              <Text variant="bodySmall" style={themed.onSurfaceVariant}>
                 {t('filter.priceMin')}
               </Text>
               <RNTextInput
@@ -166,14 +165,14 @@ export function FilterSheet({
                 }}
                 keyboardType="numeric"
                 placeholder="\u2014"
-                style={{ color: theme.colors.onSurface, padding: 0 }}
+                style={themed.priceInputText}
               />
             </View>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
               {'\u2013'}
             </Text>
-            <View style={[styles.priceInput, { borderColor: theme.colors.outline }]}>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <View style={[styles.priceInput, themed.outlineBorder]}>
+              <Text variant="bodySmall" style={themed.onSurfaceVariant}>
                 {t('filter.priceMax')}
               </Text>
               <RNTextInput
@@ -184,7 +183,7 @@ export function FilterSheet({
                 }}
                 keyboardType="numeric"
                 placeholder="\u2014"
-                style={{ color: theme.colors.onSurface, padding: 0 }}
+                style={themed.priceInputText}
               />
             </View>
           </View>
@@ -201,6 +200,20 @@ export function FilterSheet({
         {t('filter.showResults')}
       </Button>
     </ScrollView>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        activeChipBg: { backgroundColor: theme.colors.primaryContainer },
+        outlineBorder: { borderColor: theme.colors.outline },
+        priceInputText: { color: theme.colors.onSurface, padding: 0 },
+      }),
+    [theme],
   );
 }
 

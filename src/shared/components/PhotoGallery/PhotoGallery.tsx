@@ -1,9 +1,10 @@
+import { useMemo, useState } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useState } from 'react';
 import type { ItemPhoto } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GALLERY_HEIGHT = SCREEN_WIDTH * 0.75; // 4:3 aspect ratio
@@ -13,18 +14,19 @@ interface PhotoGalleryProps {
 }
 
 export function PhotoGallery({ photos }: PhotoGalleryProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
+  const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (photos.length === 0) {
     return (
-      <View style={[styles.placeholder, { backgroundColor: theme.colors.surfaceVariant }]}>
+      <View style={[styles.placeholder, themed.surfaceVariantBg]}>
         <MaterialCommunityIcons
           name="image-outline"
           size={iconSize.xl}
           color={theme.colors.onSurfaceVariant}
         />
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
           No photos
         </Text>
       </View>
@@ -43,10 +45,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         }}
       >
         {photos.map((photo) => (
-          <View
-            key={photo.id}
-            style={[styles.photoContainer, { backgroundColor: theme.colors.surfaceVariant }]}
-          >
+          <View key={photo.id} style={[styles.photoContainer, themed.surfaceVariantBg]}>
             <MaterialCommunityIcons
               name="image"
               size={iconSize.xl}
@@ -73,6 +72,17 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         </View>
       )}
     </View>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        surfaceVariantBg: { backgroundColor: theme.colors.surfaceVariant },
+      }),
+    [theme],
   );
 }
 

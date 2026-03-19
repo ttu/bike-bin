@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Chip, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -15,18 +16,19 @@ interface SearchResultCardProps {
 export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
+  const themed = useThemedStyles(theme);
 
   const distanceText = formatDistance(item.distanceMeters);
 
   return (
     <Pressable
       onPress={() => onPress?.(item)}
-      style={[styles.container, { backgroundColor: theme.colors.surface }]}
+      style={[styles.container, themed.surfaceBg]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
       {/* Thumbnail placeholder */}
-      <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
+      <View style={[styles.thumbnail, themed.surfaceVariantBg]}>
         <MaterialCommunityIcons
           name="image-outline"
           size={iconSize.lg}
@@ -36,26 +38,18 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
 
       <View style={styles.content}>
         {/* Name + condition */}
-        <Text
-          variant="titleMedium"
-          numberOfLines={1}
-          style={[styles.name, { color: theme.colors.onSurface }]}
-        >
+        <Text variant="titleMedium" numberOfLines={1} style={[styles.name, themed.onSurface]}>
           {item.name}
         </Text>
 
-        <Text
-          variant="bodySmall"
-          style={{ color: theme.colors.onSurfaceVariant }}
-          numberOfLines={1}
-        >
+        <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={1}>
           {t(`condition.${item.condition}`)}
         </Text>
 
         {/* Owner name */}
         {item.ownerDisplayName ? (
           <Pressable onPress={() => onOwnerPress?.(item.ownerId)} accessibilityRole="button">
-            <Text variant="labelSmall" style={{ color: theme.colors.primary }} numberOfLines={1}>
+            <Text variant="labelSmall" style={themed.primary} numberOfLines={1}>
               {item.ownerDisplayName}
             </Text>
           </Pressable>
@@ -80,11 +74,7 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
             size={14}
             color={theme.colors.onSurfaceVariant}
           />
-          <Text
-            variant="bodySmall"
-            style={{ color: theme.colors.onSurfaceVariant }}
-            numberOfLines={1}
-          >
+          <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={1}>
             {item.areaName ? `${item.areaName}` : ''}
             {item.areaName && distanceText ? ' · ' : ''}
             {distanceText}
@@ -92,6 +82,20 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
         </View>
       </View>
     </Pressable>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        primary: { color: theme.colors.primary },
+        surfaceBg: { backgroundColor: theme.colors.surface },
+        surfaceVariantBg: { backgroundColor: theme.colors.surfaceVariant },
+      }),
+    [theme],
   );
 }
 

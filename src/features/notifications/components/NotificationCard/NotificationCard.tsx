@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import type { Notification } from '@/shared/types';
 
 /** Map notification type to an icon name. */
@@ -49,8 +51,9 @@ interface NotificationCardProps {
 }
 
 export function NotificationCard({ notification, onPress }: NotificationCardProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('notifications');
+  const themed = useThemedStyles(theme);
 
   const iconName = getNotificationIcon(notification.type);
   const typeLabel = t(`types.${notification.type}`, {
@@ -91,25 +94,21 @@ export function NotificationCard({ notification, onPress }: NotificationCardProp
 
       <View style={styles.content}>
         <View style={styles.headerRow}>
-          <Text variant="labelLarge" style={{ color: theme.colors.onSurface }} numberOfLines={1}>
+          <Text variant="labelLarge" style={themed.onSurface} numberOfLines={1}>
             {notification.title}
           </Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+          <Text variant="bodySmall" style={themed.onSurfaceVariant}>
             {timeAgo}
           </Text>
         </View>
 
         {notification.body ? (
-          <Text
-            variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant }}
-            numberOfLines={2}
-          >
+          <Text variant="bodyMedium" style={themed.onSurfaceVariant} numberOfLines={2}>
             {notification.body}
           </Text>
         ) : null}
 
-        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodySmall" style={themed.onSurfaceVariant}>
           {typeLabel}
         </Text>
       </View>
@@ -121,6 +120,17 @@ export function NotificationCard({ notification, onPress }: NotificationCardProp
         />
       )}
     </Pressable>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+      }),
+    [theme],
   );
 }
 

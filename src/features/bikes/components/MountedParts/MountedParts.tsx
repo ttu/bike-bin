@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Text, Button, IconButton, Dialog, Portal, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import type { Item, BikeId } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import { useItems } from '@/features/inventory';
 import { useMountedParts } from '../../hooks/useMountedParts';
 import { useAttachPart } from '../../hooks/useAttachPart';
@@ -15,8 +16,9 @@ interface MountedPartsProps {
 }
 
 export function MountedParts({ bikeId }: MountedPartsProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
+  const themed = useThemedStyles(theme);
 
   const { data: mountedParts = [] } = useMountedParts(bikeId);
   const { data: allItems = [] } = useItems();
@@ -48,13 +50,13 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
 
   const renderMountedItem = useCallback(
     ({ item }: { item: Item }) => (
-      <View style={[styles.partRow, { backgroundColor: theme.colors.surface }]}>
+      <View style={[styles.partRow, themed.surfaceBg]}>
         <View style={styles.partInfo}>
-          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+          <Text variant="bodyLarge" style={themed.onSurface}>
             {item.name}
           </Text>
           {item.brand && (
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodySmall" style={themed.onSurfaceVariant}>
               {item.brand}
               {item.model ? ` ${item.model}` : ''}
             </Text>
@@ -67,18 +69,18 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
         />
       </View>
     ),
-    [theme, t],
+    [themed, t],
   );
 
   const renderPickerItem = useCallback(
     ({ item }: { item: Item }) => (
-      <View style={[styles.partRow, { backgroundColor: theme.colors.surface }]}>
+      <View style={[styles.partRow, themed.surfaceBg]}>
         <View style={styles.partInfo}>
-          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+          <Text variant="bodyLarge" style={themed.onSurface}>
             {item.name}
           </Text>
           {item.brand && (
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodySmall" style={themed.onSurfaceVariant}>
               {item.brand}
             </Text>
           )}
@@ -88,13 +90,13 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
         </Button>
       </View>
     ),
-    [theme, t, handleAttach],
+    [themed, t, handleAttach],
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text variant="titleMedium" style={{ color: theme.colors.onBackground }}>
+        <Text variant="titleMedium" style={themed.onBackground}>
           {t('detail.mountedParts')}
         </Text>
         <Button mode="text" compact onPress={() => setShowPicker(true)} icon="plus">
@@ -103,11 +105,8 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
       </View>
 
       {mountedParts.length === 0 ? (
-        <View style={[styles.emptyState, { backgroundColor: theme.colors.surfaceVariant }]}>
-          <Text
-            variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}
-          >
+        <View style={[styles.emptyState, themed.surfaceVariantBg]}>
+          <Text variant="bodyMedium" style={[themed.onSurfaceVariant, styles.emptyText]}>
             {t('detail.noPartsDescription')}
           </Text>
         </View>
@@ -126,7 +125,7 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
           <Dialog.Title>{t('detail.selectPart')}</Dialog.Title>
           <Dialog.Content>
             {availableParts.length === 0 ? (
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
                 {t('detail.noAvailableParts')}
               </Text>
             ) : (
@@ -163,6 +162,20 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
   );
 }
 
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        onBackground: { color: theme.colors.onBackground },
+        surfaceBg: { backgroundColor: theme.colors.surface },
+        surfaceVariantBg: { backgroundColor: theme.colors.surfaceVariant },
+      }),
+    [theme],
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     marginTop: spacing.base,
@@ -179,6 +192,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: borderRadius.md,
     alignItems: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
   },
   partRow: {
     flexDirection: 'row',

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Chip, Button, Divider, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +30,7 @@ export function ItemDetail({
 }: ItemDetailProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const themed = useThemedStyles(theme);
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =
@@ -52,7 +54,7 @@ export function ItemDetail({
       {/* Title + Status */}
       <View style={styles.section}>
         <View style={styles.titleRow}>
-          <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+          <Text variant="headlineSmall" style={[styles.title, themed.onSurface]}>
             {item.name}
           </Text>
           <Chip compact style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
@@ -63,7 +65,7 @@ export function ItemDetail({
         </View>
 
         {/* Subtitle */}
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
           {t(`category.${item.category}`)}
           {item.brand ? ` · ${item.brand}` : ''}
           {item.model ? ` · ${item.model}` : ''}
@@ -101,7 +103,7 @@ export function ItemDetail({
       {/* Description */}
       {item.description && (
         <View style={styles.section}>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+          <Text variant="bodyMedium" style={themed.onSurface}>
             {item.description}
           </Text>
         </View>
@@ -147,16 +149,29 @@ export function ItemDetail({
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
+  const themed = useThemedStyles(theme);
   return (
-    <View style={[styles.detailRow, { borderBottomColor: theme.colors.outline }]}>
-      <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+    <View style={[styles.detailRow, themed.detailRowBorder]}>
+      <Text variant="labelMedium" style={themed.onSurfaceVariant}>
         {label}
       </Text>
-      <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+      <Text variant="bodyMedium" style={themed.onSurface}>
         {value}
       </Text>
     </View>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        detailRowBorder: { borderBottomColor: theme.colors.outline },
+      }),
+    [theme],
   );
 }
 
@@ -197,7 +212,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: undefined, // set dynamically via theme.colors.outline
   },
   actionButton: {
     marginBottom: spacing.sm,

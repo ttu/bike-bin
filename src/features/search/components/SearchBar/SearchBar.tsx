@@ -1,7 +1,7 @@
+import { useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Searchbar, useTheme, Menu } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -28,6 +28,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
+  const themed = useThemedStyles(theme);
   const [distanceMenuVisible, setDistanceMenuVisible] = useState(false);
 
   return (
@@ -37,8 +38,8 @@ export function SearchBar({
         value={query}
         onChangeText={onQueryChange}
         onSubmitEditing={onSubmit}
-        style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
-        inputStyle={{ color: theme.colors.onSurface }}
+        style={[styles.searchbar, themed.searchbarBg]}
+        inputStyle={themed.onSurface}
         accessibilityLabel={t('searchPlaceholder')}
       />
 
@@ -50,17 +51,13 @@ export function SearchBar({
             color={theme.colors.onSurfaceVariant}
           />
           {areaName ? (
-            <Text
-              variant="bodySmall"
-              style={{ color: theme.colors.onSurfaceVariant }}
-              numberOfLines={1}
-            >
+            <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={1}>
               {areaName}
             </Text>
           ) : null}
           {onChangeLocation ? (
             <Pressable onPress={onChangeLocation} accessibilityRole="button">
-              <Text variant="labelSmall" style={{ color: theme.colors.primary }}>
+              <Text variant="labelSmall" style={themed.primary}>
                 {t('changeLocation')}
               </Text>
             </Pressable>
@@ -77,7 +74,7 @@ export function SearchBar({
               accessibilityRole="button"
               accessibilityLabel={t('locationLine', { distance: distanceKm })}
             >
-              <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text variant="labelSmall" style={themed.onSurfaceVariant}>
                 {t('locationLine', { distance: distanceKm })}
               </Text>
               <MaterialCommunityIcons
@@ -101,6 +98,19 @@ export function SearchBar({
         </Menu>
       </View>
     </View>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        primary: { color: theme.colors.primary },
+        searchbarBg: { backgroundColor: theme.colors.surfaceVariant },
+      }),
+    [theme],
   );
 }
 

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Chip, Button, Divider, Avatar, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -27,6 +28,7 @@ export function ListingDetail({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const { isAuthenticated } = useAuth();
+  const themed = useThemedStyles(theme);
 
   const distanceText = formatDistance(item.distanceMeters);
 
@@ -47,10 +49,10 @@ export function ListingDetail({
 
       {/* Title + subtitle */}
       <View style={styles.section}>
-        <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+        <Text variant="headlineSmall" style={[styles.title, themed.onSurface]}>
           {item.name}
         </Text>
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
           {t(`category.${item.category}`)}
           {item.brand ? ` · ${item.brand}` : ''}
           {item.condition ? ` · ${t(`condition.${item.condition}`)}` : ''}
@@ -73,19 +75,15 @@ export function ListingDetail({
 
       {/* Owner card */}
       <View style={[styles.section, styles.ownerCard]}>
-        <Avatar.Icon
-          size={40}
-          icon="account"
-          style={{ backgroundColor: theme.colors.surfaceVariant }}
-        />
+        <Avatar.Icon size={40} icon="account" style={themed.avatarBg} />
         <View style={styles.ownerInfo}>
-          <Text variant="titleSmall" style={{ color: theme.colors.primary }} onPress={onOwnerPress}>
+          <Text variant="titleSmall" style={themed.primary} onPress={onOwnerPress}>
             {item.ownerDisplayName ?? ''}
           </Text>
           {item.ownerRatingCount > 0 && (
             <View style={styles.ratingRow}>
               <MaterialCommunityIcons name="star" size={14} color={theme.customColors.warning} />
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text variant="bodySmall" style={themed.onSurfaceVariant}>
                 {t('listing.ownerCard.rating', {
                   avg: item.ownerRatingAvg.toFixed(1),
                   count: item.ownerRatingCount,
@@ -94,7 +92,7 @@ export function ListingDetail({
             </View>
           )}
         </View>
-        <Text variant="labelSmall" style={{ color: theme.colors.primary }} onPress={onOwnerPress}>
+        <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
           {t('listing.ownerCard.viewProfile')}
         </Text>
       </View>
@@ -108,7 +106,7 @@ export function ListingDetail({
           size={iconSize.sm}
           color={theme.colors.onSurfaceVariant}
         />
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
           {item.areaName ?? ''}
           {item.areaName && distanceText ? ' · ' : ''}
           {distanceText}
@@ -118,7 +116,7 @@ export function ListingDetail({
       {/* Description */}
       {item.description ? (
         <View style={styles.section}>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+          <Text variant="bodyMedium" style={themed.onSurface}>
             {item.description}
           </Text>
         </View>
@@ -173,16 +171,31 @@ export function ListingDetail({
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
+  const themed = useThemedStyles(theme);
   return (
-    <View style={[styles.detailRow, { borderBottomColor: theme.colors.outline }]}>
-      <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+    <View style={[styles.detailRow, themed.detailRowBorder]}>
+      <Text variant="labelMedium" style={themed.onSurfaceVariant}>
         {label}
       </Text>
-      <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+      <Text variant="bodyMedium" style={themed.onSurface}>
         {value}
       </Text>
     </View>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        primary: { color: theme.colors.primary },
+        avatarBg: { backgroundColor: theme.colors.surfaceVariant },
+        detailRowBorder: { borderBottomColor: theme.colors.outline },
+      }),
+    [theme],
   );
 }
 
@@ -238,7 +251,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: undefined, // set dynamically via theme.colors.outline
   },
   actionButton: {
     marginBottom: spacing.sm,
