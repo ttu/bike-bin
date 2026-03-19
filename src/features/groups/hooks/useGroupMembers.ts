@@ -1,12 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { GroupMember, UserProfile } from '@/shared/types';
+import type { GroupMember } from '@/shared/types';
 import type { GroupId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
-
-export type GroupMemberWithProfile = GroupMember & {
-  profile: Pick<UserProfile, 'displayName' | 'avatarUrl'>;
-};
+import type { GroupMemberWithProfile } from '../types';
 
 /**
  * Fetch all members of a group with their profile info.

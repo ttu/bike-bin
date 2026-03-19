@@ -1,9 +1,10 @@
+// Types
+export type { CreateLocationInput, UpdateLocationInput } from './types';
+
 // Hooks
 export { useLocations, useLocation } from './hooks/useLocations';
 export { useCreateLocation } from './hooks/useCreateLocation';
-export type { CreateLocationInput } from './hooks/useCreateLocation';
 export { useUpdateLocation } from './hooks/useUpdateLocation';
-export type { UpdateLocationInput } from './hooks/useUpdateLocation';
 export { useDeleteLocation, DeleteLocationError } from './hooks/useDeleteLocation';
 export { usePrimaryLocation } from './hooks/usePrimaryLocation';
 

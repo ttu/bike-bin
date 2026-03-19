@@ -3,7 +3,7 @@ import { Text, Avatar, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
-import type { BorrowRequestWithDetails } from '../../hooks/useBorrowRequests';
+import type { BorrowRequestWithDetails } from '../../types';
 import type { UserId } from '@/shared/types';
 import { BorrowRequestStatus } from '@/shared/types';
 import { getRequestActions, type RequestAction } from '../../utils/borrowWorkflow';

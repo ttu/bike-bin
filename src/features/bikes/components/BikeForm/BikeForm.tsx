@@ -4,7 +4,7 @@ import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-nativ
 import { useTranslation } from 'react-i18next';
 import { BikeType } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
-import type { BikeFormData } from '../../hooks/useBikes';
+import type { BikeFormData } from '../../types';
 
 const BIKE_TYPES = [
   BikeType.Road,

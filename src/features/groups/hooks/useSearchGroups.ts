@@ -1,13 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { Group } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
-
-export interface SearchGroupResult extends Group {
-  memberCount: number;
-  isMember: boolean;
-}
+import type { SearchGroupResult } from '../types';
 
 /**
  * Search for public groups by name.

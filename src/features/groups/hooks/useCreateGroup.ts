@@ -3,7 +3,7 @@ import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import { GroupRole } from '@/shared/types';
 import type { Group } from '@/shared/types';
-import type { GroupFormData } from './useGroups';
+import type { GroupFormData } from '../types';
 
 /**
  * Create a new group. The creator becomes the first admin.

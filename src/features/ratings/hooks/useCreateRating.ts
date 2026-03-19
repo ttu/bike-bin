@@ -1,17 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { Rating, TransactionType } from '@/shared/types';
+import type { Rating } from '@/shared/types';
 import type { RatingId, UserId, ItemId } from '@/shared/types';
 import { RATING_WINDOW_DAYS } from '../utils/ratingWindow';
-
-export interface CreateRatingInput {
-  toUserId: UserId;
-  itemId?: ItemId;
-  transactionType: TransactionType;
-  score: number;
-  text?: string;
-}
+import type { CreateRatingInput } from '../types';
 
 /**
  * Create a new rating for a user after a completed transaction.

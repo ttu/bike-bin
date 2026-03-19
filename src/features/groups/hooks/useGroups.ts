@@ -4,12 +4,7 @@ import { supabase } from '@/shared/api/supabase';
 import type { Group, GroupMember } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
-
-export interface GroupFormData {
-  name: string;
-  description?: string;
-  isPublic: boolean;
-}
+import type { GroupFormData } from '../types';
 
 /**
  * Fetch all groups the current user is a member of.
@@ -37,11 +32,6 @@ export function useGroups() {
     enabled: !!user,
   });
 }
-
-export type GroupWithRole = Group & {
-  memberRole: GroupMember['role'];
-  joinedAt: string;
-};
 
 /**
  * Fetch a single group by ID.

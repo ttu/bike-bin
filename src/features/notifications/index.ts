@@ -1,3 +1,6 @@
+// Types
+export type { NotificationCategoryPreferences, NotificationPreferences } from './types';
+
 // Hooks
 export { useNotifications, NOTIFICATIONS_QUERY_KEY } from './hooks/useNotifications';
 export { useMarkNotificationRead } from './hooks/useMarkNotificationRead';

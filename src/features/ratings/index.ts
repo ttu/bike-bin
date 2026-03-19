@@ -1,8 +1,10 @@
 // Types
-export type { RatingWithReviewer } from './hooks/useUserRatings';
-export type { CreateRatingInput } from './hooks/useCreateRating';
-export type { UpdateRatingInput } from './hooks/useUpdateRating';
-export type { DeleteRatingInput } from './hooks/useDeleteRating';
+export type {
+  RatingWithReviewer,
+  CreateRatingInput,
+  UpdateRatingInput,
+  DeleteRatingInput,
+} from './types';
 
 // Hooks
 export { useUserRatings } from './hooks/useUserRatings';

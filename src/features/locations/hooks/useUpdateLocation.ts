@@ -2,17 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { SavedLocation } from '@/shared/types';
-import type { LocationId } from '@/shared/types';
 import { geocodePostcode } from '../utils/geocoding';
 import { locationsQueryKey } from './useLocations';
-
-export interface UpdateLocationInput {
-  id: LocationId;
-  label?: string;
-  postcode?: string;
-  isPrimary?: boolean;
-  country?: string;
-}
+import type { UpdateLocationInput } from '../types';
 
 /**
  * Update an existing saved location.

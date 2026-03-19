@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { BorrowRequestCard } from '../BorrowRequestCard/BorrowRequestCard';
-import type { BorrowRequestWithDetails } from '../../hooks/useBorrowRequests';
+import type { BorrowRequestWithDetails } from '../../types';
 import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
 import { BorrowRequestStatus, ItemStatus, AvailabilityType } from '@/shared/types';
 

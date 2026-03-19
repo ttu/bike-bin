@@ -1,23 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
-import type { BorrowRequest } from '@/shared/types';
 import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
 import { BorrowRequestStatus } from '@/shared/types';
 import type { ItemStatus, AvailabilityType } from '@/shared/types';
+import type { BorrowRequestWithDetails } from '../types';
 
 export const BORROW_REQUESTS_QUERY_KEY = 'borrowRequests';
-
-export interface BorrowRequestWithDetails extends BorrowRequest {
-  itemName: string;
-  itemStatus: ItemStatus;
-  itemOwnerId: UserId;
-  itemAvailabilityTypes: AvailabilityType[];
-  requesterName: string | undefined;
-  requesterAvatarUrl: string | undefined;
-  ownerName: string | undefined;
-  ownerAvatarUrl: string | undefined;
-}
 
 export function useBorrowRequests() {
   const { user } = useAuth();

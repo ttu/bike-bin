@@ -1,11 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { Rating, UserProfile } from '@/shared/types';
+import type { Rating } from '@/shared/types';
 import type { RatingId, UserId, ItemId } from '@/shared/types';
-
-export type RatingWithReviewer = Rating & {
-  reviewer: Pick<UserProfile, 'displayName' | 'avatarUrl'>;
-};
+import type { RatingWithReviewer } from '../types';
 
 /**
  * Fetch all ratings for a user's public profile, ordered newest first.

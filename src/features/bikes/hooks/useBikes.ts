@@ -3,15 +3,7 @@ import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { Bike } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
-import type { BikeType } from '@/shared/types';
-
-export interface BikeFormData {
-  name: string;
-  brand?: string;
-  model?: string;
-  type?: BikeType;
-  year?: number;
-}
+import type { BikeFormData } from '../types';
 
 export function useBikes() {
   const { user } = useAuth();

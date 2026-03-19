@@ -1,11 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { RatingId, UserId } from '@/shared/types';
-
-export interface DeleteRatingInput {
-  id: RatingId;
-  toUserId: UserId;
-}
+import type { DeleteRatingInput } from '../types';
 
 /**
  * Delete a rating. Only the author can delete (enforced by RLS).

@@ -6,10 +6,8 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
-import {
-  useNotificationPreferences,
-  type NotificationPreferences,
-} from '@/features/notifications/hooks/useNotificationPreferences';
+import { useNotificationPreferences } from '@/features/notifications';
+import type { NotificationPreferences } from '@/features/notifications';
 
 type CategoryKey = keyof NotificationPreferences;
 type ChannelKey = 'push' | 'email';

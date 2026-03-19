@@ -2,18 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 
+import type { NotificationCategoryPreferences, NotificationPreferences } from '../types';
+
 export const NOTIFICATION_PREFERENCES_QUERY_KEY = 'notification_preferences';
-
-export interface NotificationCategoryPreferences {
-  push: boolean;
-  email: boolean;
-}
-
-export interface NotificationPreferences {
-  messages: NotificationCategoryPreferences;
-  borrowActivity: NotificationCategoryPreferences;
-  reminders: NotificationCategoryPreferences;
-}
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   messages: { push: true, email: true },

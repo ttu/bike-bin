@@ -2,13 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import type { Rating } from '@/shared/types';
 import type { RatingId, UserId, ItemId } from '@/shared/types';
-
-export interface UpdateRatingInput {
-  id: RatingId;
-  toUserId: UserId;
-  score: number;
-  text?: string;
-}
+import type { UpdateRatingInput } from '../types';
 
 /**
  * Update a rating within its editable window.

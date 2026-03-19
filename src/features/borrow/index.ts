@@ -1,9 +1,11 @@
+// Types
+export type { BorrowRequestWithDetails } from './types';
+
 // Components
 export { BorrowRequestCard } from './components/BorrowRequestCard/BorrowRequestCard';
 
 // Hooks
 export { useBorrowRequests } from './hooks/useBorrowRequests';
-export type { BorrowRequestWithDetails } from './hooks/useBorrowRequests';
 export { useCreateBorrowRequest } from './hooks/useCreateBorrowRequest';
 export { useAcceptBorrowRequest } from './hooks/useAcceptBorrowRequest';
 export { useDeclineBorrowRequest } from './hooks/useDeclineBorrowRequest';

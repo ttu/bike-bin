@@ -5,13 +5,7 @@ import type { SavedLocation } from '@/shared/types';
 import type { LocationId } from '@/shared/types';
 import { geocodePostcode } from '../utils/geocoding';
 import { locationsQueryKey } from './useLocations';
-
-export interface CreateLocationInput {
-  postcode: string;
-  label: string;
-  isPrimary?: boolean;
-  country?: string;
-}
+import type { CreateLocationInput } from '../types';
 
 /**
  * Create a new saved location.
