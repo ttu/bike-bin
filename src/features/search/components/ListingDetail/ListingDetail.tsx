@@ -7,7 +7,7 @@ import type { AppTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import type { SearchResultItem } from '../../types';
 import type { ItemPhoto } from '@/shared/types';
-import { PhotoGallery } from '@/features/inventory/components/PhotoGallery/PhotoGallery';
+import { PhotoGallery } from '@/shared/components';
 
 interface ListingDetailProps {
   item: SearchResultItem;

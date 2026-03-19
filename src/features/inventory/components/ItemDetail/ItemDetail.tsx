@@ -6,7 +6,7 @@ import { ItemStatus } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
-import { PhotoGallery } from '../PhotoGallery/PhotoGallery';
+import { PhotoGallery } from '@/shared/components';
 
 interface ItemDetailProps {
   item: Item;
