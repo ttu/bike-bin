@@ -48,7 +48,7 @@ export function PhotoPicker({ photos, onAdd, onRemove, isUploading }: PhotoPicke
                 onPress={() => onRemove(photo.id)}
                 accessibilityLabel="Remove photo"
               >
-                <MaterialCommunityIcons name="close" size={14} color="#fff" />
+                <MaterialCommunityIcons name="close" size={14} color={theme.colors.onError} />
               </Pressable>
             )}
           </View>

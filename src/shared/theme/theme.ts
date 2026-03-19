@@ -4,6 +4,7 @@ import type { MD3Theme } from 'react-native-paper';
 export interface CustomColors {
   success: string;
   warning: string;
+  warningContainer: string;
 }
 
 export interface AppTheme extends MD3Theme {
@@ -30,6 +31,7 @@ export const lightTheme: AppTheme = {
   customColors: {
     success: '#16A34A',
     warning: '#D97706',
+    warningContainer: '#FFF3E0',
   },
 };
 
@@ -53,5 +55,6 @@ export const darkTheme: AppTheme = {
   customColors: {
     success: '#4ADE80',
     warning: '#FBBF24',
+    warningContainer: '#4A3000',
   },
 };

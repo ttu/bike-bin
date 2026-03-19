@@ -61,7 +61,10 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
         )}
         {conversation.unreadCount > 0 && (
           <View
-            style={[styles.unreadDot, { backgroundColor: theme.colors.primary }]}
+            style={[
+              styles.unreadDot,
+              { backgroundColor: theme.colors.primary, borderColor: theme.colors.background },
+            ]}
             testID="unread-dot"
           />
         )}
@@ -150,7 +153,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: undefined, // set dynamically via theme.colors.background
   },
   content: {
     flex: 1,

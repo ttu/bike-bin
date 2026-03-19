@@ -175,7 +175,7 @@ export function ListingDetail({
 function DetailRow({ label, value }: { label: string; value: string }) {
   const theme = useTheme();
   return (
-    <View style={styles.detailRow}>
+    <View style={[styles.detailRow, { borderBottomColor: theme.colors.outline }]}>
       <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
         {label}
       </Text>
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: undefined, // set dynamically via theme.colors.outline
   },
   actionButton: {
     marginBottom: spacing.sm,

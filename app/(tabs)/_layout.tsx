@@ -20,7 +20,7 @@ export default function TabLayout() {
           borderTopColor: theme.colors.surfaceVariant,
           borderTopWidth: 1,
           elevation: 8,
-          shadowColor: '#000',
+          shadowColor: theme.colors.shadow,
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.06,
           shadowRadius: 4,
@@ -55,7 +55,7 @@ export default function TabLayout() {
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
           tabBarBadgeStyle: {
             backgroundColor: theme.colors.primary,
-            color: '#FFFFFF',
+            color: theme.colors.onPrimary,
             fontSize: 10,
           },
         }}
