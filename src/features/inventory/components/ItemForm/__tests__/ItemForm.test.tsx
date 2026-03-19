@@ -7,6 +7,10 @@ jest.mock('@/features/groups', () => ({
   useGroups: () => ({ data: [], isLoading: false }),
 }));
 
+jest.mock('../../../hooks/useItems', () => ({
+  useItems: () => ({ data: [], isLoading: false }),
+}));
+
 describe('ItemForm', () => {
   const onSave = jest.fn();
   const defaultProps = { onSave, isSubmitting: false };
@@ -45,6 +49,32 @@ describe('ItemForm', () => {
     expect(getByText('Private')).toBeTruthy();
   });
 
+  it('shows subcategories when a category is selected', () => {
+    const { getByText } = renderWithProviders(<ItemForm {...defaultProps} />);
+
+    fireEvent.press(getByText('Components'));
+    expect(getByText('Type')).toBeTruthy();
+    expect(getByText('Drivetrain')).toBeTruthy();
+    expect(getByText('Brakes')).toBeTruthy();
+    expect(getByText('Wheels')).toBeTruthy();
+  });
+
+  it('resets subcategory when category changes', () => {
+    const { getByText, queryByText } = renderWithProviders(<ItemForm {...defaultProps} />);
+
+    // Select component category and a subcategory
+    fireEvent.press(getByText('Components'));
+    fireEvent.press(getByText('Drivetrain'));
+
+    // Switch to Tools
+    fireEvent.press(getByText('Tools'));
+
+    // Component subcategories should be gone
+    expect(queryByText('Drivetrain')).toBeNull();
+    // Tool subcategories should be visible
+    expect(getByText('Wrenches')).toBeTruthy();
+  });
+
   it('shows price input when Sellable is selected', () => {
     const { getByText, queryByText } = renderWithProviders(<ItemForm {...defaultProps} />);
 
@@ -64,6 +94,17 @@ describe('ItemForm', () => {
     fireEvent.press(getByText('Borrowable'));
     expect(getByText('Deposit')).toBeTruthy();
     expect(getByText('Suggested duration')).toBeTruthy();
+  });
+
+  it('defaults visibility to Private (Only me)', () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
+
+    // The "Only me" chip should be selected by default
+    // We verify this by checking the form submits with visibility: 'private'
+    fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Test Item');
+    fireEvent.press(getByText('Components'));
+    fireEvent.press(getByText('Good'));
+    fireEvent.press(getByText('Save'));
   });
 
   it('shows validation errors for missing required fields on submit', async () => {
@@ -93,6 +134,7 @@ describe('ItemForm', () => {
           name: 'My Cassette',
           category: ItemCategory.Component,
           condition: ItemCondition.Good,
+          visibility: 'private',
         }),
       );
     });

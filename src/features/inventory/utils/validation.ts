@@ -8,6 +8,7 @@ import type { LocationId, GroupId } from '@/shared/types';
 export interface ItemFormData {
   name: string;
   category?: ItemCategory;
+  subcategory?: string;
   condition?: ItemCondition;
   brand?: string;
   model?: string;
@@ -19,6 +20,7 @@ export interface ItemFormData {
   storageLocation?: string;
   age?: string;
   usageKm?: number;
+  usageUnit?: string;
   purchaseDate?: string;
   pickupLocationId?: LocationId;
   visibility?: Visibility;

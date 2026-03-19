@@ -67,6 +67,9 @@ export function ItemDetail({
         {/* Subtitle */}
         <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
           {t(`category.${item.category}`)}
+          {item.subcategory
+            ? ` · ${t(`subcategory.${item.subcategory}`, { defaultValue: item.subcategory })}`
+            : ''}
           {item.brand ? ` · ${item.brand}` : ''}
           {item.model ? ` · ${item.model}` : ''}
         </Text>
@@ -91,9 +94,17 @@ export function ItemDetail({
       {/* Detail Grid */}
       <View style={[styles.section, styles.detailGrid]}>
         <DetailRow label={t('detail.conditionLabel')} value={t(`condition.${item.condition}`)} />
-        {item.age && <DetailRow label={t('detail.ageLabel')} value={item.age} />}
+        {item.age && (
+          <DetailRow
+            label={t('detail.ageLabel')}
+            value={t(`form.ageOption.${item.age}`, { defaultValue: item.age })}
+          />
+        )}
         {item.usageKm !== undefined && (
-          <DetailRow label={t('detail.usageLabel')} value={`${item.usageKm} km`} />
+          <DetailRow
+            label={t('detail.usageLabel')}
+            value={`${item.usageKm} ${item.usageUnit ?? 'km'}`}
+          />
         )}
         {item.storageLocation && (
           <DetailRow label={t('detail.storageLabel')} value={item.storageLocation} />

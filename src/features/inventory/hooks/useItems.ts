@@ -83,6 +83,7 @@ export function useCreateItem() {
           owner_id: user!.id,
           name: formData.name,
           category: formData.category,
+          subcategory: formData.subcategory,
           condition: formData.condition,
           brand: formData.brand,
           model: formData.model,
@@ -95,9 +96,10 @@ export function useCreateItem() {
           storage_location: formData.storageLocation,
           age: formData.age,
           usage_km: formData.usageKm,
+          usage_unit: formData.usageUnit,
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
-          visibility: formData.visibility ?? 'all',
+          visibility: formData.visibility ?? 'private',
         })
         .select()
         .single();
@@ -129,6 +131,7 @@ export function useUpdateItem() {
         .update({
           name: formData.name,
           category: formData.category,
+          subcategory: formData.subcategory,
           condition: formData.condition,
           brand: formData.brand,
           model: formData.model,
@@ -140,6 +143,7 @@ export function useUpdateItem() {
           storage_location: formData.storageLocation,
           age: formData.age,
           usage_km: formData.usageKm,
+          usage_unit: formData.usageUnit,
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility,

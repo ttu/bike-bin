@@ -315,8 +315,10 @@ export type Database = {
           purchase_date: string | null;
           status: Database['public']['Enums']['item_status'];
           storage_location: string | null;
+          subcategory: string | null;
           updated_at: string;
           usage_km: number | null;
+          usage_unit: string | null;
           visibility: Database['public']['Enums']['item_visibility'];
         };
         Insert: {
@@ -338,8 +340,10 @@ export type Database = {
           purchase_date?: string | null;
           status?: Database['public']['Enums']['item_status'];
           storage_location?: string | null;
+          subcategory?: string | null;
           updated_at?: string;
           usage_km?: number | null;
+          usage_unit?: string | null;
           visibility?: Database['public']['Enums']['item_visibility'];
         };
         Update: {
@@ -361,8 +365,10 @@ export type Database = {
           purchase_date?: string | null;
           status?: Database['public']['Enums']['item_status'];
           storage_location?: string | null;
+          subcategory?: string | null;
           updated_at?: string;
           usage_km?: number | null;
+          usage_unit?: string | null;
           visibility?: Database['public']['Enums']['item_visibility'];
         };
         Relationships: [

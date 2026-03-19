@@ -53,6 +53,7 @@ export interface Item {
   bikeId: BikeId | undefined;
   name: string;
   category: ItemCategory;
+  subcategory: string | undefined;
   brand: string | undefined;
   model: string | undefined;
   description: string | undefined;
@@ -65,6 +66,7 @@ export interface Item {
   storageLocation: string | undefined;
   age: string | undefined;
   usageKm: number | undefined;
+  usageUnit: string | undefined;
   purchaseDate: string | undefined;
   pickupLocationId: LocationId | undefined;
   visibility: Visibility;
