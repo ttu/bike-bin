@@ -107,13 +107,12 @@ describe('ListingDetail', () => {
     expect(getByText(/Coming soon/)).toBeTruthy();
   });
 
-  it('shows disabled contact button for donatable-only items', () => {
+  it('shows contact button for donatable-only items', () => {
     const item = createSearchResult({
       availabilityTypes: [AvailabilityType.Donatable],
     });
     const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
     expect(getByText(/Contact/)).toBeTruthy();
-    expect(getByText(/Coming soon/)).toBeTruthy();
   });
 
   it('shows both buttons for mixed availability', () => {

@@ -11,12 +11,14 @@ import type { ItemCategory, ItemCondition, AvailabilityType, ItemPhoto } from '@
 import { LoadingScreen } from '@/shared/components';
 import { ListingDetail } from '@/features/search';
 import type { SearchResultItem } from '@/features/search';
+import { useCreateConversation } from '@/features/messaging';
 
 export default function ListingDetailScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { mutate: createConversation } = useCreateConversation();
 
   // Fetch item by ID
   const { data: item, isLoading: itemLoading } = useQuery({
@@ -92,6 +94,17 @@ export default function ListingDetailScreen() {
     return <LoadingScreen />;
   }
 
+  const handleContact = () => {
+    createConversation(
+      { itemId: item.id, otherUserId: item.ownerId },
+      {
+        onSuccess: (result) => {
+          router.push(`/messages/${result.conversationId}`);
+        },
+      },
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
@@ -104,7 +117,7 @@ export default function ListingDetailScreen() {
         />
       </Appbar.Header>
 
-      <ListingDetail item={item} photos={photos ?? []} />
+      <ListingDetail item={item} photos={photos ?? []} onContact={handleContact} />
     </SafeAreaView>
   );
 }

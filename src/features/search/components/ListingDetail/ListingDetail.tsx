@@ -146,8 +146,13 @@ export function ListingDetail({
         ) : (
           <>
             {(showContactOnly || showBoth) && (
-              <Button mode="contained" onPress={onContact} disabled style={styles.actionButton}>
-                {t('listing.actions.contact')} ({t('listing.actions.comingSoon')})
+              <Button
+                mode="contained"
+                onPress={onContact}
+                disabled={!onContact}
+                style={styles.actionButton}
+              >
+                {t('listing.actions.contact')}
               </Button>
             )}
             {(showBorrowOnly || showBoth) && (

@@ -8,6 +8,7 @@ import onboardingEn from '@/i18n/en/onboarding.json';
 import inventoryEn from '@/i18n/en/inventory.json';
 import locationsEn from '@/i18n/en/locations.json';
 import searchEn from '@/i18n/en/search.json';
+import messagesEn from '@/i18n/en/messages.json';
 
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'en';
 
@@ -15,7 +16,7 @@ i18n.use(initReactI18next).init({
   lng: deviceLanguage,
   fallbackLng: 'en',
   defaultNS: 'common',
-  ns: ['common', 'auth', 'onboarding', 'inventory', 'locations', 'search'],
+  ns: ['common', 'auth', 'onboarding', 'inventory', 'locations', 'search', 'messages'],
   resources: {
     en: {
       common: commonEn,
@@ -24,6 +25,7 @@ i18n.use(initReactI18next).init({
       inventory: inventoryEn,
       locations: locationsEn,
       search: searchEn,
+      messages: messagesEn,
     },
   },
   interpolation: {

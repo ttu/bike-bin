@@ -1,0 +1,33 @@
+{
+  "title": "Messages",
+  "empty": {
+    "title": "No conversations yet",
+    "description": "Start one by contacting a listing owner."
+  },
+  "conversation": {
+    "itemReference": "Re: {{itemName}}",
+    "itemSold": "(Sold) \u2713",
+    "itemDonated": "(Donated) \u2713",
+    "you": "You",
+    "lastMessagePrefix": "{{name}}: {{message}}",
+    "noMessages": "No messages yet"
+  },
+  "detail": {
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "viewItem": "View",
+    "itemAvailability": {
+      "borrowable": "Available to borrow",
+      "donatable": "Available for donation",
+      "sellable": "For sale",
+      "private": "Private"
+    },
+    "loadMore": "Load older messages"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "yesterday": "Yesterday"
+  }
+}

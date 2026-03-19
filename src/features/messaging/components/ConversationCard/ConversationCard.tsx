@@ -1,0 +1,174 @@
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Text, Avatar, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { spacing } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
+import type { ConversationListItem } from '../../types';
+import { ItemStatus } from '@/shared/types';
+
+interface ConversationCardProps {
+  conversation: ConversationListItem;
+  onPress?: (conversation: ConversationListItem) => void;
+}
+
+export function ConversationCard({ conversation, onPress }: ConversationCardProps) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation('messages');
+
+  const isCompleted =
+    conversation.itemStatus === ItemStatus.Sold || conversation.itemStatus === ItemStatus.Donated;
+
+  const statusSuffix =
+    conversation.itemStatus === ItemStatus.Sold
+      ? ` ${t('conversation.itemSold')}`
+      : conversation.itemStatus === ItemStatus.Donated
+        ? ` ${t('conversation.itemDonated')}`
+        : '';
+
+  const itemLabel = conversation.itemName
+    ? t('conversation.itemReference', { itemName: conversation.itemName }) + statusSuffix
+    : undefined;
+
+  const lastMessagePreview = conversation.lastMessageBody
+    ? conversation.lastMessageBody
+    : t('conversation.noMessages');
+
+  const timestamp = conversation.lastMessageAt
+    ? formatRelativeTime(conversation.lastMessageAt)
+    : '';
+
+  return (
+    <Pressable
+      onPress={() => onPress?.(conversation)}
+      style={({ pressed }) => [
+        styles.container,
+        { backgroundColor: pressed ? theme.colors.surfaceVariant : theme.colors.surface },
+        isCompleted && styles.dimmed,
+      ]}
+      accessibilityLabel={conversation.otherParticipantName ?? ''}
+      accessibilityRole="button"
+    >
+      {/* Avatar */}
+      <View style={styles.avatarContainer}>
+        {conversation.otherParticipantAvatarUrl ? (
+          <Avatar.Image size={44} source={{ uri: conversation.otherParticipantAvatarUrl }} />
+        ) : (
+          <Avatar.Icon
+            size={44}
+            icon="account"
+            style={{ backgroundColor: theme.colors.surfaceVariant }}
+          />
+        )}
+        {conversation.unreadCount > 0 && (
+          <View
+            style={[styles.unreadDot, { backgroundColor: theme.colors.primary }]}
+            testID="unread-dot"
+          />
+        )}
+      </View>
+
+      {/* Content */}
+      <View style={styles.content}>
+        <View style={styles.topRow}>
+          <Text
+            variant="titleSmall"
+            numberOfLines={1}
+            style={[styles.name, { color: theme.colors.onSurface }]}
+          >
+            {conversation.otherParticipantName ?? ''}
+          </Text>
+          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            {timestamp}
+          </Text>
+        </View>
+
+        {itemLabel && (
+          <Text
+            variant="bodySmall"
+            numberOfLines={1}
+            style={[styles.itemName, { color: theme.colors.primary }]}
+          >
+            {itemLabel}
+          </Text>
+        )}
+
+        <Text
+          variant="bodySmall"
+          numberOfLines={1}
+          style={[
+            styles.preview,
+            { color: theme.colors.onSurfaceVariant },
+            conversation.unreadCount > 0 && { fontWeight: '600', color: theme.colors.onSurface },
+          ]}
+        >
+          {lastMessagePreview}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
+function formatRelativeTime(isoString: string): string {
+  const now = Date.now();
+  const then = new Date(isoString).getTime();
+  const diffMs = now - then;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMinutes < 1) return 'now';
+  if (diffMinutes < 60) return `${diffMinutes}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  if (diffDays === 1) return 'yesterday';
+  if (diffDays < 7) return `${diffDays}d`;
+
+  return new Date(isoString).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
+    gap: spacing.md,
+  },
+  dimmed: {
+    opacity: 0.6,
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  unreadDot: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
+    gap: 2,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  name: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  itemName: {
+    marginTop: 1,
+  },
+  preview: {
+    marginTop: 1,
+  },
+});
