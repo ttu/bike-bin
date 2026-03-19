@@ -12,6 +12,7 @@ import {
 import type { ConversationListItem } from '@/features/messaging';
 import type { SearchResultItem } from '@/features/search';
 import type { BorrowRequestWithDetails } from '@/features/borrow/types';
+import type { MessageWithSender } from '@/features/messaging';
 import {
   DEMO_USER_ID,
   DEMO_OTHER_USER_1,
@@ -38,6 +39,17 @@ import {
   DEMO_NOTIFICATION_1,
   DEMO_NOTIFICATION_2,
   DEMO_NOTIFICATION_3,
+  DEMO_MESSAGE_1,
+  DEMO_MESSAGE_2,
+  DEMO_MESSAGE_3,
+  DEMO_MESSAGE_4,
+  DEMO_MESSAGE_5,
+  DEMO_MESSAGE_6,
+  DEMO_MESSAGE_7,
+  DEMO_MESSAGE_8,
+  DEMO_MESSAGE_9,
+  DEMO_MESSAGE_10,
+  DEMO_MESSAGE_11,
 } from './ids';
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -490,6 +502,115 @@ export const DEMO_NOTIFICATIONS: Notification[] = [
     createdAt: hoursAgo(8),
   },
 ];
+
+// ── Messages (per conversation) ─────────────────────────────────────
+
+/** Messages for conversation 1: Marcus B. borrowing Lezyne pump */
+const DEMO_MESSAGES_CONV_1: MessageWithSender[] = [
+  {
+    id: DEMO_MESSAGE_1,
+    conversationId: DEMO_CONVERSATION_1,
+    senderId: DEMO_OTHER_USER_1,
+    body: 'Hey! I saw you have the Lezyne pump listed. Could I borrow it for a few days?',
+    createdAt: daysAgo(5),
+    isOwn: false,
+  },
+  {
+    id: DEMO_MESSAGE_2,
+    conversationId: DEMO_CONVERSATION_1,
+    senderId: DEMO_USER_ID,
+    body: 'Sure thing! When do you need it?',
+    createdAt: daysAgo(5) + '1', // slightly later
+    isOwn: true,
+  },
+  {
+    id: DEMO_MESSAGE_3,
+    conversationId: DEMO_CONVERSATION_1,
+    senderId: DEMO_OTHER_USER_1,
+    body: 'Tomorrow would be great. I can pick it up in Kreuzberg.',
+    createdAt: daysAgo(4),
+    isOwn: false,
+  },
+  {
+    id: DEMO_MESSAGE_4,
+    conversationId: DEMO_CONVERSATION_1,
+    senderId: DEMO_USER_ID,
+    body: 'Works for me. I will be home after 5pm.',
+    createdAt: daysAgo(4) + '1',
+    isOwn: true,
+  },
+  {
+    id: DEMO_MESSAGE_5,
+    conversationId: DEMO_CONVERSATION_1,
+    senderId: DEMO_OTHER_USER_1,
+    body: 'Thanks! I will bring it back on Saturday.',
+    createdAt: hoursAgo(2),
+    isOwn: false,
+  },
+];
+
+/** Messages for conversation 2: Sarah K. interested in GP5000 tires */
+const DEMO_MESSAGES_CONV_2: MessageWithSender[] = [
+  {
+    id: DEMO_MESSAGE_6,
+    conversationId: DEMO_CONVERSATION_2,
+    senderId: DEMO_OTHER_USER_2,
+    body: 'Hi! Are the GP5000 tires still available?',
+    createdAt: daysAgo(2),
+    isOwn: false,
+  },
+  {
+    id: DEMO_MESSAGE_7,
+    conversationId: DEMO_CONVERSATION_2,
+    senderId: DEMO_USER_ID,
+    body: 'Yes they are! Both in good shape with plenty of tread.',
+    createdAt: daysAgo(2) + '1',
+    isOwn: true,
+  },
+  {
+    id: DEMO_MESSAGE_8,
+    conversationId: DEMO_CONVERSATION_2,
+    senderId: DEMO_OTHER_USER_2,
+    body: 'Would you take 30 for the tires?',
+    createdAt: hoursAgo(8),
+    isOwn: false,
+  },
+];
+
+/** Messages for conversation 3: Jonas W. interested in Fizik saddle */
+const DEMO_MESSAGES_CONV_3: MessageWithSender[] = [
+  {
+    id: DEMO_MESSAGE_9,
+    conversationId: DEMO_CONVERSATION_3,
+    senderId: DEMO_OTHER_USER_3,
+    body: 'Is the saddle still available? I would love to pick it up!',
+    createdAt: daysAgo(1),
+    isOwn: false,
+  },
+  {
+    id: DEMO_MESSAGE_10,
+    conversationId: DEMO_CONVERSATION_3,
+    senderId: DEMO_USER_ID,
+    body: 'Yes! It is yours if you want it. Free to a good home.',
+    createdAt: daysAgo(1) + '1',
+    isOwn: true,
+  },
+  {
+    id: DEMO_MESSAGE_11,
+    conversationId: DEMO_CONVERSATION_3,
+    senderId: DEMO_OTHER_USER_3,
+    body: 'Amazing, thank you! Can I come by this weekend?',
+    createdAt: hoursAgo(20),
+    isOwn: false,
+  },
+];
+
+/** Map of conversation ID → messages (newest first, matching useMessages order) */
+export const DEMO_MESSAGES: Record<string, MessageWithSender[]> = {
+  [DEMO_CONVERSATION_1]: [...DEMO_MESSAGES_CONV_1].reverse(),
+  [DEMO_CONVERSATION_2]: [...DEMO_MESSAGES_CONV_2].reverse(),
+  [DEMO_CONVERSATION_3]: [...DEMO_MESSAGES_CONV_3].reverse(),
+};
 
 // ── Unread Counts ────────────────────────────────────────────────────
 

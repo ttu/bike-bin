@@ -4,6 +4,7 @@ import {
   DEMO_ITEMS,
   DEMO_BIKES,
   DEMO_CONVERSATIONS,
+  DEMO_MESSAGES,
   DEMO_BORROW_REQUESTS,
   DEMO_UNREAD_MESSAGE_COUNT,
   DEMO_UNREAD_NOTIFICATION_COUNT,
@@ -39,6 +40,13 @@ export function seedDemoData(queryClient: QueryClient) {
     queryClient.setQueryData(['bikes', bike.id], bike);
   }
   queryClient.setQueryData(['conversations', uid], DEMO_CONVERSATIONS);
+  for (const conv of DEMO_CONVERSATIONS) {
+    queryClient.setQueryData(['conversation', conv.id], conv);
+    queryClient.setQueryData(['messages', conv.id], {
+      pages: [DEMO_MESSAGES[conv.id] ?? []],
+      pageParams: [undefined],
+    });
+  }
   queryClient.setQueryData(['borrowRequests', uid], DEMO_BORROW_REQUESTS);
   queryClient.setQueryData(['unread_message_count', uid], DEMO_UNREAD_MESSAGE_COUNT);
   queryClient.setQueryData(['unread_notification_count', uid], DEMO_UNREAD_NOTIFICATION_COUNT);

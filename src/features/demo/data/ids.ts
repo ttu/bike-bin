@@ -45,6 +45,11 @@ export const DEMO_MESSAGE_3 = 'demo-msg-003' as MessageId;
 export const DEMO_MESSAGE_4 = 'demo-msg-004' as MessageId;
 export const DEMO_MESSAGE_5 = 'demo-msg-005' as MessageId;
 export const DEMO_MESSAGE_6 = 'demo-msg-006' as MessageId;
+export const DEMO_MESSAGE_7 = 'demo-msg-007' as MessageId;
+export const DEMO_MESSAGE_8 = 'demo-msg-008' as MessageId;
+export const DEMO_MESSAGE_9 = 'demo-msg-009' as MessageId;
+export const DEMO_MESSAGE_10 = 'demo-msg-010' as MessageId;
+export const DEMO_MESSAGE_11 = 'demo-msg-011' as MessageId;
 
 export const DEMO_BORROW_REQUEST_1 = 'demo-borrow-001' as BorrowRequestId;
 export const DEMO_BORROW_REQUEST_2 = 'demo-borrow-002' as BorrowRequestId;
