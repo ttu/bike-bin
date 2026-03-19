@@ -1,0 +1,22 @@
+// Components
+export { BorrowRequestCard } from './components/BorrowRequestCard/BorrowRequestCard';
+
+// Hooks
+export { useBorrowRequests } from './hooks/useBorrowRequests';
+export type { BorrowRequestWithDetails } from './hooks/useBorrowRequests';
+export { useCreateBorrowRequest } from './hooks/useCreateBorrowRequest';
+export { useAcceptBorrowRequest } from './hooks/useAcceptBorrowRequest';
+export { useDeclineBorrowRequest } from './hooks/useDeclineBorrowRequest';
+export { useCancelBorrowRequest } from './hooks/useCancelBorrowRequest';
+export { useMarkReturned } from './hooks/useMarkReturned';
+
+// Utils
+export {
+  canRequestBorrow,
+  canAcceptRequest,
+  canDeclineRequest,
+  canCancelRequest,
+  canMarkReturned,
+  getRequestActions,
+} from './utils/borrowWorkflow';
+export type { RequestAction } from './utils/borrowWorkflow';
