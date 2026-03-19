@@ -13,13 +13,28 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bikebin.app"
+      "bundleIdentifier": "com.bikebin.app",
+      "associatedDomains": ["applinks:bikebin.app"]
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#0D9488"
       },
-      "package": "com.bikebin.app"
+      "package": "com.bikebin.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "bikebin.app",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
