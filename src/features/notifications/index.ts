@@ -6,6 +6,10 @@ export {
   UNREAD_NOTIFICATION_COUNT_QUERY_KEY,
 } from './hooks/useUnreadNotificationCount';
 export { useRealtimeNotifications } from './hooks/useRealtimeNotifications';
+export {
+  useNotificationPreferences,
+  NOTIFICATION_PREFERENCES_QUERY_KEY,
+} from './hooks/useNotificationPreferences';
 
 // Components
 export { NotificationCard } from './components/NotificationCard/NotificationCard';
