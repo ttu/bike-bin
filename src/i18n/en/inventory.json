@@ -73,6 +73,7 @@
     "visibilityAll": "All users",
     "visibilityGroups": "Groups...",
     "visibilityPrivate": "Only me",
+    "noGroups": "You are not a member of any groups yet.",
     "optionalSection": "More details",
     "ageLabel": "Age",
     "agePlaceholder": "e.g. 2 years",

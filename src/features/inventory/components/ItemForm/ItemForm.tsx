@@ -3,8 +3,11 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
+import type { GroupId } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
 import { validateItem, type ItemFormData, type ItemFormErrors } from '../../utils/validation';
+import { useGroups } from '@/features/groups';
+import type { GroupWithRole } from '@/features/groups';
 
 const CATEGORIES = [ItemCategory.Component, ItemCategory.Tool, ItemCategory.Accessory];
 const CONDITIONS = [
@@ -30,6 +33,7 @@ interface ItemFormProps {
 export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
+  const { data: userGroups } = useGroups();
 
   const [name, setName] = useState(initialData?.name ?? '');
   const [category, setCategory] = useState<ItemCategory | undefined>(initialData?.category);
@@ -49,8 +53,13 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
   const [visibility, setVisibility] = useState<Visibility>(
     initialData?.visibility ?? Visibility.All,
   );
+  const [groupIds, setGroupIds] = useState<GroupId[]>(initialData?.groupIds ?? []);
   const [showOptional, setShowOptional] = useState(false);
   const [errors, setErrors] = useState<ItemFormErrors>({});
+
+  const toggleGroupId = useCallback((id: GroupId) => {
+    setGroupIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
+  }, []);
 
   const isSellable = availabilityTypes.includes(AvailabilityType.Sellable);
   const isBorrowable = availabilityTypes.includes(AvailabilityType.Borrowable);
@@ -81,6 +90,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
       age: age || undefined,
       usageKm: usageKm ? parseInt(usageKm, 10) : undefined,
       visibility,
+      groupIds: visibility === Visibility.Groups ? groupIds : undefined,
     };
 
     const validationErrors = validateItem(formData);
@@ -104,6 +114,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
     age,
     usageKm,
     visibility,
+    groupIds,
     isSellable,
     isBorrowable,
     onSave,
@@ -288,6 +299,18 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           {t('form.visibilityAll')}
         </Chip>
         <Chip
+          selected={visibility === Visibility.Groups}
+          onPress={() => setVisibility(Visibility.Groups)}
+          style={[
+            styles.chip,
+            visibility === Visibility.Groups && {
+              backgroundColor: theme.colors.primaryContainer,
+            },
+          ]}
+        >
+          {t('form.visibilityGroups')}
+        </Chip>
+        <Chip
           selected={visibility === Visibility.Private}
           onPress={() => setVisibility(Visibility.Private)}
           style={[
@@ -298,6 +321,40 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           {t('form.visibilityPrivate')}
         </Chip>
       </View>
+
+      {/* Group selection (when visibility is Groups) */}
+      {visibility === Visibility.Groups && (
+        <View style={styles.groupSelection}>
+          {userGroups && userGroups.length > 0 ? (
+            <View style={styles.chipRow}>
+              {userGroups.map((group: GroupWithRole) => (
+                <Chip
+                  key={group.id}
+                  selected={groupIds.includes(group.id)}
+                  onPress={() => toggleGroupId(group.id)}
+                  style={[
+                    styles.chip,
+                    groupIds.includes(group.id) && {
+                      backgroundColor: theme.colors.secondaryContainer,
+                    },
+                  ]}
+                >
+                  {group.name}
+                </Chip>
+              ))}
+            </View>
+          ) : (
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              {t('form.noGroups')}
+            </Text>
+          )}
+          {errors.groupIds && (
+            <HelperText type="error" visible>
+              {errors.groupIds}
+            </HelperText>
+          )}
+        </View>
+      )}
 
       {/* Optional section */}
       <Button
@@ -401,6 +458,9 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: borderRadius.full,
+  },
+  groupSelection: {
+    marginTop: spacing.sm,
   },
   optionalToggle: {
     marginTop: spacing.lg,

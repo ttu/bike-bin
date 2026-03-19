@@ -1,6 +1,9 @@
 import type { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
-import { AvailabilityType as AvailabilityTypeEnum } from '@/shared/types';
-import type { LocationId } from '@/shared/types';
+import {
+  AvailabilityType as AvailabilityTypeEnum,
+  Visibility as VisibilityEnum,
+} from '@/shared/types';
+import type { LocationId, GroupId } from '@/shared/types';
 
 export interface ItemFormData {
   name: string;
@@ -19,6 +22,7 @@ export interface ItemFormData {
   purchaseDate?: string;
   pickupLocationId?: LocationId;
   visibility?: Visibility;
+  groupIds?: GroupId[];
 }
 
 export type ItemFormErrors = Partial<Record<keyof ItemFormData, string>>;
@@ -47,6 +51,11 @@ export function validateItem(data: ItemFormData): ItemFormErrors {
 
   if (data.deposit !== undefined && data.deposit < 0) {
     errors.deposit = 'Deposit must be positive';
+  }
+
+  // Groups visibility requires at least one group selected
+  if (data.visibility === VisibilityEnum.Groups && (!data.groupIds || data.groupIds.length === 0)) {
+    errors.groupIds = 'Select at least one group';
   }
 
   return errors;

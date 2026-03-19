@@ -9,6 +9,7 @@ import type {
   BorrowRequest,
   Rating,
   Group,
+  GroupMember,
 } from '@/shared/types';
 import type {
   UserId,
@@ -30,6 +31,7 @@ import {
   BorrowRequestStatus,
   BikeType,
   TransactionType,
+  GroupRole,
 } from '@/shared/types';
 
 export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
@@ -164,6 +166,16 @@ export function createMockGroup(overrides?: Partial<Group>): Group {
     description: faker.helpers.maybe(() => faker.lorem.sentence()),
     isPublic: faker.datatype.boolean(),
     createdAt: faker.date.past().toISOString(),
+    ...overrides,
+  };
+}
+
+export function createMockGroupMember(overrides?: Partial<GroupMember>): GroupMember {
+  return {
+    groupId: faker.string.uuid() as GroupId,
+    userId: faker.string.uuid() as UserId,
+    role: faker.helpers.arrayElement(Object.values(GroupRole)),
+    joinedAt: faker.date.past().toISOString(),
     ...overrides,
   };
 }

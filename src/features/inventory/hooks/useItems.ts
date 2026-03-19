@@ -2,10 +2,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { Item, ItemPhoto } from '@/shared/types';
-import type { ItemId } from '@/shared/types';
-import { ItemStatus } from '@/shared/types';
+import type { ItemId, GroupId } from '@/shared/types';
+import { ItemStatus, Visibility } from '@/shared/types';
 import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
+
+async function syncItemGroups(itemId: ItemId, groupIds: GroupId[] | undefined): Promise<void> {
+  // Remove all existing item_groups for this item
+  const { error: deleteError } = await supabase.from('item_groups').delete().eq('item_id', itemId);
+
+  if (deleteError) throw deleteError;
+
+  // Insert new item_groups if any
+  if (groupIds && groupIds.length > 0) {
+    const rows = groupIds.map((groupId) => ({ item_id: itemId, group_id: groupId }));
+    const { error: insertError } = await supabase.from('item_groups').insert(rows);
+
+    if (insertError) throw insertError;
+  }
+}
 
 export function useItems() {
   const { user } = useAuth();
@@ -88,7 +103,15 @@ export function useCreateItem() {
         .single();
 
       if (error) throw error;
-      return data as Item;
+
+      const item = data as Item;
+
+      // Sync item_groups for group visibility
+      if (formData.visibility === Visibility.Groups) {
+        await syncItemGroups(item.id as ItemId, formData.groupIds);
+      }
+
+      return item;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
@@ -126,7 +149,16 @@ export function useUpdateItem() {
         .single();
 
       if (error) throw error;
-      return data as Item;
+
+      const item = data as Item;
+
+      // Sync item_groups: clear old entries and insert new ones if visibility is groups
+      await syncItemGroups(
+        id,
+        formData.visibility === Visibility.Groups ? formData.groupIds : undefined,
+      );
+
+      return item;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['items'] });

@@ -1,0 +1,59 @@
+{
+  "title": "Groups",
+  "profileMenu": {
+    "label": "Groups"
+  },
+  "empty": {
+    "title": "No groups yet",
+    "description": "Join or create a group to share items with your community",
+    "cta": "Create group"
+  },
+  "search": {
+    "placeholder": "Search public groups...",
+    "noResults": "No groups found",
+    "noResultsDescription": "Try a different search term"
+  },
+  "create": {
+    "title": "Create Group",
+    "nameLabel": "Group name",
+    "namePlaceholder": "e.g. Local Cycling Club",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What is this group about?",
+    "publicLabel": "Public group",
+    "publicDescription": "Anyone can find and request to join",
+    "privateDescription": "Invite-only, not shown in search",
+    "save": "Create Group"
+  },
+  "detail": {
+    "members": "Members",
+    "memberCount": "{{count}} member",
+    "memberCount_plural": "{{count}} members",
+    "admin": "Admin",
+    "member": "Member",
+    "invite": "Invite Members",
+    "settings": "Settings",
+    "leaveGroup": "Leave Group",
+    "leaveConfirm": "Are you sure you want to leave this group?",
+    "deleteGroup": "Delete Group",
+    "deleteConfirm": "Are you sure you want to delete this group? This cannot be undone.",
+    "promote": "Promote to Admin",
+    "promoteConfirm": "Promote {{name}} to admin?",
+    "remove": "Remove from Group",
+    "removeConfirm": "Remove {{name}} from this group?",
+    "lastAdminWarning": "You must promote another member to admin before leaving.",
+    "publicBadge": "Public",
+    "privateBadge": "Private",
+    "joinGroup": "Request to Join",
+    "joined": "Joined",
+    "edit": "Edit Group"
+  },
+  "edit": {
+    "title": "Edit Group",
+    "save": "Save Changes"
+  },
+  "visibility": {
+    "selectGroups": "Select groups",
+    "selectedCount": "{{count}} group selected",
+    "selectedCount_plural": "{{count}} groups selected"
+  }
+}

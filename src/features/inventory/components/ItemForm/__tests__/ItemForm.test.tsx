@@ -3,6 +3,10 @@ import { renderWithProviders } from '@/test/utils';
 import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemForm } from '../ItemForm';
 
+jest.mock('@/features/groups', () => ({
+  useGroups: () => ({ data: [], isLoading: false }),
+}));
+
 describe('ItemForm', () => {
   const onSave = jest.fn();
   const defaultProps = { onSave, isSubmitting: false };
