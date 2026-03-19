@@ -2,10 +2,12 @@ import { Tabs } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
+import { useUnreadCount } from '@/features/messaging';
 
 export default function TabLayout() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { data: unreadCount } = useUnreadCount();
 
   return (
     <Tabs
@@ -38,12 +40,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="messages/index"
+        name="messages"
         options={{
           title: t('tabs.messages'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="chat" size={size} color={color} />
           ),
+          tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: theme.colors.primary,
+            color: '#FFFFFF',
+            fontSize: 10,
+          },
         }}
       />
       <Tabs.Screen
