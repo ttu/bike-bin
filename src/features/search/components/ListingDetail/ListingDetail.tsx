@@ -5,6 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import { formatDistance } from '@/shared/utils';
 import { useAuth } from '@/features/auth';
 import type { SearchResultItem } from '../../types';
 import type { ItemPhoto } from '@/shared/types';
@@ -197,12 +198,6 @@ function useThemedStyles(theme: AppTheme) {
       }),
     [theme],
   );
-}
-
-function formatDistance(meters: number | undefined): string {
-  if (meters === undefined) return '';
-  if (meters < 1000) return `${Math.round(meters)} m`;
-  return `${(meters / 1000).toFixed(1)} km`;
 }
 
 const styles = StyleSheet.create({

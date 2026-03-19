@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { formatMessageTime } from '@/shared/utils';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { MessageWithSender } from '../../types';
@@ -51,14 +52,6 @@ export function ChatBubble({ message }: ChatBubbleProps) {
       </View>
     </View>
   );
-}
-
-function formatMessageTime(isoString: string): string {
-  const date = new Date(isoString);
-  return date.toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 const styles = StyleSheet.create({

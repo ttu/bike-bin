@@ -1,6 +1,7 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { formatRelativeTime } from '@/shared/utils';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { BorrowRequestWithDetails } from '../../types';
@@ -197,26 +198,6 @@ function getStatusColor(
     default:
       return { bg: theme.colors.surfaceVariant, text: theme.colors.onSurfaceVariant };
   }
-}
-
-function formatRelativeTime(isoString: string): string {
-  const now = Date.now();
-  const then = new Date(isoString).getTime();
-  const diffMs = now - then;
-  const diffMinutes = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMinutes < 1) return 'just now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return 'yesterday';
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return new Date(isoString).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  });
 }
 
 const styles = StyleSheet.create({

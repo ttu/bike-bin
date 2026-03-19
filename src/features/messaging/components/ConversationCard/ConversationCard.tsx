@@ -1,6 +1,7 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { formatRelativeTime } from '@/shared/utils';
 import { spacing } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { ConversationListItem } from '../../types';
@@ -34,7 +35,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
     : t('conversation.noMessages');
 
   const timestamp = conversation.lastMessageAt
-    ? formatRelativeTime(conversation.lastMessageAt)
+    ? formatRelativeTime(conversation.lastMessageAt, true)
     : '';
 
   return (
@@ -109,26 +110,6 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
       </View>
     </Pressable>
   );
-}
-
-function formatRelativeTime(isoString: string): string {
-  const now = Date.now();
-  const then = new Date(isoString).getTime();
-  const diffMs = now - then;
-  const diffMinutes = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMinutes < 1) return 'now';
-  if (diffMinutes < 60) return `${diffMinutes}m`;
-  if (diffHours < 24) return `${diffHours}h`;
-  if (diffDays === 1) return 'yesterday';
-  if (diffDays < 7) return `${diffDays}d`;
-
-  return new Date(isoString).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  });
 }
 
 const styles = StyleSheet.create({
