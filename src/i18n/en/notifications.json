@@ -1,0 +1,40 @@
+{
+  "title": "Notifications",
+  "empty": "No notifications yet",
+  "markAllRead": "Mark all as read",
+  "unreadBadge": "{{count}} unread",
+  "types": {
+    "new_message": "New Message",
+    "borrow_request_received": "Borrow Request",
+    "borrow_request_accepted": "Request Accepted",
+    "borrow_request_declined": "Request Declined",
+    "return_reminder": "Return Reminder",
+    "rating_prompt": "Rate Your Experience",
+    "default": "Notification"
+  },
+  "timeAgo": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "settings": {
+    "title": "Notification Settings",
+    "description": "Choose how you want to be notified",
+    "categories": {
+      "messages": "Messages",
+      "borrowActivity": "Borrow Activity",
+      "reminders": "Reminders"
+    },
+    "channels": {
+      "push": "Push",
+      "email": "Email"
+    },
+    "inAppNote": "In-app notifications are always on",
+    "pushNotAvailable": "Push notifications are not available on web",
+    "saved": "Settings saved"
+  },
+  "profileMenu": {
+    "label": "Notification Settings"
+  }
+}

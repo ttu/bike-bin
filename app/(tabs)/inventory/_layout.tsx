@@ -11,6 +11,7 @@ export default function InventoryLayout() {
       <Stack.Screen name="bikes/new" />
       <Stack.Screen name="bikes/[id]" />
       <Stack.Screen name="bikes/edit/[id]" />
+      <Stack.Screen name="notifications" />
     </Stack>
   );
 }

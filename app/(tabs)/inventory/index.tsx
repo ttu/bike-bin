@@ -12,6 +12,8 @@ import { useItems } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell/NotificationBell';
+import { useUnreadNotificationCount } from '@/features/notifications/hooks/useUnreadNotificationCount';
 import { spacing } from '@/shared/theme';
 
 export default function InventoryScreen() {
@@ -21,6 +23,8 @@ export default function InventoryScreen() {
   const { isAuthenticated } = useAuth();
 
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | undefined>(undefined);
+
+  const { data: unreadCount } = useUnreadNotificationCount();
 
   // Server items (authenticated) or local items (unauthenticated)
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
@@ -57,9 +61,19 @@ export default function InventoryScreen() {
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
           {t('title')}
         </Text>
-        <Button mode="text" compact onPress={() => router.push('/(tabs)/inventory/bikes' as never)}>
-          {t('bikesLink')}
-        </Button>
+        <View style={styles.headerActions}>
+          <NotificationBell
+            unreadCount={unreadCount ?? 0}
+            onPress={() => router.push('/(tabs)/inventory/notifications' as never)}
+          />
+          <Button
+            mode="text"
+            compact
+            onPress={() => router.push('/(tabs)/inventory/bikes' as never)}
+          >
+            {t('bikesLink')}
+          </Button>
+        </View>
       </View>
 
       <SyncBanner />
@@ -111,6 +125,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   list: {
     paddingBottom: 80,

@@ -14,6 +14,7 @@ import exchangeEn from '@/i18n/en/exchange.json';
 import bikesEn from '@/i18n/en/bikes.json';
 import groupsEn from '@/i18n/en/groups.json';
 import ratingsEn from '@/i18n/en/ratings.json';
+import notificationsEn from '@/i18n/en/notifications.json';
 
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'en';
 
@@ -34,6 +35,7 @@ i18n.use(initReactI18next).init({
     'bikes',
     'groups',
     'ratings',
+    'notifications',
   ],
   resources: {
     en: {
@@ -49,6 +51,7 @@ i18n.use(initReactI18next).init({
       bikes: bikesEn,
       groups: groupsEn,
       ratings: ratingsEn,
+      notifications: notificationsEn,
     },
   },
   interpolation: {

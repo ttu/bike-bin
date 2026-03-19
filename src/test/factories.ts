@@ -10,6 +10,7 @@ import type {
   Rating,
   Group,
   GroupMember,
+  Notification,
 } from '@/shared/types';
 import type {
   UserId,
@@ -21,6 +22,7 @@ import type {
   LocationId,
   BorrowRequestId,
   RatingId,
+  NotificationId,
 } from '@/shared/types';
 import {
   ItemCategory,
@@ -176,6 +178,29 @@ export function createMockGroupMember(overrides?: Partial<GroupMember>): GroupMe
     userId: faker.string.uuid() as UserId,
     role: faker.helpers.arrayElement(Object.values(GroupRole)),
     joinedAt: faker.date.past().toISOString(),
+    ...overrides,
+  };
+}
+
+const NOTIFICATION_TYPES = [
+  'new_message',
+  'borrow_request_received',
+  'borrow_request_accepted',
+  'borrow_request_declined',
+  'return_reminder',
+  'rating_prompt',
+] as const;
+
+export function createMockNotification(overrides?: Partial<Notification>): Notification {
+  return {
+    id: faker.string.uuid() as NotificationId,
+    userId: faker.string.uuid() as UserId,
+    type: faker.helpers.arrayElement([...NOTIFICATION_TYPES]),
+    title: faker.lorem.sentence({ min: 3, max: 6 }),
+    body: faker.helpers.maybe(() => faker.lorem.sentence()),
+    data: {},
+    isRead: faker.datatype.boolean(),
+    createdAt: faker.date.recent().toISOString(),
     ...overrides,
   };
 }
