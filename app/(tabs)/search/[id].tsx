@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,13 +12,16 @@ import { LoadingScreen } from '@/shared/components';
 import { ListingDetail } from '@/features/search';
 import type { SearchResultItem } from '@/features/search';
 import { useCreateConversation } from '@/features/messaging';
+import { useCreateBorrowRequest } from '@/features/borrow';
 
 export default function ListingDetailScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
+  const { t: tBorrow } = useTranslation('borrow');
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { mutate: createConversation } = useCreateConversation();
+  const { mutate: createBorrowRequest } = useCreateBorrowRequest();
 
   // Fetch item by ID
   const { data: item, isLoading: itemLoading } = useQuery({
@@ -105,6 +108,29 @@ export default function ListingDetailScreen() {
     );
   };
 
+  const handleRequestBorrow = () => {
+    Alert.alert(
+      tBorrow('confirm.requestBorrow.title'),
+      tBorrow('confirm.requestBorrow.message', { itemName: item.name }),
+      [
+        { text: tBorrow('confirm.requestBorrow.cancel'), style: 'cancel' },
+        {
+          text: tBorrow('confirm.requestBorrow.confirm'),
+          onPress: () => {
+            createBorrowRequest(
+              { itemId: item.id },
+              {
+                onSuccess: () => {
+                  router.push('/(tabs)/profile/borrow-requests' as never);
+                },
+              },
+            );
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
@@ -117,7 +143,12 @@ export default function ListingDetailScreen() {
         />
       </Appbar.Header>
 
-      <ListingDetail item={item} photos={photos ?? []} onContact={handleContact} />
+      <ListingDetail
+        item={item}
+        photos={photos ?? []}
+        onContact={handleContact}
+        onRequestBorrow={handleRequestBorrow}
+      />
     </SafeAreaView>
   );
 }

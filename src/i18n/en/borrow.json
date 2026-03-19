@@ -1,0 +1,91 @@
+{
+  "title": "Borrow Requests",
+  "tabs": {
+    "incoming": "Incoming",
+    "outgoing": "Outgoing",
+    "active": "Active"
+  },
+  "empty": {
+    "incoming": {
+      "title": "No incoming requests",
+      "description": "When someone wants to borrow your items, their requests will appear here."
+    },
+    "outgoing": {
+      "title": "No outgoing requests",
+      "description": "Request to borrow items from other users to see them here."
+    },
+    "active": {
+      "title": "No active loans",
+      "description": "Accepted borrow requests will appear here until the item is returned."
+    }
+  },
+  "card": {
+    "itemLabel": "Item: {{itemName}}",
+    "requestedBy": "Requested by {{name}}",
+    "requestedFrom": "From {{name}}",
+    "requestedAt": "Requested {{time}}",
+    "message": "\"{{message}}\"",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Declined",
+      "returned": "Returned",
+      "cancelled": "Cancelled"
+    },
+    "declinedReason": "Declined: {{reason}}"
+  },
+  "actions": {
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel Request",
+    "markReturned": "Mark Returned"
+  },
+  "confirm": {
+    "requestBorrow": {
+      "title": "Request to borrow?",
+      "message": "The owner will be notified of your request for \"{{itemName}}\".",
+      "confirm": "Send Request",
+      "cancel": "Cancel"
+    },
+    "accept": {
+      "title": "Accept request?",
+      "message": "The item will be marked as loaned to {{name}}.",
+      "confirm": "Accept",
+      "cancel": "Cancel"
+    },
+    "decline": {
+      "title": "Decline request?",
+      "message": "The requester will be notified that their request was declined.",
+      "confirm": "Decline",
+      "cancel": "Cancel"
+    },
+    "cancel": {
+      "title": "Cancel request?",
+      "message": "Your borrow request for \"{{itemName}}\" will be cancelled.",
+      "confirm": "Cancel Request",
+      "cancel": "Keep Request"
+    },
+    "markReturned": {
+      "title": "Mark as returned?",
+      "message": "The item will be marked as returned and available again.",
+      "confirm": "Mark Returned",
+      "cancel": "Cancel"
+    }
+  },
+  "success": {
+    "requested": "Borrow request sent",
+    "accepted": "Request accepted",
+    "declined": "Request declined",
+    "cancelled": "Request cancelled",
+    "returned": "Item marked as returned"
+  },
+  "error": {
+    "requestFailed": "Failed to send borrow request",
+    "actionFailed": "Failed to update request"
+  },
+  "profileMenu": {
+    "label": "Borrow Requests",
+    "pendingCount_one": "{{count}} pending",
+    "pendingCount_other": "{{count}} pending"
+  }
+}

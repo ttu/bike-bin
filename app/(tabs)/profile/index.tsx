@@ -1,15 +1,27 @@
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text, Badge, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { useAuth } from '@/features/auth';
+import { useBorrowRequests } from '@/features/borrow';
+import { BorrowRequestStatus } from '@/shared/types';
+import type { UserId } from '@/shared/types';
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { t: tBorrow } = useTranslation('borrow');
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const userId = (user?.id ?? '') as UserId;
+
+  const { data: borrowRequests } = useBorrowRequests();
+  const incomingPendingCount = (borrowRequests ?? []).filter(
+    (r) => r.itemOwnerId === userId && r.status === BorrowRequestStatus.Pending,
+  ).length;
 
   return (
     <View
@@ -40,6 +52,28 @@ export default function ProfileScreen() {
           color={theme.colors.onSurfaceVariant}
         />
       </Pressable>
+
+      {/* Borrow Requests */}
+      <Pressable
+        onPress={() => router.push('/(tabs)/profile/borrow-requests' as never)}
+        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
+        accessibilityRole="button"
+      >
+        <MaterialCommunityIcons
+          name="swap-horizontal"
+          size={iconSize.md}
+          color={theme.colors.primary}
+        />
+        <Text variant="bodyLarge" style={[styles.menuLabel, { color: theme.colors.onSurface }]}>
+          {tBorrow('profileMenu.label')}
+        </Text>
+        {incomingPendingCount > 0 && <Badge style={styles.badge}>{incomingPendingCount}</Badge>}
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={iconSize.md}
+          color={theme.colors.onSurfaceVariant}
+        />
+      </Pressable>
     </View>
   );
 }
@@ -64,5 +98,8 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     flex: 1,
+  },
+  badge: {
+    marginRight: spacing.sm,
   },
 });

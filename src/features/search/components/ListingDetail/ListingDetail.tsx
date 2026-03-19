@@ -159,10 +159,10 @@ export function ListingDetail({
               <Button
                 mode={showBoth ? 'outlined' : 'contained'}
                 onPress={onRequestBorrow}
-                disabled
+                disabled={!onRequestBorrow}
                 style={styles.actionButton}
               >
-                {t('listing.actions.requestBorrow')} ({t('listing.actions.comingSoon')})
+                {t('listing.actions.requestBorrow')}
               </Button>
             )}
           </>

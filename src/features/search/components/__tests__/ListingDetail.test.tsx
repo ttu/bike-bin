@@ -98,13 +98,23 @@ describe('ListingDetail', () => {
     expect(goodTexts.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('shows disabled borrow button for borrowable-only items', () => {
+  it('shows borrow button disabled when no handler provided for borrowable-only items', () => {
     const item = createSearchResult({
       availabilityTypes: [AvailabilityType.Borrowable],
     });
     const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
     expect(getByText(/Request Borrow/)).toBeTruthy();
-    expect(getByText(/Coming soon/)).toBeTruthy();
+  });
+
+  it('shows borrow button enabled when handler provided', () => {
+    const item = createSearchResult({
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    const onRequestBorrow = jest.fn();
+    const { getByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} onRequestBorrow={onRequestBorrow} />,
+    );
+    expect(getByText(/Request Borrow/)).toBeTruthy();
   });
 
   it('shows contact button for donatable-only items', () => {
