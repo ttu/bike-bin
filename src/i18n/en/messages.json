@@ -10,7 +10,8 @@
     "itemDonated": "(Donated) \u2713",
     "you": "You",
     "lastMessagePrefix": "{{name}}: {{message}}",
-    "noMessages": "No messages yet"
+    "noMessages": "No messages yet",
+    "moreActions": "More actions"
   },
   "detail": {
     "inputPlaceholder": "Type a message...",

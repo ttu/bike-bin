@@ -1,0 +1,28 @@
+{
+  "confirm": {
+    "donate": {
+      "title": "Mark as donated?",
+      "message": "This item will be marked as donated. This action cannot be undone.",
+      "confirm": "Mark Donated",
+      "cancel": "Cancel"
+    },
+    "sell": {
+      "title": "Mark as sold?",
+      "message": "This item will be marked as sold. This action cannot be undone.",
+      "confirm": "Mark Sold",
+      "cancel": "Cancel"
+    }
+  },
+  "success": {
+    "donated": "Item marked as donated",
+    "sold": "Item marked as sold"
+  },
+  "error": {
+    "donateFailed": "Failed to mark item as donated",
+    "sellFailed": "Failed to mark item as sold"
+  },
+  "ownerActions": {
+    "markDonated": "Mark as Donated",
+    "markSold": "Mark as Sold"
+  }
+}

@@ -6,14 +6,16 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
-import { Appbar, Text, IconButton, useTheme } from 'react-native-paper';
+import { Appbar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
 import { spacing, borderRadius } from '@/shared/theme';
-import type { ConversationId } from '@/shared/types';
+import { ItemStatus } from '@/shared/types';
+import type { ConversationId, ItemId } from '@/shared/types';
 import {
   useConversation,
   useMessages,
@@ -23,18 +25,25 @@ import {
   ItemReferenceCard,
 } from '@/features/messaging';
 import type { MessageWithSender } from '@/features/messaging';
+import { useItem } from '@/features/inventory';
+import { useMarkDonated, useMarkSold } from '@/features/exchange';
+import { useAuth } from '@/features/auth';
 import { LoadingScreen } from '@/shared/components';
 
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('messages');
+  const { t: tExchange } = useTranslation('exchange');
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const conversationId = id as ConversationId | undefined;
+  const { user } = useAuth();
 
   const [messageText, setMessageText] = useState('');
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const { data: conversation, isLoading: convLoading } = useConversation(conversationId);
+  const { data: item } = useItem(conversation?.itemId as ItemId);
   const {
     data: messagesData,
     isLoading: msgsLoading,
@@ -43,9 +52,16 @@ export default function ConversationDetailScreen() {
     isFetchingNextPage,
   } = useMessages(conversationId);
   const { mutate: sendMessage, isPending: isSending } = useSendMessage();
+  const markDonated = useMarkDonated();
+  const markSold = useMarkSold();
 
   // Subscribe to realtime updates
   useRealtimeMessages(conversationId);
+
+  // Determine if current user is the item owner and can perform exchange actions
+  const isOwner = item?.ownerId === user?.id;
+  const canExchange =
+    isOwner && (item?.status === ItemStatus.Stored || item?.status === ItemStatus.Mounted);
 
   // Flatten pages into single array
   const messages = useMemo((): MessageWithSender[] => {
@@ -77,6 +93,40 @@ export default function ConversationDetailScreen() {
     }
   }, [conversation, router]);
 
+  const handleMarkDonated = useCallback(() => {
+    setMenuVisible(false);
+    if (!conversation?.itemId) return;
+    Alert.alert(tExchange('confirm.donate.title'), tExchange('confirm.donate.message'), [
+      { text: tExchange('confirm.donate.cancel'), style: 'cancel' },
+      {
+        text: tExchange('confirm.donate.confirm'),
+        onPress: () => {
+          markDonated.mutate({
+            itemId: conversation.itemId as ItemId,
+            recipientId: conversation.otherParticipantId,
+          });
+        },
+      },
+    ]);
+  }, [conversation, tExchange, markDonated]);
+
+  const handleMarkSold = useCallback(() => {
+    setMenuVisible(false);
+    if (!conversation?.itemId) return;
+    Alert.alert(tExchange('confirm.sell.title'), tExchange('confirm.sell.message'), [
+      { text: tExchange('confirm.sell.cancel'), style: 'cancel' },
+      {
+        text: tExchange('confirm.sell.confirm'),
+        onPress: () => {
+          markSold.mutate({
+            itemId: conversation.itemId as ItemId,
+            buyerId: conversation.otherParticipantId,
+          });
+        },
+      },
+    ]);
+  }, [conversation, tExchange, markSold]);
+
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
   }
@@ -98,6 +148,30 @@ export default function ConversationDetailScreen() {
             title={conversation?.otherParticipantName ?? ''}
             subtitle={conversation?.itemName ?? ''}
           />
+          {canExchange && (
+            <Menu
+              visible={menuVisible}
+              onDismiss={() => setMenuVisible(false)}
+              anchor={
+                <Appbar.Action
+                  icon="dots-vertical"
+                  onPress={() => setMenuVisible(true)}
+                  accessibilityLabel={t('conversation.moreActions')}
+                />
+              }
+            >
+              <Menu.Item
+                onPress={handleMarkDonated}
+                title={tExchange('ownerActions.markDonated')}
+                leadingIcon="gift-outline"
+              />
+              <Menu.Item
+                onPress={handleMarkSold}
+                title={tExchange('ownerActions.markSold')}
+                leadingIcon="cash"
+              />
+            </Menu>
+          )}
         </Appbar.Header>
 
         {/* Pinned item reference card */}
@@ -108,8 +182,8 @@ export default function ConversationDetailScreen() {
         {/* Messages list (inverted = newest at bottom) */}
         <FlatList
           data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ChatBubble message={item} />}
+          keyExtractor={(listItem) => listItem.id}
+          renderItem={({ item: listItem }) => <ChatBubble message={listItem} />}
           inverted
           contentContainerStyle={styles.messagesContent}
           onEndReached={handleLoadMore}
