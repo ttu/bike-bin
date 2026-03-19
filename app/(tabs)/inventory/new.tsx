@@ -26,6 +26,7 @@ export default function NewItemScreen() {
       await addItem({
         id: Date.now().toString() as ItemId,
         ownerId: 'local' as UserId,
+        bikeId: undefined,
         name: data.name,
         category: data.category!,
         condition: data.condition!,

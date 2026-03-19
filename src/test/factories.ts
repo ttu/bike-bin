@@ -49,6 +49,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
   return {
     id: faker.string.uuid() as ItemId,
     ownerId: faker.string.uuid() as UserId,
+    bikeId: undefined,
     name: faker.commerce.productName(),
     category: faker.helpers.arrayElement(Object.values(ItemCategory)),
     brand: faker.company.name(),

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { Text, FAB, useTheme } from 'react-native-paper';
+import { Text, Button, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,6 +57,9 @@ export default function InventoryScreen() {
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
           {t('title')}
         </Text>
+        <Button mode="text" compact onPress={() => router.push('/(tabs)/inventory/bikes' as never)}>
+          {t('bikesLink')}
+        </Button>
       </View>
 
       <SyncBanner />

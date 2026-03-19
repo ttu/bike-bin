@@ -1,0 +1,91 @@
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Text, Chip, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
+import type { Bike } from '@/shared/types';
+import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
+
+interface BikeCardProps {
+  bike: Bike;
+  onPress?: (bike: Bike) => void;
+}
+
+export function BikeCard({ bike, onPress }: BikeCardProps) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation('bikes');
+
+  return (
+    <Pressable
+      onPress={() => onPress?.(bike)}
+      style={[styles.container, { backgroundColor: theme.colors.surface }]}
+      accessibilityRole="button"
+      accessibilityLabel={bike.name}
+    >
+      <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
+        <MaterialCommunityIcons
+          name="bicycle"
+          size={iconSize.lg}
+          color={theme.colors.onSurfaceVariant}
+        />
+      </View>
+
+      <View style={styles.content}>
+        <Text variant="titleMedium" numberOfLines={1} style={{ color: theme.colors.onSurface }}>
+          {bike.name}
+        </Text>
+
+        <View style={styles.meta}>
+          <Chip compact textStyle={styles.chipText} style={styles.typeChip}>
+            {t(`bikeType.${bike.type}`)}
+          </Chip>
+          {bike.brand && (
+            <Text
+              variant="bodySmall"
+              style={{ color: theme.colors.onSurfaceVariant }}
+              numberOfLines={1}
+            >
+              {bike.brand}
+              {bike.year ? ` · ${bike.year}` : ''}
+            </Text>
+          )}
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginHorizontal: spacing.base,
+    marginVertical: spacing.xs,
+  },
+  thumbnail: {
+    width: 80,
+    height: 60,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+    marginLeft: spacing.md,
+    justifyContent: 'center',
+  },
+  meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+    gap: spacing.sm,
+  },
+  typeChip: {
+    height: 24,
+  },
+  chipText: {
+    fontSize: 11,
+    lineHeight: 16,
+  },
+});

@@ -46,6 +46,7 @@ export interface SavedLocation {
 export interface Item {
   id: ItemId;
   ownerId: UserId;
+  bikeId: BikeId | undefined;
   name: string;
   category: ItemCategory;
   brand: string | undefined;

@@ -11,6 +11,7 @@ import searchEn from '@/i18n/en/search.json';
 import messagesEn from '@/i18n/en/messages.json';
 import borrowEn from '@/i18n/en/borrow.json';
 import exchangeEn from '@/i18n/en/exchange.json';
+import bikesEn from '@/i18n/en/bikes.json';
 
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'en';
 
@@ -28,6 +29,7 @@ i18n.use(initReactI18next).init({
     'messages',
     'borrow',
     'exchange',
+    'bikes',
   ],
   resources: {
     en: {
@@ -40,6 +42,7 @@ i18n.use(initReactI18next).init({
       messages: messagesEn,
       borrow: borrowEn,
       exchange: exchangeEn,
+      bikes: bikesEn,
     },
   },
   interpolation: {
