@@ -79,8 +79,8 @@ describe('InventoryScreen', () => {
     expect(screen.getByText('Accessories')).toBeTruthy();
   });
 
-  it('renders FAB for adding items', () => {
+  it('hides FAB when showing empty state', () => {
     renderWithProviders(<InventoryScreen />);
-    expect(screen.getByLabelText('Add item')).toBeTruthy();
+    expect(screen.queryByLabelText('Add item')).toBeNull();
   });
 });

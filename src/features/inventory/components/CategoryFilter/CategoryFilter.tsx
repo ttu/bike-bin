@@ -27,6 +27,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
         return (
           <Chip
             key={label}
+            compact
             selected={isActive}
             onPress={() => onSelect(cat)}
             style={[styles.chip, isActive && { backgroundColor: theme.colors.primaryContainer }]}
@@ -48,6 +49,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   chip: {
-    marginRight: spacing.xs,
+    height: 36,
   },
 });

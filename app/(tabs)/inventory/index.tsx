@@ -57,15 +57,6 @@ export default function InventoryScreen() {
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
           {t('title')}
         </Text>
-        <Text
-          variant="labelLarge"
-          style={{ color: theme.colors.primary }}
-          onPress={() => {
-            /* TODO: navigate to bikes */
-          }}
-        >
-          {t('bikesLink')}
-        </Text>
       </View>
 
       <SyncBanner />
@@ -94,13 +85,15 @@ export default function InventoryScreen() {
         />
       )}
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        color={theme.colors.onPrimary}
-        onPress={handleAddPress}
-        accessibilityLabel={t('addItem')}
-      />
+      {filteredItems.length > 0 && (
+        <FAB
+          icon="plus"
+          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          color={theme.colors.onPrimary}
+          onPress={handleAddPress}
+          accessibilityLabel={t('addItem')}
+        />
+      )}
     </View>
   );
 }

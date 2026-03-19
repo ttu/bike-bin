@@ -1,7 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing } from '@/shared/theme';
 
 interface EmptyStateProps {
   icon: string;
@@ -16,12 +16,14 @@ export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: E
 
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons
-        name={icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
-        size={iconSize.xl}
-        color={theme.colors.onSurfaceVariant}
-      />
-      <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+      <View style={[styles.iconCircle, { backgroundColor: theme.colors.surfaceVariant }]}>
+        <MaterialCommunityIcons
+          name={icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
+          size={40}
+          color={theme.colors.onSurfaceVariant}
+        />
+      </View>
+      <Text variant="titleLarge" style={[styles.title, { color: theme.colors.onSurface }]}>
         {title}
       </Text>
       <Text
@@ -46,8 +48,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.xl,
   },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.base,
+  },
   title: {
-    marginTop: spacing.base,
     textAlign: 'center',
   },
   description: {

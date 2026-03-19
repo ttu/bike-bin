@@ -1,5 +1,5 @@
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Badge, useTheme } from 'react-native-paper';
+import { Text, Badge, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { t: tBorrow } = useTranslation('borrow');
+  const { t: tAuth } = useTranslation('auth');
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const userId = (user?.id ?? '') as UserId;
@@ -35,6 +36,35 @@ export default function ProfileScreen() {
           {t('tabs.profile')}
         </Text>
       </View>
+
+      {!user && (
+        <View style={[styles.guestCard, { backgroundColor: theme.colors.primaryContainer }]}>
+          <MaterialCommunityIcons
+            name="account-circle-outline"
+            size={48}
+            color={theme.colors.primary}
+          />
+          <Text
+            variant="titleMedium"
+            style={[styles.guestTitle, { color: theme.colors.onSurface }]}
+          >
+            {tAuth('guestProfile.title')}
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={[styles.guestDescription, { color: theme.colors.onSurfaceVariant }]}
+          >
+            {tAuth('guestProfile.benefits')}
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => router.push('/(auth)/login' as never)}
+            style={styles.guestButton}
+          >
+            {tAuth('guestProfile.signIn')}
+          </Button>
+        </View>
+      )}
 
       {/* Saved Locations */}
       <Pressable
@@ -101,5 +131,21 @@ const styles = StyleSheet.create({
   },
   badge: {
     marginRight: spacing.sm,
+  },
+  guestCard: {
+    margin: spacing.base,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  guestTitle: {
+    textAlign: 'center',
+  },
+  guestDescription: {
+    textAlign: 'center',
+  },
+  guestButton: {
+    marginTop: spacing.sm,
   },
 });
