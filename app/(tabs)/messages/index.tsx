@@ -9,6 +9,7 @@ import { spacing, iconSize } from '@/shared/theme';
 import { useConversations, ConversationCard } from '@/features/messaging';
 import type { ConversationListItem } from '@/features/messaging';
 import { LoadingScreen } from '@/shared/components';
+import { DemoBanner } from '@/features/demo';
 
 export default function MessagesScreen() {
   const theme = useTheme<AppTheme>();
@@ -33,6 +34,8 @@ export default function MessagesScreen() {
           {t('title')}
         </Text>
       </View>
+
+      <DemoBanner />
 
       {/* Conversation list */}
       {!conversations || conversations.length === 0 ? (

@@ -5,14 +5,22 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useAuth } from '@/features/auth';
+import { useDemoMode } from '@/features/demo';
 import { spacing, borderRadius } from '@/shared/theme';
 
 export default function LoginScreen() {
   const theme = useTheme();
   const { t } = useTranslation('auth');
+  const { t: tDemo } = useTranslation('demo');
   const { signInWithGoogle, signInWithApple } = useAuth();
+  const { enterDemoMode } = useDemoMode();
 
   const handleBrowseWithout = () => {
+    router.replace('/(tabs)/inventory');
+  };
+
+  const handleTryDemo = () => {
+    enterDemoMode();
     router.replace('/(tabs)/inventory');
   };
 
@@ -65,6 +73,16 @@ export default function LoginScreen() {
         <Button mode="text" onPress={handleBrowseWithout} style={styles.browseLink}>
           {t('welcome.browseWithout')} →
         </Button>
+
+        <Button
+          mode="contained-tonal"
+          onPress={handleTryDemo}
+          style={styles.demoButton}
+          contentStyle={styles.buttonContent}
+          icon="play-circle-outline"
+        >
+          {tDemo('welcome.tryDemo')}
+        </Button>
       </View>
     </LinearGradient>
   );
@@ -109,5 +127,9 @@ const styles = StyleSheet.create({
   },
   browseLink: {
     marginTop: spacing.lg,
+  },
+  demoButton: {
+    marginTop: spacing.sm,
+    borderRadius: borderRadius.md,
   },
 });

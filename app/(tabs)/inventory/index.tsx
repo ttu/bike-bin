@@ -14,6 +14,7 @@ import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/C
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell/NotificationBell';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks/useUnreadNotificationCount';
+import { DemoBanner } from '@/features/demo';
 import { spacing } from '@/shared/theme';
 
 export default function InventoryScreen() {
@@ -25,8 +26,6 @@ export default function InventoryScreen() {
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | undefined>(undefined);
 
   const { data: unreadCount } = useUnreadNotificationCount();
-
-  // Server items (authenticated) or local items (unauthenticated)
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
 
@@ -76,6 +75,7 @@ export default function InventoryScreen() {
         </View>
       </View>
 
+      <DemoBanner />
       <SyncBanner />
 
       <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />

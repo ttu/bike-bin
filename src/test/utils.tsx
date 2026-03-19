@@ -4,6 +4,7 @@ import { PaperProvider } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lightTheme } from '@/shared/theme';
 import { ThemePreferenceProvider } from '@/shared/hooks/useThemePreference';
+import { DemoModeProvider } from '@/features/demo';
 import '@/shared/i18n/config';
 
 // SafeAreaProvider is excluded because jest-expo does not render it in tests.
@@ -19,9 +20,11 @@ function AllProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemePreferenceProvider>
-        <PaperProvider theme={lightTheme}>{children}</PaperProvider>
-      </ThemePreferenceProvider>
+      <DemoModeProvider>
+        <ThemePreferenceProvider>
+          <PaperProvider theme={lightTheme}>{children}</PaperProvider>
+        </ThemePreferenceProvider>
+      </DemoModeProvider>
     </QueryClientProvider>
   );
 }

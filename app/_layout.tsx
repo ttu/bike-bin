@@ -7,6 +7,7 @@ import { lightTheme, darkTheme } from '@/shared/theme';
 import '@/shared/i18n/config';
 import { queryClient } from '@/shared/api';
 import { AuthProvider } from '@/features/auth';
+import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
 
 Sentry.init({
@@ -19,9 +20,11 @@ function AppContent() {
 
   return (
     <PaperProvider theme={theme}>
-      <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-      </AuthProvider>
+      <DemoModeProvider>
+        <AuthProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </AuthProvider>
+      </DemoModeProvider>
     </PaperProvider>
   );
 }

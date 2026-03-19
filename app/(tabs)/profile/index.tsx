@@ -12,6 +12,7 @@ import { useThemePreference } from '@/shared/hooks/useThemePreference';
 import { BorrowRequestStatus } from '@/shared/types';
 import type { UserId } from '@/shared/types';
 import type { ThemePreference } from '@/shared/hooks/useThemePreference';
+import { useDemoMode, DemoBanner } from '@/features/demo';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -20,14 +21,16 @@ export default function ProfileScreen() {
   const { t: tGroups } = useTranslation('groups');
   const { t: tNotifications } = useTranslation('notifications');
   const { t: tAuth } = useTranslation('auth');
+  const { t: tDemo } = useTranslation('demo');
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
+  const { isDemoMode, exitDemoMode } = useDemoMode();
   const userId = (user?.id ?? '') as UserId;
 
   const { data: profile } = useProfile(userId || undefined);
   const { preference, setPreference } = useThemePreference();
-
   const { data: borrowRequests } = useBorrowRequests();
+
   const incomingPendingCount = (borrowRequests ?? []).filter(
     (r) => r.itemOwnerId === userId && r.status === BorrowRequestStatus.Pending,
   ).length;
@@ -41,6 +44,11 @@ export default function ProfileScreen() {
         onPress: () => signOut(),
       },
     ]);
+  };
+
+  const handleExitDemo = () => {
+    exitDemoMode();
+    router.replace('/(auth)/login');
   };
 
   const themeButtons = [
@@ -63,7 +71,9 @@ export default function ProfileScreen() {
         </Text>
       </View>
 
-      {!user && (
+      <DemoBanner />
+
+      {!user && !isDemoMode && (
         <View style={[styles.guestCard, { backgroundColor: theme.colors.primaryContainer }]}>
           <MaterialCommunityIcons
             name="account-circle-outline"
@@ -92,7 +102,7 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {user && profile && (
+      {(user || isDemoMode) && profile && (
         <ProfileHeader
           profile={profile}
           onEditPress={() => router.push('/(tabs)/profile/edit-profile' as never)}
@@ -162,8 +172,20 @@ export default function ProfileScreen() {
         onPress={() => router.push('/(tabs)/profile/about' as never)}
       />
 
-      {/* Sign Out */}
-      {user && (
+      {/* Sign Out / Exit Demo */}
+      {isDemoMode && (
+        <Pressable
+          onPress={handleExitDemo}
+          style={[styles.signOutButton, { backgroundColor: theme.colors.surface }]}
+          accessibilityRole="button"
+        >
+          <MaterialCommunityIcons name="logout" size={iconSize.md} color={theme.colors.primary} />
+          <Text variant="bodyLarge" style={{ color: theme.colors.primary }}>
+            {tDemo('profile.exitDemo')}
+          </Text>
+        </Pressable>
+      )}
+      {user && !isDemoMode && (
         <Pressable
           onPress={handleSignOut}
           style={[styles.signOutButton, { backgroundColor: theme.colors.surface }]}

@@ -1,0 +1,12 @@
+{
+  "banner": {
+    "message": "You are viewing the app in demo mode.",
+    "signUp": "Sign up for free"
+  },
+  "welcome": {
+    "tryDemo": "Try the demo"
+  },
+  "profile": {
+    "exitDemo": "Exit Demo Mode"
+  }
+}

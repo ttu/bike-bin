@@ -19,6 +19,8 @@ import {
 } from '@/features/search';
 import type { SearchResultItem, SearchSortOption } from '@/features/search';
 import { AvailabilityType } from '@/shared/types';
+import { useDemoMode, DemoBanner } from '@/features/demo';
+import { DEMO_SEARCH_RESULTS } from '@/features/demo/data';
 
 function SearchScreenContent() {
   const theme = useTheme<AppTheme>();
@@ -26,14 +28,20 @@ function SearchScreenContent() {
   const router = useRouter();
   const { filters, updateFilters, resetFilters, hasActiveFilters } = useSearchFilters();
   const { data: primaryLocation } = usePrimaryLocation();
+  const { isDemoMode } = useDemoMode();
 
   const [hasSearched, setHasSearched] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
 
-  const { data: results, isLoading } = useSearchItems({
+  const { data: serverResults, isLoading } = useSearchItems({
     filters,
-    enabled: hasSearched,
+    enabled: hasSearched && !isDemoMode,
   });
+
+  // In demo mode, show results immediately to showcase the app
+  const results = isDemoMode ? DEMO_SEARCH_RESULTS : serverResults;
+  const effectiveHasSearched = isDemoMode || hasSearched;
+  const effectiveIsLoading = isDemoMode ? false : isLoading;
 
   const handleSubmit = useCallback(() => {
     if (filters.query.trim().length > 0) {
@@ -81,9 +89,9 @@ function SearchScreenContent() {
     [handleResultPress],
   );
 
-  const showResults = hasSearched && !isLoading && results && results.length > 0;
-  const showEmpty = hasSearched && !isLoading && results && results.length === 0;
-  const showInitial = !hasSearched;
+  const showResults = effectiveHasSearched && !effectiveIsLoading && results && results.length > 0;
+  const showEmpty = effectiveHasSearched && !effectiveIsLoading && results && results.length === 0;
+  const showInitial = !effectiveHasSearched;
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
@@ -97,8 +105,10 @@ function SearchScreenContent() {
         onDistanceChange={(km) => updateFilters({ maxDistanceKm: km })}
       />
 
+      <DemoBanner />
+
       {/* Quick filter chips + Filters button */}
-      {hasSearched && (
+      {effectiveHasSearched && (
         <View style={styles.quickFilters}>
           <Chip
             selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
@@ -175,7 +185,7 @@ function SearchScreenContent() {
       )}
 
       {/* Loading */}
-      {hasSearched && isLoading && (
+      {effectiveHasSearched && effectiveIsLoading && (
         <View style={styles.centered}>
           <ActivityIndicator size="large" />
         </View>
