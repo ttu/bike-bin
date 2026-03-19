@@ -53,6 +53,38 @@ export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
   };
 }
 
+/** Creates a snake_case DB row matching what Supabase returns for items. */
+export function createMockItemRow(overrides?: Record<string, unknown>): Record<string, unknown> {
+  return {
+    id: faker.string.uuid(),
+    owner_id: faker.string.uuid(),
+    bike_id: null,
+    name: faker.commerce.productName(),
+    category: faker.helpers.arrayElement(Object.values(ItemCategory)),
+    brand: faker.company.name(),
+    model: faker.commerce.product(),
+    description: faker.lorem.sentence(),
+    condition: faker.helpers.arrayElement(Object.values(ItemCondition)),
+    status: faker.helpers.arrayElement(Object.values(ItemStatus)),
+    availability_types: faker.helpers.arrayElements(Object.values(AvailabilityType), {
+      min: 1,
+      max: 2,
+    }),
+    price: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 500, fractionDigits: 2 })),
+    deposit: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 100, fractionDigits: 2 })),
+    borrow_duration: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`),
+    storage_location: faker.helpers.maybe(() => faker.location.city()),
+    age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
+    usage_km: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })),
+    purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString()),
+    pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()),
+    visibility: faker.helpers.arrayElement(Object.values(Visibility)),
+    created_at: faker.date.past().toISOString(),
+    updated_at: faker.date.recent().toISOString(),
+    ...overrides,
+  };
+}
+
 export function createMockItem(overrides?: Partial<Item>): Item {
   return {
     id: faker.string.uuid() as ItemId,

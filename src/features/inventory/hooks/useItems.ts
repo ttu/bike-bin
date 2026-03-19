@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { Item, ItemPhoto } from '@/shared/types';
 import type { ItemId, GroupId } from '@/shared/types';
 import { ItemStatus, Visibility } from '@/shared/types';
 import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
+import { mapItemRow, mapItemPhotoRow } from '@/shared/utils/mapItemRow';
 
 async function syncItemGroups(itemId: ItemId, groupIds: GroupId[] | undefined): Promise<void> {
   // Remove all existing item_groups for this item
@@ -35,7 +35,7 @@ export function useItems() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      return (data ?? []) as Item[];
+      return (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
     },
     enabled: !!user,
   });
@@ -48,7 +48,7 @@ export function useItem(id: ItemId) {
       const { data, error } = await supabase.from('items').select('*').eq('id', id).single();
 
       if (error) throw error;
-      return data as Item;
+      return mapItemRow(data as Record<string, unknown>);
     },
     enabled: !!id,
   });
@@ -65,7 +65,7 @@ export function useItemPhotos(itemId: ItemId) {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []) as ItemPhoto[];
+      return (data ?? []).map((row) => mapItemPhotoRow(row as Record<string, unknown>));
     },
     enabled: !!itemId,
   });
@@ -104,11 +104,11 @@ export function useCreateItem() {
 
       if (error) throw error;
 
-      const item = data as Item;
+      const item = mapItemRow(data as Record<string, unknown>);
 
       // Sync item_groups for group visibility
       if (formData.visibility === Visibility.Groups) {
-        await syncItemGroups(item.id as ItemId, formData.groupIds);
+        await syncItemGroups(item.id, formData.groupIds);
       }
 
       return item;
@@ -150,7 +150,7 @@ export function useUpdateItem() {
 
       if (error) throw error;
 
-      const item = data as Item;
+      const item = mapItemRow(data as Record<string, unknown>);
 
       // Sync item_groups: clear old entries and insert new ones if visibility is groups
       await syncItemGroups(
@@ -180,7 +180,7 @@ export function useUpdateItemStatus() {
         .single();
 
       if (error) throw error;
-      return data as Item;
+      return mapItemRow(data as Record<string, unknown>);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['items'] });

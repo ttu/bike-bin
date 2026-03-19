@@ -2,7 +2,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import type { MessageWithSender } from '../types';
-import type { ConversationId, MessageId, UserId } from '@/shared/types';
+import type { ConversationId } from '@/shared/types';
+import { mapMessageRow } from '../utils/mapMessageRow';
 
 const PAGE_SIZE = 30;
 
@@ -32,14 +33,7 @@ export function useMessages(conversationId: ConversationId | undefined) {
 
       if (error) throw error;
 
-      return (data ?? []).map((msg) => ({
-        id: msg.id as MessageId,
-        conversationId: msg.conversation_id as ConversationId,
-        senderId: msg.sender_id as UserId,
-        body: msg.body as string,
-        createdAt: msg.created_at as string,
-        isOwn: msg.sender_id === userId,
-      }));
+      return (data ?? []).map((msg) => mapMessageRow(msg as Record<string, unknown>, userId!));
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => {

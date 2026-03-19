@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { Group, GroupMember } from '@/shared/types';
+import type { GroupMember } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 import type { GroupFormData } from '../types';
+import { mapGroupRow } from '../utils/mapGroupRow';
 
 /**
  * Fetch all groups the current user is a member of.
@@ -24,7 +25,9 @@ export function useGroups() {
       if (error) throw error;
 
       return (data ?? []).map((row) => ({
-        ...(row.groups as unknown as Group),
+        ...mapGroupRow(
+          (Array.isArray(row.groups) ? row.groups[0] : row.groups) as Record<string, unknown>,
+        ),
         memberRole: row.role as string as GroupMember['role'],
         joinedAt: row.joined_at as string,
       }));
@@ -43,7 +46,7 @@ export function useGroup(id: GroupId) {
       const { data, error } = await supabase.from('groups').select('*').eq('id', id).single();
 
       if (error) throw error;
-      return data as Group;
+      return mapGroupRow(data as Record<string, unknown>);
     },
     enabled: !!id,
   });
@@ -80,7 +83,7 @@ export function useCreateGroup() {
 
       if (memberError) throw memberError;
 
-      return group as Group;
+      return mapGroupRow(group as Record<string, unknown>);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
@@ -108,7 +111,7 @@ export function useUpdateGroup() {
         .single();
 
       if (error) throw error;
-      return data as Group;
+      return mapGroupRow(data as Record<string, unknown>);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });

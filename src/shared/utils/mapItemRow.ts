@@ -1,0 +1,48 @@
+import type { Item, ItemPhoto } from '@/shared/types';
+import type { ItemId, BikeId, UserId, LocationId, ItemPhotoId } from '@/shared/types';
+import type {
+  ItemCategory,
+  ItemCondition,
+  ItemStatus,
+  AvailabilityType,
+  Visibility,
+} from '@/shared/types';
+
+/** Transforms a Supabase row into the Item domain model. */
+export function mapItemRow(row: Record<string, unknown>): Item {
+  return {
+    id: row.id as ItemId,
+    ownerId: row.owner_id as UserId,
+    bikeId: (row.bike_id as BikeId) ?? undefined,
+    name: row.name as string,
+    category: row.category as ItemCategory,
+    brand: (row.brand as string) ?? undefined,
+    model: (row.model as string) ?? undefined,
+    description: (row.description as string) ?? undefined,
+    condition: row.condition as ItemCondition,
+    status: row.status as ItemStatus,
+    availabilityTypes: (row.availability_types as AvailabilityType[]) ?? [],
+    price: (row.price as number) ?? undefined,
+    deposit: (row.deposit as number) ?? undefined,
+    borrowDuration: (row.borrow_duration as string) ?? undefined,
+    storageLocation: (row.storage_location as string) ?? undefined,
+    age: (row.age as string) ?? undefined,
+    usageKm: (row.usage_km as number) ?? undefined,
+    purchaseDate: (row.purchase_date as string) ?? undefined,
+    pickupLocationId: (row.pickup_location_id as LocationId) ?? undefined,
+    visibility: row.visibility as Visibility,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
+/** Transforms a Supabase row into the ItemPhoto domain model. */
+export function mapItemPhotoRow(row: Record<string, unknown>): ItemPhoto {
+  return {
+    id: row.id as ItemPhotoId,
+    itemId: row.item_id as ItemId,
+    storagePath: row.storage_path as string,
+    sortOrder: row.sort_order as number,
+    createdAt: row.created_at as string,
+  };
+}

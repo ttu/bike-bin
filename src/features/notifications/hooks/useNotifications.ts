@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import type { Notification } from '@/shared/types';
-import type { NotificationId, UserId } from '@/shared/types';
-import type { NotificationType } from '@/shared/types';
+import { mapNotificationRow } from '../utils/mapNotificationRow';
 
 export const NOTIFICATIONS_QUERY_KEY = 'notifications';
 
@@ -24,16 +23,7 @@ export function useNotifications() {
 
       if (error) throw error;
 
-      return (data ?? []).map((row) => ({
-        id: row.id as string as NotificationId,
-        userId: row.user_id as string as UserId,
-        type: row.type as NotificationType,
-        title: row.title as string,
-        body: (row.body as string) ?? undefined,
-        data: (row.data as Record<string, unknown>) ?? {},
-        isRead: row.is_read as boolean,
-        createdAt: row.created_at as string,
-      }));
+      return (data ?? []).map((row) => mapNotificationRow(row as Record<string, unknown>));
     },
     enabled: !!user,
   });

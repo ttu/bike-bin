@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { Item } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
+import { mapItemRow } from '@/shared/utils/mapItemRow';
 
 export function useMountedParts(bikeId: BikeId) {
   return useQuery({
@@ -14,7 +14,7 @@ export function useMountedParts(bikeId: BikeId) {
         .order('name', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []) as Item[];
+      return (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
     },
     enabled: !!bikeId,
   });

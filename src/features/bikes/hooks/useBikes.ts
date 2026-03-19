@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { Bike } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
 import type { BikeFormData } from '../types';
+import { mapBikeRow } from '../utils/mapBikeRow';
 
 export function useBikes() {
   const { user } = useAuth();
@@ -18,7 +18,7 @@ export function useBikes() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      return (data ?? []) as Bike[];
+      return (data ?? []).map((row) => mapBikeRow(row as Record<string, unknown>));
     },
     enabled: !!user,
   });
@@ -31,7 +31,7 @@ export function useBike(id: BikeId) {
       const { data, error } = await supabase.from('bikes').select('*').eq('id', id).single();
 
       if (error) throw error;
-      return data as Bike;
+      return mapBikeRow(data as Record<string, unknown>);
     },
     enabled: !!id,
   });
@@ -57,7 +57,7 @@ export function useCreateBike() {
         .single();
 
       if (error) throw error;
-      return data as Bike;
+      return mapBikeRow(data as Record<string, unknown>);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
@@ -84,7 +84,7 @@ export function useUpdateBike() {
         .single();
 
       if (error) throw error;
-      return data as Bike;
+      return mapBikeRow(data as Record<string, unknown>);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
