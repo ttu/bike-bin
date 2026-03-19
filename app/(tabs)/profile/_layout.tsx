@@ -8,6 +8,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="borrow-requests" />
       <Stack.Screen name="groups/index" />
       <Stack.Screen name="groups/[id]" />
+      <Stack.Screen name="[userId]" />
     </Stack>
   );
 }
