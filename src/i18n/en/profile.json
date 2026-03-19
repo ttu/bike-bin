@@ -1,0 +1,92 @@
+{
+  "title": "Profile",
+  "header": {
+    "guest": "Guest",
+    "memberSince": "Member since {{date}}",
+    "editProfile": "Edit Profile"
+  },
+  "menu": {
+    "savedLocations": "Saved Locations",
+    "borrowRequests": "Borrow Requests",
+    "groups": "Groups",
+    "notificationSettings": "Notification Settings",
+    "appearance": "Appearance",
+    "helpSupport": "Help & Support",
+    "aboutLegal": "About & Legal",
+    "signOut": "Sign Out"
+  },
+  "appearance": {
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "about": {
+    "title": "About & Legal",
+    "appVersion": "App Version",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "openSourceLicenses": "Open Source Licenses",
+    "madeWith": "Made with love for the cycling community"
+  },
+  "signOutConfirm": {
+    "title": "Sign Out",
+    "message": "Are you sure you want to sign out?",
+    "confirm": "Sign Out",
+    "cancel": "Cancel"
+  },
+  "support": {
+    "title": "Help & Support",
+    "subject": "Subject",
+    "subjectPlaceholder": "What do you need help with?",
+    "message": "Message",
+    "messagePlaceholder": "Describe your issue or question...",
+    "email": "Email (for follow-up)",
+    "emailPlaceholder": "your@email.com",
+    "screenshot": "Attach Screenshot",
+    "screenshotAttached": "Screenshot attached",
+    "removeScreenshot": "Remove",
+    "contextNote": "App version, device info, and your user ID will be included automatically.",
+    "send": "Send",
+    "sending": "Sending...",
+    "successTitle": "Request Sent",
+    "successMessage": "Thank you! We'll get back to you as soon as possible.",
+    "errorTitle": "Error",
+    "errorMessage": "Failed to send your request. Please try again.",
+    "validationSubject": "Subject is required",
+    "validationMessage": "Message is required"
+  },
+  "report": {
+    "title": "Report",
+    "reasonLabel": "Reason for reporting",
+    "reasons": {
+      "inappropriate": "Inappropriate content",
+      "spam": "Spam",
+      "stolenGoods": "Stolen goods",
+      "misleadingCondition": "Misleading condition",
+      "harassment": "Harassment",
+      "other": "Other"
+    },
+    "detailsLabel": "Additional details (optional)",
+    "detailsPlaceholder": "Provide any additional context...",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "successTitle": "Report Submitted",
+    "successMessage": "Thank you for your report. We'll review it as soon as possible.",
+    "errorTitle": "Error",
+    "errorMessage": "Failed to submit your report. Please try again.",
+    "validationReason": "Please select a reason"
+  },
+  "deleteAccount": {
+    "title": "Delete Account",
+    "warning": "This action is permanent and cannot be undone.",
+    "consequences": "Your items, profile, and personal data will be deleted. Conversations and ratings will be anonymized.",
+    "confirmTitle": "Are you absolutely sure?",
+    "confirmMessage": "Type DELETE to confirm account deletion.",
+    "confirmPlaceholder": "Type DELETE",
+    "confirmButton": "Delete My Account",
+    "cancel": "Cancel",
+    "deleting": "Deleting account...",
+    "errorTitle": "Error",
+    "errorMessage": "Failed to delete your account. Please try again or contact support."
+  }
+}
