@@ -17,8 +17,15 @@
       "Bash(pod install:*)",
       "Bash(npm ls:*)",
       "Bash(npm info:*)",
-      "Bash(/usr/bin/env npx:*)"
+      "Bash(/usr/bin/env npx:*)",
+      "mcp__plugin_playwright_playwright__browser_handle_dialog",
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "mcp__plugin_playwright_playwright__browser_type",
+      "Bash(rtk proxy:*)"
     ],
-    "additionalDirectories": ["/Users/ttu/src/github/bike-bin/docs/superpowers"]
+    "additionalDirectories": [
+      "/Users/ttu/src/github/bike-bin/docs/superpowers",
+      "/Users/ttu/src/github/bike-bin/verification-sessions"
+    ]
   }
 }
