@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Chip, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
@@ -49,21 +49,30 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
 
         {/* Owner name */}
         {item.ownerDisplayName ? (
-          <Pressable onPress={() => onOwnerPress?.(item.ownerId)} accessibilityRole="button">
-            <Text variant="labelSmall" style={themed.primary} numberOfLines={1}>
-              {item.ownerDisplayName}
-            </Text>
-          </Pressable>
+          <Text
+            variant="labelSmall"
+            style={themed.primary}
+            numberOfLines={1}
+            onPress={(e) => {
+              e.stopPropagation();
+              onOwnerPress?.(item.ownerId);
+            }}
+            accessibilityRole="link"
+          >
+            {item.ownerDisplayName}
+          </Text>
         ) : null}
 
         {/* Availability chips */}
         {item.availabilityTypes.length > 0 && (
           <View style={styles.chipRow}>
             {item.availabilityTypes.map((type) => (
-              <Chip key={type} compact textStyle={styles.chipText} style={styles.availabilityChip}>
-                {t(`availability.${type}`)}
-                {type === 'sellable' && item.price !== undefined ? ` · \u20AC${item.price}` : ''}
-              </Chip>
+              <View key={type} style={[styles.availabilityChip, themed.surfaceVariantBg]}>
+                <Text variant="labelSmall" style={[styles.chipText, themed.onSurfaceVariant]}>
+                  {t(`availability.${type}`)}
+                  {type === 'sellable' && item.price !== undefined ? ` · \u20AC${item.price}` : ''}
+                </Text>
+              </View>
             ))}
           </View>
         )}
@@ -131,10 +140,13 @@ const styles = StyleSheet.create({
   },
   availabilityChip: {
     height: 24,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chipText: {
     fontSize: 11,
-    lineHeight: 16,
   },
   locationRow: {
     flexDirection: 'row',

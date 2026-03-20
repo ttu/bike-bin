@@ -1,5 +1,5 @@
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Chip, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Bike } from '@/shared/types';
@@ -36,9 +36,14 @@ export function BikeCard({ bike, onPress }: BikeCardProps) {
         </Text>
 
         <View style={styles.meta}>
-          <Chip compact textStyle={styles.chipText} style={styles.typeChip}>
-            {t(`bikeType.${bike.type}`)}
-          </Chip>
+          <View style={[styles.typeChip, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <Text
+              variant="labelSmall"
+              style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t(`bikeType.${bike.type}`)}
+            </Text>
+          </View>
           {bike.brand && (
             <Text
               variant="bodySmall"
@@ -83,9 +88,12 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chipText: {
     fontSize: 11,
-    lineHeight: 16,
   },
 });

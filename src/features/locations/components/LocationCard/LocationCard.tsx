@@ -1,5 +1,5 @@
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Chip, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { SavedLocation } from '@/shared/types';
@@ -40,15 +40,14 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
             {location.label}
           </Text>
           {location.isPrimary && (
-            <Chip
-              compact
-              textStyle={styles.badgeText}
-              style={[styles.primaryBadge, { backgroundColor: theme.colors.primaryContainer }]}
-            >
-              <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>
+            <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Text
+                variant="labelSmall"
+                style={[styles.badgeText, { color: theme.colors.onPrimaryContainer }]}
+              >
                 {t('primaryBadge')}
               </Text>
-            </Chip>
+            </View>
           )}
         </View>
 
@@ -125,10 +124,13 @@ const styles = StyleSheet.create({
   },
   primaryBadge: {
     height: 24,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   badgeText: {
     fontSize: 11,
-    lineHeight: 16,
   },
   deleteButton: {
     padding: spacing.sm,

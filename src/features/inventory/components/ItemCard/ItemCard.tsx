@@ -1,5 +1,5 @@
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Chip, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Item } from '@/shared/types';
@@ -49,15 +49,11 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           >
             {item.name}
           </Text>
-          <Chip
-            compact
-            textStyle={styles.statusText}
-            style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}
-          >
+          <View style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
             <Text variant="labelSmall" style={{ color: statusColor }}>
               {t(`status.${item.status}`)}
             </Text>
-          </Chip>
+          </View>
         </View>
 
         {!compact && (
@@ -73,9 +69,17 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
         {!compact && item.availabilityTypes.length > 0 && (
           <View style={styles.chips}>
             {item.availabilityTypes.map((type) => (
-              <Chip key={type} compact textStyle={styles.chipText} style={styles.availabilityChip}>
-                {t(`availability.${type}`)}
-              </Chip>
+              <View
+                key={type}
+                style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
+              >
+                <Text
+                  variant="labelSmall"
+                  style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t(`availability.${type}`)}
+                </Text>
+              </View>
             ))}
           </View>
         )}
@@ -115,10 +119,10 @@ const styles = StyleSheet.create({
   },
   statusChip: {
     height: 24,
-  },
-  statusText: {
-    fontSize: 11,
-    lineHeight: 16,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chips: {
     flexDirection: 'row',
@@ -128,9 +132,12 @@ const styles = StyleSheet.create({
   },
   availabilityChip: {
     height: 24,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chipText: {
     fontSize: 11,
-    lineHeight: 16,
   },
 });
