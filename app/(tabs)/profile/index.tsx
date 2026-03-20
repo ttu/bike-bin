@@ -1,4 +1,4 @@
-import { View, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { Text, Badge, Button, SegmentedButtons, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -36,14 +36,25 @@ export default function ProfileScreen() {
   ).length;
 
   const handleSignOut = () => {
-    Alert.alert(t('signOutConfirm.title'), t('signOutConfirm.message'), [
-      { text: t('signOutConfirm.cancel'), style: 'cancel' },
-      {
-        text: t('signOutConfirm.confirm'),
-        style: 'destructive',
-        onPress: () => signOut(),
-      },
-    ]);
+    const doSignOut = async () => {
+      await signOut();
+      router.replace('/(auth)/login');
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${t('signOutConfirm.title')}\n${t('signOutConfirm.message')}`)) {
+        doSignOut();
+      }
+    } else {
+      Alert.alert(t('signOutConfirm.title'), t('signOutConfirm.message'), [
+        { text: t('signOutConfirm.cancel'), style: 'cancel' },
+        {
+          text: t('signOutConfirm.confirm'),
+          style: 'destructive',
+          onPress: doSignOut,
+        },
+      ]);
+    }
   };
 
   const handleExitDemo = () => {
