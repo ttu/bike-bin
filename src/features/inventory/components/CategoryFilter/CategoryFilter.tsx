@@ -4,7 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { ItemCategory } from '@/shared/types';
 import { spacing } from '@/shared/theme';
 
-const CATEGORIES = [undefined, ItemCategory.Component, ItemCategory.Tool, ItemCategory.Accessory];
+const CATEGORIES = [
+  undefined,
+  ItemCategory.Component,
+  ItemCategory.Tool,
+  ItemCategory.Accessory,
+  ItemCategory.Consumable,
+];
 
 interface CategoryFilterProps {
   selected: ItemCategory | undefined;

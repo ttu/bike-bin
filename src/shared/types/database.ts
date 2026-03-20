@@ -1694,7 +1694,7 @@ export type Database = {
       bike_type: 'road' | 'gravel' | 'mtb' | 'city' | 'touring' | 'other';
       borrow_request_status: 'pending' | 'accepted' | 'rejected' | 'returned' | 'cancelled';
       group_role: 'admin' | 'member';
-      item_category: 'component' | 'tool' | 'accessory' | 'bike';
+      item_category: 'component' | 'tool' | 'accessory' | 'consumable' | 'bike';
       item_condition: 'new' | 'good' | 'worn' | 'broken';
       item_status: 'stored' | 'mounted' | 'loaned' | 'reserved' | 'donated' | 'sold' | 'archived';
       item_visibility: 'private' | 'groups' | 'all';
@@ -1841,7 +1841,7 @@ export const Constants = {
       bike_type: ['road', 'gravel', 'mtb', 'city', 'touring', 'other'],
       borrow_request_status: ['pending', 'accepted', 'rejected', 'returned', 'cancelled'],
       group_role: ['admin', 'member'],
-      item_category: ['component', 'tool', 'accessory', 'bike'],
+      item_category: ['component', 'tool', 'accessory', 'consumable', 'bike'],
       item_condition: ['new', 'good', 'worn', 'broken'],
       item_status: ['stored', 'mounted', 'loaned', 'reserved', 'donated', 'sold', 'archived'],
       item_visibility: ['private', 'groups', 'all'],

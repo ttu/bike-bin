@@ -2,6 +2,7 @@ export const ItemCategory = {
   Component: 'component',
   Tool: 'tool',
   Accessory: 'accessory',
+  Consumable: 'consumable',
   Bike: 'bike',
 } as const;
 export type ItemCategory = (typeof ItemCategory)[keyof typeof ItemCategory];

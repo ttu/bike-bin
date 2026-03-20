@@ -17,7 +17,12 @@ import {
   DistanceUnit,
 } from '../../constants';
 
-const CATEGORIES = [ItemCategory.Component, ItemCategory.Tool, ItemCategory.Accessory];
+const CATEGORIES = [
+  ItemCategory.Component,
+  ItemCategory.Tool,
+  ItemCategory.Accessory,
+  ItemCategory.Consumable,
+];
 const CONDITIONS = [
   ItemCondition.New,
   ItemCondition.Good,

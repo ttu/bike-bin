@@ -10,7 +10,8 @@
     "all": "All",
     "component": "Components",
     "tool": "Tools",
-    "accessory": "Accessories"
+    "accessory": "Accessories",
+    "consumable": "Consumables"
   },
   "subcategory": {
     "drivetrain": "Drivetrain",
@@ -45,7 +46,16 @@
     "bells_mirrors": "Bells & Mirrors",
     "clothing": "Clothing",
     "helmets": "Helmets",
-    "other_accessory": "Other"
+    "other_accessory": "Other",
+    "chain_lube": "Chain Lube",
+    "grease": "Grease",
+    "degreaser": "Degreaser",
+    "brake_fluid": "Brake Fluid",
+    "tubeless_sealant": "Tubeless Sealant",
+    "thread_locker": "Thread Locker",
+    "anti_seize": "Anti-Seize",
+    "polish": "Polish",
+    "other_consumable": "Other"
   },
   "status": {
     "stored": "Stored",

@@ -46,6 +46,17 @@ export const SUBCATEGORIES: Record<ItemCategory, readonly string[]> = {
     'helmets',
     'other_accessory',
   ],
+  [ItemCategoryEnum.Consumable]: [
+    'chain_lube',
+    'grease',
+    'degreaser',
+    'brake_fluid',
+    'tubeless_sealant',
+    'thread_locker',
+    'anti_seize',
+    'polish',
+    'other_consumable',
+  ],
   [ItemCategoryEnum.Bike]: [],
 } as const;
 
@@ -104,6 +115,14 @@ export const DEFAULT_BRANDS = [
   'Rotor',
   'Stages',
   'Quarq',
+  'Muc-Off',
+  'Finish Line',
+  "Pedro's",
+  'Motorex',
+  'Squirt',
+  'Silca',
+  "Stan's NoTubes",
+  'Loctite',
 ] as const;
 
 /**
