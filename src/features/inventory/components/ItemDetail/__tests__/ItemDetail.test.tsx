@@ -15,6 +15,7 @@ describe('ItemDetail', () => {
     price: 45.0,
     age: '2 years',
     usageKm: 3000,
+    usageUnit: 'km',
     storageLocation: 'Garage shelf',
     description: 'Good condition cassette',
   });
