@@ -13,25 +13,30 @@ DELETE FROM auth.identities WHERE user_id IN (SELECT id FROM auth.users WHERE em
 DELETE FROM auth.users WHERE email LIKE '%@bikebin.dev';
 
 -- ── Auth Users ──────────────────────────────────────────────
-INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, confirmation_token, raw_app_meta_data, raw_user_meta_data)
-VALUES
-  ('a1b2c3d4-0001-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'test@bikebin.dev',    crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}'),
-  ('a1b2c3d4-0002-4000-8000-000000000002', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'marcus@bikebin.dev',  crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}'),
-  ('a1b2c3d4-0003-4000-8000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'sarah@bikebin.dev',   crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}'),
-  ('a1b2c3d4-0004-4000-8000-000000000004', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jonas@bikebin.dev',   crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}'),
-  ('a1b2c3d4-0005-4000-8000-000000000005', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'lisa@bikebin.dev',    crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}'),
-  ('a1b2c3d4-0006-4000-8000-000000000006', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'kai@bikebin.dev',     crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}'),
-  ('a1b2c3d4-0007-4000-8000-000000000007', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'nina@bikebin.dev',    crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '{"provider":"email","providers":["email"]}', '{}');
+INSERT INTO auth.users (
+  id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+  created_at, updated_at, confirmation_token, recovery_token,
+  email_change, email_change_token_new, email_change_token_current,
+  phone_change, phone_change_token, reauthentication_token,
+  raw_app_meta_data, raw_user_meta_data, is_sso_user, is_anonymous
+) VALUES
+  ('a1b2c3d4-0001-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'test@bikebin.dev',    crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false),
+  ('a1b2c3d4-0002-4000-8000-000000000002', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'marcus@bikebin.dev',  crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false),
+  ('a1b2c3d4-0003-4000-8000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'sarah@bikebin.dev',   crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false),
+  ('a1b2c3d4-0004-4000-8000-000000000004', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jonas@bikebin.dev',   crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false),
+  ('a1b2c3d4-0005-4000-8000-000000000005', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'lisa@bikebin.dev',    crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false),
+  ('a1b2c3d4-0006-4000-8000-000000000006', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'kai@bikebin.dev',     crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false),
+  ('a1b2c3d4-0007-4000-8000-000000000007', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'nina@bikebin.dev',    crypt('testpass123', gen_salt('bf')), now(), now(), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', false, false);
 
 INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES
-  (gen_random_uuid(), 'a1b2c3d4-0001-4000-8000-000000000001', 'test@bikebin.dev',   jsonb_build_object('sub', 'a1b2c3d4-0001-4000-8000-000000000001', 'email', 'test@bikebin.dev'),   'email', now(), now(), now()),
-  (gen_random_uuid(), 'a1b2c3d4-0002-4000-8000-000000000002', 'marcus@bikebin.dev', jsonb_build_object('sub', 'a1b2c3d4-0002-4000-8000-000000000002', 'email', 'marcus@bikebin.dev'), 'email', now(), now(), now()),
-  (gen_random_uuid(), 'a1b2c3d4-0003-4000-8000-000000000003', 'sarah@bikebin.dev',  jsonb_build_object('sub', 'a1b2c3d4-0003-4000-8000-000000000003', 'email', 'sarah@bikebin.dev'),  'email', now(), now(), now()),
-  (gen_random_uuid(), 'a1b2c3d4-0004-4000-8000-000000000004', 'jonas@bikebin.dev',  jsonb_build_object('sub', 'a1b2c3d4-0004-4000-8000-000000000004', 'email', 'jonas@bikebin.dev'),  'email', now(), now(), now()),
-  (gen_random_uuid(), 'a1b2c3d4-0005-4000-8000-000000000005', 'lisa@bikebin.dev',   jsonb_build_object('sub', 'a1b2c3d4-0005-4000-8000-000000000005', 'email', 'lisa@bikebin.dev'),   'email', now(), now(), now()),
-  (gen_random_uuid(), 'a1b2c3d4-0006-4000-8000-000000000006', 'kai@bikebin.dev',    jsonb_build_object('sub', 'a1b2c3d4-0006-4000-8000-000000000006', 'email', 'kai@bikebin.dev'),    'email', now(), now(), now()),
-  (gen_random_uuid(), 'a1b2c3d4-0007-4000-8000-000000000007', 'nina@bikebin.dev',   jsonb_build_object('sub', 'a1b2c3d4-0007-4000-8000-000000000007', 'email', 'nina@bikebin.dev'),   'email', now(), now(), now());
+  (gen_random_uuid(), 'a1b2c3d4-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', jsonb_build_object('sub', 'a1b2c3d4-0001-4000-8000-000000000001', 'email', 'test@bikebin.dev',   'email_verified', false, 'phone_verified', false), 'email', now(), now(), now()),
+  (gen_random_uuid(), 'a1b2c3d4-0002-4000-8000-000000000002', 'a1b2c3d4-0002-4000-8000-000000000002', jsonb_build_object('sub', 'a1b2c3d4-0002-4000-8000-000000000002', 'email', 'marcus@bikebin.dev', 'email_verified', false, 'phone_verified', false), 'email', now(), now(), now()),
+  (gen_random_uuid(), 'a1b2c3d4-0003-4000-8000-000000000003', 'a1b2c3d4-0003-4000-8000-000000000003', jsonb_build_object('sub', 'a1b2c3d4-0003-4000-8000-000000000003', 'email', 'sarah@bikebin.dev',  'email_verified', false, 'phone_verified', false), 'email', now(), now(), now()),
+  (gen_random_uuid(), 'a1b2c3d4-0004-4000-8000-000000000004', 'a1b2c3d4-0004-4000-8000-000000000004', jsonb_build_object('sub', 'a1b2c3d4-0004-4000-8000-000000000004', 'email', 'jonas@bikebin.dev',  'email_verified', false, 'phone_verified', false), 'email', now(), now(), now()),
+  (gen_random_uuid(), 'a1b2c3d4-0005-4000-8000-000000000005', 'a1b2c3d4-0005-4000-8000-000000000005', jsonb_build_object('sub', 'a1b2c3d4-0005-4000-8000-000000000005', 'email', 'lisa@bikebin.dev',   'email_verified', false, 'phone_verified', false), 'email', now(), now(), now()),
+  (gen_random_uuid(), 'a1b2c3d4-0006-4000-8000-000000000006', 'a1b2c3d4-0006-4000-8000-000000000006', jsonb_build_object('sub', 'a1b2c3d4-0006-4000-8000-000000000006', 'email', 'kai@bikebin.dev',    'email_verified', false, 'phone_verified', false), 'email', now(), now(), now()),
+  (gen_random_uuid(), 'a1b2c3d4-0007-4000-8000-000000000007', 'a1b2c3d4-0007-4000-8000-000000000007', jsonb_build_object('sub', 'a1b2c3d4-0007-4000-8000-000000000007', 'email', 'nina@bikebin.dev',   'email_verified', false, 'phone_verified', false), 'email', now(), now(), now());
 
 -- ── Profiles ────────────────────────────────────────────────
 -- Note: auth.users trigger auto-creates profiles, so we use ON CONFLICT to set our values
