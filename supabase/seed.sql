@@ -34,6 +34,7 @@ VALUES
   (gen_random_uuid(), 'a1b2c3d4-0007-4000-8000-000000000007', 'nina@bikebin.dev',   jsonb_build_object('sub', 'a1b2c3d4-0007-4000-8000-000000000007', 'email', 'nina@bikebin.dev'),   'email', now(), now(), now());
 
 -- ── Profiles ────────────────────────────────────────────────
+-- Note: auth.users trigger auto-creates profiles, so we use ON CONFLICT to set our values
 INSERT INTO profiles (id, display_name, avatar_url, rating_avg, rating_count, created_at, updated_at) VALUES
   ('a1b2c3d4-0001-4000-8000-000000000001', 'Test User',  NULL, 4.70, 12, now() - interval '180 days', now() - interval '2 days'),
   ('a1b2c3d4-0002-4000-8000-000000000002', 'Marcus B.',  NULL, 4.80, 23, now() - interval '200 days', now() - interval '5 days'),
@@ -41,7 +42,14 @@ INSERT INTO profiles (id, display_name, avatar_url, rating_avg, rating_count, cr
   ('a1b2c3d4-0004-4000-8000-000000000004', 'Jonas W.',   NULL, 4.90, 31, now() - interval '300 days', now() - interval '1 day'),
   ('a1b2c3d4-0005-4000-8000-000000000005', 'Lisa M.',    NULL, 4.60, 15, now() - interval '120 days', now() - interval '4 days'),
   ('a1b2c3d4-0006-4000-8000-000000000006', 'Kai R.',     NULL, 4.40, 10, now() - interval '160 days', now() - interval '6 days'),
-  ('a1b2c3d4-0007-4000-8000-000000000007', 'Nina T.',    NULL, 4.75, 18, now() - interval '140 days', now() - interval '3 days');
+  ('a1b2c3d4-0007-4000-8000-000000000007', 'Nina T.',    NULL, 4.75, 18, now() - interval '140 days', now() - interval '3 days')
+ON CONFLICT (id) DO UPDATE SET
+  display_name = EXCLUDED.display_name,
+  avatar_url = EXCLUDED.avatar_url,
+  rating_avg = EXCLUDED.rating_avg,
+  rating_count = EXCLUDED.rating_count,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at;
 
 -- ── Saved Locations ─────────────────────────────────────────
 INSERT INTO saved_locations (id, user_id, label, area_name, postcode, coordinates, is_primary, created_at) VALUES

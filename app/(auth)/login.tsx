@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +7,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useAuth } from '@/features/auth';
 import { useDemoMode } from '@/features/demo';
+import { supabase } from '@/shared/api/supabase';
+import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
+import { isProduction } from '@/shared/utils/env';
 import { spacing, borderRadius } from '@/shared/theme';
 
 export default function LoginScreen() {
@@ -14,6 +18,27 @@ export default function LoginScreen() {
   const { t: tDemo } = useTranslation('demo');
   const { signInWithGoogle, signInWithApple } = useAuth();
   const { enterDemoMode } = useDemoMode();
+  const [isDevExpanded, setIsDevExpanded] = useState(false);
+  const [signingInAs, setSigningInAs] = useState<string | null>(null);
+
+  const handleDevLogin = async (email: string) => {
+    setSigningInAs(email);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: TEST_USER_PASSWORD,
+      });
+      if (error) {
+        console.error('Dev login failed:', error.message);
+        setSigningInAs(null);
+        return;
+      }
+      router.replace('/(tabs)/inventory');
+    } catch (e) {
+      console.error('Dev login error:', e);
+      setSigningInAs(null);
+    }
+  };
 
   const handleBrowseWithout = () => {
     router.replace('/(tabs)/inventory');
@@ -83,6 +108,48 @@ export default function LoginScreen() {
         >
           {tDemo('welcome.tryDemo')}
         </Button>
+
+        {!isProduction && (
+          <View style={styles.devSection}>
+            <View style={[styles.devDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              Development
+            </Text>
+            <Button
+              mode="contained-tonal"
+              onPress={() => handleDevLogin(MAIN_TEST_USER.email)}
+              loading={signingInAs === MAIN_TEST_USER.email}
+              disabled={signingInAs !== null}
+              style={styles.devButton}
+              contentStyle={styles.buttonContent}
+              icon="bug-outline"
+            >
+              {t('devLogin.button')}
+            </Button>
+            <Button
+              mode="text"
+              onPress={() => setIsDevExpanded(!isDevExpanded)}
+              compact
+              icon={isDevExpanded ? 'chevron-up' : 'chevron-down'}
+            >
+              {t('devLogin.otherUsers')}
+            </Button>
+            {isDevExpanded &&
+              TEST_USERS.filter((u) => !u.isMain).map((user) => (
+                <Button
+                  key={user.id}
+                  mode="text"
+                  onPress={() => handleDevLogin(user.email)}
+                  loading={signingInAs === user.email}
+                  disabled={signingInAs !== null}
+                  compact
+                  style={styles.devUserButton}
+                >
+                  {user.displayName} ({user.persona})
+                </Button>
+              ))}
+          </View>
+        )}
       </View>
     </LinearGradient>
   );
@@ -131,5 +198,24 @@ const styles = StyleSheet.create({
   demoButton: {
     marginTop: spacing.sm,
     borderRadius: borderRadius.md,
+  },
+  devSection: {
+    width: '100%',
+    maxWidth: 320,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    gap: spacing.xs,
+  },
+  devDivider: {
+    width: '60%',
+    height: StyleSheet.hairlineWidth,
+    marginBottom: spacing.xs,
+  },
+  devButton: {
+    borderRadius: borderRadius.md,
+    width: '100%',
+  },
+  devUserButton: {
+    width: '100%',
   },
 });

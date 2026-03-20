@@ -7,6 +7,14 @@ const mockSignInWithGoogle = jest.fn();
 const mockSignInWithApple = jest.fn();
 const mockReplace = jest.fn();
 
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    auth: {
+      signInWithPassword: jest.fn().mockResolvedValue({ error: null }),
+    },
+  },
+}));
+
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
     signInWithGoogle: mockSignInWithGoogle,
