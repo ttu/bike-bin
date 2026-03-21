@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
 import type { ItemId, UserId, LocationId } from '@/shared/types';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { usePrimaryLocation } from '@/features/locations';
@@ -48,7 +49,10 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const locationIds = [...new Set(rows.map((r) => r.pickup_location_id).filter(Boolean))];
       const locationMap = await fetchLocationAreaNames(locationIds as string[]);
 
-      let results = rows.map((row) => mapRow(row, ownerMap, locationMap));
+      // Fetch thumbnail paths for all result items
+      const thumbMap = await fetchThumbnailPaths(rows.map((r) => r.id));
+
+      let results = rows.map((row) => mapRow(row, ownerMap, locationMap, thumbMap));
 
       // Client-side filters for multi-value category/condition and offer type
       if (filters.categories.length > 1) {
@@ -151,6 +155,7 @@ function mapRow(
   row: RpcRow,
   ownerMap: Map<string, OwnerProfile>,
   locationMap: Map<string, string>,
+  thumbMap: Map<string, string>,
 ): SearchResultItem {
   const owner = ownerMap.get(row.owner_id);
   return {
@@ -176,5 +181,6 @@ function mapRow(
     ownerRatingAvg: owner?.rating_avg ?? 0,
     ownerRatingCount: owner?.rating_count ?? 0,
     areaName: row.pickup_location_id ? locationMap.get(row.pickup_location_id) : undefined,
+    thumbnailStoragePath: thumbMap.get(row.id),
   };
 }

@@ -5,6 +5,20 @@ import type { ItemId, UserId } from '@/shared/types';
 import { SearchResultCard } from '../SearchResultCard/SearchResultCard';
 import type { SearchResultItem } from '../../types';
 
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    storage: {
+      from: () => ({
+        getPublicUrl: (path: string) => ({
+          data: {
+            publicUrl: `https://test.supabase.co/storage/v1/object/public/item-photos/${path}`,
+          },
+        }),
+      }),
+    },
+  },
+}));
+
 function createSearchResult(overrides?: Partial<SearchResultItem>): SearchResultItem {
   return {
     id: 'item-1' as ItemId,
@@ -29,6 +43,7 @@ function createSearchResult(overrides?: Partial<SearchResultItem>): SearchResult
     ownerRatingAvg: 4.5,
     ownerRatingCount: 12,
     areaName: 'Berlin Mitte',
+    thumbnailStoragePath: undefined,
     ...overrides,
   };
 }

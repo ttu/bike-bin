@@ -56,4 +56,5 @@ export interface SearchResultItem {
   ownerRatingCount: number;
   /** Area name from the pickup location. */
   areaName: string | undefined;
+  thumbnailStoragePath: string | undefined;
 }

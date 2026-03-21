@@ -4,6 +4,20 @@ import { createMockItem } from '@/test/factories';
 import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemCard } from '../ItemCard';
 
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    storage: {
+      from: () => ({
+        getPublicUrl: (path: string) => ({
+          data: {
+            publicUrl: `https://test.supabase.co/storage/v1/object/public/item-photos/${path}`,
+          },
+        }),
+      }),
+    },
+  },
+}));
+
 describe('ItemCard', () => {
   const baseItem = createMockItem({
     name: 'Shimano Cassette',

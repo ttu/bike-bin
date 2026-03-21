@@ -18,12 +18,23 @@ const mockSingle = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      delete: mockDeleteFn,
-    })),
+    from: jest.fn((table: string) => {
+      if (table === 'item_photos') {
+        return {
+          select: () => ({
+            in: () => ({
+              order: () => Promise.resolve({ data: [], error: null }),
+            }),
+          }),
+        };
+      }
+      return {
+        select: mockSelect,
+        insert: mockInsert,
+        update: mockUpdate,
+        delete: mockDeleteFn,
+      };
+    }),
   },
 }));
 

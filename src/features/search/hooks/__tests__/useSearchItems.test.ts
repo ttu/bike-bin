@@ -95,6 +95,15 @@ describe('useSearchItems', () => {
           }),
         };
       }
+      if (table === 'item_photos') {
+        return {
+          select: () => ({
+            in: () => ({
+              order: () => Promise.resolve({ data: [], error: null }),
+            }),
+          }),
+        };
+      }
       return { select: mockSelect };
     });
   });
@@ -288,6 +297,15 @@ describe('useSearchItems', () => {
                 data: [{ id: 'loc-2', area_name: 'Kreuzberg' }],
                 error: null,
               }),
+          }),
+        };
+      }
+      if (table === 'item_photos') {
+        return {
+          select: () => ({
+            in: () => ({
+              order: () => Promise.resolve({ data: [], error: null }),
+            }),
           }),
         };
       }

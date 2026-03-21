@@ -116,6 +116,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
+    thumbnailStoragePath: undefined,
     ...overrides,
   };
 }

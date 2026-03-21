@@ -48,6 +48,7 @@ export default function NewItemScreen() {
         visibility: data.visibility ?? Visibility.Private,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        thumbnailStoragePath: undefined,
       });
     }
     router.back();

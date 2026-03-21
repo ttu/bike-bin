@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Image } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { formatDistance } from '@/shared/utils';
@@ -28,13 +29,23 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
-      {/* Thumbnail placeholder */}
       <View style={[styles.thumbnail, themed.surfaceVariantBg]}>
-        <MaterialCommunityIcons
-          name="image-outline"
-          size={iconSize.lg}
-          color={theme.colors.onSurfaceVariant}
-        />
+        {item.thumbnailStoragePath ? (
+          <Image
+            source={{
+              uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
+                .publicUrl,
+            }}
+            style={styles.thumbnailImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <MaterialCommunityIcons
+            name="image-outline"
+            size={iconSize.lg}
+            color={theme.colors.onSurfaceVariant}
+          />
+        )}
       </View>
 
       <View style={styles.content}>
@@ -123,6 +134,11 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden' as const,
+  },
+  thumbnailImage: {
+    width: '100%' as const,
+    height: '100%' as const,
   },
   content: {
     flex: 1,

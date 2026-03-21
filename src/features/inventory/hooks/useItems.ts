@@ -6,6 +6,7 @@ import { ItemStatus, Visibility } from '@/shared/types';
 import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
 import { mapItemRow, mapItemPhotoRow } from '@/shared/utils/mapItemRow';
+import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
 
 async function syncItemGroups(itemId: ItemId, groupIds: GroupId[] | undefined): Promise<void> {
   // Remove all existing item_groups for this item
@@ -35,7 +36,14 @@ export function useItems() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      return (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
+      const items = (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
+
+      const thumbMap = await fetchThumbnailPaths(items.map((i) => i.id));
+      for (const item of items) {
+        item.thumbnailStoragePath = thumbMap.get(item.id);
+      }
+
+      return items;
     },
     enabled: !!user,
   });

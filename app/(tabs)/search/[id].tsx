@@ -72,6 +72,7 @@ export default function ListingDetailScreen() {
         ownerRatingAvg: (owner?.rating_avg as number) ?? 0,
         ownerRatingCount: (owner?.rating_count as number) ?? 0,
         areaName,
+        thumbnailStoragePath: undefined,
       };
     },
     enabled: !!id,

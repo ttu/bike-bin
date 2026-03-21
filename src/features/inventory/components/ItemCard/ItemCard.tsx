@@ -1,8 +1,9 @@
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Image } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Item } from '@/shared/types';
+import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor } from '../../utils/status';
@@ -33,11 +34,22 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
       accessibilityLabel={item.name}
     >
       <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
-        <MaterialCommunityIcons
-          name="image-outline"
-          size={iconSize.lg}
-          color={theme.colors.onSurfaceVariant}
-        />
+        {item.thumbnailStoragePath ? (
+          <Image
+            source={{
+              uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
+                .publicUrl,
+            }}
+            style={styles.thumbnailImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <MaterialCommunityIcons
+            name="image-outline"
+            size={iconSize.lg}
+            color={theme.colors.onSurfaceVariant}
+          />
+        )}
       </View>
 
       <View style={styles.content}>
@@ -102,6 +114,11 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden' as const,
+  },
+  thumbnailImage: {
+    width: '100%' as const,
+    height: '100%' as const,
   },
   content: {
     flex: 1,

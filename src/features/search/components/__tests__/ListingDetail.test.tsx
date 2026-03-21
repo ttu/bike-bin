@@ -48,6 +48,7 @@ function createSearchResult(overrides?: Partial<SearchResultItem>): SearchResult
     ownerRatingAvg: 4.5,
     ownerRatingCount: 12,
     areaName: 'Berlin Mitte',
+    thumbnailStoragePath: undefined,
     ...overrides,
   };
 }

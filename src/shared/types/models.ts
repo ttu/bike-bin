@@ -72,6 +72,7 @@ export interface Item {
   visibility: Visibility;
   createdAt: string;
   updatedAt: string;
+  thumbnailStoragePath: string | undefined;
 }
 
 export interface ItemPhoto {

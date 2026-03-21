@@ -153,6 +153,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(120),
     updatedAt: daysAgo(30),
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_ITEM_2,
@@ -179,6 +180,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(60),
     updatedAt: daysAgo(5),
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_ITEM_3,
@@ -205,6 +207,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(90),
     updatedAt: daysAgo(15),
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_ITEM_4,
@@ -231,6 +234,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(45),
     updatedAt: daysAgo(3),
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_ITEM_5,
@@ -257,6 +261,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(30),
     updatedAt: daysAgo(1),
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_ITEM_6,
@@ -284,6 +289,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(10),
     updatedAt: daysAgo(10),
+    thumbnailStoragePath: undefined,
   },
 ];
 
@@ -313,6 +319,7 @@ export const DEMO_SEARCH_RESULTS: SearchResultItem[] = [
     ownerRatingAvg: 4.8,
     ownerRatingCount: 23,
     areaName: 'Friedrichshain',
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_SEARCH_ITEM_2,
@@ -337,6 +344,7 @@ export const DEMO_SEARCH_RESULTS: SearchResultItem[] = [
     ownerRatingAvg: 4.5,
     ownerRatingCount: 8,
     areaName: 'Prenzlauer Berg',
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_SEARCH_ITEM_3,
@@ -361,6 +369,7 @@ export const DEMO_SEARCH_RESULTS: SearchResultItem[] = [
     ownerRatingAvg: 4.9,
     ownerRatingCount: 31,
     areaName: 'Neukölln',
+    thumbnailStoragePath: undefined,
   },
   {
     id: DEMO_SEARCH_ITEM_4,
@@ -385,6 +394,7 @@ export const DEMO_SEARCH_RESULTS: SearchResultItem[] = [
     ownerRatingAvg: 4.8,
     ownerRatingCount: 23,
     areaName: 'Friedrichshain',
+    thumbnailStoragePath: undefined,
   },
 ];
 
