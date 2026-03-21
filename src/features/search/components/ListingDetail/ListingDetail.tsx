@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Chip, Button, Avatar, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
@@ -64,7 +65,11 @@ export function ListingDetail({
       {item.availabilityTypes.length > 0 && (
         <View style={[styles.section, styles.chipRow]}>
           {item.availabilityTypes.map((type) => (
-            <Chip key={type} compact>
+            <Chip
+              key={type}
+              compact
+              style={{ backgroundColor: theme.colors.secondaryContainer, borderRadius: 9999 }}
+            >
               {t(`availability.${type}`)}
               {type === 'sellable' && item.price !== undefined ? ` · \u20AC${item.price}` : ''}
             </Chip>
@@ -133,24 +138,28 @@ export function ListingDetail({
       {/* Action buttons */}
       <View style={styles.section}>
         {!isAuthenticated ? (
-          <Button mode="contained" onPress={() => {}} disabled style={styles.actionButton}>
+          <GradientButton disabled style={styles.actionButton}>
             {t('listing.actions.signInToContact')}
-          </Button>
+          </GradientButton>
         ) : (
           <>
             {(showContactOnly || showBoth) && (
-              <Button
-                mode="contained"
-                onPress={onContact}
-                disabled={!onContact}
+              <GradientButton onPress={onContact} disabled={!onContact} style={styles.actionButton}>
+                {t('listing.actions.contact')}
+              </GradientButton>
+            )}
+            {showBorrowOnly && (
+              <GradientButton
+                onPress={onRequestBorrow}
+                disabled={!onRequestBorrow}
                 style={styles.actionButton}
               >
-                {t('listing.actions.contact')}
-              </Button>
+                {t('listing.actions.requestBorrow')}
+              </GradientButton>
             )}
-            {(showBorrowOnly || showBoth) && (
+            {showBoth && (
               <Button
-                mode={showBoth ? 'outlined' : 'contained'}
+                mode="outlined"
                 onPress={onRequestBorrow}
                 disabled={!onRequestBorrow}
                 style={styles.actionButton}

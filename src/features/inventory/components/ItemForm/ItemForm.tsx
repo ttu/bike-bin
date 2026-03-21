@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, Menu, useTheme } from 'react-native-paper';
+import type { AppTheme } from '@/shared/theme';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
@@ -44,7 +46,14 @@ interface ItemFormProps {
 }
 
 export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFormProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
+
+  const softInputStyle = {
+    backgroundColor: theme.customColors.surfaceContainerHighest,
+    borderRadius: 12,
+  };
+  const underlineColor = theme.colors.outlineVariant + '26';
+  const activeUnderlineColor = theme.colors.primary;
   const { t } = useTranslation('inventory');
   const { data: userGroups } = useGroups();
   const { data: existingItems } = useItems();
@@ -199,11 +208,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
         {t('form.nameLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={name}
         onChangeText={setName}
         placeholder={t('form.namePlaceholder')}
         error={!!errors.name}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
       {errors.name && (
         <HelperText type="error" visible>
@@ -221,9 +233,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             key={cat}
             selected={category === cat}
             onPress={() => handleCategoryChange(cat)}
+            showSelectedCheck={false}
+            selectedColor={theme.colors.onPrimary}
             style={[
               styles.chip,
-              category === cat && { backgroundColor: theme.colors.primaryContainer },
+              {
+                backgroundColor:
+                  category === cat ? theme.colors.primary : theme.colors.secondaryContainer,
+              },
             ]}
           >
             {t(`category.${cat}`)}
@@ -248,9 +265,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                 key={sub}
                 selected={subcategory === sub}
                 onPress={() => setSubcategory(subcategory === sub ? '' : sub)}
+                showSelectedCheck={false}
+                selectedColor={theme.colors.onPrimary}
                 style={[
                   styles.chip,
-                  subcategory === sub && { backgroundColor: theme.colors.primaryContainer },
+                  {
+                    backgroundColor:
+                      subcategory === sub ? theme.colors.primary : theme.colors.secondaryContainer,
+                  },
                 ]}
               >
                 {t(`subcategory.${sub}`)}
@@ -270,9 +292,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             key={cond}
             selected={condition === cond}
             onPress={() => setCondition(cond)}
+            showSelectedCheck={false}
+            selectedColor={theme.colors.onPrimary}
             style={[
               styles.chip,
-              condition === cond && { backgroundColor: theme.colors.primaryContainer },
+              {
+                backgroundColor:
+                  condition === cond ? theme.colors.primary : theme.colors.secondaryContainer,
+              },
             ]}
           >
             {t(`condition.${cond}`)}
@@ -291,7 +318,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
       </Text>
       <View style={styles.autocompleteWrapper}>
         <TextInput
-          mode="outlined"
+          mode="flat"
           value={brand}
           onChangeText={handleBrandInputChange}
           onFocus={() => {
@@ -302,6 +329,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             setTimeout(() => setBrandMenuVisible(false), 200);
           }}
           placeholder={t('form.brandPlaceholder')}
+          style={softInputStyle}
+          underlineColor={underlineColor}
+          activeUnderlineColor={activeUnderlineColor}
         />
         {brandMenuVisible && filteredBrands.length > 0 && (
           <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
@@ -331,10 +361,13 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
         {t('form.modelLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={model}
         onChangeText={setModel}
         placeholder={t('form.modelPlaceholder')}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
 
       {/* Availability */}
@@ -347,10 +380,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             key={type}
             selected={availabilityTypes.includes(type)}
             onPress={() => toggleAvailability(type)}
+            showSelectedCheck={false}
+            selectedColor={theme.colors.onPrimary}
             style={[
               styles.chip,
-              availabilityTypes.includes(type) && {
-                backgroundColor: theme.colors.primaryContainer,
+              {
+                backgroundColor: availabilityTypes.includes(type)
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
               },
             ]}
           >
@@ -366,12 +403,15 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             {t('form.priceLabel')}
           </Text>
           <TextInput
-            mode="outlined"
+            mode="flat"
             value={price}
             onChangeText={setPrice}
             placeholder={t('form.pricePlaceholder')}
             keyboardType="decimal-pad"
             error={!!errors.price}
+            style={softInputStyle}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
           />
           {errors.price && (
             <HelperText type="error" visible>
@@ -388,11 +428,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             {t('form.depositLabel')}
           </Text>
           <TextInput
-            mode="outlined"
+            mode="flat"
             value={deposit}
             onChangeText={setDeposit}
             placeholder={t('form.depositPlaceholder')}
             keyboardType="decimal-pad"
+            style={softInputStyle}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
           />
 
           {/* Duration selector */}
@@ -405,7 +448,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             anchor={
               <Pressable onPress={() => setDurationMenuVisible(true)}>
                 <TextInput
-                  mode="outlined"
+                  mode="flat"
                   value={
                     borrowDuration
                       ? t(`form.durationOption.${borrowDuration}`, { defaultValue: borrowDuration })
@@ -415,6 +458,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                   placeholder={t('form.durationPlaceholder')}
                   right={<TextInput.Icon icon="chevron-down" />}
                   pointerEvents="none"
+                  style={softInputStyle}
+                  underlineColor={underlineColor}
+                  activeUnderlineColor={activeUnderlineColor}
                 />
               </Pressable>
             }
@@ -441,9 +487,16 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
         <Chip
           selected={visibility === Visibility.All}
           onPress={() => setVisibility(Visibility.All)}
+          showSelectedCheck={false}
+          selectedColor={theme.colors.onPrimary}
           style={[
             styles.chip,
-            visibility === Visibility.All && { backgroundColor: theme.colors.primaryContainer },
+            {
+              backgroundColor:
+                visibility === Visibility.All
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
+            },
           ]}
         >
           {t('form.visibilityAll')}
@@ -451,10 +504,15 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
         <Chip
           selected={visibility === Visibility.Groups}
           onPress={() => setVisibility(Visibility.Groups)}
+          showSelectedCheck={false}
+          selectedColor={theme.colors.onPrimary}
           style={[
             styles.chip,
-            visibility === Visibility.Groups && {
-              backgroundColor: theme.colors.primaryContainer,
+            {
+              backgroundColor:
+                visibility === Visibility.Groups
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
             },
           ]}
         >
@@ -463,9 +521,16 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
         <Chip
           selected={visibility === Visibility.Private}
           onPress={() => setVisibility(Visibility.Private)}
+          showSelectedCheck={false}
+          selectedColor={theme.colors.onPrimary}
           style={[
             styles.chip,
-            visibility === Visibility.Private && { backgroundColor: theme.colors.primaryContainer },
+            {
+              backgroundColor:
+                visibility === Visibility.Private
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
+            },
           ]}
         >
           {t('form.visibilityPrivate')}
@@ -482,10 +547,14 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                   key={group.id}
                   selected={groupIds.includes(group.id)}
                   onPress={() => toggleGroupId(group.id)}
+                  showSelectedCheck={false}
+                  selectedColor={theme.colors.onPrimary}
                   style={[
                     styles.chip,
-                    groupIds.includes(group.id) && {
-                      backgroundColor: theme.colors.secondaryContainer,
+                    {
+                      backgroundColor: groupIds.includes(group.id)
+                        ? theme.colors.primary
+                        : theme.colors.secondaryContainer,
                     },
                   ]}
                 >
@@ -528,12 +597,15 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             anchor={
               <Pressable onPress={() => setAgeMenuVisible(true)}>
                 <TextInput
-                  mode="outlined"
+                  mode="flat"
                   value={age ? t(`form.ageOption.${age}`, { defaultValue: age }) : ''}
                   editable={false}
                   placeholder={t('form.agePlaceholder')}
                   right={<TextInput.Icon icon="chevron-down" />}
                   pointerEvents="none"
+                  style={softInputStyle}
+                  underlineColor={underlineColor}
+                  activeUnderlineColor={activeUnderlineColor}
                 />
               </Pressable>
             }
@@ -556,21 +628,28 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           </Text>
           <View style={styles.usageRow}>
             <TextInput
-              mode="outlined"
+              mode="flat"
               value={usageKm}
               onChangeText={setUsageKm}
               placeholder={t('form.usagePlaceholder')}
               keyboardType="numeric"
-              style={styles.usageInput}
+              style={[softInputStyle, styles.usageInput]}
+              underlineColor={underlineColor}
+              activeUnderlineColor={activeUnderlineColor}
             />
             <View style={styles.unitToggle}>
               <Chip
                 selected={usageUnit === DistanceUnit.Km}
                 onPress={() => setUsageUnit(DistanceUnit.Km)}
+                showSelectedCheck={false}
+                selectedColor={theme.colors.onPrimary}
                 style={[
                   styles.unitChip,
-                  usageUnit === DistanceUnit.Km && {
-                    backgroundColor: theme.colors.primaryContainer,
+                  {
+                    backgroundColor:
+                      usageUnit === DistanceUnit.Km
+                        ? theme.colors.primary
+                        : theme.colors.secondaryContainer,
                   },
                 ]}
                 compact
@@ -580,10 +659,15 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
               <Chip
                 selected={usageUnit === DistanceUnit.Mi}
                 onPress={() => setUsageUnit(DistanceUnit.Mi)}
+                showSelectedCheck={false}
+                selectedColor={theme.colors.onPrimary}
                 style={[
                   styles.unitChip,
-                  usageUnit === DistanceUnit.Mi && {
-                    backgroundColor: theme.colors.primaryContainer,
+                  {
+                    backgroundColor:
+                      usageUnit === DistanceUnit.Mi
+                        ? theme.colors.primary
+                        : theme.colors.secondaryContainer,
                   },
                 ]}
                 compact
@@ -599,7 +683,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           </Text>
           <View style={styles.autocompleteWrapper}>
             <TextInput
-              mode="outlined"
+              mode="flat"
               value={storageLocation}
               onChangeText={(text) => {
                 setStorageLocation(text);
@@ -612,6 +696,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                 setTimeout(() => setStorageMenuVisible(false), 200);
               }}
               placeholder={t('form.storagePlaceholder')}
+              style={softInputStyle}
+              underlineColor={underlineColor}
+              activeUnderlineColor={activeUnderlineColor}
             />
             {storageMenuVisible && existingStorageLocations.length > 0 && (
               <View
@@ -652,26 +739,28 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             {t('form.descriptionLabel')}
           </Text>
           <TextInput
-            mode="outlined"
+            mode="flat"
             value={description}
             onChangeText={setDescription}
             placeholder={t('form.descriptionPlaceholder')}
             multiline
             numberOfLines={3}
+            style={softInputStyle}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
           />
         </View>
       )}
 
       {/* Save */}
-      <Button
-        mode="contained"
+      <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
         disabled={isSubmitting}
         style={styles.saveButton}
       >
         {t('form.save')}
-      </Button>
+      </GradientButton>
 
       {/* Delete (edit mode) */}
       {onDelete && (

@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Button, Portal, Modal, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 import { RATING_WINDOW_DAYS } from '../../utils/ratingWindow';
 
@@ -31,7 +33,7 @@ export function RatingPrompt({
   userName,
   transactionType,
 }: RatingPromptProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('ratings');
 
   const [score, setScore] = useState(0);
@@ -103,14 +105,19 @@ export function RatingPrompt({
 
         {/* Optional comment */}
         <TextInput
-          mode="outlined"
+          mode="flat"
           label={t('prompt.commentLabel')}
           placeholder={t('prompt.commentPlaceholder')}
           value={comment}
           onChangeText={setComment}
           multiline
           numberOfLines={3}
-          style={styles.commentInput}
+          style={[
+            { backgroundColor: theme.customColors.surfaceContainerHighest, borderRadius: 12 },
+            styles.commentInput,
+          ]}
+          underlineColor={theme.colors.outlineVariant + '26'}
+          activeUnderlineColor={theme.colors.primary}
         />
 
         {/* Window note */}
@@ -123,14 +130,14 @@ export function RatingPrompt({
           <Button mode="text" onPress={handleDismiss} disabled={isSubmitting}>
             {t('prompt.skip')}
           </Button>
-          <Button
-            mode="contained"
+          <GradientButton
             onPress={handleSubmit}
             loading={isSubmitting}
             disabled={isSubmitting || score < 1}
+            testID="submit-button"
           >
             {t('prompt.submit')}
-          </Button>
+          </GradientButton>
         </View>
       </Modal>
     </Portal>

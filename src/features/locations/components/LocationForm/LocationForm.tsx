@@ -9,9 +9,11 @@ import {
   ActivityIndicator,
   useTheme,
 } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import { geocodePostcode, GeocodeError } from '../../utils/geocoding';
 import type { GeocodeResult } from '../../utils/geocoding';
 
@@ -36,8 +38,15 @@ export function LocationForm({
   isSubmitting,
   showPrimaryToggle = true,
 }: LocationFormProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('locations');
+
+  const softInputStyle = {
+    backgroundColor: theme.customColors.surfaceContainerHighest,
+    borderRadius: 12,
+  };
+  const underlineColor = theme.colors.outlineVariant + '26';
+  const activeUnderlineColor = theme.colors.primary;
 
   const [postcode, setPostcode] = useState(initialData?.postcode ?? '');
   const [label, setLabel] = useState(initialData?.label ?? '');
@@ -104,7 +113,7 @@ export function LocationForm({
       </Text>
       <View style={styles.postcodeRow}>
         <TextInput
-          mode="outlined"
+          mode="flat"
           value={postcode}
           onChangeText={(text) => {
             setPostcode(text);
@@ -112,7 +121,9 @@ export function LocationForm({
           }}
           placeholder={t('form.postcodePlaceholder')}
           error={!!errors.postcode}
-          style={styles.postcodeInput}
+          style={[softInputStyle, styles.postcodeInput]}
+          underlineColor={underlineColor}
+          activeUnderlineColor={activeUnderlineColor}
           onBlur={handleGeocodePostcode}
           autoCapitalize="characters"
         />
@@ -149,11 +160,14 @@ export function LocationForm({
         {t('form.labelLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={label}
         onChangeText={setLabel}
         placeholder={t('form.labelPlaceholder')}
         error={!!errors.label}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
       {errors.label && (
         <HelperText type="error" visible>
@@ -176,14 +190,13 @@ export function LocationForm({
         <Button mode="text" onPress={onCancel} disabled={isSubmitting}>
           {t('form.cancel')}
         </Button>
-        <Button
-          mode="contained"
+        <GradientButton
           onPress={handleSubmit}
           loading={isSubmitting || isGeocoding}
           disabled={isSubmitting || isGeocoding}
         >
           {t('form.save')}
-        </Button>
+        </GradientButton>
       </View>
     </View>
   );

@@ -81,8 +81,10 @@ describe('ReportDialog', () => {
   });
 
   it('shows loading state', () => {
-    const { getByText } = renderWithProviders(<ReportDialog {...defaultProps} loading={true} />);
-    expect(getByText('Submitting...')).toBeTruthy();
+    const { getByTestId } = renderWithProviders(<ReportDialog {...defaultProps} loading={true} />);
+    const submitButton = getByTestId('submit-report-button');
+    // GradientButton shows spinner when loading — verify button is present and disabled
+    expect(submitButton.props.accessibilityState).toEqual({ disabled: true });
   });
 
   it('does not render when not visible', () => {

@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { BikeType } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
 
 const BIKE_TYPES = [
@@ -28,8 +30,15 @@ interface BikeFormErrors {
 }
 
 export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFormProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
+
+  const softInputStyle = {
+    backgroundColor: theme.customColors.surfaceContainerHighest,
+    borderRadius: 12,
+  };
+  const underlineColor = theme.colors.outlineVariant + '26';
+  const activeUnderlineColor = theme.colors.primary;
 
   const [name, setName] = useState(initialData?.name ?? '');
   const [brand, setBrand] = useState(initialData?.brand ?? '');
@@ -69,11 +78,14 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
         {t('form.nameLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={name}
         onChangeText={setName}
         placeholder={t('form.namePlaceholder')}
         error={!!errors.name}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
       {errors.name && (
         <HelperText type="error" visible>
@@ -91,9 +103,14 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
             key={type}
             selected={bikeType === type}
             onPress={() => setBikeType(type)}
+            showSelectedCheck={false}
+            selectedColor={theme.colors.onPrimary}
             style={[
               styles.chip,
-              bikeType === type && { backgroundColor: theme.colors.primaryContainer },
+              {
+                backgroundColor:
+                  bikeType === type ? theme.colors.primary : theme.colors.secondaryContainer,
+              },
             ]}
           >
             {t(`bikeType.${type}`)}
@@ -111,10 +128,13 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
         {t('form.brandLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={brand}
         onChangeText={setBrand}
         placeholder={t('form.brandPlaceholder')}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
 
       {/* Model */}
@@ -122,10 +142,13 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
         {t('form.modelLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={model}
         onChangeText={setModel}
         placeholder={t('form.modelPlaceholder')}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
 
       {/* Year */}
@@ -133,23 +156,25 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
         {t('form.yearLabel')}
       </Text>
       <TextInput
-        mode="outlined"
+        mode="flat"
         value={year}
         onChangeText={setYear}
         placeholder={t('form.yearPlaceholder')}
         keyboardType="numeric"
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
       />
 
       {/* Save */}
-      <Button
-        mode="contained"
+      <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
         disabled={isSubmitting}
         style={styles.saveButton}
       >
         {t('form.save')}
-      </Button>
+      </GradientButton>
 
       {/* Delete (edit mode) */}
       {onDelete && (

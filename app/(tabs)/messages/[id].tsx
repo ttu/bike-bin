@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
-import { spacing, borderRadius } from '@/shared/theme';
+import { spacing } from '@/shared/theme';
 import { ItemStatus } from '@/shared/types';
 import type { ConversationId, ItemId } from '@/shared/types';
 import {
@@ -206,7 +206,7 @@ export default function ConversationDetailScreen() {
             style={[
               styles.textInput,
               {
-                backgroundColor: theme.colors.surfaceVariant,
+                backgroundColor: theme.customColors.surfaceContainerHighest,
                 color: theme.colors.onSurface,
               },
             ]}
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    borderRadius: borderRadius.lg,
+    borderRadius: 12,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     maxHeight: 100,

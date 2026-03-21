@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, Modal, Portal, Text, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -52,8 +53,7 @@ export function useAuthGate() {
         >
           {t('gate.description', 'You need to sign in to use this feature.')}
         </Text>
-        <Button
-          mode="contained"
+        <GradientButton
           onPress={() => {
             setShowModal(false);
             router.push('/(auth)/login');
@@ -61,7 +61,7 @@ export function useAuthGate() {
           style={styles.modalButton}
         >
           {t('gate.signIn', 'Sign in')}
-        </Button>
+        </GradientButton>
         <Button mode="text" onPress={() => setShowModal(false)}>
           {t('gate.cancel', 'Cancel')}
         </Button>

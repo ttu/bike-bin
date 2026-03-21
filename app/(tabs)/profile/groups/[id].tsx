@@ -1,11 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Alert, Pressable, ScrollView } from 'react-native';
 import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import {
   useGroup,
@@ -29,11 +31,18 @@ type ScreenMode = 'detail' | 'edit';
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const groupId = id as GroupId;
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('groups');
   const { t: tCommon } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+
+  const softInputStyle = {
+    backgroundColor: theme.customColors.surfaceContainerHighest,
+    borderRadius: 12,
+  };
+  const underlineColor = theme.colors.outlineVariant + '26';
+  const activeUnderlineColor = theme.colors.primary;
   const userId = (user?.id ?? '') as UserId;
 
   const [mode, setMode] = useState<ScreenMode>('detail');
@@ -220,11 +229,14 @@ export default function GroupDetailScreen() {
             {t('create.nameLabel')}
           </Text>
           <TextInput
-            mode="outlined"
+            mode="flat"
             value={editName}
             onChangeText={setEditName}
             placeholder={t('create.namePlaceholder')}
             error={!!editNameError}
+            style={softInputStyle}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
           />
           {editNameError && (
             <HelperText type="error" visible>
@@ -236,12 +248,15 @@ export default function GroupDetailScreen() {
             {t('create.descriptionLabel')}
           </Text>
           <TextInput
-            mode="outlined"
+            mode="flat"
             value={editDescription}
             onChangeText={setEditDescription}
             placeholder={t('create.descriptionPlaceholder')}
             multiline
             numberOfLines={3}
+            style={softInputStyle}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
           />
 
           <View style={styles.switchRow}>
@@ -254,15 +269,14 @@ export default function GroupDetailScreen() {
             <Switch value={editIsPublic} onValueChange={setEditIsPublic} />
           </View>
 
-          <Button
-            mode="contained"
+          <GradientButton
             onPress={handleEditSave}
             loading={updateGroup.isPending}
             disabled={updateGroup.isPending}
             style={styles.submitButton}
           >
             {t('edit.save')}
-          </Button>
+          </GradientButton>
         </ScrollView>
       </View>
     );
@@ -306,7 +320,11 @@ export default function GroupDetailScreen() {
         {/* Group info */}
         <View style={styles.groupInfo}>
           <View style={styles.groupMeta}>
-            <Chip compact textStyle={styles.chipText}>
+            <Chip
+              compact
+              textStyle={styles.chipText}
+              style={{ backgroundColor: theme.colors.secondaryContainer, borderRadius: 9999 }}
+            >
               {group.isPublic ? t('detail.publicBadge') : t('detail.privateBadge')}
             </Chip>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>

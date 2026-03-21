@@ -1,5 +1,6 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Button, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -131,15 +132,13 @@ export function BorrowRequestCard({
       {actions.length > 0 && (
         <View style={styles.actions}>
           {actions.includes('accept') && (
-            <Button
-              mode="contained"
-              compact
+            <GradientButton
               onPress={() => handleAction('accept')}
               style={styles.actionButton}
               testID="accept-button"
             >
               {t('actions.accept')}
-            </Button>
+            </GradientButton>
           )}
           {actions.includes('decline') && (
             <Button
@@ -164,15 +163,13 @@ export function BorrowRequestCard({
             </Button>
           )}
           {actions.includes('markReturned') && (
-            <Button
-              mode="contained"
-              compact
+            <GradientButton
               onPress={() => handleAction('markReturned')}
               style={styles.actionButton}
               testID="mark-returned-button"
             >
               {t('actions.markReturned')}
-            </Button>
+            </GradientButton>
           )}
         </View>
       )}

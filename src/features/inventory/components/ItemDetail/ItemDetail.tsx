@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
@@ -80,7 +81,11 @@ export function ItemDetail({
         <View style={styles.section}>
           <View style={styles.chipRow}>
             {item.availabilityTypes.map((type) => (
-              <Chip key={type} compact>
+              <Chip
+                key={type}
+                compact
+                style={{ backgroundColor: theme.colors.secondaryContainer, borderRadius: 9999 }}
+              >
                 {t(`availability.${type}`)}
                 {type === 'sellable' && item.price !== undefined ? ` · €${item.price}` : ''}
               </Chip>
@@ -121,9 +126,9 @@ export function ItemDetail({
       {/* Actions */}
       <View style={styles.section}>
         {canShowReturnedAction && onMarkReturned && (
-          <Button mode="contained" onPress={onMarkReturned} style={styles.actionButton}>
+          <GradientButton onPress={onMarkReturned} style={styles.actionButton}>
             {t('detail.markReturned')}
-          </Button>
+          </GradientButton>
         )}
         {canShowDonateAction && onMarkDonated && (
           <Button mode="outlined" onPress={onMarkDonated} style={styles.actionButton}>

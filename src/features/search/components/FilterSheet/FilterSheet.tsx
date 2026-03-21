@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet, TextInput as RNTextInput } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -87,7 +88,16 @@ export function FilterSheet({
                 key={cat}
                 selected={active}
                 onPress={() => toggleChip(categories, cat, onCategoriesChange)}
-                style={[active && themed.activeChipBg]}
+                showSelectedCheck={false}
+                selectedColor={theme.colors.onPrimary}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: active
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
@@ -111,7 +121,16 @@ export function FilterSheet({
                 key={cond}
                 selected={active}
                 onPress={() => toggleChip(conditions, cond, onConditionsChange)}
-                style={[active && themed.activeChipBg]}
+                showSelectedCheck={false}
+                selectedColor={theme.colors.onPrimary}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: active
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
@@ -135,7 +154,16 @@ export function FilterSheet({
                 key={offer}
                 selected={active}
                 onPress={() => toggleChip(offerTypes, offer, onOfferTypesChange)}
-                style={[active && themed.activeChipBg]}
+                showSelectedCheck={false}
+                selectedColor={theme.colors.onPrimary}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: active
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
@@ -153,7 +181,7 @@ export function FilterSheet({
             {t('filter.priceRange')}
           </Text>
           <View style={styles.priceRow}>
-            <View style={[styles.priceInput, themed.outlineBorder]}>
+            <View style={[styles.priceInput, themed.outlineBorder, themed.priceInputBg]}>
               <Text variant="bodySmall" style={themed.onSurfaceVariant}>
                 {t('filter.priceMin')}
               </Text>
@@ -171,7 +199,7 @@ export function FilterSheet({
             <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
               {'\u2013'}
             </Text>
-            <View style={[styles.priceInput, themed.outlineBorder]}>
+            <View style={[styles.priceInput, themed.outlineBorder, themed.priceInputBg]}>
               <Text variant="bodySmall" style={themed.onSurfaceVariant}>
                 {t('filter.priceMax')}
               </Text>
@@ -191,14 +219,13 @@ export function FilterSheet({
       )}
 
       {/* Show results button */}
-      <Button
-        mode="contained"
+      <GradientButton
         onPress={onApply}
         style={styles.applyButton}
         accessibilityLabel={t('filter.showResults')}
       >
         {t('filter.showResults')}
-      </Button>
+      </GradientButton>
     </ScrollView>
   );
 }
@@ -209,8 +236,8 @@ function useThemedStyles(theme: AppTheme) {
       StyleSheet.create({
         onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
-        activeChipBg: { backgroundColor: theme.colors.primaryContainer },
-        outlineBorder: { borderColor: theme.colors.outline },
+        outlineBorder: { borderColor: theme.colors.outlineVariant + '26' },
+        priceInputBg: { backgroundColor: theme.customColors.surfaceContainerHighest },
         priceInputText: { color: theme.colors.onSurface, padding: 0 },
       }),
     [theme],
@@ -242,6 +269,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
+  chip: {
+    borderRadius: 9999,
+  },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -250,7 +280,7 @@ const styles = StyleSheet.create({
   priceInput: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: borderRadius.sm,
+    borderRadius: 12,
     padding: spacing.sm,
   },
   applyButton: {

@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native';
-import { Text, Button, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing } from '@/shared/theme';
 
@@ -33,9 +34,9 @@ export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: E
         {description}
       </Text>
       {ctaLabel !== undefined && onCtaPress !== undefined && (
-        <Button mode="contained" onPress={onCtaPress} style={styles.button}>
+        <GradientButton onPress={onCtaPress} style={styles.button}>
           {ctaLabel}
-        </Button>
+        </GradientButton>
       )}
     </View>
   );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Portal, Dialog, Button, RadioButton, TextInput, Text, useTheme } from 'react-native-paper';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -100,8 +101,13 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
                 onChangeText={setDetails}
                 multiline
                 numberOfLines={3}
-                mode="outlined"
-                style={styles.textInput}
+                mode="flat"
+                style={[
+                  { backgroundColor: theme.customColors.surfaceContainerHighest, borderRadius: 12 },
+                  styles.textInput,
+                ]}
+                underlineColor={theme.colors.outlineVariant + '26'}
+                activeUnderlineColor={theme.colors.primary}
               />
             </View>
           </ScrollView>
@@ -110,9 +116,14 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
           <Button onPress={handleDismiss} disabled={loading}>
             {t('signOutConfirm.cancel')}
           </Button>
-          <Button mode="contained" onPress={handleSubmit} loading={loading} disabled={loading}>
-            {loading ? t('report.submitting') : t('report.submit')}
-          </Button>
+          <GradientButton
+            onPress={handleSubmit}
+            loading={loading}
+            disabled={loading}
+            testID="submit-report-button"
+          >
+            {t('report.submit')}
+          </GradientButton>
         </Dialog.Actions>
       </Dialog>
     </Portal>

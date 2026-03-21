@@ -95,10 +95,10 @@ describe('RatingPrompt', () => {
   });
 
   it('disables submit button while submitting', () => {
-    const { getByText } = renderWithProviders(<RatingPrompt {...defaultProps} isSubmitting />);
+    const { getByTestId } = renderWithProviders(<RatingPrompt {...defaultProps} isSubmitting />);
 
-    const submitButton = getByText('Submit Rating');
-    // The button should be disabled
+    const submitButton = getByTestId('submit-button');
+    // The button should be disabled (GradientButton shows spinner when loading)
     fireEvent.press(submitButton);
     expect(onSubmit).not.toHaveBeenCalled();
   });
