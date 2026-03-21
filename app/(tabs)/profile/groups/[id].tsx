@@ -1,15 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Alert, Pressable, ScrollView } from 'react-native';
-import {
-  Text,
-  Button,
-  Chip,
-  TextInput,
-  Switch,
-  HelperText,
-  Divider,
-  useTheme,
-} from 'react-native-paper';
+import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -329,8 +320,6 @@ export default function GroupDetailScreen() {
           )}
         </View>
 
-        <Divider style={styles.divider} />
-
         {/* Members */}
         <Text
           variant="titleMedium"
@@ -349,8 +338,6 @@ export default function GroupDetailScreen() {
             onRemove={handleRemoveMember}
           />
         ))}
-
-        <Divider style={styles.divider} />
 
         {/* Actions */}
         {currentMember && (
@@ -458,6 +445,7 @@ const styles = StyleSheet.create({
   detailContent: {
     paddingHorizontal: spacing.base,
     paddingBottom: spacing['2xl'],
+    gap: spacing.lg,
   },
   groupInfo: {
     gap: spacing.sm,
@@ -472,9 +460,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: spacing.sm,
-  },
-  divider: {
-    marginVertical: spacing.base,
   },
   memberRow: {
     flexDirection: 'row',

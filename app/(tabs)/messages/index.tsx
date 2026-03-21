@@ -1,5 +1,5 @@
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Text, Divider, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -65,7 +65,6 @@ export default function MessagesScreen() {
           renderItem={({ item }) => (
             <ConversationCard conversation={item} onPress={handleConversationPress} />
           )}
-          ItemSeparatorComponent={() => <Divider />}
           contentContainerStyle={styles.listContent}
         />
       )}
@@ -83,6 +82,8 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: spacing['2xl'],
+    paddingHorizontal: spacing.sm,
+    gap: spacing.md,
   },
   emptyContainer: {
     flex: 1,

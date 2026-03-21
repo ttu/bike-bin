@@ -17,13 +17,12 @@ export default function TabLayout() {
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.surfaceVariant,
-          borderTopWidth: 1,
-          elevation: 8,
-          shadowColor: theme.colors.shadow,
-          shadowOffset: { width: 0, height: -2 },
+          borderTopWidth: 0,
+          elevation: 0,
+          shadowColor: theme.colors.onSurface,
+          shadowOffset: { width: 0, height: -12 },
           shadowOpacity: 0.06,
-          shadowRadius: 4,
+          shadowRadius: 24,
         },
       }}
     >

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Chip, Button, Divider, useTheme } from 'react-native-paper';
+import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
@@ -75,8 +75,6 @@ export function ItemDetail({
         </Text>
       </View>
 
-      <Divider />
-
       {/* Availability */}
       {item.availabilityTypes.length > 0 && (
         <View style={styles.section}>
@@ -120,8 +118,6 @@ export function ItemDetail({
         </View>
       )}
 
-      <Divider />
-
       {/* Actions */}
       <View style={styles.section}>
         {canShowReturnedAction && onMarkReturned && (
@@ -163,7 +159,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   const theme = useTheme<AppTheme>();
   const themed = useThemedStyles(theme);
   return (
-    <View style={[styles.detailRow, themed.detailRowBorder]}>
+    <View style={styles.detailRow}>
       <Text variant="labelMedium" style={themed.onSurfaceVariant}>
         {label}
       </Text>
@@ -180,7 +176,6 @@ function useThemedStyles(theme: AppTheme) {
       StyleSheet.create({
         onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
-        detailRowBorder: { borderBottomColor: theme.colors.outline },
       }),
     [theme],
   );
@@ -221,8 +216,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.xs,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: spacing.sm,
   },
   actionButton: {
     marginBottom: spacing.sm,

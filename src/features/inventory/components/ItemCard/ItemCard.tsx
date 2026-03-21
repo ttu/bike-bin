@@ -29,7 +29,7 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
   return (
     <Pressable
       onPress={() => onPress?.(item)}
-      style={[styles.container, { backgroundColor: theme.colors.surface }]}
+      style={[styles.container, { backgroundColor: theme.customColors.surfaceContainerLowest }]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >

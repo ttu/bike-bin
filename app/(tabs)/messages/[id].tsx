@@ -201,12 +201,7 @@ export default function ConversationDetailScreen() {
         />
 
         {/* Input bar */}
-        <View
-          style={[
-            styles.inputBar,
-            { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outline },
-          ]}
-        >
+        <View style={[styles.inputBar, { backgroundColor: theme.colors.surface }]}>
           <TextInput
             style={[
               styles.textInput,
@@ -261,7 +256,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
     gap: spacing.sm,
   },
   textInput: {

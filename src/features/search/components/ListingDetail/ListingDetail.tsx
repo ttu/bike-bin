@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Chip, Button, Divider, Avatar, useTheme } from 'react-native-paper';
+import { Text, Chip, Button, Avatar, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
@@ -72,8 +72,6 @@ export function ListingDetail({
         </View>
       )}
 
-      <Divider />
-
       {/* Owner card */}
       <View style={[styles.section, styles.ownerCard]}>
         <Avatar.Icon size={40} icon="account" style={themed.avatarBg} />
@@ -97,8 +95,6 @@ export function ListingDetail({
           {t('listing.ownerCard.viewProfile')}
         </Text>
       </View>
-
-      <Divider />
 
       {/* Location + distance */}
       <View style={[styles.section, styles.locationRow]}>
@@ -133,8 +129,6 @@ export function ListingDetail({
           <DetailRow label={t('listing.detail.ageLabel')} value={item.borrowDuration} />
         ) : null}
       </View>
-
-      <Divider />
 
       {/* Action buttons */}
       <View style={styles.section}>
@@ -175,7 +169,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   const theme = useTheme<AppTheme>();
   const themed = useThemedStyles(theme);
   return (
-    <View style={[styles.detailRow, themed.detailRowBorder]}>
+    <View style={styles.detailRow}>
       <Text variant="labelMedium" style={themed.onSurfaceVariant}>
         {label}
       </Text>
@@ -194,7 +188,6 @@ function useThemedStyles(theme: AppTheme) {
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
         primary: { color: theme.colors.primary },
         avatarBg: { backgroundColor: theme.colors.surfaceVariant },
-        detailRowBorder: { borderBottomColor: theme.colors.outline },
       }),
     [theme],
   );
@@ -244,8 +237,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.xs,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: spacing.sm,
   },
   actionButton: {
     marginBottom: spacing.sm,
