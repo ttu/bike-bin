@@ -4,6 +4,17 @@ import type { ItemId, UserId } from '@/shared/types';
 import { ListingDetail } from '../ListingDetail/ListingDetail';
 import type { SearchResultItem } from '../../types';
 
+// Mock supabase client
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    storage: {
+      from: () => ({
+        getPublicUrl: (path: string) => ({ data: { publicUrl: `https://test/${path}` } }),
+      }),
+    },
+  },
+}));
+
 // Mock useAuth
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({

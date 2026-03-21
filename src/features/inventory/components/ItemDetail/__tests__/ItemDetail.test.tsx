@@ -3,6 +3,17 @@ import { createMockItem } from '@/test/factories';
 import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemDetail } from '../ItemDetail';
 
+// Mock supabase client (needed by PhotoGallery)
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    storage: {
+      from: () => ({
+        getPublicUrl: (path: string) => ({ data: { publicUrl: `https://test/${path}` } }),
+      }),
+    },
+  },
+}));
+
 describe('ItemDetail', () => {
   const baseItem = createMockItem({
     name: 'Shimano Cassette',

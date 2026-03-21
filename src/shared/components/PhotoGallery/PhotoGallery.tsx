@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, Image, StyleSheet, Dimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { ItemPhoto } from '@/shared/types';
+import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
@@ -44,15 +45,14 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           setActiveIndex(index);
         }}
       >
-        {photos.map((photo) => (
-          <View key={photo.id} style={[styles.photoContainer, themed.surfaceVariantBg]}>
-            <MaterialCommunityIcons
-              name="image"
-              size={iconSize.xl}
-              color={theme.colors.onSurfaceVariant}
-            />
-          </View>
-        ))}
+        {photos.map((photo) => {
+          const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
+          return (
+            <View key={photo.id} style={[styles.photoContainer, themed.surfaceVariantBg]}>
+              <Image source={{ uri: data.publicUrl }} style={styles.photo} resizeMode="cover" />
+            </View>
+          );
+        })}
       </ScrollView>
 
       {photos.length > 1 && (
@@ -99,6 +99,10 @@ const styles = StyleSheet.create({
     height: GALLERY_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
   },
   dots: {
     flexDirection: 'row',
