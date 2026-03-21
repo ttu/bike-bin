@@ -43,7 +43,7 @@ test.describe('Search screen', () => {
     await navigateToSearch(page);
 
     const searchInput = page.getByPlaceholder('Parts, tools, bikes...');
-    await searchInput.fill('handlebar');
+    await searchInput.fill('zzzznonexistent999');
     await searchInput.press('Enter');
 
     // Should show no-results empty state (no items in local DB)
@@ -59,9 +59,9 @@ test.describe('Search screen', () => {
     await searchInput.press('Enter');
 
     // Quick filter chips should appear after search
-    await expect(page.getByText('Borrow')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Donate')).toBeVisible();
-    await expect(page.getByText('Sell')).toBeVisible();
+    await expect(page.getByText('Borrow', { exact: true }).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Donate', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Sell', { exact: true }).first()).toBeVisible();
     await expect(page.getByText('Filters')).toBeVisible();
   });
 

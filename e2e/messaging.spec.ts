@@ -42,7 +42,7 @@ test.describe('Messages tab', () => {
 
   test('shows Messages heading', async ({ page }) => {
     await navigateToMessages(page);
-    await expect(page.getByText('Messages')).toBeVisible();
+    await expect(page.getByText('Messages').first()).toBeVisible();
   });
 
   test('shows empty state when no conversations', async ({ page }) => {
