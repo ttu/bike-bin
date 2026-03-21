@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "scheme": "bike-bin",
     "splash": {
-      "backgroundColor": "#0D9488"
+      "backgroundColor": "#006857"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0D9488"
+        "backgroundColor": "#006857"
       },
       "package": "com.bikebin.app",
       "intentFilters": [
