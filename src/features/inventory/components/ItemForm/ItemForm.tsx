@@ -25,6 +25,7 @@ const CATEGORIES = [
   ItemCategory.Tool,
   ItemCategory.Accessory,
   ItemCategory.Consumable,
+  ItemCategory.Clothing,
 ];
 const CONDITIONS = [
   ItemCondition.New,
@@ -47,7 +48,13 @@ interface ItemFormProps {
   isSubmitting: boolean;
 }
 
-export function ItemForm({ initialData, initialCategory, onSave, onDelete, isSubmitting }: ItemFormProps) {
+export function ItemForm({
+  initialData,
+  initialCategory,
+  onSave,
+  onDelete,
+  isSubmitting,
+}: ItemFormProps) {
   const theme = useTheme<AppTheme>();
 
   const softInputStyle = {
@@ -61,7 +68,9 @@ export function ItemForm({ initialData, initialCategory, onSave, onDelete, isSub
   const { data: existingItems } = useItems();
 
   const [name, setName] = useState(initialData?.name ?? '');
-  const [category, setCategory] = useState<ItemCategory | undefined>(initialData?.category ?? initialCategory);
+  const [category, setCategory] = useState<ItemCategory | undefined>(
+    initialData?.category ?? initialCategory,
+  );
   const [subcategory, setSubcategory] = useState(initialData?.subcategory ?? '');
   const [condition, setCondition] = useState<ItemCondition | undefined>(initialData?.condition);
   const [brand, setBrand] = useState(initialData?.brand ?? '');
