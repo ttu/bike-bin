@@ -1,16 +1,7 @@
 import { useState, useCallback } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  RefreshControl,
-  Image,
-  Dimensions,
-  Pressable,
-} from 'react-native';
+import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { Text, Button, FAB, useTheme } from 'react-native-paper';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,10 +16,7 @@ import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell/NotificationBell';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks/useUnreadNotificationCount';
 import { DemoBanner } from '@/features/demo';
-import { supabase } from '@/shared/api/supabase';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
-import { getStatusColor } from '@/features/inventory/utils/status';
+import { spacing } from '@/shared/theme';
 
 export default function InventoryScreen() {
   const theme = useTheme();
@@ -60,9 +48,6 @@ export default function InventoryScreen() {
       router.push('/(tabs)/inventory/new' as never);
     }
   }, [selectedCategory]);
-
-  const heroItem = filteredItems.length > 0 ? filteredItems[0] : null;
-  const listItems = filteredItems.length > 1 ? filteredItems.slice(1) : [];
 
   const renderItem = useCallback(
     ({ item, index }: { item: Item; index: number }) => (
@@ -114,7 +99,7 @@ export default function InventoryScreen() {
         />
       ) : (
         <FlatList
-          data={listItems}
+          data={filteredItems}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           refreshControl={
@@ -123,9 +108,6 @@ export default function InventoryScreen() {
             ) : undefined
           }
           contentContainerStyle={styles.list}
-          ListHeaderComponent={
-            heroItem ? <HeroCard item={heroItem} onPress={handleItemPress} /> : null
-          }
         />
       )}
 
@@ -141,96 +123,6 @@ export default function InventoryScreen() {
     </View>
   );
 }
-
-const HERO_WIDTH = Dimensions.get('window').width - spacing.base * 2;
-const HERO_HEIGHT = HERO_WIDTH * (9 / 16);
-
-function HeroCard({ item, onPress }: { item: Item; onPress: (item: Item) => void }) {
-  const theme = useTheme<AppTheme>();
-  const { t } = useTranslation('inventory');
-  const statusColorToken = getStatusColor(item.status);
-  const statusColor =
-    statusColorToken === 'warning'
-      ? theme.customColors.warning
-      : statusColorToken === 'success'
-        ? theme.customColors.success
-        : theme.colors.outline;
-
-  const imageUri = item.thumbnailStoragePath
-    ? supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data.publicUrl
-    : null;
-
-  return (
-    <Pressable
-      onPress={() => onPress(item)}
-      style={heroStyles.container}
-      accessibilityRole="button"
-      accessibilityLabel={item.name}
-    >
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={heroStyles.image} resizeMode="cover" />
-      ) : (
-        <LinearGradient
-          colors={[theme.colors.primary, theme.colors.primaryContainer]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={heroStyles.image}
-        />
-      )}
-
-      {/* Status chip — top right */}
-      <View style={[heroStyles.statusChip, { backgroundColor: statusColor + '20' }]}>
-        <Text variant="labelSmall" style={{ color: statusColor }}>
-          {t(`status.${item.status}`)}
-        </Text>
-      </View>
-
-      {/* Title scrim — bottom */}
-      <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={heroStyles.scrim}>
-        <Text variant="headlineSmall" style={heroStyles.heroTitle} numberOfLines={1}>
-          {item.name}
-        </Text>
-      </LinearGradient>
-    </Pressable>
-  );
-}
-
-const heroStyles = StyleSheet.create({
-  container: {
-    marginHorizontal: spacing.base,
-    marginBottom: spacing.lg,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-    height: HERO_HEIGHT,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  statusChip: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    paddingHorizontal: spacing.sm,
-    height: 24,
-    borderRadius: borderRadius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrim: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: spacing.base,
-    paddingBottom: spacing.md,
-    paddingTop: spacing.xl,
-  },
-  heroTitle: {
-    color: '#ffffff',
-    fontWeight: '700',
-  },
-});
 
 const styles = StyleSheet.create({
   container: {
