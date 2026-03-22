@@ -1,7 +1,8 @@
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Image, StyleSheet, Pressable } from 'react-native';
 import { Text, ActivityIndicator, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '@/shared/api/supabase';
 interface PickerPhoto {
   id: string;
   storagePath: string;
@@ -33,10 +34,12 @@ export function PhotoPicker({ photos, onAdd, onRemove, isUploading }: PhotoPicke
             key={photo.id}
             style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}
           >
-            <MaterialCommunityIcons
-              name="image"
-              size={iconSize.lg}
-              color={theme.colors.onSurfaceVariant}
+            <Image
+              source={{
+                uri: supabase.storage.from('item-photos').getPublicUrl(photo.storagePath).data
+                  .publicUrl,
+              }}
+              style={styles.photoImage}
             />
             {index === 0 && (
               <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primary }]}>
@@ -95,6 +98,11 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden' as const,
+  },
+  photoImage: {
+    width: 80,
+    height: 80,
   },
   addTile: {
     width: 80,
