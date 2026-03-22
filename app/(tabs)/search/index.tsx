@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Text, Chip, useTheme, Portal, Modal, ActivityIndicator } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -96,17 +96,8 @@ function SearchScreenContent() {
   const showEmpty = effectiveHasSearched && !effectiveIsLoading && results && results.length === 0;
   const showInitial = !effectiveHasSearched;
 
-  const insets = useSafeAreaInsets();
-
   return (
-    <View style={[styles.screen, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
-      {/* Title */}
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-          {t('title')}
-        </Text>
-      </View>
-
+    <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       {/* Search bar */}
       <SearchBar
         query={filters.query}
@@ -282,7 +273,7 @@ function SearchScreenContent() {
           />
         </Modal>
       </Portal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -297,11 +288,6 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  header: {
-    paddingHorizontal: spacing.base,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.xs,
   },
   quickFilters: {
     flexDirection: 'row',

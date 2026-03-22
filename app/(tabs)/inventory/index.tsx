@@ -99,6 +99,7 @@ export default function InventoryScreen() {
         />
       ) : (
         <FlatList
+          style={styles.listContainer}
           data={filteredItems}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
@@ -139,6 +140,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
+  },
+  listContainer: {
+    flex: 1,
   },
   list: {
     paddingBottom: 100,

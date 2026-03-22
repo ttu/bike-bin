@@ -44,10 +44,9 @@ export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: E
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
   },
   iconCircle: {
     width: 80,
