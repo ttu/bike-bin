@@ -1,4 +1,4 @@
-import { Alert, View, StyleSheet } from 'react-native';
+import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ export default function ItemDetailScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('exchange');
+  const { t: tInv } = useTranslation('inventory');
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: item, isLoading } = useItem(id as ItemId);
@@ -51,6 +52,39 @@ export default function ItemDetailScreen() {
     ]);
   };
 
+  const handleArchive = () => {
+    const doArchive = () => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived });
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${tInv('confirm.archive.title')}\n${tInv('confirm.archive.message')}`)) {
+        doArchive();
+      }
+    } else {
+      Alert.alert(tInv('confirm.archive.title'), tInv('confirm.archive.message'), [
+        { text: tInv('confirm.archive.cancel'), style: 'cancel' },
+        { text: tInv('confirm.archive.confirm'), onPress: doArchive },
+      ]);
+    }
+  };
+
+  const handleDelete = () => {
+    const doDelete = async () => {
+      await deleteItem.mutateAsync({ id: item.id, status: item.status });
+      router.back();
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${tInv('confirm.delete.title')}\n${tInv('confirm.delete.message')}`)) {
+        doDelete();
+      }
+    } else {
+      Alert.alert(tInv('confirm.delete.title'), tInv('confirm.delete.message'), [
+        { text: tInv('confirm.delete.cancel'), style: 'cancel' },
+        { text: tInv('confirm.delete.confirm'), style: 'destructive', onPress: doDelete },
+      ]);
+    }
+  };
+
   return (
     <View
       style={[
@@ -72,11 +106,8 @@ export default function ItemDetailScreen() {
         onMarkDonated={handleMarkDonated}
         onMarkSold={handleMarkSold}
         onMarkReturned={() => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored })}
-        onArchive={() => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived })}
-        onDelete={async () => {
-          await deleteItem.mutateAsync({ id: item.id, status: item.status });
-          router.back();
-        }}
+        onArchive={handleArchive}
+        onDelete={handleDelete}
       />
     </View>
   );

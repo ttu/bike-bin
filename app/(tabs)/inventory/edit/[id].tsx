@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -25,10 +25,23 @@ export default function EditItemScreen() {
     router.back();
   };
 
-  const handleDelete = async () => {
-    if (item && canDelete(item)) {
+  const handleDelete = () => {
+    if (!item || !canDelete(item)) return;
+
+    const doDelete = async () => {
       await deleteItem.mutateAsync({ id: item.id, status: item.status });
       router.back();
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${t('confirm.delete.title')}\n${t('confirm.delete.message')}`)) {
+        doDelete();
+      }
+    } else {
+      Alert.alert(t('confirm.delete.title'), t('confirm.delete.message'), [
+        { text: t('confirm.delete.cancel'), style: 'cancel' },
+        { text: t('confirm.delete.confirm'), style: 'destructive', onPress: doDelete },
+      ]);
     }
   };
 

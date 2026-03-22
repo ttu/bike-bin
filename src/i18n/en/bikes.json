@@ -27,6 +27,20 @@
     "nameRequired": "Bike name is required",
     "typeRequired": "Bike type is required"
   },
+  "confirm": {
+    "delete": {
+      "title": "Delete Bike",
+      "message": "Are you sure you want to delete this bike? This cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "removePhoto": {
+      "title": "Remove Photo",
+      "message": "Are you sure you want to remove this photo?",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
+  },
   "detail": {
     "brand": "Brand",
     "model": "Model",

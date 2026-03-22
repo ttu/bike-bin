@@ -99,6 +99,26 @@
   "editItem": "Edit item",
   "deleteItem": "Delete item",
   "deleteConfirm": "Are you sure you want to delete this item?",
+  "confirm": {
+    "delete": {
+      "title": "Delete Item",
+      "message": "Are you sure you want to delete this item? This cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "archive": {
+      "title": "Archive Item",
+      "message": "Are you sure you want to archive this item?",
+      "cancel": "Cancel",
+      "confirm": "Archive"
+    },
+    "removePhoto": {
+      "title": "Remove Photo",
+      "message": "Are you sure you want to remove this photo?",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
+  },
   "detail": {
     "edit": "Edit",
     "pickupArea": "Pickup area",

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,25 +50,51 @@ export default function EditBikeScreen() {
   }, [pickAndUpload, bikeId]);
 
   const handleRemovePhoto = useCallback(
-    async (photoId: string) => {
-      const photo = photos.find((p) => p.id === photoId);
-      if (photo) {
-        await supabase.storage.from('item-photos').remove([photo.storagePath]);
-        await supabase.from('bike_photos').delete().eq('id', photoId);
-        queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
-        queryClient.invalidateQueries({ queryKey: ['bikes'] });
+    (photoId: string) => {
+      const doRemove = async () => {
+        const photo = photos.find((p) => p.id === photoId);
+        if (photo) {
+          await supabase.storage.from('item-photos').remove([photo.storagePath]);
+          await supabase.from('bike_photos').delete().eq('id', photoId);
+          queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
+          queryClient.invalidateQueries({ queryKey: ['bikes'] });
+        }
+      };
+
+      if (Platform.OS === 'web') {
+        if (window.confirm(`${t('confirm.removePhoto.title')}\n${t('confirm.removePhoto.message')}`)) {
+          doRemove();
+        }
+      } else {
+        Alert.alert(t('confirm.removePhoto.title'), t('confirm.removePhoto.message'), [
+          { text: t('confirm.removePhoto.cancel'), style: 'cancel' },
+          { text: t('confirm.removePhoto.confirm'), style: 'destructive', onPress: doRemove },
+        ]);
       }
     },
-    [photos, bikeId, queryClient],
+    [photos, bikeId, queryClient, t],
   );
 
   const handleDelete = useCallback(() => {
-    deleteBike.mutate(bikeId, {
-      onSuccess: () => {
-        router.navigate('/(tabs)/inventory/bikes' as never);
-      },
-    });
-  }, [deleteBike, bikeId]);
+    const doDelete = () => {
+      deleteBike.mutate(bikeId, {
+        onSuccess: () => {
+          router.navigate('/(tabs)/inventory/bikes' as never);
+        },
+      });
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${t('confirm.delete.title')}\n${t('confirm.delete.message')}`)) {
+        doDelete();
+      }
+    } else {
+      Alert.alert(t('confirm.delete.title'), t('confirm.delete.message'), [
+        { text: t('confirm.delete.cancel'), style: 'cancel' },
+        { text: t('confirm.delete.confirm'), style: 'destructive', onPress: doDelete },
+      ]);
+    }
+  }, [deleteBike, bikeId, t]);
 
   if (!bike) return null;
 
