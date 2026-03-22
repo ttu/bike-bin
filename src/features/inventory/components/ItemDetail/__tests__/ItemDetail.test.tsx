@@ -42,15 +42,16 @@ describe('ItemDetail', () => {
     expect(getByText('Stored')).toBeTruthy();
   });
 
-  it('renders category, brand, and model', () => {
+  it('renders category breadcrumb and specs', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText(/Components · Shimano · 105 R7000/)).toBeTruthy();
+    expect(getByText(/Components · Shimano/)).toBeTruthy();
+    expect(getByText('105 R7000')).toBeTruthy();
   });
 
-  it('renders availability chips with price', () => {
+  it('renders availability chips', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText(/Sellable · €45/)).toBeTruthy();
+    expect(getByText('Sellable')).toBeTruthy();
   });
 
   it('renders detail grid', () => {

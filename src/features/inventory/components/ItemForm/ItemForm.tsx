@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, Menu, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { AppTheme } from '@/shared/theme';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +34,12 @@ const CONDITIONS = [
   ItemCondition.Worn,
   ItemCondition.Broken,
 ];
+const CONDITION_ICONS: Record<string, string> = {
+  new: 'shield-check',
+  good: 'emoticon-happy-outline',
+  worn: 'history',
+  broken: 'close-circle-outline',
+};
 const AVAILABILITY_OPTIONS = [
   AvailabilityType.Borrowable,
   AvailabilityType.Donatable,
@@ -215,7 +222,7 @@ export function ItemForm({
       keyboardShouldPersistTaps="handled"
     >
       {/* Name */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.nameLabel')}
       </Text>
       <TextInput
@@ -235,7 +242,7 @@ export function ItemForm({
       )}
 
       {/* Category */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.categoryLabel')}
       </Text>
       <View style={styles.chipRow}>
@@ -269,7 +276,7 @@ export function ItemForm({
       {/* Subcategory */}
       {category && currentSubcategories.length > 0 && (
         <>
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.subcategoryLabel')}
           </Text>
           <View style={styles.chipRow}>
@@ -296,28 +303,56 @@ export function ItemForm({
       )}
 
       {/* Condition */}
-      <Text variant="labelLarge" style={styles.label}>
-        {t('form.conditionLabel')}
-      </Text>
-      <View style={styles.chipRow}>
-        {CONDITIONS.map((cond) => (
-          <Chip
-            key={cond}
-            selected={condition === cond}
-            onPress={() => setCondition(cond)}
-            showSelectedCheck={false}
-            textStyle={condition === cond ? { color: theme.colors.onPrimary } : undefined}
-            style={[
-              styles.chip,
-              {
-                backgroundColor:
-                  condition === cond ? theme.colors.primary : theme.colors.secondaryContainer,
-              },
-            ]}
+      <View style={styles.conditionHeader}>
+        <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+          {t('form.conditionLabel')}
+        </Text>
+        {condition && (
+          <Text
+            variant="labelMedium"
+            style={[styles.conditionValue, { color: theme.colors.primary }]}
           >
-            {t(`condition.${cond}`)}
-          </Chip>
-        ))}
+            {t(`condition.${condition}`)}
+          </Text>
+        )}
+      </View>
+      <View style={styles.conditionRow}>
+        {CONDITIONS.map((cond) => {
+          const active = condition === cond;
+          return (
+            <Pressable
+              key={cond}
+              onPress={() => setCondition(cond)}
+              style={[
+                styles.conditionButton,
+                {
+                  backgroundColor: active
+                    ? theme.colors.primary + '14'
+                    : theme.customColors.surfaceContainerLow,
+                  borderColor: active ? theme.colors.primary : theme.colors.outlineVariant,
+                  borderWidth: active ? 2 : 1,
+                },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name={(CONDITION_ICONS[cond] ?? 'shield-check') as never}
+                size={28}
+                color={active ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              />
+              <Text
+                variant="labelSmall"
+                style={{
+                  color: active ? theme.colors.primary : theme.colors.onSurfaceVariant,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                  marginTop: spacing.xs,
+                }}
+              >
+                {t(`condition.${cond}`)}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
       {errors.condition && (
         <HelperText type="error" visible>
@@ -326,7 +361,7 @@ export function ItemForm({
       )}
 
       {/* Brand with suggestions */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.brandLabel')}
       </Text>
       <View style={styles.autocompleteWrapper}>
@@ -370,7 +405,7 @@ export function ItemForm({
         )}
       </View>
 
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.modelLabel')}
       </Text>
       <TextInput
@@ -384,7 +419,7 @@ export function ItemForm({
       />
 
       {/* Availability */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.availabilityLabel')}
       </Text>
       <View style={styles.chipRow}>
@@ -414,7 +449,7 @@ export function ItemForm({
       {/* Conditional: Sellable price */}
       {isSellable && (
         <>
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.priceLabel')}
           </Text>
           <TextInput
@@ -439,7 +474,7 @@ export function ItemForm({
       {/* Conditional: Borrowable deposit + duration */}
       {isBorrowable && (
         <>
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.depositLabel')}
           </Text>
           <TextInput
@@ -454,7 +489,7 @@ export function ItemForm({
           />
 
           {/* Duration selector */}
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.durationLabel')}
           </Text>
           <Menu
@@ -495,7 +530,7 @@ export function ItemForm({
       )}
 
       {/* Visibility */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.visibilityLabel')}
       </Text>
       <View style={styles.chipRow}>
@@ -609,7 +644,7 @@ export function ItemForm({
       {showOptional && (
         <View style={styles.optionalSection}>
           {/* Age selector */}
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.ageLabel')}
           </Text>
           <Menu
@@ -651,7 +686,7 @@ export function ItemForm({
           </Menu>
 
           {/* Usage with unit selector */}
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.usageLabel')}
           </Text>
           <View style={styles.usageRow}>
@@ -710,7 +745,7 @@ export function ItemForm({
           </View>
 
           {/* Storage location with suggestions */}
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.storageLabel')}
           </Text>
           <View style={styles.autocompleteWrapper}>
@@ -767,7 +802,7 @@ export function ItemForm({
             )}
           </View>
 
-          <Text variant="labelLarge" style={styles.label}>
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.descriptionLabel')}
           </Text>
           <TextInput
@@ -797,7 +832,7 @@ export function ItemForm({
       {/* Delete (edit mode) */}
       {onDelete && (
         <Button
-          mode="outlined"
+          mode="text"
           onPress={onDelete}
           textColor={theme.colors.error}
           style={styles.deleteButton}
@@ -818,8 +853,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['2xl'],
   },
   label: {
-    marginTop: spacing.base,
-    marginBottom: spacing.xs,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  sectionLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   chipRow: {
     flexDirection: 'row',
@@ -828,6 +867,28 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: borderRadius.full,
+  },
+  conditionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  conditionValue: {
+    letterSpacing: 0.5,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    textTransform: 'uppercase',
+  },
+  conditionRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  conditionButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
   },
   groupSelection: {
     marginTop: spacing.sm,
@@ -839,11 +900,10 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   saveButton: {
-    marginTop: spacing.lg,
+    marginTop: spacing.xl,
   },
   deleteButton: {
     marginTop: spacing.md,
-    borderColor: 'transparent',
   },
   autocompleteWrapper: {
     zIndex: 10,

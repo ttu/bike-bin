@@ -12,6 +12,13 @@ import type { SearchResultItem } from '../../types';
 import type { ItemPhoto } from '@/shared/types';
 import { PhotoGallery } from '@/shared/components';
 
+const CONDITION_ICONS: Record<string, string> = {
+  new: 'shield-check',
+  good: 'emoticon-happy-outline',
+  worn: 'history',
+  broken: 'close-circle-outline',
+};
+
 interface ListingDetailProps {
   item: SearchResultItem;
   photos: ItemPhoto[];
@@ -44,61 +51,100 @@ export function ListingDetail({
   const showContactOnly = hasContactable && !hasBorrowable;
   const showBoth = hasBorrowable && hasContactable;
 
+  const categoryBreadcrumb = [t(`category.${item.category}`), item.brand]
+    .filter(Boolean)
+    .join(' \u00B7 ');
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Photo gallery */}
       <PhotoGallery photos={photos} />
 
-      {/* Title + subtitle */}
+      {/* Category breadcrumb + Title */}
       <View style={styles.section}>
-        <Text variant="headlineSmall" style={[styles.title, themed.onSurface]}>
+        <Text variant="labelSmall" style={[styles.breadcrumb, { color: theme.colors.primary }]}>
+          {categoryBreadcrumb}
+        </Text>
+
+        <Text variant="headlineMedium" style={[styles.title, themed.onSurface]}>
           {item.name}
         </Text>
-        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
-          {t(`category.${item.category}`)}
-          {item.brand ? ` · ${item.brand}` : ''}
-          {item.condition ? ` · ${t(`condition.${item.condition}`)}` : ''}
-        </Text>
+
+        {/* Availability chips */}
+        {item.availabilityTypes.length > 0 && (
+          <View style={styles.chipRow}>
+            {item.availabilityTypes.map((type) => (
+              <Chip
+                key={type}
+                compact
+                style={[styles.availabilityChip, { backgroundColor: theme.colors.primary }]}
+              >
+                <Text
+                  variant="labelSmall"
+                  style={{ color: theme.colors.onPrimary, textTransform: 'uppercase' }}
+                >
+                  {t(`availability.${type}`)}
+                  {type === 'sellable' && item.price !== undefined
+                    ? ` \u00B7 \u20AC${item.price}`
+                    : ''}
+                </Text>
+              </Chip>
+            ))}
+          </View>
+        )}
       </View>
 
-      {/* Availability chips */}
-      {item.availabilityTypes.length > 0 && (
-        <View style={[styles.section, styles.chipRow]}>
-          {item.availabilityTypes.map((type) => (
-            <Chip
-              key={type}
-              compact
-              style={{ backgroundColor: theme.colors.secondaryContainer, borderRadius: 9999 }}
-            >
-              {t(`availability.${type}`)}
-              {type === 'sellable' && item.price !== undefined ? ` · \u20AC${item.price}` : ''}
-            </Chip>
-          ))}
-        </View>
-      )}
-
-      {/* Owner card */}
-      <View style={[styles.section, styles.ownerCard]}>
-        <Avatar.Icon size={40} icon="account" style={themed.avatarBg} />
-        <View style={styles.ownerInfo}>
-          <Text variant="titleSmall" style={themed.primary} onPress={onOwnerPress}>
-            {item.ownerDisplayName ?? ''}
-          </Text>
-          {item.ownerRatingCount > 0 && (
-            <View style={styles.ratingRow}>
-              <MaterialCommunityIcons name="star" size={14} color={theme.customColors.warning} />
-              <Text variant="bodySmall" style={themed.onSurfaceVariant}>
-                {t('listing.ownerCard.rating', {
-                  avg: item.ownerRatingAvg.toFixed(1),
-                  count: item.ownerRatingCount,
-                })}
-              </Text>
-            </View>
+      {/* Detail cards */}
+      <View style={styles.section}>
+        <View
+          style={[
+            styles.detailCardsContainer,
+            { backgroundColor: theme.customColors.surfaceContainerLow },
+          ]}
+        >
+          <DetailCard
+            icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
+            label={t('listing.detail.conditionLabel')}
+            value={t(`condition.${item.condition}`)}
+            theme={theme}
+          />
+          {item.borrowDuration && (
+            <DetailCard
+              icon="clock-outline"
+              label={t('listing.detail.ageLabel')}
+              value={item.borrowDuration}
+              theme={theme}
+            />
           )}
         </View>
-        <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
-          {t('listing.ownerCard.viewProfile')}
-        </Text>
+      </View>
+
+      {/* Owner card */}
+      <View style={styles.section}>
+        <View
+          style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}
+        >
+          <Avatar.Icon size={40} icon="account" style={themed.avatarBg} />
+          <View style={styles.ownerInfo}>
+            <Text variant="titleSmall" style={themed.primary} onPress={onOwnerPress}>
+              {item.ownerDisplayName ?? ''}
+            </Text>
+            {item.ownerRatingCount > 0 && (
+              <View style={styles.ratingRow}>
+                <MaterialCommunityIcons name="star" size={14} color={theme.customColors.warning} />
+                <Text variant="bodySmall" style={themed.onSurfaceVariant}>
+                  {t('listing.ownerCard.rating', {
+                    avg: item.ownerRatingAvg.toFixed(1),
+                    count: item.ownerRatingCount,
+                  })}
+                </Text>
+              </View>
+            )}
+          </View>
+          <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
+            {t('listing.ownerCard.viewProfile')}
+          </Text>
+        </View>
       </View>
 
       {/* Location + distance */}
@@ -110,7 +156,7 @@ export function ListingDetail({
         />
         <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
           {item.areaName ?? ''}
-          {item.areaName && distanceText ? ' · ' : ''}
+          {item.areaName && distanceText ? ' \u00B7 ' : ''}
           {distanceText}
         </Text>
       </View>
@@ -124,19 +170,8 @@ export function ListingDetail({
         </View>
       ) : null}
 
-      {/* Detail grid */}
-      <View style={[styles.section, styles.detailGrid]}>
-        <DetailRow
-          label={t('listing.detail.conditionLabel')}
-          value={t(`condition.${item.condition}`)}
-        />
-        {item.borrowDuration ? (
-          <DetailRow label={t('listing.detail.ageLabel')} value={item.borrowDuration} />
-        ) : null}
-      </View>
-
       {/* Action buttons */}
-      <View style={styles.section}>
+      <View style={styles.actionSection}>
         {!isAuthenticated ? (
           <GradientButton disabled style={styles.actionButton}>
             {t('listing.actions.signInToContact')}
@@ -174,17 +209,46 @@ export function ListingDetail({
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  const theme = useTheme<AppTheme>();
-  const themed = useThemedStyles(theme);
+function DetailCard({
+  icon,
+  label,
+  value,
+  theme,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  theme: AppTheme;
+}) {
   return (
-    <View style={styles.detailRow}>
-      <Text variant="labelMedium" style={themed.onSurfaceVariant}>
-        {label}
-      </Text>
-      <Text variant="bodyMedium" style={themed.onSurface}>
-        {value}
-      </Text>
+    <View style={styles.detailCard}>
+      <View
+        style={[
+          styles.detailCardIcon,
+          { backgroundColor: theme.customColors.surfaceContainerHighest },
+        ]}
+      >
+        <MaterialCommunityIcons
+          name={icon as never}
+          size={iconSize.md}
+          color={theme.colors.primary}
+        />
+      </View>
+      <View style={styles.detailCardText}>
+        <Text
+          variant="labelSmall"
+          style={{
+            color: theme.colors.onSurfaceVariant,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+          }}
+        >
+          {label}
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+          {value}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -210,20 +274,57 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['2xl'],
   },
   section: {
-    padding: spacing.base,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+  },
+  actionSection: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.base,
+  },
+  breadcrumb: {
+    letterSpacing: 1,
+    marginBottom: spacing.xs,
+    textTransform: 'uppercase',
   },
   title: {
-    marginBottom: spacing.xs,
+    marginBottom: spacing.md,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
+  availabilityChip: {
+    borderRadius: borderRadius.full,
+  },
+  detailCardsContainer: {
+    borderRadius: borderRadius.lg,
+    padding: spacing.base,
+    gap: spacing.md,
+  },
+  detailCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  detailCardIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailCardText: {
+    flex: 1,
+    gap: 2,
+  },
   ownerCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+    borderRadius: borderRadius.lg,
+    padding: spacing.base,
   },
   ownerInfo: {
     flex: 1,
@@ -239,17 +340,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  detailGrid: {
-    gap: spacing.md,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
   actionButton: {
     marginBottom: spacing.sm,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
   },
 });

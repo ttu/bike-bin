@@ -1,16 +1,24 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
-import { spacing, borderRadius } from '@/shared/theme';
+import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
 import { PhotoGallery } from '@/shared/components';
 
 const WIDE_BREAKPOINT = 768;
+
+const CONDITION_ICONS: Record<string, string> = {
+  new: 'shield-check',
+  good: 'emoticon-happy-outline',
+  worn: 'history',
+  broken: 'close-circle-outline',
+};
 
 interface ItemDetailProps {
   item: Item;
@@ -52,69 +60,113 @@ export function ItemDetail({
   const canShowArchiveAction = item.status !== ItemStatus.Archived;
   const canShowDeleteAction = canDelete(item);
 
+  const categoryBreadcrumb = [
+    t(`category.${item.category}`),
+    item.subcategory
+      ? t(`subcategory.${item.subcategory}`, { defaultValue: item.subcategory })
+      : undefined,
+    item.brand,
+  ]
+    .filter(Boolean)
+    .join(' \u00B7 ');
+
   const detailContent = (
     <>
-      {/* Title + Status */}
+      {/* Category breadcrumb */}
       <View style={styles.section}>
-        <View style={styles.titleRow}>
-          <Text variant="headlineSmall" style={[styles.title, themed.onSurface]}>
-            {item.name}
-          </Text>
+        <Text variant="labelSmall" style={[styles.breadcrumb, { color: theme.colors.primary }]}>
+          {categoryBreadcrumb}
+        </Text>
+
+        {/* Title */}
+        <Text variant="headlineMedium" style={[styles.title, themed.onSurface]}>
+          {item.name}
+        </Text>
+
+        {/* Availability + Status chips */}
+        <View style={styles.chipRow}>
+          {item.availabilityTypes.map((type) => (
+            <Chip
+              key={type}
+              compact
+              style={[styles.statusChip, { backgroundColor: theme.colors.primary }]}
+            >
+              <Text
+                variant="labelSmall"
+                style={{ color: theme.colors.onPrimary, textTransform: 'uppercase' }}
+              >
+                {t(`availability.${type}`)}
+              </Text>
+            </Chip>
+          ))}
           <Chip compact style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
-            <Text variant="labelSmall" style={{ color: statusColor }}>
+            <Text variant="labelSmall" style={{ color: statusColor, textTransform: 'uppercase' }}>
               {t(`status.${item.status}`)}
             </Text>
           </Chip>
         </View>
-
-        {/* Subtitle */}
-        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
-          {t(`category.${item.category}`)}
-          {item.subcategory
-            ? ` · ${t(`subcategory.${item.subcategory}`, { defaultValue: item.subcategory })}`
-            : ''}
-          {item.brand ? ` · ${item.brand}` : ''}
-          {item.model ? ` · ${item.model}` : ''}
-        </Text>
       </View>
 
-      {/* Availability */}
-      {item.availabilityTypes.length > 0 && (
+      {/* Detail cards */}
+      <View style={styles.section}>
+        <View
+          style={[
+            styles.detailCardsContainer,
+            { backgroundColor: theme.customColors.surfaceContainerLow },
+          ]}
+        >
+          <DetailCard
+            icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
+            label={t('detail.conditionLabel')}
+            value={t(`condition.${item.condition}`)}
+            theme={theme}
+          />
+          {item.age && (
+            <DetailCard
+              icon="calendar-month-outline"
+              label={t('detail.ageLabel')}
+              value={t(`form.ageOption.${item.age}`, { defaultValue: item.age })}
+              theme={theme}
+            />
+          )}
+          {item.usageKm !== undefined && (
+            <DetailCard
+              icon="road-variant"
+              label={t('detail.usageLabel')}
+              value={`${item.usageKm} ${item.usageUnit ?? 'km'}`}
+              theme={theme}
+            />
+          )}
+          {item.storageLocation && (
+            <DetailCard
+              icon="map-marker-outline"
+              label={t('detail.storageLabel')}
+              value={item.storageLocation}
+              theme={theme}
+            />
+          )}
+        </View>
+      </View>
+
+      {/* Technical Specifications */}
+      {(item.brand || item.model) && (
         <View style={styles.section}>
-          <View style={styles.chipRow}>
-            {item.availabilityTypes.map((type) => (
-              <Chip
-                key={type}
-                compact
-                style={{ backgroundColor: theme.colors.secondaryContainer, borderRadius: 9999 }}
-              >
-                {t(`availability.${type}`)}
-                {type === 'sellable' && item.price !== undefined ? ` · €${item.price}` : ''}
-              </Chip>
-            ))}
+          <Text
+            variant="labelMedium"
+            style={[styles.sectionHeader, { color: theme.colors.onSurfaceVariant }]}
+          >
+            {t('detail.specsTitle', { defaultValue: 'TECHNICAL SPECIFICATIONS' })}
+          </Text>
+          <View style={styles.specsTable}>
+            {item.brand && (
+              <SpecRow label={t('form.brandLabel')} value={item.brand} theme={theme} />
+            )}
+            {item.model && (
+              <SpecRow label={t('form.modelLabel')} value={item.model} theme={theme} />
+            )}
           </View>
         </View>
       )}
-
-      {/* Detail Grid */}
-      <View style={[styles.section, styles.detailGrid]}>
-        <DetailRow label={t('detail.conditionLabel')} value={t(`condition.${item.condition}`)} />
-        {item.age && (
-          <DetailRow
-            label={t('detail.ageLabel')}
-            value={t(`form.ageOption.${item.age}`, { defaultValue: item.age })}
-          />
-        )}
-        {item.usageKm !== undefined && (
-          <DetailRow
-            label={t('detail.usageLabel')}
-            value={`${item.usageKm} ${item.usageUnit ?? 'km'}`}
-          />
-        )}
-        {item.storageLocation && (
-          <DetailRow label={t('detail.storageLabel')} value={item.storageLocation} />
-        )}
-      </View>
 
       {/* Description */}
       {item.description && (
@@ -126,7 +178,7 @@ export function ItemDetail({
       )}
 
       {/* Actions */}
-      <View style={styles.section}>
+      <View style={styles.actionSection}>
         {canShowReturnedAction && onMarkReturned && (
           <GradientButton onPress={onMarkReturned} style={styles.actionButton}>
             {t('detail.markReturned')}
@@ -149,7 +201,7 @@ export function ItemDetail({
         )}
         {canShowDeleteAction && onDelete && (
           <Button
-            mode="outlined"
+            mode="text"
             onPress={onDelete}
             textColor={theme.colors.error}
             style={styles.actionButton}
@@ -182,15 +234,57 @@ export function ItemDetail({
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  const theme = useTheme<AppTheme>();
-  const themed = useThemedStyles(theme);
+function DetailCard({
+  icon,
+  label,
+  value,
+  theme,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  theme: AppTheme;
+}) {
   return (
-    <View style={styles.detailRow}>
-      <Text variant="labelMedium" style={themed.onSurfaceVariant}>
+    <View style={styles.detailCard}>
+      <View
+        style={[
+          styles.detailCardIcon,
+          { backgroundColor: theme.customColors.surfaceContainerHighest },
+        ]}
+      >
+        <MaterialCommunityIcons
+          name={icon as never}
+          size={iconSize.md}
+          color={theme.colors.primary}
+        />
+      </View>
+      <View style={styles.detailCardText}>
+        <Text
+          variant="labelSmall"
+          style={{
+            color: theme.colors.onSurfaceVariant,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+          }}
+        >
+          {label}
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function SpecRow({ label, value, theme }: { label: string; value: string; theme: AppTheme }) {
+  return (
+    <View style={[styles.specRow, { borderBottomColor: theme.colors.outlineVariant + '40' }]}>
+      <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
         {label}
       </Text>
-      <Text variant="bodyMedium" style={themed.onSurface}>
+      <Text variant="titleSmall" style={{ color: theme.colors.onSurface }}>
         {value}
       </Text>
     </View>
@@ -228,37 +322,68 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['2xl'],
   },
   section: {
-    padding: spacing.base,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  actionSection: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.base,
+  },
+  breadcrumb: {
+    letterSpacing: 1,
     marginBottom: spacing.xs,
+    textTransform: 'uppercase',
   },
   title: {
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  statusChip: {
-    height: 28,
+    marginBottom: spacing.md,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
-  detailGrid: {
+  statusChip: {
+    borderRadius: borderRadius.full,
+  },
+  detailCardsContainer: {
+    borderRadius: borderRadius.lg,
+    padding: spacing.base,
     gap: spacing.md,
   },
-  detailRow: {
+  detailCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  detailCardIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailCardText: {
+    flex: 1,
+    gap: 2,
+  },
+  sectionHeader: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: spacing.md,
+  },
+  specsTable: {
+    gap: 0,
+  },
+  specRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   actionButton: {
     marginBottom: spacing.sm,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
   },
 });
