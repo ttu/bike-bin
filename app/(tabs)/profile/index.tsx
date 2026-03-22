@@ -255,11 +255,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: spacing.xl,
+    paddingBottom: 100,
   },
   header: {
     paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
   },
   menuItem: {
     flexDirection: 'row',

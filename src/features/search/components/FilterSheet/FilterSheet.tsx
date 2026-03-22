@@ -89,7 +89,7 @@ export function FilterSheet({
                 selected={active}
                 onPress={() => toggleChip(categories, cat, onCategoriesChange)}
                 showSelectedCheck={false}
-                selectedColor={theme.colors.onPrimary}
+                textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                 style={[
                   styles.chip,
                   {
@@ -122,7 +122,7 @@ export function FilterSheet({
                 selected={active}
                 onPress={() => toggleChip(conditions, cond, onConditionsChange)}
                 showSelectedCheck={false}
-                selectedColor={theme.colors.onPrimary}
+                textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                 style={[
                   styles.chip,
                   {
@@ -155,7 +155,7 @@ export function FilterSheet({
                 selected={active}
                 onPress={() => toggleChip(offerTypes, offer, onOfferTypesChange)}
                 showSelectedCheck={false}
-                selectedColor={theme.colors.onPrimary}
+                textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                 style={[
                   styles.chip,
                   {

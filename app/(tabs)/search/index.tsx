@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Text, Chip, useTheme, Portal, Modal, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -14,7 +15,7 @@ import {
   useSearchFilters,
   useSearchItems,
   SearchBar,
-  SearchResultCard,
+  SearchResultGridCard,
   FilterSheet,
 } from '@/features/search';
 import type { SearchResultItem, SearchSortOption } from '@/features/search';
@@ -83,8 +84,10 @@ function SearchScreenContent() {
   }, [filters.sortBy, updateFilters]);
 
   const renderItem = useCallback(
-    ({ item }: { item: SearchResultItem }) => (
-      <SearchResultCard item={item} onPress={handleResultPress} />
+    ({ item, index }: { item: SearchResultItem; index: number }) => (
+      <Animated.View entering={FadeInUp.duration(300).delay(Math.min(index, 10) * 50)}>
+        <SearchResultGridCard item={item} onPress={handleResultPress} isLeft={index % 2 === 0} />
+      </Animated.View>
     ),
     [handleResultPress],
   );
@@ -114,10 +117,18 @@ function SearchScreenContent() {
             selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
             onPress={() => toggleQuickFilter(AvailabilityType.Borrowable)}
             compact
+            showSelectedCheck={false}
+            textStyle={
+              filters.offerTypes.includes(AvailabilityType.Borrowable)
+                ? { color: theme.colors.onPrimary }
+                : undefined
+            }
             style={[
               styles.quickChip,
-              filters.offerTypes.includes(AvailabilityType.Borrowable) && {
-                backgroundColor: theme.colors.primaryContainer,
+              {
+                backgroundColor: filters.offerTypes.includes(AvailabilityType.Borrowable)
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
               },
             ]}
           >
@@ -127,10 +138,18 @@ function SearchScreenContent() {
             selected={filters.offerTypes.includes(AvailabilityType.Donatable)}
             onPress={() => toggleQuickFilter(AvailabilityType.Donatable)}
             compact
+            showSelectedCheck={false}
+            textStyle={
+              filters.offerTypes.includes(AvailabilityType.Donatable)
+                ? { color: theme.colors.onPrimary }
+                : undefined
+            }
             style={[
               styles.quickChip,
-              filters.offerTypes.includes(AvailabilityType.Donatable) && {
-                backgroundColor: theme.colors.primaryContainer,
+              {
+                backgroundColor: filters.offerTypes.includes(AvailabilityType.Donatable)
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
               },
             ]}
           >
@@ -140,10 +159,18 @@ function SearchScreenContent() {
             selected={filters.offerTypes.includes(AvailabilityType.Sellable)}
             onPress={() => toggleQuickFilter(AvailabilityType.Sellable)}
             compact
+            showSelectedCheck={false}
+            textStyle={
+              filters.offerTypes.includes(AvailabilityType.Sellable)
+                ? { color: theme.colors.onPrimary }
+                : undefined
+            }
             style={[
               styles.quickChip,
-              filters.offerTypes.includes(AvailabilityType.Sellable) && {
-                backgroundColor: theme.colors.primaryContainer,
+              {
+                backgroundColor: filters.offerTypes.includes(AvailabilityType.Sellable)
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
               },
             ]}
           >
@@ -154,14 +181,20 @@ function SearchScreenContent() {
               <MaterialCommunityIcons
                 name="filter-variant"
                 size={16}
-                color={theme.colors.onSurfaceVariant}
+                color={hasActiveFilters ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
               />
             )}
             onPress={() => setFilterVisible(true)}
             compact
+            showSelectedCheck={false}
+            textStyle={hasActiveFilters ? { color: theme.colors.onPrimary } : undefined}
             style={[
               styles.quickChip,
-              hasActiveFilters && { backgroundColor: theme.colors.primaryContainer },
+              {
+                backgroundColor: hasActiveFilters
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
+              },
             ]}
           >
             {t('filter.title')}
@@ -197,6 +230,8 @@ function SearchScreenContent() {
           data={results}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.list}
         />
       )}
@@ -276,7 +311,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   list: {
-    paddingBottom: spacing['2xl'],
+    paddingBottom: 100,
+    paddingHorizontal: spacing.base,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between' as const,
   },
   filterModal: {
     margin: spacing.base,

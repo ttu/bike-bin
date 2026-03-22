@@ -1,9 +1,10 @@
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
-import { spacing } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import type { ConversationListItem } from '../../types';
 import { ItemStatus } from '@/shared/types';
 
@@ -39,11 +40,14 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
     : '';
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={() => onPress?.(conversation)}
-      style={({ pressed }) => [
+      style={[
         styles.container,
-        { backgroundColor: pressed ? theme.colors.surfaceVariant : theme.colors.surface },
+        {
+          backgroundColor: theme.colors.surface,
+          shadowColor: theme.colors.onSurface,
+        },
         isCompleted && styles.dimmed,
       ]}
       accessibilityLabel={conversation.otherParticipantName ?? ''}
@@ -108,7 +112,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
           {lastMessagePreview}
         </Text>
       </View>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -119,6 +123,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
     gap: spacing.md,
+    borderRadius: borderRadius.md,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 1,
   },
   dimmed: {
     opacity: 0.6,

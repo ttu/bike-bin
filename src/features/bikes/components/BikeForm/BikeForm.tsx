@@ -4,6 +4,8 @@ import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-nativ
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { BikeType } from '@/shared/types';
+import type { BikeId, BikePhoto } from '@/shared/types';
+import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
@@ -19,6 +21,11 @@ const BIKE_TYPES = [
 
 interface BikeFormProps {
   initialData?: BikeFormData;
+  bikeId?: BikeId;
+  photos?: BikePhoto[];
+  onAddPhoto?: () => void;
+  onRemovePhoto?: (photoId: string) => void;
+  isUploadingPhoto?: boolean;
   onSave: (data: BikeFormData) => void;
   onDelete?: () => void;
   isSubmitting: boolean;
@@ -29,7 +36,16 @@ interface BikeFormErrors {
   type?: string;
 }
 
-export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFormProps) {
+export function BikeForm({
+  initialData,
+  photos,
+  onAddPhoto,
+  onRemovePhoto,
+  isUploadingPhoto,
+  onSave,
+  onDelete,
+  isSubmitting,
+}: BikeFormProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
 
@@ -104,7 +120,7 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
             selected={bikeType === type}
             onPress={() => setBikeType(type)}
             showSelectedCheck={false}
-            selectedColor={theme.colors.onPrimary}
+            textStyle={bikeType === type ? { color: theme.colors.onPrimary } : undefined}
             style={[
               styles.chip,
               {
@@ -166,6 +182,18 @@ export function BikeForm({ initialData, onSave, onDelete, isSubmitting }: BikeFo
         activeUnderlineColor={activeUnderlineColor}
       />
 
+      {/* Photos (edit mode only) */}
+      {photos && onAddPhoto && (
+        <View style={styles.photoSection}>
+          <PhotoPicker
+            photos={photos}
+            onAdd={onAddPhoto}
+            onRemove={onRemovePhoto}
+            isUploading={isUploadingPhoto ?? false}
+          />
+        </View>
+      )}
+
       {/* Save */}
       <GradientButton
         onPress={handleSubmit}
@@ -210,6 +238,9 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: borderRadius.full,
+  },
+  photoSection: {
+    marginTop: spacing.base,
   },
   saveButton: {
     marginTop: spacing.lg,

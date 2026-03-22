@@ -37,7 +37,14 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
             compact
             selected={isActive}
             onPress={() => onSelect(cat)}
-            style={[styles.chip, isActive && { backgroundColor: theme.colors.primaryContainer }]}
+            showSelectedCheck={false}
+            textStyle={isActive ? { color: theme.colors.onPrimary } : undefined}
+            style={[
+              styles.chip,
+              {
+                backgroundColor: isActive ? theme.colors.primary : theme.colors.secondaryContainer,
+              },
+            ]}
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
           >

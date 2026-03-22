@@ -120,6 +120,7 @@ export const DEMO_BIKES: Bike[] = [
     model: 'Endurace CF 7',
     type: BikeType.Road,
     year: 2023,
+    thumbnailStoragePath: undefined,
     createdAt: daysAgo(120),
     updatedAt: daysAgo(30),
   },

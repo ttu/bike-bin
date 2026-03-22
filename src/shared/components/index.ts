@@ -1,3 +1,4 @@
+export { AnimatedPressable } from './AnimatedPressable/AnimatedPressable';
 export { EmptyState } from './EmptyState';
 export { GradientButton } from './GradientButton';
 export { LoadingScreen } from './LoadingScreen';

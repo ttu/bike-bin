@@ -1,4 +1,5 @@
 import { View, FlatList, StyleSheet } from 'react-native';
+import ReAnimated, { FadeInUp } from 'react-native-reanimated';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -62,8 +63,10 @@ export default function MessagesScreen() {
         <FlatList
           data={conversations}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ConversationCard conversation={item} onPress={handleConversationPress} />
+          renderItem={({ item, index }) => (
+            <ReAnimated.View entering={FadeInUp.duration(300).delay(Math.min(index, 10) * 50)}>
+              <ConversationCard conversation={item} onPress={handleConversationPress} />
+            </ReAnimated.View>
           )}
           contentContainerStyle={styles.listContent}
         />
@@ -81,7 +84,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   listContent: {
-    paddingBottom: spacing['2xl'],
+    paddingBottom: 100,
     paddingHorizontal: spacing.sm,
     gap: spacing.md,
   },

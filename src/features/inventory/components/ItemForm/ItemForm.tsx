@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
+
 import { validateItem, type ItemFormData, type ItemFormErrors } from '../../utils/validation';
 import { useGroups } from '@/features/groups';
 import type { GroupWithRole } from '@/features/groups';
@@ -228,24 +229,26 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
         {t('form.categoryLabel')}
       </Text>
       <View style={styles.chipRow}>
-        {CATEGORIES.map((cat) => (
-          <Chip
-            key={cat}
-            selected={category === cat}
-            onPress={() => handleCategoryChange(cat)}
-            showSelectedCheck={false}
-            selectedColor={theme.colors.onPrimary}
-            style={[
-              styles.chip,
-              {
-                backgroundColor:
-                  category === cat ? theme.colors.primary : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t(`category.${cat}`)}
-          </Chip>
-        ))}
+        {CATEGORIES.map((cat) => {
+          const active = category === cat;
+          return (
+            <Chip
+              key={cat}
+              selected={active}
+              onPress={() => handleCategoryChange(cat)}
+              showSelectedCheck={false}
+              textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: active ? theme.colors.primary : theme.colors.secondaryContainer,
+                },
+              ]}
+            >
+              {t(`category.${cat}`)}
+            </Chip>
+          );
+        })}
       </View>
       {errors.category && (
         <HelperText type="error" visible>
@@ -266,7 +269,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                 selected={subcategory === sub}
                 onPress={() => setSubcategory(subcategory === sub ? '' : sub)}
                 showSelectedCheck={false}
-                selectedColor={theme.colors.onPrimary}
+                textStyle={subcategory === sub ? { color: theme.colors.onPrimary } : undefined}
                 style={[
                   styles.chip,
                   {
@@ -293,7 +296,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             selected={condition === cond}
             onPress={() => setCondition(cond)}
             showSelectedCheck={false}
-            selectedColor={theme.colors.onPrimary}
+            textStyle={condition === cond ? { color: theme.colors.onPrimary } : undefined}
             style={[
               styles.chip,
               {
@@ -381,7 +384,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
             selected={availabilityTypes.includes(type)}
             onPress={() => toggleAvailability(type)}
             showSelectedCheck={false}
-            selectedColor={theme.colors.onPrimary}
+            textStyle={
+              availabilityTypes.includes(type) ? { color: theme.colors.onPrimary } : undefined
+            }
             style={[
               styles.chip,
               {
@@ -488,7 +493,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           selected={visibility === Visibility.All}
           onPress={() => setVisibility(Visibility.All)}
           showSelectedCheck={false}
-          selectedColor={theme.colors.onPrimary}
+          textStyle={visibility === Visibility.All ? { color: theme.colors.onPrimary } : undefined}
           style={[
             styles.chip,
             {
@@ -505,7 +510,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           selected={visibility === Visibility.Groups}
           onPress={() => setVisibility(Visibility.Groups)}
           showSelectedCheck={false}
-          selectedColor={theme.colors.onPrimary}
+          textStyle={
+            visibility === Visibility.Groups ? { color: theme.colors.onPrimary } : undefined
+          }
           style={[
             styles.chip,
             {
@@ -522,7 +529,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
           selected={visibility === Visibility.Private}
           onPress={() => setVisibility(Visibility.Private)}
           showSelectedCheck={false}
-          selectedColor={theme.colors.onPrimary}
+          textStyle={
+            visibility === Visibility.Private ? { color: theme.colors.onPrimary } : undefined
+          }
           style={[
             styles.chip,
             {
@@ -548,7 +557,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                   selected={groupIds.includes(group.id)}
                   onPress={() => toggleGroupId(group.id)}
                   showSelectedCheck={false}
-                  selectedColor={theme.colors.onPrimary}
+                  textStyle={
+                    groupIds.includes(group.id) ? { color: theme.colors.onPrimary } : undefined
+                  }
                   style={[
                     styles.chip,
                     {
@@ -642,7 +653,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                 selected={usageUnit === DistanceUnit.Km}
                 onPress={() => setUsageUnit(DistanceUnit.Km)}
                 showSelectedCheck={false}
-                selectedColor={theme.colors.onPrimary}
+                textStyle={
+                  usageUnit === DistanceUnit.Km ? { color: theme.colors.onPrimary } : undefined
+                }
                 style={[
                   styles.unitChip,
                   {
@@ -660,7 +673,9 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
                 selected={usageUnit === DistanceUnit.Mi}
                 onPress={() => setUsageUnit(DistanceUnit.Mi)}
                 showSelectedCheck={false}
-                selectedColor={theme.colors.onPrimary}
+                textStyle={
+                  usageUnit === DistanceUnit.Mi ? { color: theme.colors.onPrimary } : undefined
+                }
                 style={[
                   styles.unitChip,
                   {

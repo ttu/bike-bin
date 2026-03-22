@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable, Image } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import type { Item } from '@/shared/types';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { getStatusColor } from '../../utils/status';
 
 interface ItemCardProps {
@@ -27,9 +28,15 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
         : theme.colors.outline;
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={() => onPress?.(item)}
-      style={[styles.container, { backgroundColor: theme.customColors.surfaceContainerLowest }]}
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.customColors.surfaceContainerLowest,
+          shadowColor: theme.colors.onSurface,
+        },
+      ]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
@@ -96,7 +103,7 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           </View>
         )}
       </View>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -107,6 +114,10 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 1,
   },
   thumbnail: {
     width: 80,

@@ -9,5 +9,6 @@ export { useSearchItems } from './hooks/useSearchItems';
 // Components
 export { SearchBar } from './components/SearchBar/SearchBar';
 export { SearchResultCard } from './components/SearchResultCard/SearchResultCard';
+export { SearchResultGridCard } from './components/SearchResultGridCard/SearchResultGridCard';
 export { FilterSheet } from './components/FilterSheet/FilterSheet';
 export { ListingDetail } from './components/ListingDetail/ListingDetail';
