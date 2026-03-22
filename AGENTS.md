@@ -1,12 +1,41 @@
-# AI Agents & Workflows
-
-Guide for AI-assisted development on Bike Bin. All relevant info below; see `docs/` for full specs.
-
----
+# Bike Bin
 
 ## Project Context
 
 **Bike Bin** – Peer-to-peer bike parts exchange app (iOS, Android, Web). Expo + React Native + TypeScript, Supabase (Auth, PostgREST, Realtime, Storage, Edge Functions), PostgreSQL + PostGIS, TanStack Query, React Native Paper (MD3), react-i18next, Expo Router. Feature slices, anemic domain models, incremental visual-first development. Reference: [docs/plans/functional-specs.md](docs/plans/functional-specs.md), [docs/plans/technical-specs.md](docs/plans/technical-specs.md), [docs/plans/architecture.md](docs/plans/architecture.md), [docs/plans/security.md](docs/plans/security.md), [docs/plans/2026-03-17-feature-design.md](docs/plans/2026-03-17-feature-design.md).
+
+---
+
+## Worktree-Based Feature Development
+
+**All new features and changes MUST use a git worktree.** This is non-negotiable.
+
+### Starting a Feature
+
+When the user says "make the change to X" or requests any feature/change:
+
+1. **Create a branch** from `main`: `git branch <branch-name> main`
+   - Branch naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`, `refactor/<slug>`
+2. **Create a worktree** in `.worktrees/`: `git worktree add .worktrees/<slug> <branch-name>`
+3. **Work entirely within the worktree** — all file edits, tests, etc. happen inside `.worktrees/<slug>/`
+4. Run `npm install` in the worktree if needed
+
+### Finishing a Feature
+
+When the user says the feature is ready, or asks to merge/finish:
+
+1. **Ensure main is up to date**: `git fetch origin && git checkout main && git pull`
+2. **In the worktree**, rebase onto main: `git rebase main`
+3. **Squash all commits into one**: `git reset --soft main && git commit -m "<conventional commit message>"`
+4. **Cherry-pick to main**: from the main working directory, `git cherry-pick <commit-hash>`
+5. **Clean up**: `git worktree remove .worktrees/<slug> && git branch -d <branch-name>`
+
+### Important Rules
+
+- **No PRs** — this project is in rapid development, cherry-pick directly to main
+- **Single commit per feature** — always squash before cherry-picking
+- **Never work directly on main** — always use a worktree
+- The worktree directory name should match the branch slug (e.g., branch `feat/dark-mode` → `.worktrees/dark-mode/`)
 
 ---
 
@@ -162,7 +191,3 @@ npm run storybook              # React Native Storybook
 5. Ask AI with specific context
 
 **Quick refs:** "How to structure a feature component?" → architecture.md. "Item status transitions?" → functional-specs.md §3.3. "Testing approach?" → technical-specs.md §8. "Screen layout for search?" → 2026-03-17-feature-design.md §3.9.
-
----
-
-**Version:** 1.0 · **Purpose:** AI-assisted development entry point
