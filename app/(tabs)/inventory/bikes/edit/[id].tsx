@@ -1,5 +1,9 @@
 import { useCallback } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Appbar, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import type { BikeId } from '@/shared/types';
 import {
   useBike,
@@ -14,6 +18,9 @@ import { supabase } from '@/shared/api/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function EditBikeScreen() {
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation('bikes');
   const { id } = useLocalSearchParams<{ id: string }>();
   const bikeId = id as BikeId;
 
@@ -66,22 +73,39 @@ export default function EditBikeScreen() {
   if (!bike) return null;
 
   return (
-    <BikeForm
-      initialData={{
-        name: bike.name,
-        brand: bike.brand ?? undefined,
-        model: bike.model ?? undefined,
-        type: bike.type,
-        year: bike.year ?? undefined,
-      }}
-      bikeId={bikeId}
-      photos={photos}
-      onAddPhoto={handleAddPhoto}
-      onRemovePhoto={handleRemovePhoto}
-      isUploadingPhoto={isUploading}
-      onSave={handleSave}
-      onDelete={handleDelete}
-      isSubmitting={updateBike.isPending}
-    />
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background, paddingTop: insets.top },
+      ]}
+    >
+      <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={t('editBike')} />
+      </Appbar.Header>
+      <BikeForm
+        initialData={{
+          name: bike.name,
+          brand: bike.brand ?? undefined,
+          model: bike.model ?? undefined,
+          type: bike.type,
+          year: bike.year ?? undefined,
+        }}
+        bikeId={bikeId}
+        photos={photos}
+        onAddPhoto={handleAddPhoto}
+        onRemovePhoto={handleRemovePhoto}
+        isUploadingPhoto={isUploading}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        isSubmitting={updateBike.isPending}
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

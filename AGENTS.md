@@ -107,8 +107,6 @@ Code:
 
 ## Commands
 
-**Always use `npm run` scripts** for all operations. Never invoke tools directly (e.g. `expo`, `jest`, `eslint`, `prettier`). Only use `npx` when there is no npm script available for the task.
-
 ```bash
 npm run dev                    # Supabase + Expo dev server
 npm run db:start               # Start local Supabase
