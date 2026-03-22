@@ -1,11 +1,11 @@
-import { type PropsWithChildren } from 'react';
-import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
+import { type PropsWithChildren, useMemo, useCallback } from 'react';
+import {
+  Pressable,
+  Animated,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
 const AnimatedPressableBase = Animated.createAnimatedComponent(Pressable);
 
@@ -22,32 +22,38 @@ export function AnimatedPressable({
   onPressOut,
   ...rest
 }: PropsWithChildren<AnimatedPressableProps>) {
-  const scale = useSharedValue(1);
+  const scale = useMemo(() => new Animated.Value(1), []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const handlePressIn = useCallback(
+    (e: Parameters<NonNullable<PressableProps['onPressIn']>>[0]) => {
+      Animated.timing(scale, {
+        toValue: scaleValue,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+      onPressIn?.(e);
+    },
+    [scale, scaleValue, onPressIn],
+  );
+
+  const handlePressOut = useCallback(
+    (e: Parameters<NonNullable<PressableProps['onPressOut']>>[0]) => {
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+      onPressOut?.(e);
+    },
+    [scale, onPressOut],
+  );
 
   return (
     <AnimatedPressableBase
       {...rest}
-      onPressIn={(e) => {
-        // eslint-disable-next-line react-hooks/immutability -- reanimated shared value assignment is expected
-        scale.value = withTiming(scaleValue, {
-          duration: 150,
-          easing: Easing.out(Easing.ease),
-        });
-        onPressIn?.(e);
-      }}
-      onPressOut={(e) => {
-        // eslint-disable-next-line react-hooks/immutability -- reanimated shared value assignment is expected
-        scale.value = withTiming(1, {
-          duration: 200,
-          easing: Easing.in(Easing.ease),
-        });
-        onPressOut?.(e);
-      }}
-      style={[animatedStyle, style]}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[{ transform: [{ scale }] }, style]}
     >
       {children}
     </AnimatedPressableBase>

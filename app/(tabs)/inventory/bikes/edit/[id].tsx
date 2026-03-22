@@ -62,7 +62,9 @@ export default function EditBikeScreen() {
       };
 
       if (Platform.OS === 'web') {
-        if (window.confirm(`${t('confirm.removePhoto.title')}\n${t('confirm.removePhoto.message')}`)) {
+        if (
+          window.confirm(`${t('confirm.removePhoto.title')}\n${t('confirm.removePhoto.message')}`)
+        ) {
           doRemove();
         }
       } else {

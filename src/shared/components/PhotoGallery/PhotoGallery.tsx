@@ -1,14 +1,7 @@
 import { useMemo, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Animated, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Animated, {
-  useSharedValue,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  interpolate,
-  type SharedValue,
-} from 'react-native-reanimated';
 /** Minimal photo shape needed for gallery display. */
 interface GalleryPhoto {
   id: string;
@@ -34,24 +27,17 @@ function ParallaxPhoto({
 }: {
   photo: GalleryPhoto;
   index: number;
-  scrollX: SharedValue<number>;
+  scrollX: Animated.Value;
   themed: ReturnType<typeof useThemedStyles>;
   galleryWidth: number;
 }) {
   const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
 
-  const animatedImageStyle = useAnimatedStyle(() => {
-    const inputRange = [
-      (index - 1) * galleryWidth,
-      index * galleryWidth,
-      (index + 1) * galleryWidth,
-    ];
-    const translateX = interpolate(scrollX.value, inputRange, [
-      -galleryWidth * 0.1,
-      0,
-      galleryWidth * 0.1,
-    ]);
-    return { transform: [{ translateX }] };
+  const inputRange = [(index - 1) * galleryWidth, index * galleryWidth, (index + 1) * galleryWidth];
+
+  const translateX = scrollX.interpolate({
+    inputRange,
+    outputRange: [-galleryWidth * 0.1, 0, galleryWidth * 0.1],
   });
 
   const galleryHeight = galleryWidth * ASPECT_RATIO;
@@ -67,7 +53,7 @@ function ParallaxPhoto({
     >
       <Animated.Image
         source={{ uri: data.publicUrl }}
-        style={[styles.photo, animatedImageStyle]}
+        style={[styles.photo, { transform: [{ translateX }] }]}
         resizeMode="cover"
       />
     </View>
@@ -78,17 +64,11 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const theme = useTheme<AppTheme>();
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
-  const scrollX = useSharedValue(0);
+  const scrollX = useMemo(() => new Animated.Value(0), []);
   const { width: windowWidth } = useWindowDimensions();
 
   const galleryWidth = Math.min(windowWidth, MAX_GALLERY_WIDTH);
   const galleryHeight = galleryWidth * ASPECT_RATIO;
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollX.value = event.contentOffset.x;
-    },
-  });
 
   if (photos.length === 0) {
     return (
@@ -117,7 +97,9 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={scrollHandler}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+          useNativeDriver: true,
+        })}
         scrollEventThrottle={16}
         onMomentumScrollEnd={(e) => {
           const index = Math.round(e.nativeEvent.contentOffset.x / galleryWidth);

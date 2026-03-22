@@ -1,5 +1,4 @@
 import { View, FlatList, StyleSheet } from 'react-native';
-import ReAnimated, { FadeInUp } from 'react-native-reanimated';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -63,10 +62,8 @@ export default function MessagesScreen() {
         <FlatList
           data={conversations}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => (
-            <ReAnimated.View entering={FadeInUp.duration(300).delay(Math.min(index, 10) * 50)}>
-              <ConversationCard conversation={item} onPress={handleConversationPress} />
-            </ReAnimated.View>
+          renderItem={({ item }) => (
+            <ConversationCard conversation={item} onPress={handleConversationPress} />
           )}
           contentContainerStyle={styles.listContent}
         />

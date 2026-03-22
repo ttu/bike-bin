@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { Text, Button, FAB, useTheme } from 'react-native-paper';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,11 +49,7 @@ export default function InventoryScreen() {
   }, [selectedCategory]);
 
   const renderItem = useCallback(
-    ({ item, index }: { item: Item; index: number }) => (
-      <Animated.View entering={FadeInUp.duration(300).delay(Math.min(index, 10) * 50)}>
-        <ItemCard item={item} onPress={handleItemPress} />
-      </Animated.View>
-    ),
+    ({ item }: { item: Item }) => <ItemCard item={item} onPress={handleItemPress} />,
     [handleItemPress],
   );
 

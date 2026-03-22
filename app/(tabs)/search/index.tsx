@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Text, Chip, useTheme, Portal, Modal, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -85,9 +84,7 @@ function SearchScreenContent() {
 
   const renderItem = useCallback(
     ({ item, index }: { item: SearchResultItem; index: number }) => (
-      <Animated.View entering={FadeInUp.duration(300).delay(Math.min(index, 10) * 50)}>
-        <SearchResultGridCard item={item} onPress={handleResultPress} isLeft={index % 2 === 0} />
-      </Animated.View>
+      <SearchResultGridCard item={item} onPress={handleResultPress} isLeft={index % 2 === 0} />
     ),
     [handleResultPress],
   );
