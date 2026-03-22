@@ -11,6 +11,7 @@
  */
 
 import OpenAI from 'openai';
+import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.join(__dirname, '..', 'supabase', 'seed-images');
 const FORCE = process.argv.includes('--force');
+const BIKES_ONLY = process.argv.includes('--bikes-only');
+const ITEMS_ONLY = process.argv.includes('--items-only');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -74,8 +77,37 @@ const ITEMS = [
   { id: 'd0000001-0004-4000-8000-000000000007', name: 'OneUp Components Dropper Post', brand: 'OneUp', model: 'Dropper Post V2 180mm', category: 'component', description: 'Internal routing dropper seatpost for mountain bike, 180mm travel, black' },
 ];
 
+// Bikes from seed.sql — full bicycles belonging to each demo user
+const BIKES = [
+  // Test User (MTB rider)
+  { id: 'c0000001-0001-4000-8000-000000000001', name: 'Santa Cruz Hightower', brand: 'Santa Cruz', model: 'Hightower C S', type: 'mtb', year: 2024, description: 'Full-suspension 29er trail mountain bike, matte olive green frame, Fox suspension, SRAM drivetrain' },
+  { id: 'c0000001-0002-4000-8000-000000000001', name: 'Commencal Meta HT AM', brand: 'Commencal', model: 'Meta HT AM', type: 'mtb', year: 2021, description: 'Hardtail mountain bike, aggressive geometry, orange/black frame, 27.5 wheels' },
+
+  // Marcus (road cyclist)
+  { id: 'c0000001-0001-4000-8000-000000000002', name: 'Canyon Endurace CF 7', brand: 'Canyon', model: 'Endurace CF 7', type: 'road', year: 2023, description: 'Carbon endurance road bike, dark blue frame, Shimano 105 groupset, disc brakes' },
+  { id: 'c0000001-0002-4000-8000-000000000002', name: 'Specialized Tarmac SL7', brand: 'Specialized', model: 'Tarmac SL7', type: 'road', year: 2022, description: 'Aero carbon road bike, gloss white/red frame, Shimano Ultegra groupset, deep-section wheels' },
+
+  // Sarah (commuter)
+  { id: 'c0000001-0001-4000-8000-000000000003', name: 'Brompton C Line', brand: 'Brompton', model: 'C Line Explore', type: 'city', year: 2023, description: 'Folding city bike, classic racing green frame, 6-speed, front carrier block, dynamo lights' },
+
+  // Jonas (touring cyclist)
+  { id: 'c0000001-0001-4000-8000-000000000004', name: 'Surly Long Haul Trucker', brand: 'Surly', model: 'Long Haul Trucker', type: 'touring', year: 2020, description: 'Steel touring bicycle, blue frame, drop bars, rear rack with panniers, fenders, bar-end shifters' },
+
+  // Lisa (gravel racer)
+  { id: 'c0000001-0001-4000-8000-000000000005', name: 'Canyon Grail CF SL', brand: 'Canyon', model: 'Grail CF SL 8', type: 'gravel', year: 2024, description: 'Carbon gravel bike with distinctive double-decker handlebar, grey/orange frame, Shimano GRX groupset, wide knobby tires' },
+  { id: 'c0000001-0002-4000-8000-000000000005', name: 'Ridley Kanzo Fast', brand: 'Ridley', model: 'Kanzo Fast', type: 'gravel', year: 2022, description: 'Aero gravel race bike, dark grey frame, integrated cockpit, Shimano GRX Di2' },
+
+  // Kai (MTB enduro)
+  { id: 'c0000001-0001-4000-8000-000000000006', name: 'YT Capra MX', brand: 'YT', model: 'Capra MX Core 3', type: 'mtb', year: 2024, description: 'Full-suspension enduro mountain bike, mixed wheel sizes 29/27.5, raw alloy frame, coil rear shock, aggressive build' },
+  { id: 'c0000001-0002-4000-8000-000000000006', name: 'Canyon Spectral 125', brand: 'Canyon', model: 'Spectral 125 CF 7', type: 'mtb', year: 2023, description: 'Short-travel full-suspension trail mountain bike, carbon frame, teal/black, 29er, playful geometry' },
+
+  // Nina (MTB trail/XC)
+  { id: 'c0000001-0001-4000-8000-000000000007', name: 'Specialized Epic EVO', brand: 'Specialized', model: 'Epic EVO Expert', type: 'mtb', year: 2024, description: 'Cross-country full-suspension mountain bike, lightweight carbon frame, red/black, RockShox SID fork, SRAM XX1 Eagle' },
+  { id: 'c0000001-0002-4000-8000-000000000007', name: 'Trek Fuel EX 8', brand: 'Trek', model: 'Fuel EX 8 Gen 6', type: 'mtb', year: 2023, description: 'Trail full-suspension mountain bike, matte black frame, 140mm travel, Shimano XT, 29er wheels' },
+];
+
 // Casual settings that look like real user listing photos
-const SETTINGS = [
+const ITEM_SETTINGS = [
   'on a wooden workbench in a garage',
   'on a concrete garage floor',
   'lying on a towel in a workshop',
@@ -88,21 +120,39 @@ const SETTINGS = [
   'on a kitchen counter',
 ];
 
-function buildPrompt(item, index) {
-  const setting = SETTINGS[index % SETTINGS.length];
+const BIKE_SETTINGS = [
+  'leaning against a garage wall',
+  'on a bike stand in a home workshop',
+  'parked on a patio with a fence behind',
+  'on a gravel path outside a shed',
+  'in a hallway leaning on a wall',
+  'on a driveway with the kickstand down',
+  'leaning against a wooden fence outdoors',
+  'standing in a bike room next to other bikes',
+  'on grass in a backyard',
+  'in a parking garage under fluorescent lights',
+];
+
+function buildItemPrompt(item, index) {
+  const setting = ITEM_SETTINGS[index % ITEM_SETTINGS.length];
   return `Photo of a used ${item.brand} ${item.model} (${item.name}), ${setting}. ${item.description}. The item shows normal signs of use — minor scuffs and wear marks — but is in decent condition. Natural indoor lighting, casual angle, slightly imperfect framing as if someone quickly took a photo to list the item online. Realistic photograph, not a studio product shot. No text, no watermarks, no phones or cameras visible.`;
 }
 
-async function generateImage(item, index) {
-  const outPath = path.join(OUT_DIR, `${item.id}.png`);
+function buildBikePrompt(bike, index) {
+  const setting = BIKE_SETTINGS[index % BIKE_SETTINGS.length];
+  return `Photo of a used ${bike.year} ${bike.brand} ${bike.model} bicycle, ${setting}. ${bike.description}. The bike shows normal signs of use — minor cable rub marks, light scratches on the frame — but is in good rideable condition. Natural lighting, casual angle, full bike visible from the drive side, slightly imperfect framing as if someone quickly took a photo to list the bike online. Realistic photograph, not a studio product shot. No text, no watermarks, no people visible.`;
+}
+
+async function generateImage(entry, promptFn, index) {
+  const outPath = path.join(OUT_DIR, `${entry.id}.jpg`);
 
   if (!FORCE && fs.existsSync(outPath)) {
-    console.log(`  SKIP ${item.name} (already exists)`);
+    console.log(`  SKIP ${entry.name} (already exists)`);
     return;
   }
 
-  console.log(`  GENERATING ${item.name}...`);
-  const prompt = buildPrompt(item, index);
+  console.log(`  GENERATING ${entry.name}...`);
+  const prompt = promptFn(entry, index);
 
   const response = await openai.images.generate({
     model: 'dall-e-3',
@@ -114,9 +164,10 @@ async function generateImage(item, index) {
   });
 
   const imageData = response.data[0].b64_json;
-  const buffer = Buffer.from(imageData, 'base64');
-  fs.writeFileSync(outPath, buffer);
-  console.log(`  SAVED ${item.name}`);
+  const pngBuffer = Buffer.from(imageData, 'base64');
+  const jpgBuffer = await sharp(pngBuffer).jpeg({ quality: 85 }).toBuffer();
+  fs.writeFileSync(outPath, jpgBuffer);
+  console.log(`  SAVED ${entry.name}`);
 }
 
 async function main() {
@@ -127,18 +178,34 @@ async function main() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  console.log(`Generating images for ${ITEMS.length} items...\n`);
+  const items = ITEMS_ONLY ? ITEMS : BIKES_ONLY ? [] : ITEMS;
+  const bikes = BIKES_ONLY ? BIKES : ITEMS_ONLY ? [] : BIKES;
+  const total = items.length + bikes.length;
+  console.log(`Generating images for ${items.length} items + ${bikes.length} bikes (${total} total)...\n`);
 
-  for (let i = 0; i < ITEMS.length; i++) {
-    const item = ITEMS[i];
-    try {
-      await generateImage(item, i);
-    } catch (err) {
-      console.error(`  FAILED ${item.name}: ${err.message}`);
+  if (items.length) {
+    console.log('── Items ──');
+    for (let i = 0; i < items.length; i++) {
+      try {
+        await generateImage(items[i], buildItemPrompt, i);
+      } catch (err) {
+        console.error(`  FAILED ${items[i].name}: ${err.message}`);
+      }
     }
   }
 
-  const count = fs.readdirSync(OUT_DIR).filter(f => f.endsWith('.png')).length;
+  if (bikes.length) {
+    console.log('\n── Bikes ──');
+    for (let i = 0; i < bikes.length; i++) {
+      try {
+        await generateImage(bikes[i], buildBikePrompt, i);
+      } catch (err) {
+        console.error(`  FAILED ${bikes[i].name}: ${err.message}`);
+      }
+    }
+  }
+
+  const count = fs.readdirSync(OUT_DIR).filter(f => f.endsWith('.jpg') || f.endsWith('.png')).length;
   console.log(`\nDone! ${count} images in supabase/seed-images/`);
 }
 

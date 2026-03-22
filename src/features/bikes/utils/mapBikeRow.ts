@@ -12,6 +12,7 @@ export function mapBikeRow(row: Record<string, unknown>): Bike {
     model: (row.model as string) ?? undefined,
     type: row.type as BikeType,
     year: (row.year as number) ?? undefined,
+    thumbnailStoragePath: undefined,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };

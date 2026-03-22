@@ -10,6 +10,7 @@ import {
   RatingId,
   NotificationId,
   ItemPhotoId,
+  BikePhotoId,
   ReportId,
   SupportRequestId,
 } from './ids';
@@ -83,6 +84,14 @@ export interface ItemPhoto {
   createdAt: string;
 }
 
+export interface BikePhoto {
+  id: BikePhotoId;
+  bikeId: BikeId;
+  storagePath: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
 export interface Bike {
   id: BikeId;
   ownerId: UserId;
@@ -91,6 +100,7 @@ export interface Bike {
   model: string | undefined;
   type: BikeType;
   year: number | undefined;
+  thumbnailStoragePath: string | undefined;
   createdAt: string;
   updatedAt: string;
 }

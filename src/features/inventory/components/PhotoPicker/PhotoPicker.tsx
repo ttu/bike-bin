@@ -2,13 +2,16 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, ActivityIndicator, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import type { ItemPhoto } from '@/shared/types';
+interface PickerPhoto {
+  id: string;
+  storagePath: string;
+}
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 
 const MAX_PHOTOS = 5;
 
 interface PhotoPickerProps {
-  photos: ItemPhoto[];
+  photos: PickerPhoto[];
   onAdd: () => void;
   onRemove?: (photoId: string) => void;
   isUploading: boolean;

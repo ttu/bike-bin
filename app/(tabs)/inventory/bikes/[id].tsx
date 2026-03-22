@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BikeId } from '@/shared/types';
-import { useBike } from '@/features/bikes';
+import { useBike, useBikePhotos } from '@/features/bikes';
 import { MountedParts } from '@/features/bikes/components/MountedParts/MountedParts';
+import { PhotoGallery } from '@/shared/components';
 import { spacing, borderRadius } from '@/shared/theme';
 
 export default function BikeDetailScreen() {
@@ -16,6 +17,7 @@ export default function BikeDetailScreen() {
   const bikeId = id as BikeId;
 
   const { data: bike, isLoading } = useBike(bikeId);
+  const { data: photos = [] } = useBikePhotos(bikeId);
 
   if (isLoading || !bike) {
     return (
@@ -36,6 +38,8 @@ export default function BikeDetailScreen() {
       ]}
       contentContainerStyle={styles.content}
     >
+      <PhotoGallery photos={photos} />
+
       {/* Header */}
       <View style={styles.header}>
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>

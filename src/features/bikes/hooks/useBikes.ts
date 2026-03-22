@@ -2,8 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { BikeId } from '@/shared/types';
+import { fetchBikeThumbnailPaths } from '@/shared/utils/fetchBikeThumbnailPaths';
 import type { BikeFormData } from '../types';
 import { mapBikeRow } from '../utils/mapBikeRow';
+import { mapBikePhotoRow } from '../utils/mapBikePhotoRow';
 
 export function useBikes() {
   const { user } = useAuth();
@@ -18,7 +20,12 @@ export function useBikes() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      return (data ?? []).map((row) => mapBikeRow(row as Record<string, unknown>));
+      const bikes = (data ?? []).map((row) => mapBikeRow(row as Record<string, unknown>));
+      const thumbMap = await fetchBikeThumbnailPaths(bikes.map((b) => b.id));
+      for (const bike of bikes) {
+        bike.thumbnailStoragePath = thumbMap.get(bike.id);
+      }
+      return bikes;
     },
     enabled: !!user,
   });
@@ -34,6 +41,23 @@ export function useBike(id: BikeId) {
       return mapBikeRow(data as Record<string, unknown>);
     },
     enabled: !!id,
+  });
+}
+
+export function useBikePhotos(bikeId: BikeId) {
+  return useQuery({
+    queryKey: ['bike_photos', bikeId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bike_photos')
+        .select('*')
+        .eq('bike_id', bikeId)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      return (data ?? []).map((row) => mapBikePhotoRow(row as Record<string, unknown>));
+    },
+    enabled: !!bikeId,
   });
 }
 

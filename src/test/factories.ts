@@ -130,6 +130,7 @@ export function createMockBike(overrides?: Partial<Bike>): Bike {
     model: faker.commerce.product(),
     type: faker.helpers.arrayElement(Object.values(BikeType)),
     year: faker.helpers.maybe(() => faker.number.int({ min: 2000, max: 2026 })),
+    thumbnailStoragePath: undefined,
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,

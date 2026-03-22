@@ -12,5 +12,6 @@ export type BorrowRequestId = Brand<string, 'BorrowRequestId'>;
 export type RatingId = Brand<string, 'RatingId'>;
 export type NotificationId = Brand<string, 'NotificationId'>;
 export type ItemPhotoId = Brand<string, 'ItemPhotoId'>;
+export type BikePhotoId = Brand<string, 'BikePhotoId'>;
 export type ReportId = Brand<string, 'ReportId'>;
 export type SupportRequestId = Brand<string, 'SupportRequestId'>;
