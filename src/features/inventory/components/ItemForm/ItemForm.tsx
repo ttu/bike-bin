@@ -25,6 +25,7 @@ const CATEGORIES = [
   ItemCategory.Tool,
   ItemCategory.Accessory,
   ItemCategory.Consumable,
+  ItemCategory.Clothing,
 ];
 const CONDITIONS = [
   ItemCondition.New,

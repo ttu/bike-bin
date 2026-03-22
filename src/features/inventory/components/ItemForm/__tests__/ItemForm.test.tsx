@@ -31,6 +31,7 @@ describe('ItemForm', () => {
     expect(getByText('Components')).toBeTruthy();
     expect(getByText('Tools')).toBeTruthy();
     expect(getByText('Accessories')).toBeTruthy();
+    expect(getByText('Clothing')).toBeTruthy();
   });
 
   it('renders condition chips as single-select', () => {
