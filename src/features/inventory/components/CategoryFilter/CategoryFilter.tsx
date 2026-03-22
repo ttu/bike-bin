@@ -10,6 +10,7 @@ const CATEGORIES = [
   ItemCategory.Tool,
   ItemCategory.Accessory,
   ItemCategory.Consumable,
+  ItemCategory.Clothing,
 ];
 
 interface CategoryFilterProps {

@@ -16,11 +16,12 @@ describe('ItemCategory', () => {
     expect(ItemCategory.Tool).toBe('tool');
     expect(ItemCategory.Accessory).toBe('accessory');
     expect(ItemCategory.Consumable).toBe('consumable');
+    expect(ItemCategory.Clothing).toBe('clothing');
     expect(ItemCategory.Bike).toBe('bike');
   });
 
-  it('has exactly 5 entries', () => {
-    expect(Object.keys(ItemCategory)).toHaveLength(5);
+  it('has exactly 6 entries', () => {
+    expect(Object.keys(ItemCategory)).toHaveLength(6);
   });
 });
 

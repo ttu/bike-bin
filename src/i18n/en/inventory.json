@@ -11,7 +11,8 @@
     "component": "Components",
     "tool": "Tools",
     "accessory": "Accessories",
-    "consumable": "Consumables"
+    "consumable": "Consumables",
+    "clothing": "Clothing"
   },
   "subcategory": {
     "drivetrain": "Drivetrain",
@@ -44,8 +45,6 @@
     "bottles_cages": "Bottles & Cages",
     "computers_gps": "Computers & GPS",
     "bells_mirrors": "Bells & Mirrors",
-    "clothing": "Clothing",
-    "helmets": "Helmets",
     "other_accessory": "Other",
     "chain_lube": "Chain Lube",
     "grease": "Grease",
@@ -55,7 +54,19 @@
     "thread_locker": "Thread Locker",
     "anti_seize": "Anti-Seize",
     "polish": "Polish",
-    "other_consumable": "Other"
+    "other_consumable": "Other",
+    "jerseys": "Jerseys",
+    "shorts_bibs": "Shorts & Bibs",
+    "jackets_vests": "Jackets & Vests",
+    "gloves": "Gloves",
+    "socks": "Socks",
+    "shoes": "Shoes",
+    "helmets": "Helmets",
+    "eyewear": "Eyewear",
+    "base_layers": "Base Layers",
+    "arm_leg_warmers": "Arm & Leg Warmers",
+    "rain_gear": "Rain Gear",
+    "other_clothing": "Other"
   },
   "status": {
     "stored": "Stored",
