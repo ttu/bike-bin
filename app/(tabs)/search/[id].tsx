@@ -9,6 +9,7 @@ import type { AppTheme } from '@/shared/theme';
 import type { ItemId, UserId, LocationId } from '@/shared/types';
 import type { ItemCategory, ItemCondition, AvailabilityType, ItemPhoto } from '@/shared/types';
 import { LoadingScreen } from '@/shared/components';
+import { mapItemPhotoRow } from '@/shared/utils/mapItemRow';
 import { ListingDetail } from '@/features/search';
 import type { SearchResultItem } from '@/features/search';
 import { useCreateConversation } from '@/features/messaging';
@@ -89,7 +90,7 @@ export default function ListingDetailScreen() {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []) as ItemPhoto[];
+      return (data ?? []).map((row) => mapItemPhotoRow(row as Record<string, unknown>));
     },
     enabled: !!id,
   });
