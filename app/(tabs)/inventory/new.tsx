@@ -1,14 +1,14 @@
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/features/auth';
 import { useLocalInventory } from '@/features/auth/hooks/useLocalInventory';
 import { useCreateItem } from '@/features/inventory';
 import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
-import { ItemStatus, Visibility } from '@/shared/types';
+import { ItemCategory, ItemStatus, Visibility } from '@/shared/types';
 import type { ItemId, UserId } from '@/shared/types';
 
 export default function NewItemScreen() {
@@ -18,6 +18,10 @@ export default function NewItemScreen() {
   const { isAuthenticated } = useAuth();
   const createItem = useCreateItem();
   const { addItem } = useLocalInventory();
+  const { category } = useLocalSearchParams<{ category?: string }>();
+  const initialCategory = Object.values(ItemCategory).includes(category as ItemCategory)
+    ? (category as ItemCategory)
+    : undefined;
 
   const handleSave = async (data: ItemFormData) => {
     if (isAuthenticated) {
@@ -65,7 +69,7 @@ export default function NewItemScreen() {
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('addItem')} />
       </Appbar.Header>
-      <ItemForm onSave={handleSave} isSubmitting={createItem.isPending} />
+      <ItemForm initialCategory={initialCategory} onSave={handleSave} isSubmitting={createItem.isPending} />
     </View>
   );
 }

@@ -54,8 +54,12 @@ export default function InventoryScreen() {
   }, []);
 
   const handleAddPress = useCallback(() => {
-    router.push('/(tabs)/inventory/new' as never);
-  }, []);
+    if (selectedCategory) {
+      router.push(`/(tabs)/inventory/new?category=${selectedCategory}` as never);
+    } else {
+      router.push('/(tabs)/inventory/new' as never);
+    }
+  }, [selectedCategory]);
 
   const heroItem = filteredItems.length > 0 ? filteredItems[0] : null;
   const listItems = filteredItems.length > 1 ? filteredItems.slice(1) : [];

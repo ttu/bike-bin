@@ -155,6 +155,26 @@ describe('ItemForm', () => {
     expect(getByDisplayValue('Existing Item')).toBeTruthy();
   });
 
+  it('pre-selects category from initialCategory prop', () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(
+      <ItemForm {...defaultProps} initialCategory={ItemCategory.Consumable} />,
+    );
+
+    // Consumable subcategories should be visible (proving the category is selected)
+    expect(getByText('Chain Lube')).toBeTruthy();
+
+    // Fill remaining required fields and submit to verify the category is sent
+    fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Test Lube');
+    fireEvent.press(getByText('Good'));
+    fireEvent.press(getByText('Save'));
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: ItemCategory.Consumable,
+      }),
+    );
+  });
+
   it('shows delete button in edit mode', () => {
     const onDelete = jest.fn();
     const { getByText } = renderWithProviders(

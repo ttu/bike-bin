@@ -41,12 +41,13 @@ const AVAILABILITY_OPTIONS = [
 
 interface ItemFormProps {
   initialData?: ItemFormData;
+  initialCategory?: ItemCategory;
   onSave: (data: ItemFormData) => void;
   onDelete?: () => void;
   isSubmitting: boolean;
 }
 
-export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFormProps) {
+export function ItemForm({ initialData, initialCategory, onSave, onDelete, isSubmitting }: ItemFormProps) {
   const theme = useTheme<AppTheme>();
 
   const softInputStyle = {
@@ -60,7 +61,7 @@ export function ItemForm({ initialData, onSave, onDelete, isSubmitting }: ItemFo
   const { data: existingItems } = useItems();
 
   const [name, setName] = useState(initialData?.name ?? '');
-  const [category, setCategory] = useState<ItemCategory | undefined>(initialData?.category);
+  const [category, setCategory] = useState<ItemCategory | undefined>(initialData?.category ?? initialCategory);
   const [subcategory, setSubcategory] = useState(initialData?.subcategory ?? '');
   const [condition, setCondition] = useState<ItemCondition | undefined>(initialData?.condition);
   const [brand, setBrand] = useState(initialData?.brand ?? '');
