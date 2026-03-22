@@ -1,3 +1,4 @@
+import { Dimensions } from 'react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
@@ -102,5 +103,23 @@ describe('ItemDetail', () => {
       <ItemDetail item={loanedItem} photos={[]} onDelete={jest.fn()} />,
     );
     expect(queryByText('Delete item')).toBeNull();
+  });
+
+  it('renders side-by-side layout on wide screens', () => {
+    jest
+      .spyOn(Dimensions, 'get')
+      .mockReturnValue({ width: 1024, height: 768, scale: 1, fontScale: 1 });
+    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getByText('Shimano Cassette')).toBeTruthy();
+    expect(getByText('No photos')).toBeTruthy();
+  });
+
+  it('renders stacked layout on narrow screens', () => {
+    jest
+      .spyOn(Dimensions, 'get')
+      .mockReturnValue({ width: 375, height: 812, scale: 1, fontScale: 1 });
+    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getByText('Shimano Cassette')).toBeTruthy();
+    expect(getByText('No photos')).toBeTruthy();
   });
 });

@@ -1,3 +1,4 @@
+import * as RN from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
@@ -98,5 +99,14 @@ describe('BikeDetailScreen', () => {
   it('renders bike name', () => {
     const { getByText } = renderWithProviders(<BikeDetailScreen />);
     expect(getByText('Canyon Grail')).toBeTruthy();
+  });
+
+  it('renders side-by-side layout on wide screens', () => {
+    jest
+      .spyOn(RN, 'useWindowDimensions')
+      .mockReturnValue({ width: 1024, height: 768, scale: 1, fontScale: 1 });
+    const { getByText } = renderWithProviders(<BikeDetailScreen />);
+    expect(getByText('Canyon Grail')).toBeTruthy();
+    expect(getByText('No photos')).toBeTruthy();
   });
 });

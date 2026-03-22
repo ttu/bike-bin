@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,8 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
 import { PhotoGallery } from '@/shared/components';
+
+const WIDE_BREAKPOINT = 768;
 
 interface ItemDetailProps {
   item: Item;
@@ -32,6 +34,8 @@ export function ItemDetail({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const themed = useThemedStyles(theme);
+  const { width: windowWidth } = useWindowDimensions();
+  const isWide = windowWidth >= WIDE_BREAKPOINT;
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =
@@ -48,10 +52,8 @@ export function ItemDetail({
   const canShowArchiveAction = item.status !== ItemStatus.Archived;
   const canShowDeleteAction = canDelete(item);
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <PhotoGallery photos={photos} />
-
+  const detailContent = (
+    <>
       {/* Title + Status */}
       <View style={styles.section}>
         <View style={styles.titleRow}>
@@ -156,6 +158,26 @@ export function ItemDetail({
           </Button>
         )}
       </View>
+    </>
+  );
+
+  if (isWide) {
+    return (
+      <View style={styles.wideContainer}>
+        <View style={styles.wideGallery}>
+          <PhotoGallery photos={photos} />
+        </View>
+        <ScrollView style={styles.wideDetails} contentContainerStyle={styles.content}>
+          {detailContent}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <PhotoGallery photos={photos} />
+      {detailContent}
     </ScrollView>
   );
 }
@@ -188,6 +210,18 @@ function useThemedStyles(theme: AppTheme) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  wideContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  wideGallery: {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: spacing.base,
+  },
+  wideDetails: {
     flex: 1,
   },
   content: {

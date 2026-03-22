@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Animated, {
@@ -18,8 +18,8 @@ import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const GALLERY_HEIGHT = SCREEN_WIDTH * 0.75; // 4:3 aspect ratio
+const MAX_GALLERY_WIDTH = 500;
+const ASPECT_RATIO = 0.75; // 4:3
 
 interface PhotoGalleryProps {
   photos: GalleryPhoto[];
@@ -30,30 +30,41 @@ function ParallaxPhoto({
   index,
   scrollX,
   themed,
+  galleryWidth,
 }: {
   photo: GalleryPhoto;
   index: number;
   scrollX: SharedValue<number>;
   themed: ReturnType<typeof useThemedStyles>;
+  galleryWidth: number;
 }) {
   const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
 
   const animatedImageStyle = useAnimatedStyle(() => {
     const inputRange = [
-      (index - 1) * SCREEN_WIDTH,
-      index * SCREEN_WIDTH,
-      (index + 1) * SCREEN_WIDTH,
+      (index - 1) * galleryWidth,
+      index * galleryWidth,
+      (index + 1) * galleryWidth,
     ];
     const translateX = interpolate(scrollX.value, inputRange, [
-      -SCREEN_WIDTH * 0.1,
+      -galleryWidth * 0.1,
       0,
-      SCREEN_WIDTH * 0.1,
+      galleryWidth * 0.1,
     ]);
     return { transform: [{ translateX }] };
   });
 
+  const galleryHeight = galleryWidth * ASPECT_RATIO;
+
   return (
-    <View key={photo.id} style={[styles.photoContainer, themed.surfaceVariantBg]}>
+    <View
+      key={photo.id}
+      style={[
+        styles.photoContainer,
+        themed.surfaceVariantBg,
+        { width: galleryWidth, height: galleryHeight },
+      ]}
+    >
       <Animated.Image
         source={{ uri: data.publicUrl }}
         style={[styles.photo, animatedImageStyle]}
@@ -68,6 +79,10 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useSharedValue(0);
+  const { width: windowWidth } = useWindowDimensions();
+
+  const galleryWidth = Math.min(windowWidth, MAX_GALLERY_WIDTH);
+  const galleryHeight = galleryWidth * ASPECT_RATIO;
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -77,7 +92,13 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
   if (photos.length === 0) {
     return (
-      <View style={[styles.placeholder, themed.surfaceVariantBg]}>
+      <View
+        style={[
+          styles.placeholder,
+          themed.surfaceVariantBg,
+          { width: galleryWidth, height: galleryHeight },
+        ]}
+      >
         <MaterialCommunityIcons
           name="image-outline"
           size={iconSize.xl}
@@ -91,7 +112,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   }
 
   return (
-    <View>
+    <View style={{ width: galleryWidth }}>
       <Animated.ScrollView
         horizontal
         pagingEnabled
@@ -99,7 +120,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         onMomentumScrollEnd={(e) => {
-          const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+          const index = Math.round(e.nativeEvent.contentOffset.x / galleryWidth);
           setActiveIndex(index);
         }}
       >
@@ -110,6 +131,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
             index={index}
             scrollX={scrollX}
             themed={themed}
+            galleryWidth={galleryWidth}
           />
         ))}
       </Animated.ScrollView>
@@ -147,15 +169,11 @@ function useThemedStyles(theme: AppTheme) {
 
 const styles = StyleSheet.create({
   placeholder: {
-    width: SCREEN_WIDTH,
-    height: GALLERY_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.sm,
   },
   photoContainer: {
-    width: SCREEN_WIDTH,
-    height: GALLERY_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },
