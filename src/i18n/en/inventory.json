@@ -136,6 +136,7 @@
     "optionalSection": "More details",
     "ageLabel": "Age",
     "agePlaceholder": "Select age",
+    "ageNotSpecified": "Not specified",
     "ageOption": {
       "less_than_6_months": "Less than 6 months",
       "6_to_12_months": "6-12 months",

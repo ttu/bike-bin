@@ -69,7 +69,11 @@ export default function NewItemScreen() {
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('addItem')} />
       </Appbar.Header>
-      <ItemForm initialCategory={initialCategory} onSave={handleSave} isSubmitting={createItem.isPending} />
+      <ItemForm
+        initialCategory={initialCategory}
+        onSave={handleSave}
+        isSubmitting={createItem.isPending}
+      />
     </View>
   );
 }

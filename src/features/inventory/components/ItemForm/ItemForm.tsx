@@ -631,6 +631,13 @@ export function ItemForm({
               </Pressable>
             }
           >
+            <Menu.Item
+              title={t('form.ageNotSpecified')}
+              onPress={() => {
+                setAge('');
+                setAgeMenuVisible(false);
+              }}
+            />
             {AGE_OPTIONS.map((opt) => (
               <Menu.Item
                 key={opt}

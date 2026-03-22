@@ -175,6 +175,41 @@ describe('ItemForm', () => {
     );
   });
 
+  it('allows clearing age selection with "Not specified" option', async () => {
+    const initialData = {
+      name: 'Test Item',
+      category: ItemCategory.Component,
+      condition: ItemCondition.Good,
+      availabilityTypes: [] as AvailabilityType[],
+      age: 'less_than_6_months',
+    };
+
+    const { getByText, getByPlaceholderText, getByDisplayValue } = renderWithProviders(
+      <ItemForm {...defaultProps} initialData={initialData} />,
+    );
+
+    // Open optional section
+    fireEvent.press(getByText('More details'));
+
+    // Age should show the pre-filled value in the TextInput
+    expect(getByDisplayValue('Less than 6 months')).toBeTruthy();
+
+    // Open age menu and select "Not specified"
+    fireEvent.press(getByPlaceholderText('Select age'));
+    fireEvent.press(getByText('Not specified'));
+
+    // Submit and verify age is undefined
+    fireEvent.press(getByText('Save'));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          age: undefined,
+        }),
+      );
+    });
+  });
+
   it('shows delete button in edit mode', () => {
     const onDelete = jest.fn();
     const { getByText } = renderWithProviders(
