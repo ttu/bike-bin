@@ -66,6 +66,11 @@
     "base_layers": "Base Layers",
     "arm_leg_warmers": "Arm & Leg Warmers",
     "rain_gear": "Rain Gear",
+    "knee_pads": "Knee Pads",
+    "elbow_pads": "Elbow Pads",
+    "body_armor": "Body Armor",
+    "reflective_gear": "Reflective Gear",
+    "other_protective_gear": "Other Protective Gear",
     "other_clothing": "Other"
   },
   "status": {
