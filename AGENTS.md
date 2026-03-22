@@ -80,7 +80,7 @@ Code:
 
 - **Naming:** Feature components (e.g. ItemCard, BikeDetail) in `src/features/[feature]/components/`; shared (Button, EmptyState) in `src/shared/components/`. Hooks `useInventory`, `useNearbyListings` in `features/…/hooks/`. Utils camelCase in `features/…/utils/` or `shared/utils/`.
 - **Structure:** Feature slice: `components/` (Component.tsx, .stories.tsx, .test.tsx), `hooks/`, `utils/`, `types.ts`, `context.ts`, `provider.tsx`, `index.ts` (public API). Shared: components, hooks, utils, types, api, i18n.
-- **Tests:** Unit `[function].test.ts`, component `[Component].test.tsx`, E2E `[feature].yaml` (Maestro).
+- **Tests:** Unit `[function].test.ts`, component `[Component].test.tsx`, E2E `[feature].yaml` (Maestro). Every new feature or bug fix must include a corresponding test if one doesn't already exist.
 - **i18n keys:** `namespace.section.key` (e.g. `inventory.status.loaned`). One JSON file per feature namespace + `common.json` for shared strings.
 - **TypeScript:** Strict mode. No `any`. Prefer `undefined` over `null`. Use branded types for IDs (`ItemId`, `UserId`).
 - **Styling:** `StyleSheet.create` only. All colors from theme tokens. All text via Paper `<Text variant="...">`. No inline styles.
@@ -106,6 +106,8 @@ Code:
 ---
 
 ## Commands
+
+**Always use `npm run` scripts** for all operations. Never invoke tools directly (e.g. `expo`, `jest`, `eslint`, `prettier`). Only use `npx` when there is no npm script available for the task.
 
 ```bash
 npm run dev                    # Supabase + Expo dev server
