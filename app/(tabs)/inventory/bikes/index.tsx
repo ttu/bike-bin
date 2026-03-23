@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Text, FAB, useTheme } from 'react-native-paper';
+import { IconButton, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,6 +37,7 @@ export default function BikesScreen() {
       ]}
     >
       <View style={styles.header}>
+        <IconButton icon="arrow-left" onPress={() => router.back()} style={styles.backButton} />
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
           {t('title')}
         </Text>
@@ -85,6 +86,9 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 80,
+  },
+  backButton: {
+    marginLeft: -spacing.xs,
   },
   fab: {
     position: 'absolute',
