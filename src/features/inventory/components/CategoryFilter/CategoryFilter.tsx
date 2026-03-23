@@ -26,6 +26,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      style={styles.scrollView}
       contentContainerStyle={styles.container}
     >
       {CATEGORIES.map((cat) => {
@@ -57,6 +58,9 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 0,
+  },
   container: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
