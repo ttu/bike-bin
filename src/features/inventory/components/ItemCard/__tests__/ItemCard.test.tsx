@@ -22,6 +22,7 @@ describe('ItemCard', () => {
   const baseItem = createMockItem({
     name: 'Shimano Cassette',
     category: ItemCategory.Component,
+    subcategory: 'drivetrain',
     condition: ItemCondition.Good,
     status: ItemStatus.Stored,
     availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
@@ -32,9 +33,20 @@ describe('ItemCard', () => {
     expect(getByText('Shimano Cassette')).toBeTruthy();
   });
 
-  it('renders category and condition', () => {
+  it('renders category and subcategory', () => {
     const { getByText } = renderWithProviders(<ItemCard item={baseItem} />);
-    expect(getByText(/Components · Good/)).toBeTruthy();
+    expect(getByText(/Components · Drivetrain/)).toBeTruthy();
+  });
+
+  it('renders only category when no subcategory', () => {
+    const item = createMockItem({
+      name: 'Test Item',
+      category: ItemCategory.Tool,
+      subcategory: undefined,
+      status: ItemStatus.Stored,
+    });
+    const { getByText } = renderWithProviders(<ItemCard item={item} />);
+    expect(getByText('Tools')).toBeTruthy();
   });
 
   it('renders status badge', () => {
@@ -57,7 +69,7 @@ describe('ItemCard', () => {
 
   it('hides details in compact mode', () => {
     const { queryByText } = renderWithProviders(<ItemCard item={baseItem} compact />);
-    expect(queryByText(/Components · Good/)).toBeNull();
+    expect(queryByText(/Components · Drivetrain/)).toBeNull();
     expect(queryByText('Borrowable')).toBeNull();
   });
 

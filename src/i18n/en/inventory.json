@@ -1,6 +1,10 @@
 {
   "title": "Inventory",
   "bikesLink": "Bikes →",
+  "searchPlaceholder": "Search {{count}} items in your collection...",
+  "searchPlaceholderEmpty": "Search your collection...",
+  "showingItems": "Showing {{count}} items",
+  "categoriesLabel": "Categories",
   "empty": {
     "title": "No items yet",
     "description": "Add your first bike part to get started",

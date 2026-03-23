@@ -61,9 +61,9 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('InventoryScreen', () => {
-  it('renders the inventory heading', () => {
+  it('renders the search bar', () => {
     renderWithProviders(<InventoryScreen />);
-    expect(screen.getByText('Inventory')).toBeTruthy();
+    expect(screen.getByPlaceholderText(/Search/)).toBeTruthy();
   });
 
   it('renders empty state when no items', () => {

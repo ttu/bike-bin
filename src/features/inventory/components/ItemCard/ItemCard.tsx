@@ -81,7 +81,8 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
             style={{ color: theme.colors.onSurfaceVariant }}
             numberOfLines={1}
           >
-            {t(`category.${item.category}`)} · {t(`condition.${item.condition}`)}
+            {t(`category.${item.category}`)}
+            {item.subcategory ? ` · ${t(`subcategory.${item.subcategory}`)}` : ''}
           </Text>
         )}
 

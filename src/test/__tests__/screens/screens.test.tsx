@@ -64,9 +64,9 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('Tab screens render visible content', () => {
-  it('Inventory screen shows heading', () => {
+  it('Inventory screen shows search bar', () => {
     renderWithProviders(<InventoryScreen />);
-    expect(screen.getByText('Inventory')).toBeVisible();
+    expect(screen.getByPlaceholderText(/Search/)).toBeVisible();
   });
 
   it('Search screen shows search bar', () => {
