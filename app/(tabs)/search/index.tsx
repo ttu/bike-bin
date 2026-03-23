@@ -95,6 +95,13 @@ function SearchScreenContent() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
+          {t('title')}
+        </Text>
+      </View>
+
       {/* Search bar */}
       <SearchBar
         query={filters.query}
@@ -285,6 +292,10 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  header: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
   },
   quickFilters: {
     flexDirection: 'row',

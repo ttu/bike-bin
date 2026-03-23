@@ -21,7 +21,8 @@
       "mcp__plugin_playwright_playwright__browser_handle_dialog",
       "mcp__plugin_playwright_playwright__browser_console_messages",
       "mcp__plugin_playwright_playwright__browser_type",
-      "Bash(rtk proxy:*)"
+      "Bash(rtk proxy:*)",
+      "mcp__plugin_playwright_playwright__browser_evaluate"
     ],
     "additionalDirectories": [
       "/Users/ttu/src/github/bike-bin/docs/superpowers",
