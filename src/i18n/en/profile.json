@@ -81,6 +81,17 @@
     "errorMessage": "Failed to submit your report. Please try again.",
     "validationReason": "Please select a reason"
   },
+  "editScreen": {
+    "title": "Edit Profile",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Enter your display name",
+    "save": "Save",
+    "saving": "Saving...",
+    "successTitle": "Profile Updated",
+    "successMessage": "Your profile has been updated.",
+    "errorTitle": "Error",
+    "errorMessage": "Failed to update your profile. Please try again."
+  },
   "deleteAccount": {
     "title": "Delete Account",
     "warning": "This action is permanent and cannot be undone.",
