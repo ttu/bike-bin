@@ -1,16 +1,25 @@
-import { Alert, Image, Platform, View, StyleSheet } from 'react-native';
+import { useCallback } from 'react';
+import { Alert, Image, Platform, Pressable, View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useItem, useUpdateItem, useDeleteItem } from '@/features/inventory';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  useItem,
+  useItemPhotos,
+  useUpdateItem,
+  useDeleteItem,
+  usePhotoUpload,
+} from '@/features/inventory';
 import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
+import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { canDelete } from '@/features/inventory';
 import { LoadingScreen } from '@/shared/components/LoadingScreen/LoadingScreen';
 import { supabase } from '@/shared/api/supabase';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 
@@ -24,15 +33,51 @@ export default function EditItemScreen() {
   const { t } = useTranslation('inventory');
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const itemId = id as ItemId;
+  const queryClient = useQueryClient();
 
-  const { data: item, isLoading } = useItem(id as ItemId);
+  const { data: item, isLoading } = useItem(itemId);
+  const { data: photos = [] } = useItemPhotos(itemId);
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
+  const { pickAndUpload, isUploading } = usePhotoUpload();
 
   const handleSave = async (data: ItemFormData) => {
-    await updateItem.mutateAsync({ ...data, id: id as ItemId });
+    await updateItem.mutateAsync({ ...data, id: itemId });
     router.back();
   };
+
+  const handleAddPhoto = useCallback(() => {
+    pickAndUpload(itemId);
+  }, [pickAndUpload, itemId]);
+
+  const handleRemovePhoto = useCallback(
+    (photoId: string) => {
+      const doRemove = async () => {
+        const photo = photos.find((p) => p.id === photoId);
+        if (photo) {
+          await supabase.storage.from('item-photos').remove([photo.storagePath]);
+          await supabase.from('item_photos').delete().eq('id', photoId);
+          queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
+          queryClient.invalidateQueries({ queryKey: ['items'] });
+        }
+      };
+
+      if (Platform.OS === 'web') {
+        if (
+          window.confirm(`${t('confirm.removePhoto.title')}\n${t('confirm.removePhoto.message')}`)
+        ) {
+          doRemove();
+        }
+      } else {
+        Alert.alert(t('confirm.removePhoto.title'), t('confirm.removePhoto.message'), [
+          { text: t('confirm.removePhoto.cancel'), style: 'cancel' },
+          { text: t('confirm.removePhoto.confirm'), style: 'destructive', onPress: doRemove },
+        ]);
+      }
+    },
+    [photos, itemId, queryClient, t],
+  );
 
   const handleDelete = () => {
     if (!item || !canDelete(item)) return;
@@ -58,9 +103,13 @@ export default function EditItemScreen() {
     return <LoadingScreen />;
   }
 
-  const thumbnailUri = item.thumbnailStoragePath
-    ? supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data.publicUrl
-    : undefined;
+  const thumbnailUri =
+    photos.length > 0
+      ? supabase.storage.from('item-photos').getPublicUrl(photos[0].storagePath).data.publicUrl
+      : item.thumbnailStoragePath
+        ? supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
+            .publicUrl
+        : undefined;
 
   const initialData: ItemFormData = {
     name: item.name,
@@ -81,24 +130,34 @@ export default function EditItemScreen() {
     visibility: item.visibility,
   };
 
+  const pickerPhotos = photos.map((p) => ({
+    id: p.id,
+    storagePath: p.storagePath,
+  }));
+
   const heroSection = (
     <View style={styles.heroContainer}>
-      <View
-        style={[
-          styles.heroImageWrapper,
-          { backgroundColor: theme.customColors.surfaceContainerHighest },
-        ]}
-      >
-        {thumbnailUri ? (
-          <Image source={{ uri: thumbnailUri }} style={styles.heroImage} />
-        ) : (
-          <MaterialCommunityIcons
-            name="image-outline"
-            size={iconSize.xl}
-            color={theme.colors.onSurfaceVariant}
-          />
-        )}
-      </View>
+      <Pressable onPress={handleAddPhoto} style={styles.heroImagePressable}>
+        <View
+          style={[
+            styles.heroImageWrapper,
+            { backgroundColor: theme.customColors.surfaceContainerHighest },
+          ]}
+        >
+          {thumbnailUri ? (
+            <Image source={{ uri: thumbnailUri }} style={styles.heroImage} />
+          ) : (
+            <MaterialCommunityIcons
+              name="image-outline"
+              size={64}
+              color={theme.colors.onSurfaceVariant}
+            />
+          )}
+        </View>
+        <View style={[styles.cameraOverlay, { backgroundColor: theme.colors.primary }]}>
+          <MaterialCommunityIcons name="camera" size={16} color={theme.colors.onPrimary} />
+        </View>
+      </Pressable>
       <View style={styles.heroInfo}>
         <Text
           variant="labelSmall"
@@ -110,6 +169,17 @@ export default function EditItemScreen() {
           {item.name}
         </Text>
       </View>
+    </View>
+  );
+
+  const photoSection = (
+    <View style={styles.photoSection}>
+      <PhotoPicker
+        photos={pickerPhotos}
+        onAdd={handleAddPhoto}
+        onRemove={handleRemovePhoto}
+        isUploading={isUploading}
+      />
     </View>
   );
 
@@ -132,10 +202,13 @@ export default function EditItemScreen() {
         isSubmitting={updateItem.isPending}
         isEditMode
         headerComponent={heroSection}
+        photoSection={photoSection}
       />
     </View>
   );
 }
+
+const HERO_SIZE = 160;
 
 const styles = StyleSheet.create({
   container: {
@@ -147,18 +220,31 @@ const styles = StyleSheet.create({
     gap: spacing.base,
     marginBottom: spacing.md,
   },
+  heroImagePressable: {
+    position: 'relative',
+  },
   heroImageWrapper: {
-    width: 100,
-    height: 100,
+    width: HERO_SIZE,
+    height: HERO_SIZE,
     borderRadius: borderRadius.lg,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
   },
   heroImage: {
-    width: 100,
-    height: 100,
+    width: HERO_SIZE,
+    height: HERO_SIZE,
     borderRadius: borderRadius.lg,
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   heroInfo: {
     flex: 1,
@@ -167,5 +253,8 @@ const styles = StyleSheet.create({
   inventoryIdLabel: {
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  photoSection: {
+    marginTop: spacing.md,
   },
 });

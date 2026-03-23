@@ -56,6 +56,7 @@ interface ItemFormProps {
   isSubmitting: boolean;
   isEditMode?: boolean;
   headerComponent?: React.ReactNode;
+  photoSection?: React.ReactNode;
 }
 
 export function ItemForm({
@@ -66,6 +67,7 @@ export function ItemForm({
   isSubmitting,
   isEditMode = false,
   headerComponent,
+  photoSection,
 }: ItemFormProps) {
   const theme = useTheme<AppTheme>();
 
@@ -227,6 +229,8 @@ export function ItemForm({
       keyboardShouldPersistTaps="handled"
     >
       {headerComponent}
+
+      {photoSection}
 
       {/* Name */}
       <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>

@@ -3,9 +3,10 @@ import { Text, ActivityIndicator, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/shared/api/supabase';
-interface PickerPhoto {
+export interface PickerPhoto {
   id: string;
   storagePath: string;
+  localUri?: string;
 }
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 
@@ -36,8 +37,10 @@ export function PhotoPicker({ photos, onAdd, onRemove, isUploading }: PhotoPicke
           >
             <Image
               source={{
-                uri: supabase.storage.from('item-photos').getPublicUrl(photo.storagePath).data
-                  .publicUrl,
+                uri:
+                  photo.localUri ??
+                  supabase.storage.from('item-photos').getPublicUrl(photo.storagePath).data
+                    .publicUrl,
               }}
               style={styles.photoImage}
             />
