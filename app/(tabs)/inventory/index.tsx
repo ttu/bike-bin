@@ -110,7 +110,10 @@ export default function InventoryScreen() {
       {filteredItems.length > 0 && (
         <FAB
           icon="plus"
-          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          style={[
+            styles.fab,
+            { backgroundColor: theme.colors.primary, bottom: spacing.base + insets.bottom + 60 },
+          ]}
           color={theme.colors.onPrimary}
           onPress={handleAddPress}
           accessibilityLabel={t('addItem')}
