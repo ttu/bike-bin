@@ -98,6 +98,8 @@
   "addItem": "Add item",
   "editItem": "Edit item",
   "deleteItem": "Delete item",
+  "removeFromBin": "Remove from Bin",
+  "inventoryId": "Inventory ID: {{id}}",
   "deleteConfirm": "Are you sure you want to delete this item?",
   "confirm": {
     "delete": {
@@ -191,6 +193,7 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Additional notes...",
     "save": "Save",
+    "updateInventory": "Update Inventory",
     "photos": "Photos ({{count}}/5)"
   }
 }

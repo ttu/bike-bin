@@ -78,6 +78,74 @@ export const SUBCATEGORIES: Record<ItemCategory, readonly string[]> = {
 } as const;
 
 /**
+ * Icons for subcategories using MaterialCommunityIcons names.
+ */
+export const SUBCATEGORY_ICONS: Record<string, string> = {
+  // Components
+  drivetrain: 'cog',
+  brakes: 'car-brake-alert',
+  wheels: 'tire',
+  tires_tubes: 'circle-outline',
+  handlebars_stems: 'steering',
+  seatposts_saddles: 'seat',
+  suspension: 'arrow-collapse-vertical',
+  frames: 'triangle-outline',
+  headsets_bearings: 'circle-double',
+  pedals: 'shoe-print',
+  bottom_brackets: 'cog-outline',
+  cables_housing: 'cable-data',
+  other_component: 'dots-horizontal',
+  // Tools
+  multi_tools: 'wrench',
+  wrenches: 'wrench-outline',
+  chain_tools: 'link-variant',
+  tire_levers: 'arrow-up-bold',
+  pumps: 'air-filter',
+  torque_wrenches: 'speedometer',
+  stands: 'easel',
+  cleaning: 'spray-bottle',
+  measurement: 'ruler',
+  other_tool: 'dots-horizontal',
+  // Accessories
+  lights: 'flashlight',
+  locks: 'lock',
+  bags_racks: 'bag-personal',
+  fenders: 'shield-half-full',
+  bottles_cages: 'bottle-soda-outline',
+  computers_gps: 'monitor-dashboard',
+  bells_mirrors: 'bell',
+  other_accessory: 'dots-horizontal',
+  // Consumables
+  chain_lube: 'oil',
+  grease: 'oil-lamp',
+  degreaser: 'bottle-tonic',
+  brake_fluid: 'water',
+  tubeless_sealant: 'seal',
+  thread_locker: 'lock-outline',
+  anti_seize: 'shield-outline',
+  polish: 'auto-fix',
+  other_consumable: 'dots-horizontal',
+  // Clothing
+  jerseys: 'tshirt-crew',
+  shorts_bibs: 'lingerie',
+  jackets_vests: 'coat-rack',
+  gloves: 'hand-back-left',
+  socks: 'shoe-formal',
+  shoes: 'shoe-sneaker',
+  helmets: 'hard-hat',
+  eyewear: 'sunglasses',
+  base_layers: 'tshirt-crew-outline',
+  arm_leg_warmers: 'arm-flex',
+  rain_gear: 'weather-rainy',
+  knee_pads: 'shield-lock',
+  elbow_pads: 'shield-lock-outline',
+  body_armor: 'shield',
+  reflective_gear: 'reflect-vertical',
+  other_protective_gear: 'shield-outline',
+  other_clothing: 'dots-horizontal',
+};
+
+/**
  * Default brand suggestions for bike parts.
  * Users can also input custom brands not in this list.
  */

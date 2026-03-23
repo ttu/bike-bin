@@ -1,6 +1,7 @@
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { AppTheme } from '@/shared/theme';
 
@@ -9,6 +10,7 @@ interface GradientButtonProps {
   onPress?: () => void;
   disabled?: boolean;
   loading?: boolean;
+  icon?: string;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
   testID?: string;
@@ -19,6 +21,7 @@ export function GradientButton({
   onPress,
   disabled = false,
   loading = false,
+  icon,
   style,
   accessibilityLabel,
   testID,
@@ -57,15 +60,25 @@ export function GradientButton({
             size="small"
           />
         ) : (
-          <Text
-            variant="labelLarge"
-            style={[
-              styles.label,
-              { color: isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary },
-            ]}
-          >
-            {children}
-          </Text>
+          <View style={styles.contentRow}>
+            <Text
+              variant="labelLarge"
+              style={[
+                styles.label,
+                { color: isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary },
+              ]}
+            >
+              {children}
+            </Text>
+            {icon && (
+              <MaterialCommunityIcons
+                name={icon as never}
+                size={20}
+                color={isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary}
+                style={styles.icon}
+              />
+            )}
+          </View>
         )}
       </LinearGradient>
     </Pressable>
@@ -94,7 +107,15 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.88,
   },
+  contentRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
+  },
   label: {
     textTransform: 'uppercase' as const,
+  },
+  icon: {
+    marginLeft: 4,
   },
 });

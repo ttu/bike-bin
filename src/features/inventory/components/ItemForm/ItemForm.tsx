@@ -15,6 +15,7 @@ import type { GroupWithRole } from '@/features/groups';
 import { useItems } from '../../hooks/useItems';
 import {
   SUBCATEGORIES,
+  SUBCATEGORY_ICONS,
   DEFAULT_BRANDS,
   AGE_OPTIONS,
   DURATION_OPTIONS,
@@ -53,6 +54,8 @@ interface ItemFormProps {
   onSave: (data: ItemFormData) => void;
   onDelete?: () => void;
   isSubmitting: boolean;
+  isEditMode?: boolean;
+  headerComponent?: React.ReactNode;
 }
 
 export function ItemForm({
@@ -61,6 +64,8 @@ export function ItemForm({
   onSave,
   onDelete,
   isSubmitting,
+  isEditMode = false,
+  headerComponent,
 }: ItemFormProps) {
   const theme = useTheme<AppTheme>();
 
@@ -221,6 +226,8 @@ export function ItemForm({
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
+      {headerComponent}
+
       {/* Name */}
       <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.nameLabel')}
@@ -279,25 +286,45 @@ export function ItemForm({
           <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.subcategoryLabel')}
           </Text>
-          <View style={styles.chipRow}>
-            {currentSubcategories.map((sub) => (
-              <Chip
-                key={sub}
-                selected={subcategory === sub}
-                onPress={() => setSubcategory(subcategory === sub ? '' : sub)}
-                showSelectedCheck={false}
-                textStyle={subcategory === sub ? { color: theme.colors.onPrimary } : undefined}
-                style={[
-                  styles.chip,
-                  {
-                    backgroundColor:
-                      subcategory === sub ? theme.colors.primary : theme.colors.secondaryContainer,
-                  },
-                ]}
-              >
-                {t(`subcategory.${sub}`)}
-              </Chip>
-            ))}
+          <View style={styles.subcategoryGrid}>
+            {currentSubcategories.map((sub) => {
+              const active = subcategory === sub;
+              const subIcon = SUBCATEGORY_ICONS[sub];
+              return (
+                <Pressable
+                  key={sub}
+                  onPress={() => setSubcategory(active ? '' : sub)}
+                  style={[
+                    styles.subcategoryCard,
+                    {
+                      flexBasis: '47%',
+                      flexGrow: 1,
+                      backgroundColor: active
+                        ? theme.colors.primary
+                        : theme.customColors.surfaceContainerLow,
+                      borderColor: active ? theme.colors.primary : theme.colors.outlineVariant,
+                      borderWidth: active ? 2 : 1,
+                    },
+                  ]}
+                >
+                  {subIcon && (
+                    <MaterialCommunityIcons
+                      name={subIcon as never}
+                      size={22}
+                      color={active ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
+                    />
+                  )}
+                  <Text
+                    variant="labelMedium"
+                    style={{
+                      color: active ? theme.colors.onPrimary : theme.colors.onSurface,
+                    }}
+                  >
+                    {t(`subcategory.${sub}`)}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         </>
       )}
@@ -824,9 +851,10 @@ export function ItemForm({
         onPress={handleSubmit}
         loading={isSubmitting}
         disabled={isSubmitting}
+        icon={isEditMode ? 'check-circle-outline' : undefined}
         style={styles.saveButton}
       >
-        {t('form.save')}
+        {isEditMode ? t('form.updateInventory') : t('form.save')}
       </GradientButton>
 
       {/* Delete (edit mode) */}
@@ -837,7 +865,7 @@ export function ItemForm({
           textColor={theme.colors.error}
           style={styles.deleteButton}
         >
-          {t('deleteItem')}
+          {t('removeFromBin')}
         </Button>
       )}
     </ScrollView>
@@ -867,6 +895,19 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: borderRadius.full,
+  },
+  subcategoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  subcategoryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.base,
+    borderRadius: borderRadius.md,
   },
   conditionHeader: {
     flexDirection: 'row',

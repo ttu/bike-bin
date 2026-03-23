@@ -225,6 +225,6 @@ describe('ItemForm', () => {
       />,
     );
 
-    expect(getByText('Delete item')).toBeTruthy();
+    expect(getByText('Remove from Bin')).toBeTruthy();
   });
 });
