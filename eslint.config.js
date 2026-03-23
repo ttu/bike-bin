@@ -6,7 +6,7 @@ const prettierConfig = require('eslint-config-prettier');
 
 module.exports = [
   {
-    ignores: ['node_modules/**', 'dist/**', '.expo/**', 'coverage/**'],
+    ignores: ['node_modules/**', 'dist/**', '.expo/**', 'coverage/**', '.worktrees/**'],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
