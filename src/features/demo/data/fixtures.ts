@@ -78,6 +78,7 @@ export const DEMO_PROFILE: UserProfile = {
   id: DEMO_USER_ID,
   displayName: 'Alex Demo',
   avatarUrl: undefined,
+  distanceUnit: 'km',
   ratingAvg: 4.7,
   ratingCount: 12,
   createdAt: daysAgo(180),

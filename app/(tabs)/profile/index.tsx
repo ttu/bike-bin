@@ -7,7 +7,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import { useBorrowRequests } from '@/features/borrow';
-import { ProfileHeader, useProfile } from '@/features/profile';
+import { ProfileHeader, useProfile, useDistanceUnit } from '@/features/profile';
 import { useThemePreference } from '@/shared/hooks/useThemePreference';
 import { BorrowRequestStatus } from '@/shared/types';
 import type { UserId } from '@/shared/types';
@@ -29,6 +29,7 @@ export default function ProfileScreen() {
 
   const { data: profile } = useProfile(userId || undefined);
   const { preference, setPreference } = useThemePreference();
+  const { distanceUnit, setDistanceUnit } = useDistanceUnit();
   const { data: borrowRequests } = useBorrowRequests();
 
   const incomingPendingCount = (borrowRequests ?? []).filter(
@@ -66,6 +67,11 @@ export default function ProfileScreen() {
     { value: 'system' as ThemePreference, label: t('appearance.system') },
     { value: 'light' as ThemePreference, label: t('appearance.light') },
     { value: 'dark' as ThemePreference, label: t('appearance.dark') },
+  ];
+
+  const distanceUnitButtons = [
+    { value: 'km', label: t('distanceUnit.km') },
+    { value: 'mi', label: t('distanceUnit.mi') },
   ];
 
   return (
@@ -165,6 +171,26 @@ export default function ProfileScreen() {
           value={preference}
           onValueChange={(value) => setPreference(value as ThemePreference)}
           buttons={themeButtons}
+          style={styles.segmentedButtons}
+        />
+      </View>
+
+      {/* Distance Unit */}
+      <View style={[styles.appearanceSection, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.appearanceHeader}>
+          <MaterialCommunityIcons
+            name="map-marker-distance"
+            size={iconSize.md}
+            color={theme.colors.primary}
+          />
+          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+            {t('distanceUnit.title')}
+          </Text>
+        </View>
+        <SegmentedButtons
+          value={distanceUnit}
+          onValueChange={setDistanceUnit}
+          buttons={distanceUnitButtons}
           style={styles.segmentedButtons}
         />
       </View>

@@ -20,6 +20,11 @@
     "light": "Light",
     "dark": "Dark"
   },
+  "distanceUnit": {
+    "title": "Distance Unit",
+    "km": "Kilometers",
+    "mi": "Miles"
+  },
   "about": {
     "title": "About & Legal",
     "appVersion": "App Version",

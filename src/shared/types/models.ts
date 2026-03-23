@@ -31,6 +31,7 @@ export interface UserProfile {
   id: UserId;
   displayName: string | undefined;
   avatarUrl: string | undefined;
+  distanceUnit: string;
   ratingAvg: number;
   ratingCount: number;
   createdAt: string;

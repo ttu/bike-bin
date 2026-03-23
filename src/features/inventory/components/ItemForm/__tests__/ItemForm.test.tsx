@@ -3,6 +3,18 @@ import { renderWithProviders } from '@/test/utils';
 import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemForm } from '../ItemForm';
 
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    from: () => ({
+      select: () => ({ eq: () => ({ single: () => ({ data: null, error: null }) }) }),
+    }),
+  },
+}));
+
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({ user: null, signOut: jest.fn() }),
+}));
+
 jest.mock('@/features/groups', () => ({
   useGroups: () => ({ data: [], isLoading: false }),
 }));

@@ -19,8 +19,8 @@ import {
   DEFAULT_BRANDS,
   AGE_OPTIONS,
   DURATION_OPTIONS,
-  DistanceUnit,
 } from '../../constants';
+import { useDistanceUnit } from '@/features/profile';
 
 const CATEGORIES = [
   ItemCategory.Component,
@@ -103,7 +103,7 @@ export function ItemForm({
   const [age, setAge] = useState(initialData?.age ?? '');
   const [ageMenuVisible, setAgeMenuVisible] = useState(false);
   const [usageKm, setUsageKm] = useState(initialData?.usageKm?.toString() ?? '');
-  const [usageUnit, setUsageUnit] = useState<string>(initialData?.usageUnit ?? DistanceUnit.Km);
+  const { distanceUnit } = useDistanceUnit();
   const [durationMenuVisible, setDurationMenuVisible] = useState(false);
   const [visibility, setVisibility] = useState<Visibility>(
     initialData?.visibility ?? Visibility.Private,
@@ -188,7 +188,7 @@ export function ItemForm({
       storageLocation: storageLocation || undefined,
       age: age || undefined,
       usageKm: usageKm ? parseInt(usageKm, 10) : undefined,
-      usageUnit: usageKm ? usageUnit : undefined,
+      usageUnit: usageKm ? distanceUnit : undefined,
       visibility,
       groupIds: visibility === Visibility.Groups ? groupIds : undefined,
     };
@@ -214,7 +214,7 @@ export function ItemForm({
     storageLocation,
     age,
     usageKm,
-    usageUnit,
+    distanceUnit,
     visibility,
     groupIds,
     isSellable,
@@ -716,7 +716,7 @@ export function ItemForm({
             ))}
           </Menu>
 
-          {/* Usage with unit selector */}
+          {/* Usage */}
           <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
             {t('form.usageLabel')}
           </Text>
@@ -731,48 +731,9 @@ export function ItemForm({
               underlineColor={underlineColor}
               activeUnderlineColor={activeUnderlineColor}
             />
-            <View style={styles.unitToggle}>
-              <Chip
-                selected={usageUnit === DistanceUnit.Km}
-                onPress={() => setUsageUnit(DistanceUnit.Km)}
-                showSelectedCheck={false}
-                textStyle={
-                  usageUnit === DistanceUnit.Km ? { color: theme.colors.onPrimary } : undefined
-                }
-                style={[
-                  styles.unitChip,
-                  {
-                    backgroundColor:
-                      usageUnit === DistanceUnit.Km
-                        ? theme.colors.primary
-                        : theme.colors.secondaryContainer,
-                  },
-                ]}
-                compact
-              >
-                {t('form.usageUnit.km')}
-              </Chip>
-              <Chip
-                selected={usageUnit === DistanceUnit.Mi}
-                onPress={() => setUsageUnit(DistanceUnit.Mi)}
-                showSelectedCheck={false}
-                textStyle={
-                  usageUnit === DistanceUnit.Mi ? { color: theme.colors.onPrimary } : undefined
-                }
-                style={[
-                  styles.unitChip,
-                  {
-                    backgroundColor:
-                      usageUnit === DistanceUnit.Mi
-                        ? theme.colors.primary
-                        : theme.colors.secondaryContainer,
-                  },
-                ]}
-                compact
-              >
-                {t('form.usageUnit.mi')}
-              </Chip>
-            </View>
+            <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+              {distanceUnit}
+            </Text>
           </View>
 
           {/* Storage location with suggestions */}
@@ -980,12 +941,5 @@ const styles = StyleSheet.create({
   },
   usageInput: {
     flex: 1,
-  },
-  unitToggle: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  unitChip: {
-    borderRadius: borderRadius.full,
   },
 });

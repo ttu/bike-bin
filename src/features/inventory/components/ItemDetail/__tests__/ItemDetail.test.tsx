@@ -4,7 +4,7 @@ import { createMockItem } from '@/test/factories';
 import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemDetail } from '../ItemDetail';
 
-// Mock supabase client (needed by PhotoGallery)
+// Mock supabase client (needed by PhotoGallery and useDistanceUnit)
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     storage: {
@@ -13,6 +13,11 @@ jest.mock('@/shared/api/supabase', () => ({
       }),
     },
   },
+}));
+
+// Mock auth for useDistanceUnit hook
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({ user: null, signOut: jest.fn() }),
 }));
 
 describe('ItemDetail', () => {

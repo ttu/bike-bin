@@ -473,6 +473,7 @@ export type Database = {
           avatar_url: string | null;
           created_at: string;
           display_name: string | null;
+          distance_unit: string;
           id: string;
           notification_preferences: Json | null;
           push_token: string | null;
@@ -484,6 +485,7 @@ export type Database = {
           avatar_url?: string | null;
           created_at?: string;
           display_name?: string | null;
+          distance_unit?: string;
           id: string;
           notification_preferences?: Json | null;
           push_token?: string | null;
@@ -495,6 +497,7 @@ export type Database = {
           avatar_url?: string | null;
           created_at?: string;
           display_name?: string | null;
+          distance_unit?: string;
           id?: string;
           notification_preferences?: Json | null;
           push_token?: string | null;

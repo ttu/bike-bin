@@ -10,6 +10,7 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
 import { PhotoGallery } from '@/shared/components';
+import { useDistanceUnit } from '@/features/profile';
 
 const WIDE_BREAKPOINT = 768;
 
@@ -44,6 +45,7 @@ export function ItemDetail({
   const themed = useThemedStyles(theme);
   const { width: windowWidth } = useWindowDimensions();
   const isWide = windowWidth >= WIDE_BREAKPOINT;
+  const { distanceUnit } = useDistanceUnit();
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =
@@ -133,7 +135,7 @@ export function ItemDetail({
             <DetailCard
               icon="road-variant"
               label={t('detail.usageLabel')}
-              value={`${item.usageKm} ${item.usageUnit ?? 'km'}`}
+              value={`${item.usageKm} ${distanceUnit}`}
               theme={theme}
             />
           )}
