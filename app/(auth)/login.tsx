@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useMemo, useState } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -11,15 +11,17 @@ import { supabase } from '@/shared/api/supabase';
 import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
 import { isProduction } from '@/shared/utils/env';
 import { spacing, borderRadius } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 
 export default function LoginScreen() {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('auth');
   const { t: tDemo } = useTranslation('demo');
   const { signInWithGoogle, signInWithApple } = useAuth();
   const { enterDemoMode } = useDemoMode();
   const [isDevExpanded, setIsDevExpanded] = useState(false);
   const [signingInAs, setSigningInAs] = useState<string | null>(null);
+  const themed = useThemedStyles(theme);
 
   const handleDevLogin = async (email: string) => {
     setSigningInAs(email);
@@ -56,81 +58,129 @@ export default function LoginScreen() {
       style={styles.gradient}
     >
       <View style={styles.container}>
+        {/* Logo */}
         <View style={styles.logoSection}>
-          <View style={[styles.iconCircle, { backgroundColor: theme.colors.primaryContainer }]}>
+          <View
+            style={[
+              styles.iconCircle,
+              { backgroundColor: theme.customColors.surfaceContainerLowest },
+            ]}
+          >
             <MaterialCommunityIcons name="bike" size={56} color={theme.colors.primary} />
           </View>
-          <Text
-            variant="headlineLarge"
-            style={[styles.title, { color: theme.colors.onBackground }]}
-          >
+          <Text variant="displaySmall" style={themed.onBackground}>
             {t('welcome.title')}
           </Text>
-          <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+          <Text variant="labelLarge" style={[styles.tagline, themed.onSurfaceVariant]}>
             {t('welcome.tagline')}
           </Text>
         </View>
 
-        <View style={styles.buttonSection}>
-          <Button
-            mode="contained"
+        {/* Auth buttons card */}
+        <View
+          style={[styles.authCard, { backgroundColor: theme.customColors.surfaceContainerLowest }]}
+        >
+          <Pressable
             onPress={signInWithApple}
-            style={styles.button}
-            contentStyle={styles.buttonContent}
-            buttonColor={theme.colors.onBackground}
-            textColor={theme.colors.background}
-            icon="apple"
+            style={({ pressed }) => [
+              styles.appleButton,
+              { backgroundColor: theme.colors.onBackground },
+              pressed && styles.pressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={t('welcome.continueWithApple')}
           >
-            {t('welcome.continueWithApple')}
-          </Button>
+            <MaterialCommunityIcons name="apple" size={20} color={theme.colors.background} />
+            <Text variant="labelLarge" style={{ color: theme.colors.background }}>
+              {t('welcome.continueWithApple')}
+            </Text>
+          </Pressable>
 
-          <Button
-            mode="outlined"
+          <Pressable
             onPress={signInWithGoogle}
-            style={styles.button}
-            contentStyle={styles.buttonContent}
-            icon="google"
+            style={({ pressed }) => [
+              styles.googleButton,
+              { borderColor: theme.colors.outlineVariant },
+              pressed && styles.pressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={t('welcome.continueWithGoogle')}
           >
-            {t('welcome.continueWithGoogle')}
-          </Button>
+            <MaterialCommunityIcons name="google" size={20} color={theme.colors.onSurface} />
+            <Text variant="labelLarge" style={themed.onSurface}>
+              {t('welcome.continueWithGoogle')}
+            </Text>
+          </Pressable>
         </View>
 
-        <Button mode="text" onPress={handleBrowseWithout} style={styles.browseLink}>
-          {t('welcome.browseWithout')} →
+        {/* Browse without signing in */}
+        <Button mode="text" onPress={handleBrowseWithout} textColor={theme.colors.primary}>
+          {t('welcome.browseWithout')}
         </Button>
 
-        <Button
-          mode="contained-tonal"
-          onPress={handleTryDemo}
-          style={styles.demoButton}
-          contentStyle={styles.buttonContent}
-          icon="play-circle-outline"
-        >
-          {tDemo('welcome.tryDemo')}
-        </Button>
+        {/* Divider */}
+        <View style={styles.dividerRow}>
+          <View style={[styles.dividerLine, { backgroundColor: theme.colors.outlineVariant }]} />
+          <Text variant="labelSmall" style={themed.onSurfaceVariant}>
+            OR
+          </Text>
+          <View style={[styles.dividerLine, { backgroundColor: theme.colors.outlineVariant }]} />
+        </View>
 
+        {/* Demo + Dev row */}
+        <View style={styles.secondaryRow}>
+          <Pressable
+            onPress={handleTryDemo}
+            style={({ pressed }) => [
+              styles.secondaryButton,
+              { backgroundColor: theme.customColors.surfaceContainerLow },
+              pressed && styles.pressed,
+            ]}
+            accessibilityRole="button"
+          >
+            <MaterialCommunityIcons
+              name="play-circle-outline"
+              size={18}
+              color={theme.colors.primary}
+            />
+            <Text variant="labelMedium" style={themed.primary}>
+              {tDemo('welcome.tryDemo')}
+            </Text>
+          </Pressable>
+
+          {!isProduction && (
+            <Pressable
+              onPress={() => handleDevLogin(MAIN_TEST_USER.email)}
+              disabled={signingInAs !== null}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                { backgroundColor: theme.customColors.surfaceContainerLow },
+                pressed && styles.pressed,
+                signingInAs !== null && styles.disabled,
+              ]}
+              accessibilityRole="button"
+            >
+              <MaterialCommunityIcons
+                name="bug-outline"
+                size={18}
+                color={theme.colors.onSurfaceVariant}
+              />
+              <Text variant="labelMedium" style={themed.onSurfaceVariant}>
+                {t('devLogin.button')}
+              </Text>
+            </Pressable>
+          )}
+        </View>
+
+        {/* Dev expandable users */}
         {!isProduction && (
           <View style={styles.devSection}>
-            <View style={[styles.devDivider, { backgroundColor: theme.colors.outlineVariant }]} />
-            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              Development
-            </Text>
-            <Button
-              mode="contained-tonal"
-              onPress={() => handleDevLogin(MAIN_TEST_USER.email)}
-              loading={signingInAs === MAIN_TEST_USER.email}
-              disabled={signingInAs !== null}
-              style={styles.devButton}
-              contentStyle={styles.buttonContent}
-              icon="bug-outline"
-            >
-              {t('devLogin.button')}
-            </Button>
             <Button
               mode="text"
               onPress={() => setIsDevExpanded(!isDevExpanded)}
               compact
               icon={isDevExpanded ? 'chevron-up' : 'chevron-down'}
+              textColor={theme.colors.onSurfaceVariant}
             >
               {t('devLogin.otherUsers')}
             </Button>
@@ -144,6 +194,7 @@ export default function LoginScreen() {
                   disabled={signingInAs !== null}
                   compact
                   style={styles.devUserButton}
+                  textColor={theme.colors.onSurfaceVariant}
                 >
                   {user.displayName} ({user.persona})
                 </Button>
@@ -152,6 +203,19 @@ export default function LoginScreen() {
         )}
       </View>
     </LinearGradient>
+  );
+}
+
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        onBackground: { color: theme.colors.onBackground },
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        primary: { color: theme.colors.primary },
+      }),
+    [theme],
   );
 }
 
@@ -167,7 +231,7 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: spacing['2xl'],
+    marginBottom: spacing.xl,
   },
   iconCircle: {
     width: 104,
@@ -176,44 +240,86 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.base,
+    shadowColor: '#181c20',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  title: {
-    fontWeight: '700',
+  tagline: {
+    marginTop: spacing.xs,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  authCard: {
+    width: '100%',
+    maxWidth: 340,
+    borderRadius: borderRadius.lg,
+    padding: spacing.base,
+    gap: spacing.md,
+    marginBottom: spacing.sm,
+    shadowColor: '#181c20',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  appleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    height: 48,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.lg,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    height: 48,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 1,
+  },
+  pressed: {
+    opacity: 0.88,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    width: '100%',
+    maxWidth: 340,
+    marginVertical: spacing.sm,
+  },
+  dividerLine: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+  },
+  secondaryRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
     marginBottom: spacing.sm,
   },
-  buttonSection: {
-    width: '100%',
-    maxWidth: 320,
-    gap: spacing.md,
-  },
-  button: {
-    borderRadius: borderRadius.md,
-  },
-  buttonContent: {
-    paddingVertical: spacing.xs,
-  },
-  browseLink: {
-    marginTop: spacing.lg,
-  },
-  demoButton: {
-    marginTop: spacing.sm,
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
     borderRadius: borderRadius.md,
   },
   devSection: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 340,
     alignItems: 'center',
-    marginTop: spacing.lg,
     gap: spacing.xs,
-  },
-  devDivider: {
-    width: '60%',
-    height: StyleSheet.hairlineWidth,
-    marginBottom: spacing.xs,
-  },
-  devButton: {
-    borderRadius: borderRadius.md,
-    width: '100%',
   },
   devUserButton: {
     width: '100%',
