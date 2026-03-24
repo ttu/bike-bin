@@ -15,6 +15,10 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// Rate limit: 1 delete attempt per user per hour
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const recentAttempts = new Map<string, number>();
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -53,6 +57,21 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.id;
+
+    // Rate limit check
+    const lastAttempt = recentAttempts.get(userId);
+    const now = Date.now();
+    if (lastAttempt && now - lastAttempt < RATE_LIMIT_WINDOW_MS) {
+      const retryAfterSecs = Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastAttempt)) / 1000);
+      return new Response(JSON.stringify({ error: 'Too many requests' }), {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfterSecs),
+        },
+      });
+    }
+    recentAttempts.set(userId, now);
 
     // Service role client for privileged operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);

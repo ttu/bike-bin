@@ -9,7 +9,7 @@ Audit of Bike Bin's Supabase RLS policies, storage bucket policies, Edge Functio
 | Critical | 2     | 2     |
 | High     | 2     | 2     |
 | Medium   | 5     | 5     |
-| Low      | 3     | 1     |
+| Low      | 3     | 2     |
 
 ---
 
@@ -129,13 +129,11 @@ Signup disabled at both `[auth]` and `[auth.email]` level. Email/password login 
 
 ---
 
-### 11. No rate limiting on delete-account Edge Function
+### 11. Rate limiting on delete-account Edge Function — Fixed
 
 **Location:** `supabase/functions/delete-account/index.ts`
 
-No rate limiting — a compromised token could trigger repeated deletion attempts.
-
-**Recommended fix:** Add Edge Function rate limit or Supabase rate-limit config.
+Added in-memory per-user rate limit: 1 attempt per hour. Returns `429 Too Many Requests` with `Retry-After` header.
 
 ---
 
@@ -152,7 +150,7 @@ No auth check — anyone with the anon key can use it as a free geocoding proxy.
 ## TODO — Remaining Items
 
 - [x] **LOW-10**: Disable email/password signup in local config (done — also disable email provider in production Dashboard)
-- [ ] **LOW-11**: Add rate limiting to delete-account Edge Function
+- [x] **LOW-11**: Add rate limiting to delete-account Edge Function
 - [ ] **LOW-12**: Add auth check to geocode-postcode Edge Function
 - [ ] **Future**: Add RLS integration tests that verify unauthorized access is rejected
 - [ ] **Future**: Audit Edge Functions for input validation and injection risks
