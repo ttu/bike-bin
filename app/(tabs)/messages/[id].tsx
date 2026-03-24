@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Appbar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +39,7 @@ export default function ConversationDetailScreen() {
   const conversationId = id as ConversationId | undefined;
   const { user } = useAuth();
 
+  const insets = useSafeAreaInsets();
   const [messageText, setMessageText] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -197,32 +199,34 @@ export default function ConversationDetailScreen() {
         />
 
         {/* Input bar */}
-        <View style={[styles.inputBar, { backgroundColor: theme.colors.surface }]}>
-          <TextInput
-            style={[
-              styles.textInput,
-              {
-                backgroundColor: theme.customColors.surfaceContainerHighest,
-                color: theme.colors.onSurface,
-              },
-            ]}
-            value={messageText}
-            onChangeText={setMessageText}
-            placeholder={t('detail.inputPlaceholder')}
-            placeholderTextColor={theme.colors.onSurfaceVariant}
-            multiline
-            maxLength={2000}
-            accessibilityLabel={t('detail.inputPlaceholder')}
-          />
-          <IconButton
-            icon="send"
-            iconColor={theme.colors.onPrimary}
-            containerColor={theme.colors.primary}
-            size={20}
-            onPress={handleSend}
-            disabled={!messageText.trim() || isSending}
-            accessibilityLabel={t('detail.send')}
-          />
+        <View style={{ backgroundColor: theme.colors.surface, paddingBottom: 60 + insets.bottom }}>
+          <View style={styles.inputBar}>
+            <TextInput
+              style={[
+                styles.textInput,
+                {
+                  backgroundColor: theme.customColors.surfaceContainerHighest,
+                  color: theme.colors.onSurface,
+                },
+              ]}
+              value={messageText}
+              onChangeText={setMessageText}
+              placeholder={t('detail.inputPlaceholder')}
+              placeholderTextColor={theme.colors.onSurfaceVariant}
+              multiline
+              maxLength={2000}
+              accessibilityLabel={t('detail.inputPlaceholder')}
+            />
+            <IconButton
+              icon="send"
+              iconColor={theme.colors.onPrimary}
+              containerColor={theme.colors.primary}
+              size={20}
+              onPress={handleSend}
+              disabled={!messageText.trim() || isSending}
+              accessibilityLabel={t('detail.send')}
+            />
+          </View>
         </View>
       </KeyboardAvoidingView>
     </View>
