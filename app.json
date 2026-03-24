@@ -8,6 +8,8 @@
     "userInterfaceStyle": "automatic",
     "scheme": "bike-bin",
     "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#006857"
     },
     "assetBundlePatterns": ["**/*"],
@@ -18,6 +20,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#006857"
       },
       "package": "com.bikebin.app",
