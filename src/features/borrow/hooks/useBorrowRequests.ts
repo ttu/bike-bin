@@ -56,7 +56,7 @@ export function useBorrowRequests() {
 
       // Fetch all profiles in one query
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('id, display_name, avatar_url')
         .in('id', Array.from(userIds));
 

@@ -6,7 +6,18 @@ export type Database = {
       [_ in never]: never;
     };
     Views: {
-      [_ in never]: never;
+      public_profiles: {
+        Row: {
+          id: string;
+          display_name: string | null;
+          avatar_url: string | null;
+          rating_avg: number | null;
+          rating_count: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       graphql: {

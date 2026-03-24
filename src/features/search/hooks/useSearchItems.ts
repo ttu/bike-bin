@@ -124,7 +124,7 @@ async function fetchOwnerProfiles(ownerIds: string[]): Promise<Map<string, Owner
   if (ownerIds.length === 0) return map;
 
   const { data } = await supabase
-    .from('profiles')
+    .from('public_profiles')
     .select('id, display_name, avatar_url, rating_avg, rating_count')
     .in('id', ownerIds);
 

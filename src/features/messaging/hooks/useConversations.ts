@@ -79,7 +79,7 @@ export function useConversations() {
         let otherAvatar: string | undefined;
         if (otherParticipant) {
           const { data: profile } = await supabase
-            .from('profiles')
+            .from('public_profiles')
             .select('display_name, avatar_url')
             .eq('id', otherParticipant.user_id)
             .single();

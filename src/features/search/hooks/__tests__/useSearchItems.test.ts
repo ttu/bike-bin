@@ -81,7 +81,7 @@ describe('useSearchItems', () => {
 
     // Default: profiles fetch returns empty
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'profiles') {
+      if (table === 'public_profiles') {
         return {
           select: () => ({
             in: () => Promise.resolve({ data: [], error: null }),
@@ -270,7 +270,7 @@ describe('useSearchItems', () => {
     mockRpc.mockResolvedValue({ data: [row], error: null });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'profiles') {
+      if (table === 'public_profiles') {
         return {
           select: () => ({
             in: () =>
