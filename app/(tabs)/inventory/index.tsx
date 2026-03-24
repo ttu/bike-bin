@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { Text, FAB, Searchbar, useTheme } from 'react-native-paper';
+import { View, FlatList, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import { Text, FAB, Chip, Searchbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import type { Item, ItemCategory } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { SyncBanner } from '@/features/auth/components/SyncBanner/SyncBanner';
 import { useLocalInventory } from '@/features/auth/hooks/useLocalInventory';
-import { useItems } from '@/features/inventory';
+import { useItems, useUserTags } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
@@ -32,6 +32,8 @@ export default function InventoryScreen() {
 
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { data: userTags } = useUserTags();
 
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
@@ -47,8 +49,11 @@ export default function InventoryScreen() {
     if (searchQuery.trim()) {
       result = result.filter((item) => matchesSearch(item, searchQuery.trim()));
     }
+    if (selectedTags.length > 0) {
+      result = result.filter((item) => item.tags.some((tag) => selectedTags.includes(tag)));
+    }
     return result;
-  }, [items, selectedCategory, searchQuery]);
+  }, [items, selectedCategory, searchQuery, selectedTags]);
 
   const handleItemPress = useCallback((item: Item) => {
     router.push(`/(tabs)/inventory/${item.id}` as never);
@@ -61,6 +66,12 @@ export default function InventoryScreen() {
       router.push('/(tabs)/inventory/new' as never);
     }
   }, [selectedCategory]);
+
+  const toggleTag = useCallback((tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }, []);
 
   const renderItem = useCallback(
     ({ item }: { item: Item }) => <ItemCard item={item} onPress={handleItemPress} />,
@@ -100,6 +111,39 @@ export default function InventoryScreen() {
         {t('categoriesLabel')}
       </Text>
       <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+
+      {userTags && userTags.length > 0 && (
+        <>
+          <Text
+            variant="labelLarge"
+            style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
+          >
+            {t('tagsLabel')}
+          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tagFilterRow}
+          >
+            {userTags.map((tag) => {
+              const active = selectedTags.includes(tag);
+              return (
+                <Chip
+                  key={tag}
+                  selected={active}
+                  onPress={() => toggleTag(tag)}
+                  showSelectedCheck={false}
+                  style={active ? { backgroundColor: theme.colors.primary } : undefined}
+                  textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+                  compact
+                >
+                  {tag}
+                </Chip>
+              );
+            })}
+          </ScrollView>
+        </>
+      )}
 
       {!isLoading && filteredItems.length === 0 ? (
         <EmptyState
@@ -180,6 +224,11 @@ const styles = StyleSheet.create({
   itemCount: {
     textAlign: 'center',
     paddingVertical: spacing.md,
+  },
+  tagFilterRow: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
   },
   fab: {
     position: 'absolute',

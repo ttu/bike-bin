@@ -82,6 +82,7 @@ export function createMockItemRow(overrides?: Record<string, unknown>): Record<s
     purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
+    tags: [],
     created_at: faker.date.past().toISOString(),
     updated_at: faker.date.recent().toISOString(),
     ...overrides,
@@ -117,6 +118,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
+    tags: [],
     thumbnailStoragePath: undefined,
     ...overrides,
   };

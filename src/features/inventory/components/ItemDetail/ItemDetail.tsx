@@ -107,6 +107,23 @@ export function ItemDetail({
             </Text>
           </Chip>
         </View>
+
+        {/* Tags */}
+        {item.tags.length > 0 && (
+          <View style={[styles.chipRow, { marginTop: spacing.sm }]}>
+            {item.tags.map((tag) => (
+              <Chip
+                key={tag}
+                compact
+                style={[styles.statusChip, { backgroundColor: theme.colors.surfaceVariant }]}
+              >
+                <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {tag}
+                </Text>
+              </Chip>
+            ))}
+          </View>
+        )}
       </View>
 
       {/* Detail cards */}

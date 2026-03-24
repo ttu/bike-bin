@@ -10,6 +10,8 @@ import type { GroupId } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
 
 import { validateItem, type ItemFormData, type ItemFormErrors } from '../../utils/validation';
+import { useUserTags } from '../../hooks/useUserTags';
+import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useGroups } from '@/features/groups';
 import type { GroupWithRole } from '@/features/groups';
 import { useItems } from '../../hooks/useItems';
@@ -109,6 +111,10 @@ export function ItemForm({
     initialData?.visibility ?? Visibility.Private,
   );
   const [groupIds, setGroupIds] = useState<GroupId[]>(initialData?.groupIds ?? []);
+  const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
+  const [tagInput, setTagInput] = useState('');
+  const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState(false);
+  const { data: userTags } = useUserTags();
   const [showOptional, setShowOptional] = useState(false);
   const [errors, setErrors] = useState<ItemFormErrors>({});
 
@@ -172,6 +178,32 @@ export function ItemForm({
     }
   }, []);
 
+  const filteredTagSuggestions = useMemo(() => {
+    if (!userTags || !tagInput.trim()) return [];
+    const q = tagInput.toLowerCase();
+    return userTags.filter(
+      (t) =>
+        t.toLowerCase().includes(q) &&
+        !tags.some((existing) => existing.toLowerCase() === t.toLowerCase()),
+    );
+  }, [userTags, tagInput, tags]);
+
+  const handleAddTag = useCallback(
+    (rawInput: string) => {
+      const tag = sanitizeTag(rawInput);
+      if (canAddTag(tag, tags)) {
+        setTags((prev) => [...prev, tag]);
+      }
+      setTagInput('');
+      setTagSuggestionsVisible(false);
+    },
+    [tags],
+  );
+
+  const handleRemoveTag = useCallback((tagToRemove: string) => {
+    setTags((prev) => prev.filter((t) => t !== tagToRemove));
+  }, []);
+
   const handleSubmit = useCallback(() => {
     const formData: ItemFormData = {
       name,
@@ -191,6 +223,7 @@ export function ItemForm({
       usageUnit: usageKm ? distanceUnit : undefined,
       visibility,
       groupIds: visibility === Visibility.Groups ? groupIds : undefined,
+      tags,
     };
 
     const validationErrors = validateItem(formData);
@@ -217,6 +250,7 @@ export function ItemForm({
     distanceUnit,
     visibility,
     groupIds,
+    tags,
     isSellable,
     isBorrowable,
     onSave,
@@ -808,6 +842,74 @@ export function ItemForm({
             underlineColor={underlineColor}
             activeUnderlineColor={activeUnderlineColor}
           />
+
+          {/* Tags */}
+          <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+            {t('form.tagsLabel')}
+          </Text>
+          {tags.length > 0 && (
+            <View style={styles.chipRow}>
+              {tags.map((tag) => (
+                <Chip key={tag} onClose={() => handleRemoveTag(tag)} style={styles.chip} compact>
+                  {tag}
+                </Chip>
+              ))}
+            </View>
+          )}
+          <View style={styles.autocompleteWrapper}>
+            <TextInput
+              mode="flat"
+              value={tagInput}
+              onChangeText={(text) => {
+                if (text.endsWith(',')) {
+                  handleAddTag(text.slice(0, -1));
+                  return;
+                }
+                setTagInput(text);
+                setTagSuggestionsVisible(
+                  text.trim().length > 0 && filteredTagSuggestions.length > 0,
+                );
+              }}
+              onFocus={() => {
+                if (tagInput.trim() && filteredTagSuggestions.length > 0) {
+                  setTagSuggestionsVisible(true);
+                }
+              }}
+              onBlur={() => {
+                setTimeout(() => setTagSuggestionsVisible(false), 200);
+              }}
+              onSubmitEditing={() => handleAddTag(tagInput)}
+              placeholder={t('form.tagsPlaceholder')}
+              style={softInputStyle}
+              underlineColor={underlineColor}
+              activeUnderlineColor={activeUnderlineColor}
+              returnKeyType="done"
+            />
+            {tagSuggestionsVisible && filteredTagSuggestions.length > 0 && (
+              <View
+                style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}
+              >
+                <ScrollView
+                  style={styles.suggestionsList}
+                  keyboardShouldPersistTaps="handled"
+                  nestedScrollEnabled
+                >
+                  {filteredTagSuggestions.map((suggestion) => (
+                    <Pressable
+                      key={suggestion}
+                      onPress={() => handleAddTag(suggestion)}
+                      style={({ pressed }) => [
+                        styles.suggestionItem,
+                        pressed && { backgroundColor: theme.colors.surfaceVariant },
+                      ]}
+                    >
+                      <Text variant="bodyMedium">{suggestion}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
         </View>
       )}
 

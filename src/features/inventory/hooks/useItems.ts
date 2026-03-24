@@ -108,6 +108,7 @@ export function useCreateItem() {
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility ?? 'private',
+          tags: formData.tags ?? [],
         })
         .select()
         .single();
@@ -125,6 +126,7 @@ export function useCreateItem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['user-tags'] });
     },
   });
 }
@@ -155,6 +157,7 @@ export function useUpdateItem() {
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility,
+          tags: formData.tags ?? [],
         })
         .eq('id', id)
         .select()
@@ -175,6 +178,7 @@ export function useUpdateItem() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
       queryClient.invalidateQueries({ queryKey: ['items', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['user-tags'] });
     },
   });
 }

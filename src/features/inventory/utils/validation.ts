@@ -25,6 +25,7 @@ export interface ItemFormData {
   pickupLocationId?: LocationId;
   visibility?: Visibility;
   groupIds?: GroupId[];
+  tags?: string[];
 }
 
 export type ItemFormErrors = Partial<Record<keyof ItemFormData, string>>;

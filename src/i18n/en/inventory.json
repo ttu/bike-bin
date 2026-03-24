@@ -198,11 +198,15 @@
     "descriptionPlaceholder": "Additional notes...",
     "save": "Save",
     "updateInventory": "Update Inventory",
-    "photos": "Photos ({{count}}/5)"
+    "photos": "Photos ({{count}}/5)",
+    "tagsLabel": "Tags",
+    "tagsPlaceholder": "Add a tag..."
   },
   "photos": {
     "primaryPhoto": "Primary photo",
     "setAsPrimary": "Tap to set as primary photo",
     "removePhoto": "Remove photo"
-  }
+  },
+  "tagsLabel": "Tags",
+  "tagsEmpty": "No tags"
 }

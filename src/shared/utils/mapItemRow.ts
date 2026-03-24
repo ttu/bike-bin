@@ -35,6 +35,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     visibility: row.visibility as Visibility,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    tags: (row.tags as string[]) ?? [],
     thumbnailStoragePath: undefined,
   };
 }

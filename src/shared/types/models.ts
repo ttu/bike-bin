@@ -74,6 +74,7 @@ export interface Item {
   visibility: Visibility;
   createdAt: string;
   updatedAt: string;
+  tags: string[];
   thumbnailStoragePath: string | undefined;
 }
 

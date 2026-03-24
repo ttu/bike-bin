@@ -6,18 +6,7 @@ export type Database = {
       [_ in never]: never;
     };
     Views: {
-      public_profiles: {
-        Row: {
-          id: string;
-          display_name: string | null;
-          avatar_url: string | null;
-          rating_avg: number | null;
-          rating_count: number | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Relationships: [];
-      };
+      [_ in never]: never;
     };
     Functions: {
       graphql: {
@@ -39,6 +28,38 @@ export type Database = {
   };
   public: {
     Tables: {
+      bike_photos: {
+        Row: {
+          bike_id: string;
+          created_at: string;
+          id: string;
+          sort_order: number;
+          storage_path: string;
+        };
+        Insert: {
+          bike_id: string;
+          created_at?: string;
+          id?: string;
+          sort_order?: number;
+          storage_path: string;
+        };
+        Update: {
+          bike_id?: string;
+          created_at?: string;
+          id?: string;
+          sort_order?: number;
+          storage_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bike_photos_bike_id_fkey';
+            columns: ['bike_id'];
+            isOneToOne: false;
+            referencedRelation: 'bikes';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       bikes: {
         Row: {
           brand: string | null;
@@ -79,6 +100,13 @@ export type Database = {
             columns: ['owner_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bikes_owner_id_fkey';
+            columns: ['owner_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -126,6 +154,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'borrow_requests_requester_id_fkey';
+            columns: ['requester_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       conversation_participants: {
@@ -156,6 +191,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'conversation_participants_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       conversations: {
@@ -183,6 +225,33 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      geocode_cache: {
+        Row: {
+          area_name: string;
+          cached_at: string | null;
+          country: string;
+          lat: number;
+          lng: number;
+          postcode: string;
+        };
+        Insert: {
+          area_name: string;
+          cached_at?: string | null;
+          country?: string;
+          lat: number;
+          lng: number;
+          postcode: string;
+        };
+        Update: {
+          area_name?: string;
+          cached_at?: string | null;
+          country?: string;
+          lat?: number;
+          lng?: number;
+          postcode?: string;
+        };
+        Relationships: [];
       };
       group_members: {
         Row: {
@@ -216,6 +285,13 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'group_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -310,6 +386,7 @@ export type Database = {
         Row: {
           age: string | null;
           availability_types: string[] | null;
+          bike_id: string | null;
           borrow_duration: string | null;
           brand: string | null;
           category: Database['public']['Enums']['item_category'];
@@ -327,6 +404,7 @@ export type Database = {
           status: Database['public']['Enums']['item_status'];
           storage_location: string | null;
           subcategory: string | null;
+          tags: string[];
           updated_at: string;
           usage_km: number | null;
           usage_unit: string | null;
@@ -335,6 +413,7 @@ export type Database = {
         Insert: {
           age?: string | null;
           availability_types?: string[] | null;
+          bike_id?: string | null;
           borrow_duration?: string | null;
           brand?: string | null;
           category: Database['public']['Enums']['item_category'];
@@ -352,6 +431,7 @@ export type Database = {
           status?: Database['public']['Enums']['item_status'];
           storage_location?: string | null;
           subcategory?: string | null;
+          tags?: string[];
           updated_at?: string;
           usage_km?: number | null;
           usage_unit?: string | null;
@@ -360,6 +440,7 @@ export type Database = {
         Update: {
           age?: string | null;
           availability_types?: string[] | null;
+          bike_id?: string | null;
           borrow_duration?: string | null;
           brand?: string | null;
           category?: Database['public']['Enums']['item_category'];
@@ -377,6 +458,7 @@ export type Database = {
           status?: Database['public']['Enums']['item_status'];
           storage_location?: string | null;
           subcategory?: string | null;
+          tags?: string[];
           updated_at?: string;
           usage_km?: number | null;
           usage_unit?: string | null;
@@ -384,10 +466,24 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: 'items_bike_id_fkey';
+            columns: ['bike_id'];
+            isOneToOne: false;
+            referencedRelation: 'bikes';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'items_owner_id_fkey';
             columns: ['owner_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'items_owner_id_fkey';
+            columns: ['owner_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
           {
@@ -436,6 +532,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'messages_sender_id_fkey';
+            columns: ['sender_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       notifications: {
@@ -475,6 +578,13 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -564,6 +674,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'ratings_from_user_id_fkey';
+            columns: ['from_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'ratings_item_id_fkey';
             columns: ['item_id'];
             isOneToOne: false;
@@ -575,6 +692,13 @@ export type Database = {
             columns: ['to_user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ratings_to_user_id_fkey';
+            columns: ['to_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -618,6 +742,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'reports_reporter_id_fkey';
+            columns: ['reporter_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       saved_locations: {
@@ -657,6 +788,13 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'saved_locations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -730,6 +868,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'support_requests_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
     };
@@ -773,6 +918,36 @@ export type Database = {
           f_table_schema?: unknown;
           srid?: number | null;
           type?: string | null;
+        };
+        Relationships: [];
+      };
+      public_profiles: {
+        Row: {
+          avatar_url: string | null;
+          created_at: string | null;
+          display_name: string | null;
+          id: string | null;
+          rating_avg: number | null;
+          rating_count: number | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          avatar_url?: string | null;
+          created_at?: string | null;
+          display_name?: string | null;
+          id?: string | null;
+          rating_avg?: number | null;
+          rating_count?: number | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          avatar_url?: string | null;
+          created_at?: string | null;
+          display_name?: string | null;
+          id?: string | null;
+          rating_avg?: number | null;
+          rating_count?: number | null;
+          updated_at?: string | null;
         };
         Relationships: [];
       };
@@ -905,6 +1080,14 @@ export type Database = {
             };
             Returns: string;
           };
+      can_see_item: {
+        Args: { p_item_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      conversation_has_no_participants: {
+        Args: { p_conversation_id: string };
+        Returns: boolean;
+      };
       disablelongtransactions: { Args: never; Returns: string };
       dropgeometrycolumn:
         | {
@@ -1036,7 +1219,21 @@ export type Database = {
         Returns: boolean;
       };
       geomfromewkt: { Args: { '': string }; Returns: unknown };
+      get_user_tags: { Args: never; Returns: string[] };
       gettransactionid: { Args: never; Returns: unknown };
+      is_conversation_participant: {
+        Args: { p_conversation_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      is_group_admin: {
+        Args: { p_group_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      is_group_member: {
+        Args: { p_group_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      is_public_group: { Args: { p_group_id: string }; Returns: boolean };
       longtransactionsenabled: { Args: never; Returns: boolean };
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
@@ -1703,12 +1900,16 @@ export type Database = {
         };
         Returns: string;
       };
+      user_shares_group_with_item: {
+        Args: { p_item_id: string; p_user_id: string };
+        Returns: boolean;
+      };
     };
     Enums: {
       bike_type: 'road' | 'gravel' | 'mtb' | 'city' | 'touring' | 'other';
       borrow_request_status: 'pending' | 'accepted' | 'rejected' | 'returned' | 'cancelled';
       group_role: 'admin' | 'member';
-      item_category: 'component' | 'tool' | 'accessory' | 'consumable' | 'clothing' | 'bike';
+      item_category: 'component' | 'tool' | 'accessory' | 'clothing' | 'bike' | 'consumable';
       item_condition: 'new' | 'good' | 'worn' | 'broken';
       item_status: 'stored' | 'mounted' | 'loaned' | 'reserved' | 'donated' | 'sold' | 'archived';
       item_visibility: 'private' | 'groups' | 'all';
@@ -1855,7 +2056,7 @@ export const Constants = {
       bike_type: ['road', 'gravel', 'mtb', 'city', 'touring', 'other'],
       borrow_request_status: ['pending', 'accepted', 'rejected', 'returned', 'cancelled'],
       group_role: ['admin', 'member'],
-      item_category: ['component', 'tool', 'accessory', 'consumable', 'clothing', 'bike'],
+      item_category: ['component', 'tool', 'accessory', 'clothing', 'bike', 'consumable'],
       item_condition: ['new', 'good', 'worn', 'broken'],
       item_status: ['stored', 'mounted', 'loaned', 'reserved', 'donated', 'sold', 'archived'],
       item_visibility: ['private', 'groups', 'all'],

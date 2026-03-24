@@ -155,6 +155,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(120),
     updatedAt: daysAgo(30),
+    tags: [],
     thumbnailStoragePath: undefined,
   },
   {
@@ -182,6 +183,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(60),
     updatedAt: daysAgo(5),
+    tags: [],
     thumbnailStoragePath: undefined,
   },
   {
@@ -209,6 +211,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(90),
     updatedAt: daysAgo(15),
+    tags: [],
     thumbnailStoragePath: undefined,
   },
   {
@@ -236,6 +239,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(45),
     updatedAt: daysAgo(3),
+    tags: [],
     thumbnailStoragePath: undefined,
   },
   {
@@ -263,6 +267,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(30),
     updatedAt: daysAgo(1),
+    tags: [],
     thumbnailStoragePath: undefined,
   },
   {
@@ -291,6 +296,7 @@ export const DEMO_ITEMS: Item[] = [
     visibility: Visibility.All,
     createdAt: daysAgo(10),
     updatedAt: daysAgo(10),
+    tags: [],
     thumbnailStoragePath: undefined,
   },
 ];
