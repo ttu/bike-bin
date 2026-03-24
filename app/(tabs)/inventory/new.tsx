@@ -3,7 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/features/auth';
 import { useLocalInventory } from '@/features/auth/hooks/useLocalInventory';
 import { useCreateItem } from '@/features/inventory';
@@ -19,7 +18,6 @@ import type { ItemId, UserId } from '@/shared/types';
 export default function NewItemScreen() {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
-  const insets = useSafeAreaInsets();
   const { isAuthenticated } = useAuth();
   const createItem = useCreateItem();
   const { addItem } = useLocalInventory();
@@ -94,12 +92,7 @@ export default function NewItemScreen() {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('addItem')} />

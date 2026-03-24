@@ -2,7 +2,6 @@ import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BikeId, Bike } from '@/shared/types';
 import type { TFunction } from 'i18next';
 import type { AppTheme } from '@/shared/theme';
@@ -16,7 +15,6 @@ const WIDE_BREAKPOINT = 768;
 export default function BikeDetailScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
-  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const bikeId = id as BikeId;
 
@@ -26,23 +24,11 @@ export default function BikeDetailScreen() {
   const isWide = windowWidth >= WIDE_BREAKPOINT;
 
   if (isLoading || !bike) {
-    return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.colors.background, paddingTop: insets.top },
-        ]}
-      />
-    );
+    return <View style={[styles.container, { backgroundColor: theme.colors.background }]} />;
   }
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />

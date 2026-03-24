@@ -1,7 +1,6 @@
 import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useItem, useItemPhotos, useUpdateItemStatus, useDeleteItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
@@ -12,7 +11,6 @@ import type { ItemId } from '@/shared/types';
 
 export default function ItemDetailScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation('exchange');
   const { t: tInv } = useTranslation('inventory');
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -86,12 +84,7 @@ export default function ItemDetailScreen() {
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />

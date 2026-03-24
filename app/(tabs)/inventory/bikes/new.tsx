@@ -3,7 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCreateBike } from '@/features/bikes';
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
@@ -11,7 +10,6 @@ import type { BikeFormData } from '@/features/bikes';
 export default function NewBikeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('bikes');
-  const insets = useSafeAreaInsets();
   const createBike = useCreateBike();
 
   const handleSave = useCallback(
@@ -26,12 +24,7 @@ export default function NewBikeScreen() {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('addBike')} />

@@ -4,7 +4,6 @@ import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useItem,
@@ -31,7 +30,6 @@ function formatInventoryId(id: string): string {
 export default function EditItemScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
-  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const itemId = id as ItemId;
   const queryClient = useQueryClient();
@@ -184,12 +182,7 @@ export default function EditItemScreen() {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('editItem')} />

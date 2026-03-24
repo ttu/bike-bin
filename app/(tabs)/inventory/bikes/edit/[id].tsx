@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { BikeId } from '@/shared/types';
 import {
@@ -19,7 +18,6 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export default function EditBikeScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation('bikes');
   const { id } = useLocalSearchParams<{ id: string }>();
   const bikeId = id as BikeId;
@@ -101,12 +99,7 @@ export default function EditBikeScreen() {
   if (!bike) return null;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('editBike')} />

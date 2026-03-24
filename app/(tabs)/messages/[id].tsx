@@ -9,7 +9,6 @@ import {
   Alert,
 } from 'react-native';
 import { Appbar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
@@ -132,10 +131,7 @@ export default function ConversationDetailScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.screen, { backgroundColor: theme.colors.background }]}
-      edges={['top']}
-    >
+    <View style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -229,7 +225,7 @@ export default function ConversationDetailScreen() {
           />
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
