@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Alert, Image, Platform, Pressable, View, StyleSheet } from 'react-native';
+import { Alert, Image, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +48,30 @@ export default function EditItemScreen() {
   const handleAddPhoto = useCallback(() => {
     pickAndUpload(itemId);
   }, [pickAndUpload, itemId]);
+
+  const handleSetPrimary = useCallback(
+    async (photoId: string) => {
+      const tapped = photos.find((p) => p.id === photoId);
+      const current = photos[0];
+      if (!tapped || !current || tapped.id === current.id) return;
+
+      const tappedOrder = tapped.sortOrder;
+      const currentOrder = current.sortOrder;
+
+      await supabase
+        .from('item_photos')
+        .update({ sort_order: currentOrder })
+        .eq('id', tapped.id);
+      await supabase
+        .from('item_photos')
+        .update({ sort_order: tappedOrder })
+        .eq('id', current.id);
+
+      queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+    },
+    [photos, itemId, queryClient],
+  );
 
   const handleRemovePhoto = useCallback(
     (photoId: string) => {
@@ -135,27 +159,22 @@ export default function EditItemScreen() {
 
   const heroSection = (
     <View style={styles.heroContainer}>
-      <Pressable onPress={handleAddPhoto} style={styles.heroImagePressable}>
-        <View
-          style={[
-            styles.heroImageWrapper,
-            { backgroundColor: theme.customColors.surfaceContainerHighest },
-          ]}
-        >
-          {thumbnailUri ? (
-            <Image source={{ uri: thumbnailUri }} style={styles.heroImage} />
-          ) : (
-            <MaterialCommunityIcons
-              name="image-outline"
-              size={64}
-              color={theme.colors.onSurfaceVariant}
-            />
-          )}
-        </View>
-        <View style={[styles.cameraOverlay, { backgroundColor: theme.colors.primary }]}>
-          <MaterialCommunityIcons name="camera" size={16} color={theme.colors.onPrimary} />
-        </View>
-      </Pressable>
+      <View
+        style={[
+          styles.heroImageWrapper,
+          { backgroundColor: theme.customColors.surfaceContainerHighest },
+        ]}
+      >
+        {thumbnailUri ? (
+          <Image source={{ uri: thumbnailUri }} style={styles.heroImage} />
+        ) : (
+          <MaterialCommunityIcons
+            name="image-outline"
+            size={64}
+            color={theme.colors.onSurfaceVariant}
+          />
+        )}
+      </View>
       <View style={styles.heroInfo}>
         <Text
           variant="labelSmall"
@@ -176,6 +195,7 @@ export default function EditItemScreen() {
         photos={pickerPhotos}
         onAdd={handleAddPhoto}
         onRemove={handleRemovePhoto}
+        onSetPrimary={handleSetPrimary}
         isUploading={isUploading}
       />
     </View>
@@ -213,9 +233,6 @@ const styles = StyleSheet.create({
     gap: spacing.base,
     marginBottom: spacing.md,
   },
-  heroImagePressable: {
-    position: 'relative',
-  },
   heroImageWrapper: {
     width: HERO_SIZE,
     height: HERO_SIZE,
@@ -228,16 +245,6 @@ const styles = StyleSheet.create({
     width: HERO_SIZE,
     height: HERO_SIZE,
     borderRadius: borderRadius.lg,
-  },
-  cameraOverlay: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   heroInfo: {
     flex: 1,

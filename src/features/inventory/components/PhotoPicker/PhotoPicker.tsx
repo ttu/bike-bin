@@ -16,10 +16,17 @@ interface PhotoPickerProps {
   photos: PickerPhoto[];
   onAdd: () => void;
   onRemove?: (photoId: string) => void;
+  onSetPrimary?: (photoId: string) => void;
   isUploading: boolean;
 }
 
-export function PhotoPicker({ photos, onAdd, onRemove, isUploading }: PhotoPickerProps) {
+export function PhotoPicker({
+  photos,
+  onAdd,
+  onRemove,
+  onSetPrimary,
+  isUploading,
+}: PhotoPickerProps) {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
   const canAdd = photos.length < MAX_PHOTOS;
@@ -31,36 +38,45 @@ export function PhotoPicker({ photos, onAdd, onRemove, isUploading }: PhotoPicke
       </Text>
       <View style={styles.grid}>
         {photos.map((photo, index) => (
-          <View
+          <Pressable
             key={photo.id}
-            style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}
+            onPress={index !== 0 && onSetPrimary ? () => onSetPrimary(photo.id) : undefined}
+            accessibilityLabel={
+              index === 0
+                ? t('photos.primaryPhoto')
+                : t('photos.setAsPrimary')
+            }
           >
-            <Image
-              source={{
-                uri:
-                  photo.localUri ??
-                  supabase.storage.from('item-photos').getPublicUrl(photo.storagePath).data
-                    .publicUrl,
-              }}
-              style={styles.photoImage}
-            />
-            {index === 0 && (
-              <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primary }]}>
-                <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
-                  1
-                </Text>
-              </View>
-            )}
-            {onRemove && (
-              <Pressable
-                style={[styles.removeButton, { backgroundColor: theme.colors.error }]}
-                onPress={() => onRemove(photo.id)}
-                accessibilityLabel="Remove photo"
-              >
-                <MaterialCommunityIcons name="close" size={14} color={theme.colors.onError} />
-              </Pressable>
-            )}
-          </View>
+            <View
+              style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}
+            >
+              <Image
+                source={{
+                  uri:
+                    photo.localUri ??
+                    supabase.storage.from('item-photos').getPublicUrl(photo.storagePath).data
+                      .publicUrl,
+                }}
+                style={styles.photoImage}
+              />
+              {index === 0 && (
+                <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primary }]}>
+                  <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
+                    1
+                  </Text>
+                </View>
+              )}
+              {onRemove && (
+                <Pressable
+                  style={[styles.removeButton, { backgroundColor: theme.colors.error }]}
+                  onPress={() => onRemove(photo.id)}
+                  accessibilityLabel={t('photos.removePhoto')}
+                >
+                  <MaterialCommunityIcons name="close" size={14} color={theme.colors.onError} />
+                </Pressable>
+              )}
+            </View>
+          </Pressable>
         ))}
 
         {canAdd && (

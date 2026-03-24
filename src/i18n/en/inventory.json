@@ -199,5 +199,10 @@
     "save": "Save",
     "updateInventory": "Update Inventory",
     "photos": "Photos ({{count}}/5)"
+  },
+  "photos": {
+    "primaryPhoto": "Primary photo",
+    "setAsPrimary": "Tap to set as primary photo",
+    "removePhoto": "Remove photo"
   }
 }
