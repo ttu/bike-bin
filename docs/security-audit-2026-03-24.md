@@ -2,14 +2,14 @@
 
 ## Summary
 
-Audit of Bike Bin's Supabase RLS policies, storage bucket policies, Edge Functions, auth configuration, and client-side data access patterns. 12 findings across 4 severity levels — 9 fixed, 3 remaining.
+Audit of Bike Bin's Supabase RLS policies, storage bucket policies, Edge Functions, auth configuration, and client-side data access patterns. 12 findings across 4 severity levels — all fixed.
 
 | Priority | Count | Fixed |
 | -------- | ----- | ----- |
 | Critical | 2     | 2     |
 | High     | 2     | 2     |
 | Medium   | 5     | 5     |
-| Low      | 3     | 2     |
+| Low      | 3     | 3     |
 
 ---
 
@@ -137,13 +137,13 @@ Added in-memory per-user rate limit: 1 attempt per hour. Returns `429 Too Many R
 
 ---
 
-### 12. Geocode function requires no authentication
+### 12. Geocode function auth check — Fixed
 
 **Location:** `supabase/functions/geocode-postcode/index.ts`
 
-No auth check — anyone with the anon key can use it as a free geocoding proxy.
+Added JWT verification. Only authenticated users can call the geocode function. Returns `401 Unauthorized` for unauthenticated requests.
 
-**Recommended fix:** Add JWT verification to the function.
+Additionally, `notify-support` (webhook-triggered) was missing auth — added service_role key verification.
 
 ---
 
@@ -151,7 +151,6 @@ No auth check — anyone with the anon key can use it as a free geocoding proxy.
 
 - [x] **LOW-10**: Disable email/password signup in local config (done — also disable email provider in production Dashboard)
 - [x] **LOW-11**: Add rate limiting to delete-account Edge Function
-- [ ] **LOW-12**: Add auth check to geocode-postcode Edge Function
+- [x] **LOW-12**: Add auth check to geocode-postcode and notify-support Edge Functions
 - [ ] **Future**: Add RLS integration tests that verify unauthorized access is rejected
-- [ ] **Future**: Audit Edge Functions for input validation and injection risks
 - [ ] **Future**: Review Realtime subscriptions for data leakage

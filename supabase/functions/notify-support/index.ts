@@ -30,6 +30,16 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify request is from Supabase (webhook sends service_role key)
+    const authHeader = req.headers.get('Authorization');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    if (authHeader !== `Bearer ${supabaseServiceKey}`) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const payload: SupportRequestPayload = await req.json();
     const record = payload.record;
 
