@@ -83,8 +83,8 @@ function SearchScreenContent() {
   }, [filters.sortBy, updateFilters]);
 
   const renderItem = useCallback(
-    ({ item, index }: { item: SearchResultItem; index: number }) => (
-      <SearchResultGridCard item={item} onPress={handleResultPress} isLeft={index % 2 === 0} />
+    ({ item }: { item: SearchResultItem }) => (
+      <SearchResultGridCard item={item} onPress={handleResultPress} />
     ),
     [handleResultPress],
   );

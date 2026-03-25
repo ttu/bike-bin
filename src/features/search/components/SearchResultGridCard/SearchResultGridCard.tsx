@@ -17,10 +17,9 @@ const IMAGE_HEIGHT = CARD_WIDTH * 0.75;
 interface SearchResultGridCardProps {
   item: SearchResultItem;
   onPress?: (item: SearchResultItem) => void;
-  isLeft?: boolean;
 }
 
-export function SearchResultGridCard({ item, onPress, isLeft }: SearchResultGridCardProps) {
+export function SearchResultGridCard({ item, onPress }: SearchResultGridCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
@@ -29,7 +28,7 @@ export function SearchResultGridCard({ item, onPress, isLeft }: SearchResultGrid
   return (
     <AnimatedPressable
       onPress={() => onPress?.(item)}
-      style={[styles.container, themed.surfaceBg, themed.shadow, isLeft && styles.staggerOffset]}
+      style={[styles.container, themed.surfaceBg, themed.shadow]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
@@ -104,9 +103,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     overflow: 'hidden',
     marginBottom: COLUMN_GAP,
-  },
-  staggerOffset: {
-    marginTop: spacing.lg,
   },
   imageContainer: {
     width: '100%',
