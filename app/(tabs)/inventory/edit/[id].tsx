@@ -58,14 +58,8 @@ export default function EditItemScreen() {
       const tappedOrder = tapped.sortOrder;
       const currentOrder = current.sortOrder;
 
-      await supabase
-        .from('item_photos')
-        .update({ sort_order: currentOrder })
-        .eq('id', tapped.id);
-      await supabase
-        .from('item_photos')
-        .update({ sort_order: tappedOrder })
-        .eq('id', current.id);
+      await supabase.from('item_photos').update({ sort_order: currentOrder }).eq('id', tapped.id);
+      await supabase.from('item_photos').update({ sort_order: tappedOrder }).eq('id', current.id);
 
       queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
       queryClient.invalidateQueries({ queryKey: ['items'] });

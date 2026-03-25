@@ -41,15 +41,9 @@ export function PhotoPicker({
           <Pressable
             key={photo.id}
             onPress={index !== 0 && onSetPrimary ? () => onSetPrimary(photo.id) : undefined}
-            accessibilityLabel={
-              index === 0
-                ? t('photos.primaryPhoto')
-                : t('photos.setAsPrimary')
-            }
+            accessibilityLabel={index === 0 ? t('photos.primaryPhoto') : t('photos.setAsPrimary')}
           >
-            <View
-              style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}
-            >
+            <View style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}>
               <Image
                 source={{
                   uri:
