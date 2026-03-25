@@ -51,7 +51,6 @@ export function SearchResultGridCard({ item, onPress, isLeft }: SearchResultGrid
           />
         )}
       </View>
-
       <View style={styles.content}>
         <Text variant="titleSmall" numberOfLines={2} style={themed.onSurface}>
           {item.name}
