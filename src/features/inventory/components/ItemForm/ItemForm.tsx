@@ -850,7 +850,7 @@ export function ItemForm({
           {tags.length > 0 && (
             <View style={styles.chipRow}>
               {tags.map((tag) => (
-                <Chip key={tag} onClose={() => handleRemoveTag(tag)} style={styles.chip} compact>
+                <Chip key={tag} onClose={() => handleRemoveTag(tag)} style={styles.tagChip} compact>
                   {tag}
                 </Chip>
               ))}
@@ -1043,5 +1043,9 @@ const styles = StyleSheet.create({
   },
   usageInput: {
     flex: 1,
+  },
+  tagChip: {
+    borderRadius: borderRadius.full,
+    height: 36,
   },
 });
