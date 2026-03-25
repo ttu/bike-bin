@@ -92,7 +92,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   }
 
   return (
-    <View style={{ width: galleryWidth }}>
+    <View style={{ width: galleryWidth, alignSelf: 'center' }}>
       <Animated.ScrollView
         horizontal
         pagingEnabled
@@ -151,6 +151,7 @@ function useThemedStyles(theme: AppTheme) {
 
 const styles = StyleSheet.create({
   placeholder: {
+    alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.sm,
