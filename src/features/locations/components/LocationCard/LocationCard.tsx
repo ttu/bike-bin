@@ -97,7 +97,7 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: spacing.base,
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: spacing.xs,
   },
   content: {
     flex: 1,
