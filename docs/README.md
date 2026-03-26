@@ -17,11 +17,11 @@ Implementation plans, specs, and architecture live under **`docs/plans/`** so th
 
 ## Reference documentation (`docs/`)
 
-These files describe the **current implementation**. They are placeholders until the project is built; update them as the codebase evolves.
+These files describe the **current implementation**. Update them when behavior or structure changes.
 
 | Document                           | Description                                        |
 | ---------------------------------- | -------------------------------------------------- |
-| [description.md](description.md)   | App description, use cases, features               |
+| [description.md](description.md)   | App description, audience, feature summary         |
 | [development.md](development.md)   | Dev setup, run, debug, scripts                     |
 | [architecture.md](architecture.md) | Current architecture (layers, features, data flow) |
 | [datamodel.md](datamodel.md)       | Entities, types, Supabase schema                   |
@@ -30,11 +30,12 @@ These files describe the **current implementation**. They are placeholders until
 
 ## Source of truth
 
-When the codebase exists, each doc should reference the code it describes:
+Each doc should reference the code it describes:
 
-- **Types / data schema:** `src/shared/types/`, Supabase schema (e.g. migrations)
+- **Types / data schema:** `src/shared/types/`, `supabase/migrations/`
 - **Features:** `src/features/*/`
 - **Shared UI & utils:** `src/shared/`
+- **Edge Functions:** `supabase/functions/`
 - **Dependencies:** `package.json`
 
 ## Keeping documentation updated
