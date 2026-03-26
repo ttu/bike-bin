@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
-import { AvailabilityType, ItemStatus } from '@/shared/types';
+import { ItemStatus } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
@@ -26,7 +26,6 @@ interface ItemDetailProps {
   photos: ItemPhoto[];
   onMarkDonated?: () => void;
   onMarkSold?: () => void;
-  onMarkLoaned?: () => void;
   onMarkReturned?: () => void;
   onArchive?: () => void;
   onDelete?: () => void;
@@ -37,7 +36,6 @@ export function ItemDetail({
   photos,
   onMarkDonated,
   onMarkSold,
-  onMarkLoaned,
   onMarkReturned,
   onArchive,
   onDelete,
@@ -57,16 +55,10 @@ export function ItemDetail({
         ? theme.customColors.success
         : theme.colors.outline;
 
-  const isStoredOrMounted = item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted;
   const canShowDonateAction =
-    isStoredOrMounted && item.availabilityTypes.includes(AvailabilityType.Donatable);
-  const canShowSoldAction =
-    isStoredOrMounted && item.availabilityTypes.includes(AvailabilityType.Sellable);
-  const canShowLoanedAction =
-    isStoredOrMounted && item.availabilityTypes.includes(AvailabilityType.Borrowable);
-  const canShowReturnedAction =
-    item.status === ItemStatus.Loaned &&
-    item.availabilityTypes.includes(AvailabilityType.Borrowable);
+    item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted;
+  const canShowSoldAction = item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted;
+  const canShowReturnedAction = item.status === ItemStatus.Loaned;
   const canShowArchiveAction = item.status !== ItemStatus.Archived;
   const canShowDeleteAction = canDelete(item);
 
@@ -210,11 +202,6 @@ export function ItemDetail({
           <GradientButton onPress={onMarkReturned} style={styles.actionButton}>
             {t('detail.markReturned')}
           </GradientButton>
-        )}
-        {canShowLoanedAction && onMarkLoaned && (
-          <Button mode="outlined" onPress={onMarkLoaned} style={styles.actionButton}>
-            {t('detail.markLoaned')}
-          </Button>
         )}
         {canShowDonateAction && onMarkDonated && (
           <Button mode="outlined" onPress={onMarkDonated} style={styles.actionButton}>

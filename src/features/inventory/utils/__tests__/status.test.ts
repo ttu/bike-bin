@@ -1,6 +1,6 @@
 import { ItemStatus } from '@/shared/types';
 import { createMockItem } from '@/test/factories';
-import { canDelete, canEditAvailability, getStatusColor } from '../status';
+import { canDelete, canEditAvailability, getStatusColor, isTerminalStatus } from '../status';
 
 describe('canDelete', () => {
   it.each([
@@ -71,5 +71,24 @@ describe('getStatusColor', () => {
 
   it('returns outline for Archived', () => {
     expect(getStatusColor(ItemStatus.Archived)).toBe('outline');
+  });
+});
+
+describe('isTerminalStatus', () => {
+  it.each([
+    [ItemStatus.Archived, true],
+    [ItemStatus.Sold, true],
+    [ItemStatus.Donated, true],
+  ])('returns true for %s', (status, expected) => {
+    expect(isTerminalStatus(status)).toBe(expected);
+  });
+
+  it.each([
+    [ItemStatus.Stored, false],
+    [ItemStatus.Mounted, false],
+    [ItemStatus.Loaned, false],
+    [ItemStatus.Reserved, false],
+  ])('returns false for %s', (status, expected) => {
+    expect(isTerminalStatus(status)).toBe(expected);
   });
 });

@@ -118,12 +118,6 @@
       "cancel": "Cancel",
       "confirm": "Archive"
     },
-    "loan": {
-      "title": "Mark as Loaned",
-      "message": "Are you sure you want to mark this item as loaned?",
-      "cancel": "Cancel",
-      "confirm": "Mark Loaned"
-    },
     "removePhoto": {
       "title": "Remove Photo",
       "message": "Are you sure you want to remove this photo?",
@@ -137,7 +131,6 @@
     "visibility": "Visible to",
     "markDonated": "Mark as Donated",
     "markSold": "Mark as Sold",
-    "markLoaned": "Mark as Loaned",
     "markReturned": "Mark as Returned",
     "archive": "Archive",
     "conditionLabel": "Condition",
@@ -215,5 +208,8 @@
     "removePhoto": "Remove photo"
   },
   "tagsLabel": "Tags",
-  "tagsEmpty": "No tags"
+  "tagsEmpty": "No tags",
+  "filters": {
+    "showInactive": "Show inactive ({{count}})"
+  }
 }

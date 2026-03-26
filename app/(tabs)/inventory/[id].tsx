@@ -50,21 +50,6 @@ export default function ItemDetailScreen() {
     ]);
   };
 
-  const handleMarkLoaned = () => {
-    const doLoan = () => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Loaned });
-
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${tInv('confirm.loan.title')}\n${tInv('confirm.loan.message')}`)) {
-        doLoan();
-      }
-    } else {
-      Alert.alert(tInv('confirm.loan.title'), tInv('confirm.loan.message'), [
-        { text: tInv('confirm.loan.cancel'), style: 'cancel' },
-        { text: tInv('confirm.loan.confirm'), onPress: doLoan },
-      ]);
-    }
-  };
-
   const handleArchive = () => {
     const doArchive = () => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived });
 
@@ -113,7 +98,6 @@ export default function ItemDetailScreen() {
         photos={photos ?? []}
         onMarkDonated={handleMarkDonated}
         onMarkSold={handleMarkSold}
-        onMarkLoaned={handleMarkLoaned}
         onMarkReturned={() => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored })}
         onArchive={handleArchive}
         onDelete={handleDelete}

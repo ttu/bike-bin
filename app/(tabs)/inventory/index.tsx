@@ -11,6 +11,7 @@ import { useLocalInventory } from '@/features/auth/hooks/useLocalInventory';
 import { useItems, useUserTags } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
+import { isTerminalStatus } from '@/features/inventory/utils/status';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { DemoBanner } from '@/features/demo';
 import { spacing } from '@/shared/theme';
@@ -33,6 +34,7 @@ export default function InventoryScreen() {
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showTerminal, setShowTerminal] = useState(false);
   const { data: userTags } = useUserTags();
 
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
@@ -52,8 +54,17 @@ export default function InventoryScreen() {
     if (selectedTags.length > 0) {
       result = result.filter((item) => item.tags.some((tag) => selectedTags.includes(tag)));
     }
+    if (!showTerminal) {
+      result = result.filter((item) => !isTerminalStatus(item.status));
+    }
     return result;
-  }, [items, selectedCategory, searchQuery, selectedTags]);
+  }, [items, selectedCategory, searchQuery, selectedTags, showTerminal]);
+
+  const terminalCount = useMemo(
+    () => items.filter((item) => isTerminalStatus(item.status)).length,
+    [items],
+  );
+  const hasTerminalItems = terminalCount > 0;
 
   const handleItemPress = useCallback((item: Item) => {
     router.push(`/(tabs)/inventory/${item.id}` as never);
@@ -79,8 +90,8 @@ export default function InventoryScreen() {
   );
 
   const searchPlaceholder =
-    items.length > 0
-      ? t('searchPlaceholder', { count: items.length })
+    filteredItems.length > 0
+      ? t('searchPlaceholder', { count: filteredItems.length })
       : t('searchPlaceholderEmpty');
 
   return (
@@ -143,6 +154,21 @@ export default function InventoryScreen() {
             })}
           </ScrollView>
         </>
+      )}
+
+      {hasTerminalItems && (
+        <View style={styles.terminalChipRow}>
+          <Chip
+            selected={showTerminal}
+            onPress={() => setShowTerminal((prev) => !prev)}
+            showSelectedCheck={false}
+            style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
+            textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
+            compact
+          >
+            {t('filters.showInactive', { count: terminalCount })}
+          </Chip>
+        </View>
       )}
 
       {!isLoading && filteredItems.length === 0 ? (
@@ -229,6 +255,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
+  },
+  terminalChipRow: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
   },
   fab: {
     position: 'absolute',

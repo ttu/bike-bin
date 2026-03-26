@@ -77,104 +77,30 @@ describe('ItemDetail', () => {
     expect(getByText('No photos')).toBeTruthy();
   });
 
-  it('shows Mark as Sold when item is sellable and stored', () => {
+  it('shows Mark as Donated when status allows', () => {
+    const onMarkDonated = jest.fn();
     const { getByText } = renderWithProviders(
-      <ItemDetail item={baseItem} photos={[]} onMarkSold={jest.fn()} />,
-    );
-    expect(getByText('Mark as Sold')).toBeTruthy();
-  });
-
-  it('shows Mark as Loaned when item is borrowable and stored', () => {
-    const { getByText } = renderWithProviders(
-      <ItemDetail item={baseItem} photos={[]} onMarkLoaned={jest.fn()} />,
-    );
-    expect(getByText('Mark as Loaned')).toBeTruthy();
-  });
-
-  it('shows Mark as Donated when item is donatable and stored', () => {
-    const donatableItem = createMockItem({
-      ...baseItem,
-      availabilityTypes: [AvailabilityType.Donatable],
-    });
-    const { getByText } = renderWithProviders(
-      <ItemDetail item={donatableItem} photos={[]} onMarkDonated={jest.fn()} />,
+      <ItemDetail item={baseItem} photos={[]} onMarkDonated={onMarkDonated} />,
     );
     expect(getByText('Mark as Donated')).toBeTruthy();
   });
 
-  it('hides Mark as Donated when item is not donatable', () => {
-    const { queryByText } = renderWithProviders(
-      <ItemDetail item={baseItem} photos={[]} onMarkDonated={jest.fn()} />,
-    );
-    expect(queryByText('Mark as Donated')).toBeNull();
-  });
-
-  it('hides Mark as Sold when item is not sellable', () => {
-    const borrowOnlyItem = createMockItem({
-      ...baseItem,
-      availabilityTypes: [AvailabilityType.Borrowable],
-    });
-    const { queryByText } = renderWithProviders(
-      <ItemDetail item={borrowOnlyItem} photos={[]} onMarkSold={jest.fn()} />,
-    );
-    expect(queryByText('Mark as Sold')).toBeNull();
-  });
-
-  it('shows Mark as Returned when item is borrowable and loaned', () => {
+  it('shows Mark as Returned when Loaned', () => {
     const loanedItem = createMockItem({ ...baseItem, status: ItemStatus.Loaned });
+    const onMarkReturned = jest.fn();
     const { getByText } = renderWithProviders(
-      <ItemDetail item={loanedItem} photos={[]} onMarkReturned={jest.fn()} />,
+      <ItemDetail item={loanedItem} photos={[]} onMarkReturned={onMarkReturned} />,
     );
     expect(getByText('Mark as Returned')).toBeTruthy();
   });
 
-  it('hides Mark as Returned when item is loaned but not borrowable', () => {
-    const loanedSellableItem = createMockItem({
-      ...baseItem,
-      status: ItemStatus.Loaned,
-      availabilityTypes: [AvailabilityType.Sellable],
-    });
-    const { queryByText } = renderWithProviders(
-      <ItemDetail item={loanedSellableItem} photos={[]} onMarkReturned={jest.fn()} />,
-    );
-    expect(queryByText('Mark as Returned')).toBeNull();
-  });
-
-  it('hides transaction actions when status is Loaned', () => {
+  it('hides Donated/Sold actions when status is Loaned', () => {
     const loanedItem = createMockItem({ ...baseItem, status: ItemStatus.Loaned });
     const { queryByText } = renderWithProviders(
-      <ItemDetail
-        item={loanedItem}
-        photos={[]}
-        onMarkDonated={jest.fn()}
-        onMarkSold={jest.fn()}
-        onMarkLoaned={jest.fn()}
-      />,
+      <ItemDetail item={loanedItem} photos={[]} onMarkDonated={jest.fn()} onMarkSold={jest.fn()} />,
     );
     expect(queryByText('Mark as Donated')).toBeNull();
     expect(queryByText('Mark as Sold')).toBeNull();
-    expect(queryByText('Mark as Loaned')).toBeNull();
-  });
-
-  it('shows no transaction buttons for private-only items', () => {
-    const privateItem = createMockItem({
-      ...baseItem,
-      availabilityTypes: [AvailabilityType.Private],
-    });
-    const { queryByText } = renderWithProviders(
-      <ItemDetail
-        item={privateItem}
-        photos={[]}
-        onMarkDonated={jest.fn()}
-        onMarkSold={jest.fn()}
-        onMarkLoaned={jest.fn()}
-        onMarkReturned={jest.fn()}
-      />,
-    );
-    expect(queryByText('Mark as Donated')).toBeNull();
-    expect(queryByText('Mark as Sold')).toBeNull();
-    expect(queryByText('Mark as Loaned')).toBeNull();
-    expect(queryByText('Mark as Returned')).toBeNull();
   });
 
   it('hides delete action when item cannot be deleted', () => {
