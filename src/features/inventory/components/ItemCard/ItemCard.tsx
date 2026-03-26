@@ -3,6 +3,7 @@ import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Item } from '@/shared/types';
+import { ItemStatus } from '@/shared/types';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -68,11 +69,13 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           >
             {item.name}
           </Text>
-          <View style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
-            <Text variant="labelSmall" style={{ color: statusColor }}>
-              {t(`status.${item.status}`)}
-            </Text>
-          </View>
+          {item.status !== ItemStatus.Stored && (
+            <View style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
+              <Text variant="labelSmall" style={{ color: statusColor }}>
+                {t(`status.${item.status}`)}
+              </Text>
+            </View>
+          )}
         </View>
 
         {!compact && (

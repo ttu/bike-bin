@@ -101,11 +101,13 @@ export function ItemDetail({
               </Text>
             </Chip>
           ))}
-          <Chip compact style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
-            <Text variant="labelSmall" style={{ color: statusColor, textTransform: 'uppercase' }}>
-              {t(`status.${item.status}`)}
-            </Text>
-          </Chip>
+          {item.status !== ItemStatus.Stored && (
+            <Chip compact style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
+              <Text variant="labelSmall" style={{ color: statusColor, textTransform: 'uppercase' }}>
+                {t(`status.${item.status}`)}
+              </Text>
+            </Chip>
+          )}
         </View>
 
         {/* Tags */}

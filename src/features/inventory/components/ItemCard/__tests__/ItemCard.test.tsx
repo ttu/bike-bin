@@ -49,9 +49,15 @@ describe('ItemCard', () => {
     expect(getByText('Tools')).toBeTruthy();
   });
 
-  it('renders status badge', () => {
-    const { getByText } = renderWithProviders(<ItemCard item={baseItem} />);
-    expect(getByText('Stored')).toBeTruthy();
+  it('hides stored status badge (default)', () => {
+    const { queryByText } = renderWithProviders(<ItemCard item={baseItem} />);
+    expect(queryByText('Stored')).toBeNull();
+  });
+
+  it('renders non-default status badge', () => {
+    const item = createMockItem({ status: ItemStatus.Mounted });
+    const { getByText } = renderWithProviders(<ItemCard item={item} />);
+    expect(getByText('Mounted')).toBeTruthy();
   });
 
   it('renders availability chips', () => {
@@ -74,7 +80,6 @@ describe('ItemCard', () => {
   });
 
   it.each([
-    [ItemStatus.Stored, 'Stored'],
     [ItemStatus.Loaned, 'Loaned'],
     [ItemStatus.Donated, 'Donated'],
   ])('renders correct status text for %s', (status, label) => {

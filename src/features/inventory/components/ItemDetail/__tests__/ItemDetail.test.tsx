@@ -42,9 +42,15 @@ describe('ItemDetail', () => {
     expect(getByText('Shimano Cassette')).toBeTruthy();
   });
 
-  it('renders status badge', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Stored')).toBeTruthy();
+  it('hides stored status badge (default)', () => {
+    const { queryByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(queryByText('Stored')).toBeNull();
+  });
+
+  it('renders non-default status badge', () => {
+    const item = createMockItem({ ...baseItem, status: ItemStatus.Mounted });
+    const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);
+    expect(getByText('Mounted')).toBeTruthy();
   });
 
   it('renders category breadcrumb and specs', () => {
