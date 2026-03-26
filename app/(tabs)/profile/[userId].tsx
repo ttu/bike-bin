@@ -4,40 +4,17 @@ import { Text, Avatar, Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { supabase } from '@/shared/api/supabase';
 import { LoadingScreen, ReportDialog } from '@/shared/components';
 import type { ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
 import { useAuth } from '@/features/auth';
 import { spacing, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
-import type { UserId, ItemId } from '@/shared/types';
-import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import type { UserId } from '@/shared/types';
+import { usePublicProfile, usePublicListings } from '@/features/profile';
 import { useUserRatings } from '@/features/ratings/hooks/useUserRatings';
 import { ReviewCard } from '@/features/ratings/components/ReviewCard/ReviewCard';
-
-/** Minimal public profile data fetched from the profiles table. */
-interface PublicProfile {
-  id: UserId;
-  displayName: string | undefined;
-  avatarUrl: string | undefined;
-  ratingAvg: number;
-  ratingCount: number;
-  createdAt: string;
-}
-
-/** Minimal public listing data for display. */
-interface PublicListing {
-  id: ItemId;
-  name: string;
-  category: ItemCategory;
-  condition: ItemCondition;
-  availabilityTypes: AvailabilityType[];
-  price: number | undefined;
-  createdAt: string;
-}
 
 export default function PublicUserProfileScreen() {
   const theme = useTheme<AppTheme>();
@@ -49,58 +26,8 @@ export default function PublicUserProfileScreen() {
   const [reportVisible, setReportVisible] = useState(false);
   const reportMutation = useReport();
 
-  // Fetch public profile
-  const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ['publicProfile', userId],
-    queryFn: async (): Promise<PublicProfile> => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, display_name, avatar_url, rating_avg, rating_count, created_at')
-        .eq('id', userId!)
-        .single();
-
-      if (error) throw error;
-
-      return {
-        id: data.id as string as UserId,
-        displayName: (data.display_name as string) ?? undefined,
-        avatarUrl: (data.avatar_url as string) ?? undefined,
-        ratingAvg: (data.rating_avg as number) ?? 0,
-        ratingCount: (data.rating_count as number) ?? 0,
-        createdAt: data.created_at as string,
-      };
-    },
-    enabled: !!userId,
-  });
-
-  // Fetch public listings (visible items owned by this user)
-  const { data: listings } = useQuery({
-    queryKey: ['publicListings', userId],
-    queryFn: async (): Promise<PublicListing[]> => {
-      const { data, error } = await supabase
-        .from('items')
-        .select('id, name, category, condition, availability_types, price, created_at')
-        .eq('owner_id', userId!)
-        .eq('visibility', 'public')
-        .eq('status', 'available')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return (data ?? []).map((row) => ({
-        id: row.id as string as ItemId,
-        name: row.name as string,
-        category: row.category as ItemCategory,
-        condition: row.condition as ItemCondition,
-        availabilityTypes: (row.availability_types ?? []) as AvailabilityType[],
-        price: (row.price as number) ?? undefined,
-        createdAt: row.created_at as string,
-      }));
-    },
-    enabled: !!userId,
-  });
-
-  // Fetch ratings/reviews
+  const { data: profile, isLoading: profileLoading } = usePublicProfile(userId);
+  const { data: listings } = usePublicListings(userId);
   const { data: ratings } = useUserRatings(userId as string as UserId);
 
   if (profileLoading || !profile) {

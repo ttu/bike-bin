@@ -5,6 +5,7 @@ export { DEFAULT_SEARCH_FILTERS, DISTANCE_PRESETS } from './types';
 // Hooks
 export { SearchFiltersProvider, useSearchFilters } from './hooks/useSearchFilters';
 export { useSearchItems } from './hooks/useSearchItems';
+export { useListingDetail } from './hooks/useListingDetail';
 
 // Components
 export { SearchBar } from './components/SearchBar/SearchBar';
