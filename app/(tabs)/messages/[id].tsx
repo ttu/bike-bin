@@ -174,7 +174,11 @@ export default function ConversationDetailScreen() {
 
         {/* Pinned item reference card */}
         {conversation && conversation.itemId && (
-          <ItemReferenceCard conversation={conversation} onViewItem={handleViewItem} />
+          <ItemReferenceCard
+            conversation={conversation}
+            isOwnItem={isOwner}
+            onViewItem={handleViewItem}
+          />
         )}
 
         {/* Messages list (inverted = newest at bottom) */}

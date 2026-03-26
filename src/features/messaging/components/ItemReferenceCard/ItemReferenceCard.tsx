@@ -8,10 +8,11 @@ import type { ConversationListItem } from '../../types';
 
 interface ItemReferenceCardProps {
   conversation: ConversationListItem;
+  isOwnItem?: boolean;
   onViewItem?: () => void;
 }
 
-export function ItemReferenceCard({ conversation, onViewItem }: ItemReferenceCardProps) {
+export function ItemReferenceCard({ conversation, isOwnItem, onViewItem }: ItemReferenceCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('messages');
 
@@ -19,12 +20,13 @@ export function ItemReferenceCard({ conversation, onViewItem }: ItemReferenceCar
     return null;
   }
 
-  // Determine availability text
-  const availabilityText = conversation.itemAvailabilityTypes?.length
-    ? conversation.itemAvailabilityTypes
-        .map((type) => t(`detail.itemAvailability.${type}`))
-        .join(' · ')
-    : '';
+  // Determine availability text (hide for own items)
+  const availabilityText =
+    !isOwnItem && conversation.itemAvailabilityTypes?.length
+      ? conversation.itemAvailabilityTypes
+          .map((type) => t(`detail.itemAvailability.${type}`))
+          .join(' · ')
+      : '';
 
   return (
     <View

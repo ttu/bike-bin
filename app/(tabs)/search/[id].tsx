@@ -14,6 +14,7 @@ import { ListingDetail } from '@/features/search';
 import type { SearchResultItem } from '@/features/search';
 import { useCreateConversation } from '@/features/messaging';
 import { useCreateBorrowRequest } from '@/features/borrow';
+import { useAuth } from '@/features/auth';
 
 export default function ListingDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -23,6 +24,7 @@ export default function ListingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { mutate: createConversation } = useCreateConversation();
   const { mutate: createBorrowRequest } = useCreateBorrowRequest();
+  const { user } = useAuth();
 
   // Fetch item by ID
   const { data: item, isLoading: itemLoading } = useQuery({
@@ -95,6 +97,8 @@ export default function ListingDetailScreen() {
     enabled: !!id,
   });
 
+  const isOwnItem = item?.ownerId === user?.id;
+
   if (itemLoading || !item) {
     return <LoadingScreen />;
   }
@@ -148,8 +152,8 @@ export default function ListingDetailScreen() {
       <ListingDetail
         item={item}
         photos={photos ?? []}
-        onContact={handleContact}
-        onRequestBorrow={handleRequestBorrow}
+        onContact={isOwnItem ? undefined : handleContact}
+        onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
       />
     </SafeAreaView>
   );
