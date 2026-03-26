@@ -1,0 +1,51 @@
+import { renderHook, act } from '@testing-library/react-native';
+import React from 'react';
+import { SearchFiltersProvider, useSearchFilters } from '../useSearchFilters';
+
+function createWrapper() {
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return React.createElement(SearchFiltersProvider, null, children);
+  }
+  return Wrapper;
+}
+
+describe('useSearchFilters', () => {
+  it('throws when used outside provider', () => {
+    expect(() => {
+      renderHook(() => useSearchFilters());
+    }).toThrow('useSearchFilters must be used within a SearchFiltersProvider');
+  });
+
+  it('returns default filters', () => {
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+    expect(result.current.filters.categories).toEqual([]);
+    expect(result.current.hasActiveFilters).toBe(false);
+  });
+
+  it('updates filters partially', () => {
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+
+    act(() => {
+      result.current.updateFilters({ categories: ['component'] });
+    });
+
+    expect(result.current.filters.categories).toEqual(['component']);
+    expect(result.current.hasActiveFilters).toBe(true);
+  });
+
+  it('resets filters but keeps query', () => {
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+
+    act(() => {
+      result.current.updateFilters({ query: 'pedals', categories: ['component'] });
+    });
+
+    act(() => {
+      result.current.resetFilters();
+    });
+
+    expect(result.current.filters.query).toBe('pedals');
+    expect(result.current.filters.categories).toEqual([]);
+    expect(result.current.hasActiveFilters).toBe(false);
+  });
+});
