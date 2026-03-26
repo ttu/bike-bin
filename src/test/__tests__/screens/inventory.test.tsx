@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen } from '@testing-library/react-native';
+import { screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 
@@ -28,6 +28,13 @@ jest.mock('@/features/auth', () => ({
     session: null,
     isLoading: false,
   }),
+}));
+
+const mockUserTags = jest.fn(() => ({ data: undefined as string[] | undefined }));
+jest.mock('@/features/inventory', () => ({
+  ...jest.requireActual('@/features/inventory'),
+  useUserTags: () => mockUserTags(),
+  useItems: () => ({ data: [], isLoading: false, refetch: jest.fn() }),
 }));
 
 jest.mock('@/features/auth/hooks/useLocalInventory', () => ({
@@ -82,5 +89,25 @@ describe('InventoryScreen', () => {
   it('hides FAB when showing empty state', () => {
     renderWithProviders(<InventoryScreen />);
     expect(screen.queryByLabelText('Add item')).toBeNull();
+  });
+
+  it('removes stale tag filters when tags are deleted', async () => {
+    mockUserTags.mockReturnValue({ data: ['brakes', 'wheels'] });
+    const { rerender } = renderWithProviders(<InventoryScreen />);
+
+    // Select the "brakes" tag filter
+    fireEvent.press(screen.getByText('brakes'));
+
+    // Simulate the tag being deleted (no longer returned by useUserTags)
+    mockUserTags.mockReturnValue({ data: ['wheels'] });
+    rerender(<InventoryScreen />);
+
+    // The stale "brakes" tag should be pruned from selectedTags,
+    // so "brakes" chip should no longer be rendered
+    await waitFor(() => {
+      expect(screen.queryByText('brakes')).toBeNull();
+    });
+    // "wheels" should still be visible
+    expect(screen.getByText('wheels')).toBeTruthy();
   });
 });

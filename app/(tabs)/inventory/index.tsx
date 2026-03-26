@@ -37,6 +37,11 @@ export default function InventoryScreen() {
   const [showTerminal, setShowTerminal] = useState(false);
   const { data: userTags } = useUserTags();
 
+  const activeTags = useMemo(
+    () => (userTags ? selectedTags.filter((tag) => userTags.includes(tag)) : selectedTags),
+    [selectedTags, userTags],
+  );
+
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
 
@@ -51,14 +56,14 @@ export default function InventoryScreen() {
     if (searchQuery.trim()) {
       result = result.filter((item) => matchesSearch(item, searchQuery.trim()));
     }
-    if (selectedTags.length > 0) {
-      result = result.filter((item) => item.tags.some((tag) => selectedTags.includes(tag)));
+    if (activeTags.length > 0) {
+      result = result.filter((item) => item.tags.some((tag) => activeTags.includes(tag)));
     }
     if (!showTerminal) {
       result = result.filter((item) => !isTerminalStatus(item.status));
     }
     return result;
-  }, [items, selectedCategory, searchQuery, selectedTags, showTerminal]);
+  }, [items, selectedCategory, searchQuery, activeTags, showTerminal]);
 
   const terminalCount = useMemo(
     () => items.filter((item) => isTerminalStatus(item.status)).length,
