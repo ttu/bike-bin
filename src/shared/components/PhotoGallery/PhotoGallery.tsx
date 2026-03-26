@@ -1,5 +1,13 @@
-import { useMemo, useState } from 'react';
-import { View, Animated, StyleSheet, useWindowDimensions } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+  Animated,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 /** Minimal photo shape needed for gallery display. */
@@ -65,10 +73,19 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useMemo(() => new Animated.Value(0), []);
+  const scrollViewRef = useRef<ScrollView>(null);
   const { width: windowWidth } = useWindowDimensions();
 
   const galleryWidth = Math.min(windowWidth, MAX_GALLERY_WIDTH);
   const galleryHeight = galleryWidth * ASPECT_RATIO;
+
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      scrollViewRef.current?.scrollTo({ x: index * galleryWidth, animated: true });
+      setActiveIndex(index);
+    },
+    [galleryWidth],
+  );
 
   if (photos.length === 0) {
     return (
@@ -94,6 +111,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   return (
     <View style={{ width: galleryWidth, alignSelf: 'center' }}>
       <Animated.ScrollView
+        ref={scrollViewRef as React.RefObject<ScrollView>}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -117,6 +135,39 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           />
         ))}
       </Animated.ScrollView>
+
+      {Platform.OS === 'web' && photos.length > 1 && (
+        <>
+          {activeIndex > 0 && (
+            <Pressable
+              style={[styles.arrow, styles.arrowLeft, { backgroundColor: theme.colors.surface }]}
+              onPress={() => scrollToIndex(activeIndex - 1)}
+              accessibilityRole="button"
+              accessibilityLabel="Previous photo"
+            >
+              <MaterialCommunityIcons
+                name="chevron-left"
+                size={iconSize.lg}
+                color={theme.colors.onSurface}
+              />
+            </Pressable>
+          )}
+          {activeIndex < photos.length - 1 && (
+            <Pressable
+              style={[styles.arrow, styles.arrowRight, { backgroundColor: theme.colors.surface }]}
+              onPress={() => scrollToIndex(activeIndex + 1)}
+              accessibilityRole="button"
+              accessibilityLabel="Next photo"
+            >
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={iconSize.lg}
+                color={theme.colors.onSurface}
+              />
+            </Pressable>
+          )}
+        </>
+      )}
 
       {photos.length > 1 && (
         <View style={styles.dots}>
@@ -163,6 +214,23 @@ const styles = StyleSheet.create({
   photo: {
     width: '100%',
     height: '100%',
+  },
+  arrow: {
+    position: 'absolute',
+    top: '50%',
+    transform: [{ translateY: -20 }],
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.85,
+  },
+  arrowLeft: {
+    left: spacing.sm,
+  },
+  arrowRight: {
+    right: spacing.sm,
   },
   dots: {
     flexDirection: 'row',
