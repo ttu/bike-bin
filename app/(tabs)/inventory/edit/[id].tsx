@@ -144,6 +144,7 @@ export default function EditItemScreen() {
     purchaseDate: item.purchaseDate,
     pickupLocationId: item.pickupLocationId,
     visibility: item.visibility,
+    tags: item.tags,
   };
 
   const pickerPhotos = photos.map((p) => ({
