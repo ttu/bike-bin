@@ -413,7 +413,7 @@ _(Pattern from [emergency-supply-tracker DESIGN_DOCS_INDEX](https://github.com/t
 
 ## 12. Documentation & source of truth
 
-- **Planning docs** live in `docs/plans/` (see [docs/README.md](../README.md)).
+- **Specification docs** live alongside reference docs under `docs/` (see [docs/README.md](README.md)).
 - **Source of truth:** Types in `src/shared/types/`; features in `src/features/`; Supabase schema in migrations. Keep docs in sync when changing code.
 
 ---

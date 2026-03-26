@@ -1,7 +1,7 @@
 # Bike Bin — Testing Guide
 
 > **Purpose:** How to run tests locally, where they live, and what the project expects for coverage and quality.  
-> **Strategy & philosophy:** [plans/technical-specs.md](plans/technical-specs.md) §8.
+> **Strategy & philosophy:** [technical-specs.md](technical-specs.md) §8.
 
 ---
 

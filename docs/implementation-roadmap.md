@@ -1,4 +1,4 @@
-# Bike Bin Implementation Plan
+# Bike Bin — Implementation roadmap
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** Expo SDK 52+, React Native, TypeScript (strict), Expo Router, TanStack Query, Supabase, React Native Paper, react-i18next, Jest + RNTL, Maestro, StrykerJS, Storybook, GitHub Actions.
 
-**Specs:** [functional-specs.md](functional-specs.md), [technical-specs.md](technical-specs.md), [architecture.md](architecture.md), [security.md](security.md), [2026-03-17-feature-design.md](2026-03-17-feature-design.md)
+**Specs:** [functional-specs.md](functional-specs.md), [technical-specs.md](technical-specs.md), [system-architecture.md](system-architecture.md), [security.md](security.md), [feature-design.md](feature-design.md)
 
 ---
 
@@ -277,7 +277,7 @@ Test: renders icon, title, description, and optional CTA button. Test: CTA butto
 
 - [x] **Step 2: Implement EmptyState**
 
-Props: `icon` (string — MaterialCommunityIcons name), `title` (string), `description` (string), `ctaLabel?` (string), `onCtaPress?` (function). Uses theme tokens for spacing and colors. Centered layout per [feature-design.md §4.2](2026-03-17-feature-design.md).
+Props: `icon` (string — MaterialCommunityIcons name), `title` (string), `description` (string), `ctaLabel?` (string), `onCtaPress?` (function). Uses theme tokens for spacing and colors. Centered layout per [feature-design.md §4.2](feature-design.md).
 
 - [ ] **Step 3: Create Storybook story** _(deferred — Storybook not yet configured)_
 
@@ -644,7 +644,7 @@ Test: renders app logo/title. Test: renders "Continue with Apple" button. Test: 
 
 - [x] **Step 2: Implement welcome screen**
 
-Per [feature-design.md §3.1](2026-03-17-feature-design.md). App logo + tagline, Apple sign-in button (dark), Google sign-in button (outlined), "Browse without signing in" link. Use Paper components + theme tokens.
+Per [feature-design.md §3.1](feature-design.md). App logo + tagline, Apple sign-in button (dark), Google sign-in button (outlined), "Browse without signing in" link. Use Paper components + theme tokens.
 
 - [x] **Step 3: Add auth translations to en/auth.json**
 
@@ -669,7 +669,7 @@ Root layout checks auth state: no session → show `(auth)` group. Has session b
 
 - [x] **Step 2: Create AuthGate component**
 
-Wraps screens that require auth. Shows login prompt modal (per [feature-design.md §3.4](2026-03-17-feature-design.md)) when unauthenticated user tries a protected action.
+Wraps screens that require auth. Shows login prompt modal (per [feature-design.md §3.4](feature-design.md)) when unauthenticated user tries a protected action.
 
 - [x] **Step 3: Test routing logic, commit**
 
@@ -695,7 +695,7 @@ Test: renders progress dots (step 1 of 2). Test: renders photo upload area. Test
 
 - [x] **Step 2: Implement profile setup screen**
 
-Per [feature-design.md §3.2](2026-03-17-feature-design.md). Progress dots, circular photo upload placeholder, display name input, skip/continue buttons. Save to `profiles` table via Supabase.
+Per [feature-design.md §3.2](feature-design.md). Progress dots, circular photo upload placeholder, display name input, skip/continue buttons. Save to `profiles` table via Supabase.
 
 - [x] **Step 3: Write tests for location setup screen**
 
@@ -703,7 +703,7 @@ Test: renders progress dots (step 2 of 2). Test: renders postcode input. Test: r
 
 - [x] **Step 4: Implement location setup screen**
 
-Per [feature-design.md §3.3](2026-03-17-feature-design.md). Postcode/ZIP input, private label, privacy callout, area preview (placeholder for now — geocoding added in Phase 5). "Done" saves to `saved_locations` with `is_primary = true`.
+Per [feature-design.md §3.3](feature-design.md). Postcode/ZIP input, private label, privacy callout, area preview (placeholder for now — geocoding added in Phase 5). "Done" saves to `saved_locations` with `is_primary = true`.
 
 - [x] **Step 5: Implement useOnboardingStatus hook**
 
@@ -733,7 +733,7 @@ Stores items in AsyncStorage as JSON array. Used when user is not authenticated.
 
 - [x] **Step 3: Implement sync banner component**
 
-Yellow warning banner: "Your items are saved on this device only. Sign in to sync and share them." per [feature-design.md §3.4](2026-03-17-feature-design.md).
+Yellow warning banner: "Your items are saved on this device only. Sign in to sync and share them." per [feature-design.md §3.4](feature-design.md).
 
 - [x] **Step 4: Run tests, commit**
 
@@ -827,7 +827,7 @@ Test: renders item name, category, condition. Test: renders primary photo thumbn
 
 - [ ] **Step 2: Implement ItemCard component**
 
-Per [feature-design.md §3.5](2026-03-17-feature-design.md). Photo thumbnail (80×60), name, category + condition, availability chips (colored), status badge. Uses Paper components + theme tokens.
+Per [feature-design.md §3.5](feature-design.md). Photo thumbnail (80×60), name, category + condition, availability chips (colored), status badge. Uses Paper components + theme tokens.
 
 - [ ] **Step 3: Create Storybook story for ItemCard**
 
@@ -862,7 +862,7 @@ Test: renders all required fields (name, category, condition). Test: category ch
 
 - [ ] **Step 2: Implement ItemForm component**
 
-Per [feature-design.md §3.7](2026-03-17-feature-design.md). Scrollable form with: photo upload section (up to 5), name input, category chips, brand/model inputs, condition chips, availability checkboxes, borrow options (conditional), price (conditional), pickup location picker (defaults to primary), visibility picker, collapsible optional section (age, km, purchase date, storage, description). Save button. In edit mode: pre-filled, delete button at bottom.
+Per [feature-design.md §3.7](feature-design.md). Scrollable form with: photo upload section (up to 5), name input, category chips, brand/model inputs, condition chips, availability checkboxes, borrow options (conditional), price (conditional), pickup location picker (defaults to primary), visibility picker, collapsible optional section (age, km, purchase date, storage, description). Save button. In edit mode: pre-filled, delete button at bottom.
 
 - [ ] **Step 3: Wire up add screen and edit screen**
 
@@ -893,7 +893,7 @@ Horizontal `FlatList` / `ScrollView` with paging. Dot indicator. Tap to open ful
 
 - [ ] **Step 3: Implement ItemDetail**
 
-Per [feature-design.md §3.6](2026-03-17-feature-design.md). Photo gallery at top, title + status, availability chips, detail grid, pickup area, notes, visibility, action buttons. Status change actions use `useUpdateItem()`.
+Per [feature-design.md §3.6](feature-design.md). Photo gallery at top, title + status, availability chips, detail grid, pickup area, notes, visibility, action buttons. Status change actions use `useUpdateItem()`.
 
 - [ ] **Step 4: Run tests, commit**
 
@@ -1023,7 +1023,7 @@ git commit -m "feat: add location management with geocoding"
 
 - [ ] **Step 1: Implement LocationCard and LocationForm**
 
-Per [feature-design.md §3.17](2026-03-17-feature-design.md). LocationCard shows label, area name, postcode, primary badge. LocationForm: postcode input, label input, "Set as primary" toggle, area preview after geocoding.
+Per [feature-design.md §3.17](feature-design.md). LocationCard shows label, area name, postcode, primary badge. LocationForm: postcode input, label input, "Set as primary" toggle, area preview after geocoding.
 
 - [ ] **Step 2: Implement saved locations screen**
 
@@ -1099,7 +1099,7 @@ git commit -m "feat: add search hooks with distance-based filtering"
 
 - [ ] **Step 1: Implement SearchBar, SearchResultCard, FilterSheet**
 
-Per [feature-design.md §3.9–3.11](2026-03-17-feature-design.md). SearchBar with location line + distance dropdown. SearchResultCard: photo, name, condition, owner name, availability chips, area + distance. FilterSheet: bottom sheet with category, condition, offer type, price range, group filter chips.
+Per [feature-design.md §3.9–3.11](feature-design.md). SearchBar with location line + distance dropdown. SearchResultCard: photo, name, condition, owner name, availability chips, area + distance. FilterSheet: bottom sheet with category, condition, offer type, price range, group filter chips.
 
 - [ ] **Step 2: Implement search index screen**
 
@@ -1107,7 +1107,7 @@ Empty state with search prompt. On submit: show results via `useSearchItems()`. 
 
 - [ ] **Step 3: Implement listing detail screen**
 
-Per [feature-design.md §3.12](2026-03-17-feature-design.md). Photo gallery, item info, owner card (avatar, name, rating), location + distance, description, detail grid. Action buttons: "Contact" (→ messaging, Phase 7) and "Request Borrow" (→ borrow, Phase 8). Buttons disabled with "Coming soon" until those features are built. "Report" action in header.
+Per [feature-design.md §3.12](feature-design.md). Photo gallery, item info, owner card (avatar, name, rating), location + distance, description, detail grid. Action buttons: "Contact" (→ messaging, Phase 7) and "Request Borrow" (→ borrow, Phase 8). Buttons disabled with "Coming soon" until those features are built. "Report" action in header.
 
 - [ ] **Step 4: Write tests for SearchResultCard and ListingDetail**
 
@@ -1195,7 +1195,7 @@ git commit -m "feat: add messaging hooks with realtime subscription"
 
 - [ ] **Step 1: Implement ConversationCard, ChatBubble, ItemReferenceCard**
 
-Per [feature-design.md §3.13–3.14](2026-03-17-feature-design.md). ConversationCard: avatar (unread dot), name, item name, last message, timestamp. ChatBubble: outgoing (teal right), incoming (gray left), timestamp. ItemReferenceCard: thumbnail, name, availability, "View →".
+Per [feature-design.md §3.13–3.14](feature-design.md). ConversationCard: avatar (unread dot), name, item name, last message, timestamp. ChatBubble: outgoing (teal right), incoming (gray left), timestamp. ItemReferenceCard: thumbnail, name, availability, "View →".
 
 - [ ] **Step 2: Implement conversation list screen**
 
@@ -1283,7 +1283,7 @@ Shows requester/owner info, item name, request time, action buttons (Accept/Decl
 
 - [ ] **Step 2: Implement borrow requests screen**
 
-Per [feature-design.md §3.16](2026-03-17-feature-design.md). Three sub-tabs: Incoming (with count) / Outgoing / Active. Linked from Profile menu.
+Per [feature-design.md §3.16](feature-design.md). Three sub-tabs: Incoming (with count) / Outgoing / Active. Linked from Profile menu.
 
 - [ ] **Step 3: Wire "Request Borrow" on listing detail**
 
@@ -1381,7 +1381,7 @@ git commit -m "test: add Maestro E2E tests for messaging and borrow"
 
 - [ ] **Step 3: Implement bike screens**
 
-Per [feature-design.md §3.8](2026-03-17-feature-design.md). Bike list (simple cards), bike detail (info + mounted parts list with detach, "Attach part" picker showing Stored items), add/edit bike form (name, brand, model, type, year).
+Per [feature-design.md §3.8](feature-design.md). Bike list (simple cards), bike detail (info + mounted parts list with detach, "Attach part" picker showing Stored items), add/edit bike form (name, brand, model, type, year).
 
 - [ ] **Step 4: Add bikes translations, run tests, commit**
 
@@ -1422,7 +1422,7 @@ CRUD hooks + membership management. `useSearchGroups(query)` — search public g
 
 - [ ] **Step 3: Implement group screens**
 
-Per [feature-design.md §3.18](2026-03-17-feature-design.md). My groups list, public group search, create group form, group detail (members, invite, settings).
+Per [feature-design.md §3.18](feature-design.md). My groups list, public group search, create group form, group detail (members, invite, settings).
 
 - [ ] **Step 4: Wire group visibility into item form**
 
@@ -1464,11 +1464,11 @@ Test: `isWithinRatingWindow(rating)` — true if `editable_until` is in the futu
 
 - [ ] **Step 3: Implement RatingPrompt (bottom sheet)**
 
-Per [feature-design.md §3.22](2026-03-17-feature-design.md). Star selector, optional comment, skip/submit, 14-day note. Triggered after borrow return or donate/sell completion.
+Per [feature-design.md §3.22](feature-design.md). Star selector, optional comment, skip/submit, 14-day note. Triggered after borrow return or donate/sell completion.
 
 - [ ] **Step 4: Implement public user profile screen**
 
-Per [feature-design.md §3.19](2026-03-17-feature-design.md). Avatar, display name, rating average, recent reviews (ReviewCard), public listings.
+Per [feature-design.md §3.19](feature-design.md). Avatar, display name, rating average, recent reviews (ReviewCard), public listings.
 
 - [ ] **Step 5: Create profile screen route and wire navigation**
 
@@ -1514,7 +1514,7 @@ NotificationCard: type icon, title, body, timestamp, read/unread styling. Notifi
 
 - [ ] **Step 3: Implement notifications list screen**
 
-Per [feature-design.md §5](2026-03-17-feature-design.md). Reverse-chronological list. Tap → navigate to relevant screen. Mark as read on tap.
+Per [feature-design.md §5](feature-design.md). Reverse-chronological list. Tap → navigate to relevant screen. Mark as read on tap.
 
 - [ ] **Step 4: Add bell icon to Inventory tab header**
 
@@ -1537,7 +1537,7 @@ Store preferences in `profiles` table (jsonb column `notification_preferences`).
 
 - [ ] **Step 2: Implement notification settings screen**
 
-Per [feature-design.md §3.20](2026-03-17-feature-design.md). Per-category (Messages, Borrow Activity, Reminders) with push + email toggles.
+Per [feature-design.md §3.20](feature-design.md). Per-category (Messages, Borrow Activity, Reminders) with push + email toggles.
 
 - [ ] **Step 3: Run tests, commit**
 
@@ -1596,7 +1596,7 @@ git commit -m "feat: add push notifications and email via Edge Functions"
 
 - [ ] **Step 2: Implement full profile settings screen**
 
-Per [feature-design.md §3.15](2026-03-17-feature-design.md). Profile header + menu list (Saved Locations, Groups, Borrow Requests with badge, Notification Settings, Appearance picker, Help & Support, About & Legal). Sign Out button.
+Per [feature-design.md §3.15](feature-design.md). Profile header + menu list (Saved Locations, Groups, Borrow Requests with badge, Notification Settings, Appearance picker, Help & Support, About & Legal). Sign Out button.
 
 - [ ] **Step 3: Implement appearance setting**
 
@@ -1618,7 +1618,7 @@ git commit -m "feat: add profile settings screen with appearance toggle"
 
 - [ ] **Step 1: Implement support form screen**
 
-Per [feature-design.md §3.21](2026-03-17-feature-design.md). Subject, message, optional screenshot, auto-context. `useSubmitSupport()` — inserts into `support_requests` table. Edge Function emails support team.
+Per [feature-design.md §3.21](feature-design.md). Subject, message, optional screenshot, auto-context. `useSubmitSupport()` — inserts into `support_requests` table. Edge Function emails support team.
 
 - [ ] **Step 2: Add unauthenticated access**
 

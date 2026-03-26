@@ -1,7 +1,7 @@
 # Bike Bin — Security
 
 > **Purpose:** Comprehensive security plan covering authentication, authorization, data privacy, infrastructure, and compliance. Referenced by all other planning docs for security decisions.  
-> **Context:** See [functional-specs.md](functional-specs.md) for trust & safety (§14), [technical-specs.md](technical-specs.md) §6 for security summary, [architecture.md](architecture.md) for secrets management.
+> **Context:** See [functional-specs.md](functional-specs.md) for trust & safety (§14), [technical-specs.md](technical-specs.md) §6 for security summary, [system-architecture.md](system-architecture.md) for secrets management.
 
 ---
 

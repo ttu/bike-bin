@@ -32,13 +32,13 @@ iOS, Android, and Web — single codebase, full feature parity.
 
 ## Documentation
 
-Planning and reference docs live in [`docs/`](docs/README.md):
+Specifications and reference docs live in [`docs/`](docs/README.md):
 
-- [Functional Specs](docs/plans/functional-specs.md) — product scope, features, user flows
-- [Technical Specs](docs/plans/technical-specs.md) — stack, patterns, testing, code quality
-- [Architecture](docs/plans/architecture.md) — system design, feature slices, data flow
-- [Security](docs/plans/security.md) — auth, RLS, privacy, GDPR
-- [Feature Design](docs/plans/2026-03-17-feature-design.md) — resolved design decisions, screen-level UX
+- [Functional specs](docs/functional-specs.md) — product scope, features, user flows
+- [Technical specs](docs/technical-specs.md) — stack, patterns, testing, code quality
+- [System architecture](docs/system-architecture.md) — system design, feature slices, data flow
+- [Security](docs/security.md) — auth, RLS, privacy, GDPR
+- [Feature design](docs/feature-design.md) — resolved design decisions, screen-level UX
 
 ## Development
 

@@ -1,7 +1,7 @@
 # Bike Bin — Feature Design & UX Specification
 
 > **Purpose:** Consolidated design decisions, resolved ambiguities, and screen-level UX flows that complement the functional and technical specs.
-> **Context:** See [functional-specs.md](functional-specs.md) for product scope, [technical-specs.md](technical-specs.md) for stack/patterns, [architecture.md](architecture.md) for system design.
+> **Context:** See [functional-specs.md](functional-specs.md) for product scope, [technical-specs.md](technical-specs.md) for stack/patterns, [system-architecture.md](system-architecture.md) for system design.
 
 ---
 

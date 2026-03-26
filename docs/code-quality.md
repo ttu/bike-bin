@@ -1,7 +1,7 @@
 # Bike Bin — Code Quality
 
 > **Purpose:** Linting, formatting, git hooks, coverage gates, and how they tie into CI.  
-> **Conventions:** [plans/technical-specs.md](plans/technical-specs.md) §9 and repo `AGENTS.md` / `CLAUDE.md`.
+> **Conventions:** [technical-specs.md](technical-specs.md) §9 and repo `AGENTS.md` / `CLAUDE.md`.
 
 ---
 

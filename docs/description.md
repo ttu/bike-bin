@@ -1,7 +1,7 @@
 # Bike Bin — App Description
 
 > **Purpose:** High-level app description, audience, and feature summary aligned with the shipped product.  
-> **Full product spec:** [plans/functional-specs.md](plans/functional-specs.md).
+> **Full product spec:** [functional-specs.md](functional-specs.md).
 
 ---
 
@@ -44,7 +44,7 @@ Users sign in with **social OAuth** (e.g. Google and Apple) as described in the 
 
 ## Privacy
 
-Listings emphasize **general area** for pickup. Exact coordinates and sensitive PII are handled per [plans/security.md](plans/security.md) and Row Level Security in the database.
+Listings emphasize **general area** for pickup. Exact coordinates and sensitive PII are handled per [security.md](security.md) and Row Level Security in the database.
 
 ## Related docs
 

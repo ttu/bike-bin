@@ -2,7 +2,7 @@
 
 ## Project Context
 
-**Bike Bin** – Peer-to-peer bike parts exchange app (iOS, Android, Web). Expo + React Native + TypeScript, Supabase (Auth, PostgREST, Realtime, Storage, Edge Functions), PostgreSQL + PostGIS, TanStack Query, React Native Paper (MD3), react-i18next, Expo Router. Feature slices, anemic domain models, incremental visual-first development. Reference: [docs/plans/functional-specs.md](docs/plans/functional-specs.md), [docs/plans/technical-specs.md](docs/plans/technical-specs.md), [docs/plans/architecture.md](docs/plans/architecture.md), [docs/plans/security.md](docs/plans/security.md), [docs/plans/2026-03-17-feature-design.md](docs/plans/2026-03-17-feature-design.md).
+**Bike Bin** – Peer-to-peer bike parts exchange app (iOS, Android, Web). Expo + React Native + TypeScript, Supabase (Auth, PostgREST, Realtime, Storage, Edge Functions), PostgreSQL + PostGIS, TanStack Query, React Native Paper (MD3), react-i18next, Expo Router. Feature slices, anemic domain models, incremental visual-first development. Reference: [docs/functional-specs.md](docs/functional-specs.md), [docs/technical-specs.md](docs/technical-specs.md), [docs/system-architecture.md](docs/system-architecture.md), [docs/security.md](docs/security.md), [docs/feature-design.md](docs/feature-design.md).
 
 ---
 
@@ -97,18 +97,19 @@ npm run storybook              # React Native Storybook
 
 ## Documentation
 
-| Doc                                                                                | Purpose                                           |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------- |
-| [docs/plans/functional-specs.md](docs/plans/functional-specs.md)                   | Product scope, features, user flows               |
-| [docs/plans/technical-specs.md](docs/plans/technical-specs.md)                     | Tech stack, patterns, testing, code quality       |
-| [docs/plans/architecture.md](docs/plans/architecture.md)                           | System design, feature slices, data flow          |
-| [docs/plans/security.md](docs/plans/security.md)                                   | Auth, RLS, privacy, GDPR                          |
-| [docs/plans/2026-03-17-feature-design.md](docs/plans/2026-03-17-feature-design.md) | Design decisions, screen-level UX specs           |
-| [docs/description.md](docs/description.md)                                         | App description (update with implementation)      |
-| [docs/development.md](docs/development.md)                                         | Dev setup, run, debug                             |
-| [docs/architecture.md](docs/architecture.md)                                       | Current architecture (update with implementation) |
-| [docs/datamodel.md](docs/datamodel.md)                                             | Entities, types, Supabase schema                  |
-| [docs/testing.md](docs/testing.md)                                                 | How to run and write tests                        |
-| [docs/code-quality.md](docs/code-quality.md)                                       | ESLint, Prettier, hooks, CI                       |
+| Doc                                                        | Purpose                                           |
+| ---------------------------------------------------------- | ------------------------------------------------- |
+| [docs/functional-specs.md](docs/functional-specs.md)       | Product scope, features, user flows               |
+| [docs/technical-specs.md](docs/technical-specs.md)         | Tech stack, patterns, testing, code quality       |
+| [docs/system-architecture.md](docs/system-architecture.md) | System design, feature slices, data flow          |
+| [docs/security.md](docs/security.md)                       | Auth, RLS, privacy, GDPR                          |
+| [docs/feature-design.md](docs/feature-design.md)           | Design decisions, screen-level UX specs           |
+| [docs/specs/README.md](docs/specs/README.md)               | Per-topic feature design specs index              |
+| [docs/description.md](docs/description.md)                 | App description (update with implementation)      |
+| [docs/development.md](docs/development.md)                 | Dev setup, run, debug                             |
+| [docs/architecture.md](docs/architecture.md)               | Current architecture (update with implementation) |
+| [docs/datamodel.md](docs/datamodel.md)                     | Entities, types, Supabase schema                  |
+| [docs/testing.md](docs/testing.md)                         | How to run and write tests                        |
+| [docs/code-quality.md](docs/code-quality.md)               | ESLint, Prettier, hooks, CI                       |
 
 When implementing or changing features, update the matching doc.

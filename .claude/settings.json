@@ -25,7 +25,7 @@
       "mcp__plugin_playwright_playwright__browser_evaluate"
     ],
     "additionalDirectories": [
-      "/Users/ttu/src/github/bike-bin/docs/superpowers",
+      "/Users/ttu/src/github/bike-bin/docs/specs",
       "/Users/ttu/src/github/bike-bin/verification-sessions"
     ]
   }

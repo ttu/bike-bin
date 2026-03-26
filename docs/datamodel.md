@@ -119,7 +119,7 @@ Migrations may define **SECURITY DEFINER** functions (e.g. tag autocomplete, sea
 
 ## RLS
 
-All user-facing tables use **Row Level Security**. Policy definitions live in migration files (e.g. `00004_rls_policies.sql` and later fixes). When adding tables or columns, add matching policies — see [plans/security.md](plans/security.md).
+All user-facing tables use **Row Level Security**. Policy definitions live in migration files (e.g. `00004_rls_policies.sql` and later fixes). When adding tables or columns, add matching policies — see [security.md](security.md).
 
 ---
 

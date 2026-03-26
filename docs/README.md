@@ -1,45 +1,45 @@
 # Bike Bin — Documentation
 
-This folder contains planning and reference documentation for the Bike Bin application.
+This folder contains **specifications**, **design decisions**, and **reference** material for the Bike Bin application.
 
-## Planning documents (`docs/plans/`)
+## Specifications and design
 
-Implementation plans, specs, and architecture live under **`docs/plans/`** so they stay separate from reference docs.
+These documents define product behavior, UX decisions, stack conventions, and system shape. **Authoritative behavior** for the running app is always the **code**, **migrations**, and **generated types**; these files explain intent and trade-offs.
 
-| Document                                                                           | Description                                               |
-| ---------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [plans/functional-specs.md](plans/functional-specs.md)                             | Product overview, user flows, features, and scope         |
-| [plans/technical-specs.md](plans/technical-specs.md)                               | Tech stack, architecture decisions, code quality, testing |
-| [plans/architecture.md](plans/architecture.md)                                     | System design, feature slices, layers, patterns           |
-| [plans/security.md](plans/security.md)                                             | Authentication, RLS, privacy, GDPR, moderation            |
-| [plans/2026-03-17-feature-design.md](plans/2026-03-17-feature-design.md)           | Design decisions, screen-level UX specs                   |
-| [plans/2026-03-18-implementation-plan.md](plans/2026-03-18-implementation-plan.md) | Phased implementation plan (14 phases)                    |
+| Document                                               | Description                                                     |
+| ------------------------------------------------------ | --------------------------------------------------------------- |
+| [functional-specs.md](functional-specs.md)             | Product overview, user flows, features, scope                   |
+| [technical-specs.md](technical-specs.md)               | Tech stack, patterns, testing philosophy, code quality          |
+| [system-architecture.md](system-architecture.md)       | System design, feature slices, data flow, deployment            |
+| [security.md](security.md)                             | Authentication, RLS, privacy, GDPR, moderation                  |
+| [feature-design.md](feature-design.md)                 | Resolved UX decisions, screen-level flows                       |
+| [implementation-roadmap.md](implementation-roadmap.md) | Phased delivery roadmap (historical / guiding)                  |
+| [specs/README.md](specs/README.md)                     | Per-topic feature design specs (behavior + technical decisions) |
 
-## Reference documentation (`docs/`)
+## Reference documentation
 
 These files describe the **current implementation**. Update them when behavior or structure changes.
 
-| Document                           | Description                                        |
-| ---------------------------------- | -------------------------------------------------- |
-| [description.md](description.md)   | App description, audience, feature summary         |
-| [development.md](development.md)   | Dev setup, run, debug, scripts                     |
-| [architecture.md](architecture.md) | Current architecture (layers, features, data flow) |
-| [datamodel.md](datamodel.md)       | Entities, types, Supabase schema                   |
-| [testing.md](testing.md)           | How to run and write tests                         |
-| [code-quality.md](code-quality.md) | ESLint, Prettier, hooks, CI                        |
+| Document                           | Description                                                   |
+| ---------------------------------- | ------------------------------------------------------------- |
+| [description.md](description.md)   | App description, audience, feature summary                    |
+| [development.md](development.md)   | Dev setup, run, debug, scripts                                |
+| [architecture.md](architecture.md) | How the repo is structured today (layers, routing, data flow) |
+| [datamodel.md](datamodel.md)       | Entities, types, Supabase schema                              |
+| [testing.md](testing.md)           | How to run and write tests                                    |
+| [code-quality.md](code-quality.md) | ESLint, Prettier, hooks, CI                                   |
 
-## Source of truth
+## Where truth lives
 
-Each doc should reference the code it describes:
-
-- **Types / data schema:** `src/shared/types/`, `supabase/migrations/`
-- **Features:** `src/features/*/`
-- **Shared UI & utils:** `src/shared/`
-- **Edge Functions:** `supabase/functions/`
-- **Dependencies:** `package.json`
+| Concern               | Primary source                         |
+| --------------------- | -------------------------------------- |
+| Schema, RLS, policies | `supabase/migrations/`                 |
+| Types                 | `src/shared/types/` (aligned with DB)  |
+| App behavior          | `app/`, `src/features/`, `src/shared/` |
+| Edge logic            | `supabase/functions/`                  |
 
 ## Keeping documentation updated
 
-When changing the codebase, update the corresponding planning or reference doc so they stay in sync.
+When you change the codebase, update the matching spec or reference doc so intent stays clear.
 
 _(Pattern from [emergency-supply-tracker/docs](https://github.com/ttu/emergency-supply-tracker/tree/main/docs).)_

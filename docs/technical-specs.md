@@ -59,9 +59,9 @@ _(Guidance adapted from [emergency-supply-tracker](https://github.com/ttu/emerge
 
 ### Project structure
 
-- **Feature slice architecture:** Code organized by feature under `src/features/` (inventory, bikes, borrow, exchange, groups, messaging, search, notifications, ratings, locations, profile, auth, onboarding). See [architecture.md](architecture.md) for directory layout and public API pattern.
+- **Feature slice architecture:** Code organized by feature under `src/features/` (inventory, bikes, borrow, exchange, groups, messaging, search, notifications, ratings, locations, profile, auth, onboarding). See [system-architecture.md](system-architecture.md) for directory layout and public API pattern.
 - **Shared code:** `src/shared/` for components, hooks, types, utils, Supabase API layer, and TanStack Query config. Cross-feature logic in shared; feature-specific in the slice.
-- **Navigation:** **Expo Router** (file-based routing) under `app/`. 4-tab layout: Inventory, Search, Messages, Profile. See [architecture.md](architecture.md) §3.1 for screen tree.
+- **Navigation:** **Expo Router** (file-based routing) under `app/`. 4-tab layout: Inventory, Search, Messages, Profile. See [system-architecture.md](system-architecture.md) §3.1 for screen tree.
 
 ### State management
 
@@ -289,7 +289,7 @@ The web version uses a **max-width container** centered on screen — the app fe
 ### When to create a design doc
 
 - Major features, architectural changes, complex business logic, data model changes, cross-cutting concerns.
-- Not for: small bug fixes, UI-only changes, minor refactors. See [architecture.md](architecture.md) §11.
+- Not for: small bug fixes, UI-only changes, minor refactors. See [system-architecture.md](system-architecture.md) §11.
 
 ---
 
@@ -474,7 +474,7 @@ _(Pattern from [emergency-supply-tracker](https://github.com/ttu/emergency-suppl
 - **Visual regression:** Screenshot comparison in E2E tests (non-blocking CI).
 - **Mutation testing:** StrykerJS — run locally, not in CI.
 - **Storybook:** React Native Storybook for component development + Storybook interaction tests in CI.
-- **CI:** **GitHub Actions** — parallel jobs for lint, type-check, test, storybook, e2e, a11y, visual (non-blocking), then build. See [architecture.md §9](architecture.md) for detailed job graph.
+- **CI:** **GitHub Actions** — parallel jobs for lint, type-check, test, storybook, e2e, a11y, visual (non-blocking), then build. See [system-architecture.md §9](system-architecture.md) for detailed job graph.
 - **Pre-commit:** Husky + lint-staged — ESLint (fix) + Prettier on staged files (see §9).
 
 ---

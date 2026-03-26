@@ -1,8 +1,8 @@
 # Bike Bin — Architecture (Reference)
 
 > **Purpose:** How the application is structured today — layers, feature slices, routing, and data flow.  
-> **Target design & diagrams:** [plans/architecture.md](plans/architecture.md).  
-> **Source of truth:** `app/`, `src/features/`, `src/shared/`, `supabase/`.
+> **Target system design & diagrams:** [system-architecture.md](system-architecture.md).  
+> **Authoritative structure:** `app/`, `src/features/`, `src/shared/`, `supabase/`.
 
 ---
 
