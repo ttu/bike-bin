@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { AvailabilityType, ItemCategory } from '@/shared/types';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
+import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import type { UserId, LocationId } from '@/shared/types';
 import { useSearchItems } from '../useSearchItems';
 import { DEFAULT_SEARCH_FILTERS } from '../../types';
 import type { SearchFilters } from '../../types';
-import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
-import { createMockSearchItemsRpcRow } from '@/test/factories';
 
 // Mock supabase
 const mockRpc = jest.fn();
@@ -16,6 +16,12 @@ jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     rpc: (...args: unknown[]) => mockRpc(...args),
     from: (...args: unknown[]) => mockFrom(...args),
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: 'current-user-id' } },
+        error: null,
+      }),
+    },
   },
 }));
 
@@ -37,6 +43,43 @@ jest.mock('@/features/locations', () => ({
     isLoading: false,
   }),
 }));
+
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return React.createElement(QueryClientProvider, { client: queryClient }, children);
+  }
+  return Wrapper;
+}
+
+function createRpcRow(overrides?: Record<string, unknown>) {
+  return {
+    id: 'item-1',
+    owner_id: 'owner-1',
+    name: 'Shimano Cassette',
+    category: ItemCategory.Component,
+    brand: 'Shimano',
+    model: '105 R7000',
+    description: 'Good cassette',
+    condition: ItemCondition.Good,
+    status: 'stored',
+    availability_types: [AvailabilityType.Borrowable],
+    price: null,
+    deposit: null,
+    borrow_duration: null,
+    visibility: 'all',
+    pickup_location_id: 'loc-2',
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-15T00:00:00Z',
+    distance_meters: 1500,
+    ...overrides,
+  };
+}
 
 describe('useSearchItems', () => {
   beforeEach(() => {
@@ -74,7 +117,7 @@ describe('useSearchItems', () => {
   it('does not fetch when query is empty', () => {
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: '' };
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     expect(result.current.fetchStatus).toBe('idle');
@@ -82,12 +125,12 @@ describe('useSearchItems', () => {
   });
 
   it('fetches search results when query is provided', async () => {
-    const row = createMockSearchItemsRpcRow();
+    const row = createRpcRow();
     mockRpc.mockResolvedValue({ data: [row], error: null });
 
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'cassette' };
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -120,7 +163,7 @@ describe('useSearchItems', () => {
     };
 
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -134,11 +177,11 @@ describe('useSearchItems', () => {
   });
 
   it('filters by offer type client-side', async () => {
-    const borrowable = createMockSearchItemsRpcRow({
+    const borrowable = createRpcRow({
       id: 'item-1',
       availability_types: [AvailabilityType.Borrowable],
     });
-    const sellable = createMockSearchItemsRpcRow({
+    const sellable = createRpcRow({
       id: 'item-2',
       owner_id: 'owner-1',
       availability_types: [AvailabilityType.Sellable],
@@ -153,7 +196,7 @@ describe('useSearchItems', () => {
     };
 
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -165,12 +208,12 @@ describe('useSearchItems', () => {
   });
 
   it('applies price range filter client-side', async () => {
-    const cheap = createMockSearchItemsRpcRow({
+    const cheap = createRpcRow({
       id: 'item-1',
       availability_types: [AvailabilityType.Sellable],
       price: 10,
     });
-    const expensive = createMockSearchItemsRpcRow({
+    const expensive = createRpcRow({
       id: 'item-2',
       owner_id: 'owner-1',
       availability_types: [AvailabilityType.Sellable],
@@ -185,7 +228,7 @@ describe('useSearchItems', () => {
     };
 
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -197,12 +240,12 @@ describe('useSearchItems', () => {
   });
 
   it('sorts by newest when sortBy is newest', async () => {
-    const older = createMockSearchItemsRpcRow({
+    const older = createRpcRow({
       id: 'item-1',
       created_at: '2026-01-01T00:00:00Z',
       distance_meters: 100,
     });
-    const newer = createMockSearchItemsRpcRow({
+    const newer = createRpcRow({
       id: 'item-2',
       owner_id: 'owner-1',
       created_at: '2026-03-01T00:00:00Z',
@@ -217,7 +260,7 @@ describe('useSearchItems', () => {
     };
 
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -229,7 +272,7 @@ describe('useSearchItems', () => {
   });
 
   it('enriches results with owner profile data', async () => {
-    const row = createMockSearchItemsRpcRow({ owner_id: 'owner-abc' });
+    const row = createRpcRow({ owner_id: 'owner-abc' });
     mockRpc.mockResolvedValue({ data: [row], error: null });
 
     mockFrom.mockImplementation((table: string) => {
@@ -277,7 +320,7 @@ describe('useSearchItems', () => {
 
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'cassette' };
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -297,7 +340,7 @@ describe('useSearchItems', () => {
 
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'fail' };
     const { result } = renderHook(() => useSearchItems({ filters }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     await waitFor(() => {
@@ -310,10 +353,29 @@ describe('useSearchItems', () => {
   it('respects enabled flag', () => {
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'test' };
     const { result } = renderHook(() => useSearchItems({ filters, enabled: false }), {
-      wrapper: createQueryClientHookWrapper(),
+      wrapper: createWrapper(),
     });
 
     expect(result.current.fetchStatus).toBe('idle');
     expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it('passes through RPC results without client-side own-item filtering (exclusion is a DB contract)', async () => {
+    // Contract: the DB excludes own items (owner_id = current user); the hook passes results through unchanged.
+    const otherItem = createRpcRow({ id: 'other-item', owner_id: 'other-user-id' });
+    mockRpc.mockResolvedValue({ data: [otherItem], error: null });
+
+    const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'cassette' };
+    const { result } = renderHook(() => useSearchItems({ filters }), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    const ids = result.current.data!.map((r) => r.id);
+    expect(ids).not.toContain('own-item');
+    expect(ids).toContain('other-item');
   });
 });
