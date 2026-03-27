@@ -57,12 +57,14 @@ describe('ItemForm', () => {
     expect(getByText('Broken')).toBeTruthy();
   });
 
-  it('renders availability checkboxes', () => {
-    const { getByText } = renderWithProviders(<ItemForm {...defaultProps} />);
+  it('renders availability checkboxes with Private first', () => {
+    const { getByText, getAllByText } = renderWithProviders(<ItemForm {...defaultProps} />);
+    expect(getByText('Private')).toBeTruthy();
     expect(getByText('Borrowable')).toBeTruthy();
     expect(getByText('Donatable')).toBeTruthy();
     expect(getByText('Sellable')).toBeTruthy();
-    expect(getByText('Private')).toBeTruthy();
+    const row = getAllByText(/Private|Borrowable|Donatable|Sellable/);
+    expect(row[0].props.children).toBe('Private');
   });
 
   it('shows subcategories when a category is selected', () => {
@@ -150,6 +152,7 @@ describe('ItemForm', () => {
           name: 'My Cassette',
           category: ItemCategory.Component,
           condition: ItemCondition.Good,
+          availabilityTypes: [AvailabilityType.Private],
           visibility: 'private',
         }),
       );

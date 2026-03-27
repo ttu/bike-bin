@@ -44,10 +44,10 @@ const CONDITION_ICONS: Record<string, string> = {
   broken: 'close-circle-outline',
 };
 const AVAILABILITY_OPTIONS = [
+  AvailabilityType.Private,
   AvailabilityType.Borrowable,
   AvailabilityType.Donatable,
   AvailabilityType.Sellable,
-  AvailabilityType.Private,
 ];
 
 interface ItemFormProps {
@@ -93,9 +93,12 @@ export function ItemForm({
   const [brandMenuVisible, setBrandMenuVisible] = useState(false);
   const [brandSearch, setBrandSearch] = useState('');
   const [model, setModel] = useState(initialData?.model ?? '');
-  const [availabilityTypes, setAvailabilityTypes] = useState<AvailabilityType[]>(
-    initialData?.availabilityTypes ?? [],
-  );
+  const [availabilityTypes, setAvailabilityTypes] = useState<AvailabilityType[]>(() => {
+    if (initialData?.availabilityTypes !== undefined) {
+      return initialData.availabilityTypes;
+    }
+    return [AvailabilityType.Private];
+  });
   const [price, setPrice] = useState(initialData?.price?.toString() ?? '');
   const [deposit, setDeposit] = useState(initialData?.deposit?.toString() ?? '');
   const [borrowDuration, setBorrowDuration] = useState(initialData?.borrowDuration ?? '');
@@ -620,6 +623,25 @@ export function ItemForm({
       </Text>
       <View style={styles.chipRow}>
         <Chip
+          selected={visibility === Visibility.Private}
+          onPress={() => setVisibility(Visibility.Private)}
+          showSelectedCheck={false}
+          textStyle={
+            visibility === Visibility.Private ? { color: theme.colors.onPrimary } : undefined
+          }
+          style={[
+            styles.chip,
+            {
+              backgroundColor:
+                visibility === Visibility.Private
+                  ? theme.colors.primary
+                  : theme.colors.secondaryContainer,
+            },
+          ]}
+        >
+          {t('form.visibilityPrivate')}
+        </Chip>
+        <Chip
           selected={visibility === Visibility.All}
           onPress={() => setVisibility(Visibility.All)}
           showSelectedCheck={false}
@@ -654,25 +676,6 @@ export function ItemForm({
           ]}
         >
           {t('form.visibilityGroups')}
-        </Chip>
-        <Chip
-          selected={visibility === Visibility.Private}
-          onPress={() => setVisibility(Visibility.Private)}
-          showSelectedCheck={false}
-          textStyle={
-            visibility === Visibility.Private ? { color: theme.colors.onPrimary } : undefined
-          }
-          style={[
-            styles.chip,
-            {
-              backgroundColor:
-                visibility === Visibility.Private
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-            },
-          ]}
-        >
-          {t('form.visibilityPrivate')}
         </Chip>
       </View>
 
