@@ -1,7 +1,13 @@
 import { screen, fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
-import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import {
+  ItemStatus,
+  ItemCategory,
+  ItemCondition,
+  AvailabilityType,
+  Visibility,
+} from '@/shared/types';
 import type { ItemId } from '@/shared/types';
 import EditItemScreen from '../[id]';
 
@@ -49,9 +55,11 @@ const mockItem = createMockItem({
   id: 'item-123' as ItemId,
   name: 'Test Chain',
   category: ItemCategory.Component,
+  subcategory: 'drivetrain',
   condition: ItemCondition.Good,
   status: ItemStatus.Stored,
   availabilityTypes: [AvailabilityType.Borrowable],
+  visibility: Visibility.Private,
   tags: ['shimano', 'road', '11-speed'],
 });
 
@@ -91,5 +99,18 @@ describe('EditItemScreen', () => {
     expect(screen.getByText('shimano')).toBeTruthy();
     expect(screen.getByText('road')).toBeTruthy();
     expect(screen.getByText('11-speed')).toBeTruthy();
+  });
+
+  it('includes saved subcategory when updating without changing category fields', () => {
+    renderWithProviders(<EditItemScreen />);
+
+    fireEvent.press(screen.getByText('Update Inventory'));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'item-123',
+        subcategory: 'drivetrain',
+      }),
+    );
   });
 });

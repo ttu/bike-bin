@@ -130,6 +130,7 @@ export default function EditItemScreen() {
   const initialData: ItemFormData = {
     name: item.name,
     category: item.category,
+    subcategory: item.subcategory,
     condition: item.condition,
     brand: item.brand,
     model: item.model,
