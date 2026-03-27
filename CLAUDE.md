@@ -20,16 +20,16 @@
 
 ### Finishing a Feature
 
-1. **Ensure main is up to date**: `git fetch origin && git checkout main && git pull`
-2. **In the worktree**, rebase onto main: `git rebase main`
+1. **Ensure main is up to date** (from the primary clone): `git fetch origin && git checkout main && git pull`
+2. **In the worktree**: `git checkout <branch-name>` then `git rebase main`
 3. **Squash all commits into one**: `git reset --soft main && git commit -m "<conventional commit message>"`
-4. **Cherry-pick to main**: from the main working directory, `git cherry-pick <commit-hash>`
+4. **Fast-forward main** (from the primary clone, not the worktree): `git checkout main && git merge --ff-only <branch-name>`
 5. **Clean up**: `git worktree remove .worktrees/<slug> && git branch -d <branch-name>`
 
 ### Important Rules
 
-- **No PRs** — this project is in rapid development, cherry-pick directly to main
-- **Single commit per feature** — always squash before cherry-picking
+- **No PRs** — this project is in rapid development; integrate on main with `git merge --ff-only`
+- **Single commit per feature** — always squash before merging to main
 - **Never work directly on main** — always use a worktree
 - The worktree directory name should match the branch slug (e.g., branch `feat/dark-mode` → `.worktrees/dark-mode/`)
 
