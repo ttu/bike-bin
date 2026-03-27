@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -13,6 +13,8 @@ import { PhotoGallery } from '@/shared/components';
 import { useDistanceUnit } from '@/features/profile';
 
 const WIDE_BREAKPOINT = 768;
+/** Max content width on wide viewports — centered column avoids stretched layouts on web. */
+const WIDE_PAGE_MAX_WIDTH = 1120;
 
 const CONDITION_ICONS: Record<string, string> = {
   new: 'shield-check',
@@ -45,6 +47,8 @@ export function ItemDetail({
   const themed = useThemedStyles(theme);
   const { width: windowWidth } = useWindowDimensions();
   const isWide = windowWidth >= WIDE_BREAKPOINT;
+  const wideContentWidth = Math.min(windowWidth, WIDE_PAGE_MAX_WIDTH);
+  const wideHeroGalleryMax = Math.max(320, wideContentWidth - spacing.base * 2);
   const { distanceUnit } = useDistanceUnit();
 
   const statusColorToken = getStatusColor(item.status);
@@ -199,59 +203,93 @@ export function ItemDetail({
       )}
 
       {/* Actions */}
-      <View style={styles.actionSection}>
+      <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
         {canShowReturnedAction && onMarkReturned && (
-          <GradientButton onPress={onMarkReturned} style={styles.actionButton}>
-            {t('detail.markReturned')}
-          </GradientButton>
+          <ActionSlot isWide={isWide}>
+            <GradientButton
+              onPress={onMarkReturned}
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('detail.markReturned')}
+            </GradientButton>
+          </ActionSlot>
         )}
         {canShowDonateAction && onMarkDonated && (
-          <Button mode="outlined" onPress={onMarkDonated} style={styles.actionButton}>
-            {t('detail.markDonated')}
-          </Button>
+          <ActionSlot isWide={isWide}>
+            <Button
+              mode="outlined"
+              onPress={onMarkDonated}
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('detail.markDonated')}
+            </Button>
+          </ActionSlot>
         )}
         {canShowSoldAction && onMarkSold && (
-          <Button mode="outlined" onPress={onMarkSold} style={styles.actionButton}>
-            {t('detail.markSold')}
-          </Button>
+          <ActionSlot isWide={isWide}>
+            <Button
+              mode="outlined"
+              onPress={onMarkSold}
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('detail.markSold')}
+            </Button>
+          </ActionSlot>
         )}
         {canShowArchiveAction && onArchive && (
-          <Button mode="outlined" onPress={onArchive} style={styles.actionButton}>
-            {t('detail.archive')}
-          </Button>
+          <ActionSlot isWide={isWide}>
+            <Button
+              mode="outlined"
+              onPress={onArchive}
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('detail.archive')}
+            </Button>
+          </ActionSlot>
         )}
         {canShowDeleteAction && onDelete && (
-          <Button
-            mode="text"
-            onPress={onDelete}
-            textColor={theme.colors.error}
-            style={styles.actionButton}
-          >
-            {t('deleteItem')}
-          </Button>
+          <ActionSlot isWide={isWide} fullWidth>
+            <Button
+              mode="text"
+              onPress={onDelete}
+              textColor={theme.colors.error}
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('deleteItem')}
+            </Button>
+          </ActionSlot>
         )}
       </View>
     </>
   );
 
-  if (isWide) {
-    return (
-      <View style={styles.wideContainer}>
-        <View style={styles.wideGallery}>
-          <PhotoGallery photos={photos} />
-        </View>
-        <ScrollView style={styles.wideDetails} contentContainerStyle={styles.content}>
-          {detailContent}
-        </ScrollView>
-      </View>
-    );
-  }
-
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <PhotoGallery photos={photos} />
-      {detailContent}
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, isWide && styles.wideScrollContent]}
+    >
+      <View style={isWide ? styles.widePageInner : undefined}>
+        <PhotoGallery photos={photos} maxGalleryWidth={isWide ? wideHeroGalleryMax : undefined} />
+        {detailContent}
+      </View>
     </ScrollView>
+  );
+}
+
+function ActionSlot({
+  isWide,
+  fullWidth,
+  children,
+}: {
+  isWide: boolean;
+  fullWidth?: boolean;
+  children: ReactNode;
+}) {
+  if (!isWide) {
+    return <>{children}</>;
+  }
+  return (
+    <View style={[styles.actionGridCell, fullWidth && styles.actionGridCellFull]}>{children}</View>
   );
 }
 
@@ -327,17 +365,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  wideContainer: {
-    flex: 1,
-    flexDirection: 'row',
+  wideScrollContent: {
+    flexGrow: 1,
   },
-  wideGallery: {
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: spacing.base,
-  },
-  wideDetails: {
-    flex: 1,
+  widePageInner: {
+    width: '100%',
+    maxWidth: WIDE_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
   },
   content: {
     paddingBottom: spacing['2xl'],
@@ -349,6 +383,19 @@ const styles = StyleSheet.create({
   actionSection: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.base,
+  },
+  actionSectionWide: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    alignItems: 'stretch',
+  },
+  actionGridCell: {
+    width: '48%',
+  },
+  actionGridCellFull: {
+    width: '100%',
+    alignItems: 'center',
   },
   breadcrumb: {
     letterSpacing: 1,
@@ -406,5 +453,9 @@ const styles = StyleSheet.create({
   actionButton: {
     marginBottom: spacing.sm,
     borderRadius: borderRadius.md,
+  },
+  actionButtonInGrid: {
+    marginBottom: 0,
+    width: '100%',
   },
 });

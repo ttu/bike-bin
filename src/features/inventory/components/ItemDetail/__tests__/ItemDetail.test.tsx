@@ -117,7 +117,7 @@ describe('ItemDetail', () => {
     expect(queryByText('Delete item')).toBeNull();
   });
 
-  it('renders side-by-side layout on wide screens', () => {
+  it('renders centered wide column layout on wide screens', () => {
     jest
       .spyOn(Dimensions, 'get')
       .mockReturnValue({ width: 1024, height: 768, scale: 1, fontScale: 1 });

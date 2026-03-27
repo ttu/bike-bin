@@ -103,7 +103,7 @@ describe('BikeDetailScreen', () => {
     expect(getByText('Canyon Grail')).toBeTruthy();
   });
 
-  it('renders side-by-side layout on wide screens', () => {
+  it('renders centered wide column layout on wide screens', () => {
     jest
       .spyOn(RN, 'useWindowDimensions')
       .mockReturnValue({ width: 1024, height: 768, scale: 1, fontScale: 1 });

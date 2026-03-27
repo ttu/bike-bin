@@ -24,6 +24,8 @@ const ASPECT_RATIO = 0.75; // 4:3
 
 interface PhotoGalleryProps {
   photos: GalleryPhoto[];
+  /** When set, caps gallery width (defaults to 500). Use on wide layouts for a larger hero. */
+  maxGalleryWidth?: number;
 }
 
 function ParallaxPhoto({
@@ -68,7 +70,7 @@ function ParallaxPhoto({
   );
 }
 
-export function PhotoGallery({ photos }: PhotoGalleryProps) {
+export function PhotoGallery({ photos, maxGalleryWidth }: PhotoGalleryProps) {
   const theme = useTheme<AppTheme>();
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -76,7 +78,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const scrollViewRef = useRef<ScrollView>(null);
   const { width: windowWidth } = useWindowDimensions();
 
-  const galleryWidth = Math.min(windowWidth, MAX_GALLERY_WIDTH);
+  const widthCap = maxGalleryWidth ?? MAX_GALLERY_WIDTH;
+  const galleryWidth = Math.min(windowWidth, widthCap);
   const galleryHeight = galleryWidth * ASPECT_RATIO;
 
   const scrollToIndex = useCallback(

@@ -11,6 +11,7 @@ import { PhotoGallery } from '@/shared/components';
 import { spacing, borderRadius } from '@/shared/theme';
 
 const WIDE_BREAKPOINT = 768;
+const WIDE_PAGE_MAX_WIDTH = 1120;
 
 export default function BikeDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -22,6 +23,8 @@ export default function BikeDetailScreen() {
   const { data: photos = [] } = useBikePhotos(bikeId);
   const { width: windowWidth } = useWindowDimensions();
   const isWide = windowWidth >= WIDE_BREAKPOINT;
+  const wideContentWidth = Math.min(windowWidth, WIDE_PAGE_MAX_WIDTH);
+  const wideHeroGalleryMax = Math.max(320, wideContentWidth - spacing.base * 2);
 
   if (isLoading || !bike) {
     return <View style={[styles.container, { backgroundColor: theme.colors.background }]} />;
@@ -41,21 +44,15 @@ export default function BikeDetailScreen() {
           onPress={() => router.push(`/(tabs)/inventory/bikes/edit/${bike.id}` as never)}
         />
       </Appbar.Header>
-      {isWide ? (
-        <View style={styles.wideContainer}>
-          <View style={styles.wideGallery}>
-            <PhotoGallery photos={photos} />
-          </View>
-          <ScrollView style={styles.wideDetails} contentContainerStyle={styles.content}>
-            <BikeDetails bike={bike} bikeId={bikeId} theme={theme} t={t} />
-          </ScrollView>
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={styles.content}>
-          <PhotoGallery photos={photos} />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, isWide && styles.wideScrollContent]}
+      >
+        <View style={isWide ? styles.widePageInner : undefined}>
+          <PhotoGallery photos={photos} maxGalleryWidth={isWide ? wideHeroGalleryMax : undefined} />
           <BikeDetails bike={bike} bikeId={bikeId} theme={theme} t={t} />
-        </ScrollView>
-      )}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -132,17 +129,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  wideContainer: {
+  scroll: {
     flex: 1,
-    flexDirection: 'row',
   },
-  wideGallery: {
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: spacing.base,
+  wideScrollContent: {
+    flexGrow: 1,
   },
-  wideDetails: {
-    flex: 1,
+  widePageInner: {
+    width: '100%',
+    maxWidth: WIDE_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
   },
   content: {
     paddingBottom: spacing['2xl'],

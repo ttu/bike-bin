@@ -25,6 +25,11 @@ describe('PhotoGallery', () => {
     expect(getByText('No photos')).toBeTruthy();
   });
 
+  it('respects maxGalleryWidth when provided', () => {
+    const { getByText } = renderWithProviders(<PhotoGallery photos={[]} maxGalleryWidth={320} />);
+    expect(getByText('No photos')).toBeTruthy();
+  });
+
   it('renders without crashing when photos are provided', () => {
     const photos = [
       { id: 'p1', storagePath: 'items/photo1.jpg' },
