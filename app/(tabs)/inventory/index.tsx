@@ -139,6 +139,7 @@ export default function InventoryScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.tagFilterScroll}
             contentContainerStyle={styles.tagFilterRow}
           >
             {userTags.map((tag) => {
@@ -149,9 +150,18 @@ export default function InventoryScreen() {
                   selected={active}
                   onPress={() => toggleTag(tag)}
                   showSelectedCheck={false}
-                  style={active ? { backgroundColor: theme.colors.primary } : undefined}
-                  textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                   compact
+                  textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+                  style={[
+                    styles.tagFilterChip,
+                    {
+                      backgroundColor: active
+                        ? theme.colors.primary
+                        : theme.colors.secondaryContainer,
+                    },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
                 >
                   {tag}
                 </Chip>
@@ -256,10 +266,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: spacing.md,
   },
+  tagFilterScroll: {
+    flexGrow: 0,
+  },
   tagFilterRow: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
+  },
+  tagFilterChip: {
+    height: 36,
   },
   terminalChipRow: {
     paddingHorizontal: spacing.base,
