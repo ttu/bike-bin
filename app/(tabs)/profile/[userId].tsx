@@ -61,7 +61,9 @@ export default function PublicUserProfileScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/profile'))}
+        />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="flag-outline"

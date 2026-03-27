@@ -68,7 +68,7 @@ export default function ItemDetailScreen() {
   const handleDelete = () => {
     const doDelete = async () => {
       await deleteItem.mutateAsync({ id: item.id, status: item.status });
-      router.back();
+      router.canGoBack() ? router.back() : router.replace('/(tabs)/inventory');
     };
 
     if (Platform.OS === 'web') {
@@ -86,7 +86,9 @@ export default function ItemDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/inventory'))}
+        />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="pencil"

@@ -30,7 +30,11 @@ export default function BikeDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction
+          onPress={() =>
+            router.canGoBack() ? router.back() : router.replace('/(tabs)/inventory/bikes')
+          }
+        />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="pencil"

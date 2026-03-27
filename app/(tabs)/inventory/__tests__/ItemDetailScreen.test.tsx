@@ -7,12 +7,16 @@ import type { ItemId } from '@/shared/types';
 import ItemDetailScreen from '../[id]';
 
 const mockRouterBack = jest.fn();
+const mockRouterReplace = jest.fn();
+const mockCanGoBack = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'item-123' }),
   router: {
     back: (...args: unknown[]) => mockRouterBack(...args),
+    replace: (...args: unknown[]) => mockRouterReplace(...args),
     push: jest.fn(),
+    canGoBack: () => mockCanGoBack(),
   },
 }));
 
@@ -74,9 +78,36 @@ jest.mock('@/features/exchange', () => ({
 
 jest.spyOn(Alert, 'alert');
 
+describe('ItemDetailScreen back navigation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('calls router.back() when history exists', () => {
+    mockCanGoBack.mockReturnValue(true);
+    const { getByRole } = renderWithProviders(<ItemDetailScreen />);
+
+    fireEvent.press(getByRole('button', { name: 'Back' }));
+
+    expect(mockRouterBack).toHaveBeenCalled();
+    expect(mockRouterReplace).not.toHaveBeenCalled();
+  });
+
+  it('replaces to inventory index when no history exists', () => {
+    mockCanGoBack.mockReturnValue(false);
+    const { getByRole } = renderWithProviders(<ItemDetailScreen />);
+
+    fireEvent.press(getByRole('button', { name: 'Back' }));
+
+    expect(mockRouterReplace).toHaveBeenCalledWith('/(tabs)/inventory');
+    expect(mockRouterBack).not.toHaveBeenCalled();
+  });
+});
+
 describe('ItemDetailScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCanGoBack.mockReturnValue(true);
   });
 
   it('shows confirmation before deleting item', () => {
