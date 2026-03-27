@@ -1,6 +1,12 @@
 import { renderHook } from '@testing-library/react-native';
 import { BorrowRequestStatus } from '@/shared/types';
 
+const mockFetchPublicProfilesMap = jest.fn();
+
+jest.mock('@/shared/api/fetchPublicProfile', () => ({
+  fetchPublicProfilesMap: (...args: unknown[]) => mockFetchPublicProfilesMap(...args),
+}));
+
 // Counter-based mock for multiple from() calls
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
@@ -21,7 +27,6 @@ jest.mock('@/features/auth', () => ({
     isAuthenticated: true,
   }),
 }));
-
 
 // Import after mocks
 import { useBorrowRequests } from '../useBorrowRequests';
@@ -44,16 +49,37 @@ const mockBorrowRow = {
   },
 };
 
-const mockProfiles = [
-  { id: 'user-123', display_name: 'Alice', avatar_url: 'https://example.com/alice.jpg' },
-  { id: 'owner-456', display_name: 'Bob', avatar_url: null },
-];
+function profileMapFromSeed() {
+  return new Map([
+    [
+      'user-123',
+      {
+        id: 'user-123',
+        displayName: 'Alice',
+        avatarUrl: 'https://example.com/alice.jpg',
+        ratingAvg: 0,
+        ratingCount: 0,
+      },
+    ],
+    [
+      'owner-456',
+      {
+        id: 'owner-456',
+        displayName: 'Bob',
+        avatarUrl: undefined,
+        ratingAvg: 0,
+        ratingCount: 0,
+      },
+    ],
+  ]);
+}
 
 describe('useBorrowRequests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCallCount = 0;
     mockFromChains = [];
+    mockFetchPublicProfilesMap.mockResolvedValue(new Map());
   });
 
   it('fetches borrow requests with item and profile details', async () => {
@@ -63,15 +89,13 @@ describe('useBorrowRequests', () => {
       }),
     };
 
-    const mockProfilesChain = {
-      select: jest.fn().mockReturnValue({
-        in: jest.fn().mockResolvedValue({ data: mockProfiles, error: null }),
-      }),
-    };
+    mockFetchPublicProfilesMap.mockResolvedValue(profileMapFromSeed());
 
-    mockFromChains = [mockBorrowChain, mockProfilesChain];
+    mockFromChains = [mockBorrowChain];
 
-    const { result } = renderHook(() => useBorrowRequests(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBorrowRequests(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -95,15 +119,13 @@ describe('useBorrowRequests', () => {
       }),
     };
 
-    const mockProfilesChain = {
-      select: jest.fn().mockReturnValue({
-        in: jest.fn().mockResolvedValue({ data: mockProfiles, error: null }),
-      }),
-    };
+    mockFetchPublicProfilesMap.mockResolvedValue(profileMapFromSeed());
 
-    mockFromChains = [mockBorrowChain, mockProfilesChain];
+    mockFromChains = [mockBorrowChain];
 
-    const { result } = renderHook(() => useBorrowRequests(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBorrowRequests(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -119,7 +141,9 @@ describe('useBorrowRequests', () => {
 
     mockFromChains = [mockBorrowChain];
 
-    const { result } = renderHook(() => useBorrowRequests(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBorrowRequests(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -135,15 +159,11 @@ describe('useBorrowRequests', () => {
       }),
     };
 
-    const mockProfilesChain = {
-      select: jest.fn().mockReturnValue({
-        in: jest.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    };
+    mockFromChains = [mockBorrowChain];
 
-    mockFromChains = [mockBorrowChain, mockProfilesChain];
-
-    const { result } = renderHook(() => useBorrowRequests(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBorrowRequests(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -160,7 +180,9 @@ describe('useBorrowRequests', () => {
 
     mockFromChains = [mockBorrowChain];
 
-    const { result } = renderHook(() => useBorrowRequests(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBorrowRequests(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -171,22 +193,19 @@ describe('useBorrowRequests', () => {
     jest.resetModules();
   });
 
-  it('handles profiles being null gracefully', async () => {
+  it('handles missing profile map entries gracefully', async () => {
     const mockBorrowChain = {
       select: jest.fn().mockReturnValue({
         order: jest.fn().mockResolvedValue({ data: [mockBorrowRow], error: null }),
       }),
     };
 
-    const mockProfilesChain = {
-      select: jest.fn().mockReturnValue({
-        in: jest.fn().mockResolvedValue({ data: null, error: null }),
-      }),
-    };
+    mockFetchPublicProfilesMap.mockResolvedValue(new Map());
+    mockFromChains = [mockBorrowChain];
 
-    mockFromChains = [mockBorrowChain, mockProfilesChain];
-
-    const { result } = renderHook(() => useBorrowRequests(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBorrowRequests(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 

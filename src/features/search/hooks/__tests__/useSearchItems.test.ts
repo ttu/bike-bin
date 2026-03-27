@@ -7,6 +7,12 @@ import { useSearchItems } from '../useSearchItems';
 import { DEFAULT_SEARCH_FILTERS } from '../../types';
 import type { SearchFilters } from '../../types';
 
+const mockFetchPublicProfilesMap = jest.fn();
+
+jest.mock('@/shared/api/fetchPublicProfile', () => ({
+  fetchPublicProfilesMap: (...args: unknown[]) => mockFetchPublicProfilesMap(...args),
+}));
+
 // Mock supabase
 const mockRpc = jest.fn();
 const mockFrom = jest.fn();
@@ -84,16 +90,9 @@ function createRpcRow(overrides?: Record<string, unknown>) {
 describe('useSearchItems', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFetchPublicProfilesMap.mockResolvedValue(new Map());
 
-    // Default: profiles fetch returns empty
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'public_profiles') {
-        return {
-          select: () => ({
-            in: () => Promise.resolve({ data: [], error: null }),
-          }),
-        };
-      }
       if (table === 'saved_locations') {
         return {
           select: () => ({
@@ -275,26 +274,22 @@ describe('useSearchItems', () => {
     const row = createRpcRow({ owner_id: 'owner-abc' });
     mockRpc.mockResolvedValue({ data: [row], error: null });
 
+    mockFetchPublicProfilesMap.mockResolvedValue(
+      new Map([
+        [
+          'owner-abc',
+          {
+            id: 'owner-abc',
+            displayName: 'Alice',
+            avatarUrl: 'https://example.com/alice.jpg',
+            ratingAvg: 4.5,
+            ratingCount: 12,
+          },
+        ],
+      ]),
+    );
+
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'public_profiles') {
-        return {
-          select: () => ({
-            in: () =>
-              Promise.resolve({
-                data: [
-                  {
-                    id: 'owner-abc',
-                    display_name: 'Alice',
-                    avatar_url: 'https://example.com/alice.jpg',
-                    rating_avg: 4.5,
-                    rating_count: 12,
-                  },
-                ],
-                error: null,
-              }),
-          }),
-        };
-      }
       if (table === 'saved_locations') {
         return {
           select: () => ({

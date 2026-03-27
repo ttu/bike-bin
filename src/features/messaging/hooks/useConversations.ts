@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import { useAuth } from '@/features/auth';
 import type { ConversationListItem } from '../types';
 import type { ConversationId, ItemId, UserId } from '@/shared/types';
@@ -59,6 +60,18 @@ export function useConversations() {
 
       if (apError) throw apError;
 
+      const otherUserIds = [
+        ...new Set(
+          conversations
+            .map((c) => {
+              const p = allParticipants?.find((x) => x.conversation_id === c.id);
+              return p?.user_id as string | undefined;
+            })
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ];
+      const profileByUserId = await fetchPublicProfilesMap(otherUserIds);
+
       // Get latest message for each conversation
       const results: ConversationListItem[] = [];
 
@@ -75,17 +88,12 @@ export function useConversations() {
 
         const lastMsg = lastMessages?.[0];
 
-        // Get other participant profile
         let otherName: string | undefined;
         let otherAvatar: string | undefined;
         if (otherParticipant) {
-          const { data: profile } = await supabase
-            .from('public_profiles')
-            .select('display_name, avatar_url')
-            .eq('id', otherParticipant.user_id)
-            .single();
-          otherName = (profile?.display_name as string) ?? undefined;
-          otherAvatar = (profile?.avatar_url as string) ?? undefined;
+          const profile = profileByUserId.get(otherParticipant.user_id as string);
+          otherName = profile?.displayName;
+          otherAvatar = profile?.avatarUrl;
         }
 
         // Get primary photo for item

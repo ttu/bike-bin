@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { fetchPublicProfile } from '@/shared/api/fetchPublicProfile';
 import { useAuth } from '@/features/auth';
 import type { ConversationListItem } from '../types';
 import type { ConversationId, ItemId, UserId } from '@/shared/types';
@@ -49,13 +50,9 @@ export function useConversation(conversationId: ConversationId | undefined) {
       let otherName: string | undefined;
       let otherAvatar: string | undefined;
       if (otherParticipant) {
-        const { data: profile } = await supabase
-          .from('public_profiles')
-          .select('display_name, avatar_url')
-          .eq('id', otherParticipant.user_id)
-          .single();
-        otherName = (profile?.display_name as string) ?? undefined;
-        otherAvatar = (profile?.avatar_url as string) ?? undefined;
+        const profile = await fetchPublicProfile(otherParticipant.user_id as string);
+        otherName = profile?.displayName;
+        otherAvatar = profile?.avatarUrl;
       }
 
       // Get primary photo for item

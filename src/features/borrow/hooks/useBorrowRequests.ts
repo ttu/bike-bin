@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import { useAuth } from '@/features/auth';
 import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
 import { BorrowRequestStatus } from '@/shared/types';
@@ -54,24 +55,7 @@ export function useBorrowRequests() {
         }
       }
 
-      // Fetch all profiles in one query
-      const { data: profiles } = await supabase
-        .from('public_profiles')
-        .select('id, display_name, avatar_url')
-        .in('id', Array.from(userIds));
-
-      const profileMap = new Map<
-        string,
-        { display_name: string | null; avatar_url: string | null }
-      >();
-      if (profiles) {
-        for (const p of profiles) {
-          profileMap.set(p.id as string, {
-            display_name: p.display_name as string | null,
-            avatar_url: p.avatar_url as string | null,
-          });
-        }
-      }
+      const profileMap = await fetchPublicProfilesMap(Array.from(userIds));
 
       return data.map((row) => {
         const item = (Array.isArray(row.items) ? row.items[0] : row.items) as {
@@ -97,10 +81,10 @@ export function useBorrowRequests() {
           itemStatus: (item?.status ?? 'stored') as ItemStatus,
           itemOwnerId: (item?.owner_id ?? '') as UserId,
           itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? [],
-          requesterName: requesterProfile?.display_name ?? undefined,
-          requesterAvatarUrl: requesterProfile?.avatar_url ?? undefined,
-          ownerName: ownerProfile?.display_name ?? undefined,
-          ownerAvatarUrl: ownerProfile?.avatar_url ?? undefined,
+          requesterName: requesterProfile?.displayName,
+          requesterAvatarUrl: requesterProfile?.avatarUrl,
+          ownerName: ownerProfile?.displayName,
+          ownerAvatarUrl: ownerProfile?.avatarUrl,
         };
       });
     },

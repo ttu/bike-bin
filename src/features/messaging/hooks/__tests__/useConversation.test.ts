@@ -1,6 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import type { ConversationId } from '@/shared/types';
 
+const mockFetchPublicProfile = jest.fn();
+
+jest.mock('@/shared/api/fetchPublicProfile', () => ({
+  fetchPublicProfile: (...args: unknown[]) => mockFetchPublicProfile(...args),
+}));
+
 // Counter-based mock for multiple sequential supabase.from() calls
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
@@ -19,7 +25,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 // Import after mocks
 import { useConversation } from '../useConversation';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -28,11 +33,14 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockCallCount = 0;
   mockFromChains = [];
+  mockFetchPublicProfile.mockResolvedValue(undefined);
 });
 
 describe('useConversation', () => {
   it('returns undefined when conversationId is undefined', async () => {
-    const { result } = renderHook(() => useConversation(undefined), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversation(undefined), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     // enabled: !!userId && !!conversationId — disabled when no conversationId
     expect(result.current.data).toBeUndefined();
@@ -53,8 +61,15 @@ describe('useConversation', () => {
       },
     };
     const mockParticipants = [{ user_id: 'user-456' }];
-    const mockProfile = { display_name: 'Bob', avatar_url: 'https://example.com/bob.jpg' };
     const mockPhotos = [{ storage_path: 'items/item-1/photo.jpg' }];
+
+    mockFetchPublicProfile.mockResolvedValue({
+      id: 'user-456',
+      displayName: 'Bob',
+      avatarUrl: 'https://example.com/bob.jpg',
+      ratingAvg: 0,
+      ratingCount: 0,
+    });
 
     // Call 1: conversations .select().eq().single()
     mockFromChains[0] = {
@@ -74,17 +89,8 @@ describe('useConversation', () => {
       }),
     };
 
-    // Call 3: profiles .select().eq().single()
+    // Call 3: item_photos .select().eq().order().limit()
     mockFromChains[2] = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data: mockProfile, error: null }),
-        }),
-      }),
-    };
-
-    // Call 4: item_photos .select().eq().order().limit()
-    mockFromChains[3] = {
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
           order: jest.fn().mockReturnValue({

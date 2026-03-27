@@ -1,5 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 
+const mockFetchPublicProfilesMap = jest.fn();
+
+jest.mock('@/shared/api/fetchPublicProfile', () => ({
+  fetchPublicProfilesMap: (...args: unknown[]) => mockFetchPublicProfilesMap(...args),
+}));
+
 // Counter-based mock for multiple sequential supabase.from() calls
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
@@ -18,7 +24,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 // Import after mocks
 import { useConversations } from '../useConversations';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -27,6 +32,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockCallCount = 0;
   mockFromChains = [];
+  mockFetchPublicProfilesMap.mockResolvedValue(new Map());
 });
 
 describe('useConversations', () => {
@@ -40,7 +46,9 @@ describe('useConversations', () => {
       },
     ];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([]);
@@ -66,8 +74,22 @@ describe('useConversations', () => {
     const mockLastMessages = [
       { body: 'Hello!', sender_id: 'user-456', created_at: '2026-01-02T10:00:00Z' },
     ];
-    const mockProfile = { display_name: 'Alice', avatar_url: 'https://example.com/avatar.jpg' };
     const mockPhotos = [{ storage_path: 'items/item-1/photo.jpg' }];
+
+    mockFetchPublicProfilesMap.mockResolvedValue(
+      new Map([
+        [
+          'user-456',
+          {
+            id: 'user-456',
+            displayName: 'Alice',
+            avatarUrl: 'https://example.com/avatar.jpg',
+            ratingAvg: 0,
+            ratingCount: 0,
+          },
+        ],
+      ]),
+    );
 
     // Call 1: conversation_participants .select().eq()
     const mockCall1 = {
@@ -105,17 +127,8 @@ describe('useConversations', () => {
       }),
     };
 
-    // Call 5: profiles .select().eq().single()
+    // Call 5: item_photos .select().eq().order().limit()
     const mockCall5 = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data: mockProfile, error: null }),
-        }),
-      }),
-    };
-
-    // Call 6: item_photos .select().eq().order().limit()
-    const mockCall6 = {
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
           order: jest.fn().mockReturnValue({
@@ -125,9 +138,11 @@ describe('useConversations', () => {
       }),
     };
 
-    mockFromChains = [mockCall1, mockCall2, mockCall3, mockCall4, mockCall5, mockCall6];
+    mockFromChains = [mockCall1, mockCall2, mockCall3, mockCall4, mockCall5];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -188,7 +203,9 @@ describe('useConversations', () => {
       }),
     };
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -211,7 +228,9 @@ describe('useConversations', () => {
       },
     ];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBe(mockError);
@@ -273,7 +292,9 @@ describe('useConversations', () => {
       }),
     };
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -298,7 +319,9 @@ describe('useConversations', () => {
       },
     ];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
     // Hook is enabled because our mock always returns a user
     expect(result.current).toBeDefined();
   });

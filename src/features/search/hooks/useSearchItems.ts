@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
 import type { ItemId, UserId, LocationId } from '@/shared/types';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
@@ -123,13 +124,18 @@ async function fetchOwnerProfiles(ownerIds: string[]): Promise<Map<string, Owner
   const map = new Map<string, OwnerProfile>();
   if (ownerIds.length === 0) return map;
 
-  const { data } = await supabase
-    .from('public_profiles')
-    .select('id, display_name, avatar_url, rating_avg, rating_count')
-    .in('id', ownerIds);
-
-  for (const row of data ?? []) {
-    map.set(row.id, row as OwnerProfile);
+  const profiles = await fetchPublicProfilesMap(ownerIds);
+  for (const id of ownerIds) {
+    const p = profiles.get(id);
+    if (p) {
+      map.set(id, {
+        id: p.id,
+        display_name: p.displayName ?? null,
+        avatar_url: p.avatarUrl ?? null,
+        rating_avg: p.ratingAvg,
+        rating_count: p.ratingCount,
+      });
+    }
   }
   return map;
 }
