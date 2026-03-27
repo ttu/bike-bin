@@ -200,4 +200,22 @@ describe('ListingDetail', () => {
     const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
     expect(getByText(/42/)).toBeTruthy();
   });
+
+  it('renders Avatar.Image when ownerAvatarUrl is provided', () => {
+    const item = createSearchResult({ ownerAvatarUrl: 'https://example.com/avatar.jpg' });
+    const { getByTestId, queryByTestId } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} />,
+    );
+    expect(getByTestId('owner-avatar-image')).toBeTruthy();
+    expect(queryByTestId('owner-avatar-icon')).toBeNull();
+  });
+
+  it('renders Avatar.Icon when ownerAvatarUrl is not provided', () => {
+    const item = createSearchResult({ ownerAvatarUrl: undefined });
+    const { getByTestId, queryByTestId } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} />,
+    );
+    expect(getByTestId('owner-avatar-icon')).toBeTruthy();
+    expect(queryByTestId('owner-avatar-image')).toBeNull();
+  });
 });

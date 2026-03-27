@@ -79,6 +79,9 @@
       "contact": "Contact",
       "comingSoon": "Coming soon",
       "signInToContact": "Sign in to contact"
+    },
+    "errors": {
+      "contactFailed": "Failed to start conversation. Please try again."
     }
   }
 }

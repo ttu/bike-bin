@@ -1,3 +1,5 @@
+import { fireEvent } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import { renderWithProviders } from '@/test/utils';
 import ListingDetailScreen from '../[id]';
 
@@ -7,8 +9,10 @@ const mockRouterPush = jest.fn();
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'item-1' }),
   useRouter: () => ({
+    canGoBack: () => true,
     back: mockRouterBack,
     push: mockRouterPush,
+    replace: jest.fn(),
   }),
 }));
 
@@ -91,8 +95,9 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+const mockCreateConversation = jest.fn();
 jest.mock('@/features/messaging', () => ({
-  useCreateConversation: () => ({ mutate: jest.fn() }),
+  useCreateConversation: () => ({ mutate: mockCreateConversation }),
 }));
 
 jest.mock('@/features/borrow', () => ({
@@ -100,6 +105,10 @@ jest.mock('@/features/borrow', () => ({
 }));
 
 describe('ListingDetailScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders without crashing when photos have storagePath', () => {
     const { getByText } = renderWithProviders(<ListingDetailScreen />);
     expect(getByText('Test Bike Part')).toBeTruthy();
@@ -139,5 +148,36 @@ describe('ListingDetailScreen', () => {
 
     expect(photos[0].storagePath).toBe('items/photo1.jpg');
     expect(photos[0]).not.toHaveProperty('storage_path');
+  });
+
+  it('shows an Alert when createConversation fails', () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    // Override the useQuery mock to return a sellable item so the Contact button is visible
+    const reactQuery = jest.requireMock('@tanstack/react-query');
+    const originalUseQuery = reactQuery.useQuery;
+    reactQuery.useQuery = (opts: { queryKey: string[]; queryFn: () => Promise<unknown> }) => {
+      if (opts.queryKey[0] === 'listing') {
+        return {
+          data: { ...mockItem, availabilityTypes: ['donatable'] },
+          isLoading: false,
+        };
+      }
+      return originalUseQuery(opts);
+    };
+
+    const { getByText } = renderWithProviders(<ListingDetailScreen />);
+    fireEvent.press(getByText('Contact'));
+
+    // Simulate the onError callback being invoked by the mutation
+    const [, callbacks] = mockCreateConversation.mock.calls[0] as [
+      unknown,
+      { onError: () => void },
+    ];
+    callbacks.onError();
+
+    expect(alertSpy).toHaveBeenCalledWith('Failed to start conversation. Please try again.');
+
+    reactQuery.useQuery = originalUseQuery;
+    alertSpy.mockRestore();
   });
 });

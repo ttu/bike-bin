@@ -129,7 +129,20 @@ export function ListingDetail({
         <View
           style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}
         >
-          <Avatar.Icon size={40} icon="account" style={themed.avatarBg} />
+          {item.ownerAvatarUrl ? (
+            <Avatar.Image
+              testID="owner-avatar-image"
+              size={40}
+              source={{ uri: item.ownerAvatarUrl }}
+            />
+          ) : (
+            <Avatar.Icon
+              testID="owner-avatar-icon"
+              size={40}
+              icon="account"
+              style={themed.avatarBg}
+            />
+          )}
           <View style={styles.ownerInfo}>
             <Text variant="titleSmall" style={themed.primary} onPress={onOwnerPress}>
               {item.ownerDisplayName ?? ''}

@@ -35,6 +35,9 @@ export default function ListingDetailScreen() {
         onSuccess: (result) => {
           router.push(`/messages/${result.conversationId}`);
         },
+        onError: () => {
+          Alert.alert(t('listing.errors.contactFailed'));
+        },
       },
     );
   };
