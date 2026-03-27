@@ -93,15 +93,50 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ---
 
-## 4. Encryption & transport
+## 4. Realtime subscriptions
 
-### 4.1 In transit
+### 4.1 Security model
+
+Supabase Realtime `postgres_changes` subscriptions **do not enforce RLS**. The subscription filter is applied as a plain column filter on the change stream — it is not authenticated against the user's identity or RLS policies.
+
+All four Realtime subscriptions have been reviewed:
+
+| Hook | Filter | Assessment |
+|---|---|---|
+| `useRealtimeMessages` | `conversation_id=eq.<uuid>` | Low risk — IDs are UUIDs exposed only to participants via the RLS-guarded API |
+| `useRealtimeNotifications` | `user_id=eq.<auth.uid()>` | Safe — filter is the user's own JWT subject |
+| `useUnreadNotificationCount` | `user_id=eq.<auth.uid()>` | Safe — filter is the user's own JWT subject |
+| `useUnreadCount` | ~~no filter~~ | **Removed** — unfiltered subscription delivered every message row (including content) to every authenticated client |
+
+### 4.2 `useUnreadCount` — removed subscription
+
+The original implementation subscribed to all `messages` inserts with no filter to drive a badge counter. Because `postgres_changes` does not apply RLS, this delivered the full message row (body, sender, conversation) to every authenticated user's WebSocket connection regardless of conversation membership.
+
+The subscription has been removed. The hook returns 0 (MVP placeholder). The `useRealtimeMessages` hook already invalidates the same query key when messages arrive in the currently-open conversation, so there is no regression for the active chat screen.
+
+Full unread tracking across all conversations is a post-MVP feature and will require a `conversation_read_at` table and a per-conversation subscription scoped to the authenticated user's conversations.
+
+### 4.3 `useRealtimeMessages` — residual risk
+
+The subscription filter `conversation_id=eq.<uuid>` scopes events to one conversation but does not verify the subscriber is a participant. Any authenticated user who knows a conversation UUID can receive its messages in real time.
+
+**Mitigations in place:**
+- Conversation IDs are UUIDs (128-bit) — not guessable.
+- The only way to discover a conversation UUID is via the REST API, which enforces RLS and only returns conversations where the requester is a participant.
+
+**Future hardening** (post-MVP): Migrate to Supabase Realtime RLS or a server-sent broadcast pattern where the server verifies participation before joining the channel.
+
+---
+
+## 5. Encryption & transport
+
+### 5.1 In transit
 
 - **All communication over HTTPS/TLS.** Supabase enforces TLS for all API, Realtime, and Storage connections.
 - **WebSocket connections** (Supabase Realtime) use WSS (TLS-encrypted).
 - **Edge Function calls** to external services (Resend, Nominatim, Expo Push) use HTTPS.
 
-### 4.2 At rest
+### 5.2 At rest
 
 - **Database:** Supabase PostgreSQL uses encryption at rest (AES-256, managed by the cloud provider — AWS).
 - **Object storage:** Supabase Storage (S3-backed) uses server-side encryption at rest (SSE-S3).
@@ -110,7 +145,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ---
 
-## 5. Secrets & key management
+## 6. Secrets & key management
 
 | Secret                            | Storage location                                       | Access                                      |
 | --------------------------------- | ------------------------------------------------------ | ------------------------------------------- |
@@ -121,7 +156,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 | **Resend API key**                | Supabase Edge Function secrets (per environment)       | Edge Functions only                         |
 | **Expo Push access token**        | Supabase Edge Function secrets                         | Edge Functions only                         |
 
-### 5.1 Key rotation
+### 6.1 Key rotation
 
 - OAuth client secrets: Rotate via provider dashboard + update Supabase Auth config.
 - Resend API key: Rotate via Resend dashboard + update Edge Function secrets.
@@ -130,16 +165,16 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ---
 
-## 6. Input validation & abuse prevention
+## 7. Input validation & abuse prevention
 
-### 6.1 Input validation
+### 7.1 Input validation
 
 - **Client-side:** TypeScript types + form validation (required fields, length limits, format checks) before submission.
 - **Server-side:** PostgreSQL constraints (NOT NULL, CHECK, UNIQUE) and RLS policies enforce data integrity regardless of client.
 - **Image uploads:** Client-side compression to ≤2 MB. Supabase Storage bucket policy enforces max file size. Only allowed MIME types (image/jpeg, image/png, image/webp).
 - **Text fields:** Max length constraints on name, description, messages (enforced in DB schema). Sanitize for display (no HTML injection in React Native, but be cautious with web views if added later).
 
-### 6.2 Rate limiting
+### 7.2 Rate limiting
 
 - **Supabase built-in:** PostgREST has configurable rate limits per IP / per user.
 - **Auth:** Supabase Auth rate-limits login attempts automatically (protection against brute force — less relevant with OAuth, but still active).
@@ -147,7 +182,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 - **Messaging:** Consider rate-limiting message sends per user (e.g., max 60 messages/minute) to prevent spam. Implement via database function or Edge Function if needed.
 - **Listing creation:** Consider rate-limiting item creation (e.g., max 20 items/hour) to prevent automated spam.
 
-### 6.3 Reporting & moderation
+### 7.3 Reporting & moderation
 
 - **Report flow:** Users can report a listing or a user (reason + optional description). Reports stored in a `reports` table.
 - **Moderation queue:** Admin/moderator reviews reports. Actions: warn user, remove listing, suspend/ban user.
@@ -156,9 +191,9 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ---
 
-## 7. GDPR & compliance
+## 8. GDPR & compliance
 
-### 7.1 Data subject rights
+### 8.1 Data subject rights
 
 | Right                            | Implementation                                                                                                                                                                                                                                                                         |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -168,14 +203,14 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 | **Right to data portability**    | Export user data as JSON. Post-MVP but the data model supports it (all data is in structured tables).                                                                                                                                                                                  |
 | **Right to restrict processing** | User can set items to Private, leave groups, disable notifications.                                                                                                                                                                                                                    |
 
-### 7.2 Consent
+### 8.2 Consent
 
 - **Account creation:** By signing up, users agree to Terms of Service and Privacy Policy (shown during onboarding).
 - **Location:** Users explicitly choose to add saved locations. No background location tracking.
 - **Push notifications:** Explicit OS-level permission prompt (standard iOS/Android flow via `expo-notifications`).
 - **Email notifications:** Opt-in / configurable in profile settings. Default: enabled for new messages, disabled for marketing.
 
-### 7.3 Data retention
+### 8.3 Data retention
 
 | Data                      | Retention                                                                                                                                                     |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -186,7 +221,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 | Reports / moderation logs | Retained for 1 year (for appeals and safety)                                                                                                                  |
 | Geocoding cache           | Indefinite (public postcode data, not PII)                                                                                                                    |
 
-### 7.4 Legal
+### 8.4 Legal
 
 - **Privacy Policy** and **Terms of Service** required before launch. Content TBD (legal review needed).
 - **Cookie policy:** N/A (native mobile app, no cookies).
@@ -194,22 +229,22 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ---
 
-## 8. Infrastructure security
+## 9. Infrastructure security
 
-### 8.1 Supabase platform
+### 9.1 Supabase platform
 
 - Supabase runs on AWS. SOC 2 Type II compliant.
 - Database connections encrypted (TLS). Database not directly accessible from the internet (accessed via PostgREST/Realtime APIs).
 - Supabase dashboard access: use strong password + 2FA for team members.
 
-### 8.2 CI/CD security
+### 9.2 CI/CD security
 
 - **GitHub Actions:** Secrets stored as encrypted repository/environment secrets. No secrets in workflow logs.
 - **Supabase Branching (PR previews):** Preview databases are isolated. Cleaned up when PR is closed.
 - **EAS Build:** Expo EAS handles signing credentials (iOS certificates, Android keystores) securely.
 - **Dependency scanning:** Use `npm audit` or Dependabot to detect vulnerable dependencies. Run in CI.
 
-### 8.3 Client security
+### 9.3 Client security
 
 - **No secrets in client bundle.** Only the Supabase anon key is in the client (this is safe — it's a public key; RLS enforces access control).
 - **Deep link validation:** Expo Router deep links should validate parameters to prevent open redirect or injection.
@@ -217,7 +252,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 
 ---
 
-## 9. Security checklist (per feature)
+## 10. Security checklist (per feature)
 
 When building a new feature, verify:
 
@@ -234,7 +269,7 @@ When building a new feature, verify:
 
 ---
 
-## 10. Security testing
+## 11. Security testing
 
 - **RLS policy tests:** Write integration tests that verify RLS policies — test that user A cannot read/write user B's data. Use Supabase test helpers or direct SQL with different auth contexts.
 - **Auth flow tests:** E2E tests for login, logout, session expiry, unauthenticated access restrictions.
@@ -244,4 +279,4 @@ When building a new feature, verify:
 
 ---
 
-_Last updated: 2026-03-17_
+_Last updated: 2026-03-27_
