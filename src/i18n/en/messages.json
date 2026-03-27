@@ -12,7 +12,8 @@
     "lastMessagePrefix": "{{name}}: {{message}}",
     "noMessages": "No messages yet",
     "moreActions": "More actions",
-    "anonymousUser": "Anonymous"
+    "anonymousUser": "Anonymous",
+    "viewProfile": "View profile"
   },
   "detail": {
     "inputPlaceholder": "Type a message...",

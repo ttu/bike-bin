@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
-import { Text, Avatar, Appbar, useTheme } from 'react-native-paper';
+import { Text, Avatar, Appbar, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -26,12 +26,42 @@ export default function PublicUserProfileScreen() {
   const [reportVisible, setReportVisible] = useState(false);
   const reportMutation = useReport();
 
-  const { data: profile, isLoading: profileLoading } = usePublicProfile(userId);
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    isError: profileError,
+    refetch: refetchProfile,
+    isFetching: profileFetching,
+  } = usePublicProfile(userId);
   const { data: listings } = usePublicListings(userId);
   const { data: ratings } = useUserRatings(userId as string as UserId);
 
-  if (profileLoading || !profile) {
+  if (profileLoading) {
     return <LoadingScreen />;
+  }
+
+  if (profileError || !profile) {
+    return (
+      <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+        <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
+          <Appbar.BackAction
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/profile'))}
+          />
+          <Appbar.Content title={tProfile('publicProfile.notFoundTitle')} />
+        </Appbar.Header>
+        <View style={styles.notFoundBody}>
+          <Text
+            variant="bodyMedium"
+            style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}
+          >
+            {tProfile('publicProfile.notFoundMessage')}
+          </Text>
+          <Button mode="contained" onPress={() => void refetchProfile()} loading={profileFetching}>
+            {tProfile('publicProfile.retry')}
+          </Button>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   const formattedRating = profile.ratingCount > 0 ? profile.ratingAvg.toFixed(1) : '—';
@@ -193,6 +223,13 @@ export default function PublicUserProfileScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  notFoundBody: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.base,
+    gap: spacing.md,
   },
   content: {
     padding: spacing.base,

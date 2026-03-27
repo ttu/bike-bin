@@ -8,20 +8,19 @@ export function usePublicProfile(userId: string | undefined) {
     queryKey: ['publicProfile', userId],
     queryFn: async (): Promise<PublicProfile> => {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, display_name, avatar_url, rating_avg, rating_count, created_at')
-        .eq('id', userId!)
+        .rpc('get_public_profile', { p_user_id: userId! })
         .single();
 
       if (error) throw error;
 
+      const row = data as Record<string, unknown>;
       return {
-        id: data.id as string as UserId,
-        displayName: (data.display_name as string) ?? undefined,
-        avatarUrl: (data.avatar_url as string) ?? undefined,
-        ratingAvg: (data.rating_avg as number) ?? 0,
-        ratingCount: (data.rating_count as number) ?? 0,
-        createdAt: data.created_at as string,
+        id: row.id as string as UserId,
+        displayName: (row.display_name as string) ?? undefined,
+        avatarUrl: (row.avatar_url as string) ?? undefined,
+        ratingAvg: (row.rating_avg as number) ?? 0,
+        ratingCount: (row.rating_count as number) ?? 0,
+        createdAt: row.created_at as string,
       };
     },
     enabled: !!userId,

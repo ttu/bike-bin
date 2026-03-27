@@ -68,7 +68,11 @@ export default function ItemDetailScreen() {
   const handleDelete = () => {
     const doDelete = async () => {
       await deleteItem.mutateAsync({ id: item.id, status: item.status });
-      router.canGoBack() ? router.back() : router.replace('/(tabs)/inventory');
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/(tabs)/inventory');
+      }
     };
 
     if (Platform.OS === 'web') {

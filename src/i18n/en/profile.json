@@ -104,5 +104,10 @@
     "deleting": "Deleting account...",
     "errorTitle": "Error",
     "errorMessage": "Failed to delete your account. Please try again or contact support."
+  },
+  "publicProfile": {
+    "notFoundTitle": "Profile unavailable",
+    "notFoundMessage": "This profile could not be loaded.",
+    "retry": "Try again"
   }
 }

@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Appbar, Avatar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
@@ -94,6 +95,12 @@ export default function ConversationDetailScreen() {
     }
   }, [conversation, router]);
 
+  const handleOpenProfile = useCallback(() => {
+    const otherId = conversation?.otherParticipantId;
+    if (!otherId) return;
+    router.push(`/(tabs)/profile/${otherId}` as never);
+  }, [conversation, router]);
+
   const handleMarkDonated = useCallback(() => {
     setMenuVisible(false);
     if (!conversation?.itemId) return;
@@ -146,7 +153,15 @@ export default function ConversationDetailScreen() {
               router.canGoBack() ? router.back() : router.replace('/(tabs)/messages')
             }
           />
-          <View style={styles.headerContent}>
+          <Pressable
+            style={styles.headerContent}
+            onPress={handleOpenProfile}
+            disabled={!conversation?.otherParticipantId}
+            accessibilityRole="button"
+            accessibilityLabel={t('conversation.viewProfile')}
+            accessibilityState={{ disabled: !conversation?.otherParticipantId }}
+            testID="conversation-header-profile"
+          >
             {conversation?.otherParticipantAvatarUrl ? (
               <Avatar.Image size={32} source={{ uri: conversation.otherParticipantAvatarUrl }} />
             ) : (
@@ -160,7 +175,7 @@ export default function ConversationDetailScreen() {
               title={conversation?.otherParticipantName || t('conversation.anonymousUser')}
               subtitle={conversation?.itemName ?? ''}
             />
-          </View>
+          </Pressable>
           {canExchange && (
             <Menu
               visible={menuVisible}
