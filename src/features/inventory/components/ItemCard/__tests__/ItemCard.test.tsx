@@ -1,7 +1,13 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
-import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import {
+  ItemStatus,
+  ItemCategory,
+  ItemCondition,
+  AvailabilityType,
+  Visibility,
+} from '@/shared/types';
 import { ItemCard } from '../ItemCard';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -26,6 +32,7 @@ describe('ItemCard', () => {
     condition: ItemCondition.Good,
     status: ItemStatus.Stored,
     availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
+    visibility: Visibility.Private,
   });
 
   it('renders item name', () => {
@@ -66,6 +73,27 @@ describe('ItemCard', () => {
     expect(getByText('Sellable')).toBeTruthy();
   });
 
+  it('does not show Private availability chip (implicit default)', () => {
+    const item = createMockItem({
+      name: 'Solo',
+      availabilityTypes: [AvailabilityType.Private, AvailabilityType.Borrowable],
+    });
+    const { getByText, queryByText } = renderWithProviders(<ItemCard item={item} />);
+    expect(getByText('Borrowable')).toBeTruthy();
+    expect(queryByText('Private')).toBeNull();
+  });
+
+  it('renders all tags', () => {
+    const item = createMockItem({
+      name: 'Tagged',
+      tags: ['shimano', 'road', '11-speed'],
+    });
+    const { getByText } = renderWithProviders(<ItemCard item={item} />);
+    expect(getByText('shimano')).toBeTruthy();
+    expect(getByText('road')).toBeTruthy();
+    expect(getByText('11-speed')).toBeTruthy();
+  });
+
   it('fires onPress with item', () => {
     const onPress = jest.fn();
     const { getByLabelText } = renderWithProviders(<ItemCard item={baseItem} onPress={onPress} />);
@@ -74,9 +102,14 @@ describe('ItemCard', () => {
   });
 
   it('hides details in compact mode', () => {
-    const { queryByText } = renderWithProviders(<ItemCard item={baseItem} compact />);
+    const item = createMockItem({
+      ...baseItem,
+      tags: ['tag-one'],
+    });
+    const { queryByText } = renderWithProviders(<ItemCard item={item} compact />);
     expect(queryByText(/Components · Drivetrain/)).toBeNull();
     expect(queryByText('Borrowable')).toBeNull();
+    expect(queryByText('tag-one')).toBeNull();
   });
 
   it.each([

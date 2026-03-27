@@ -9,6 +9,7 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { getStatusColor } from '../../utils/status';
+import { availabilityTypesForList } from '../../utils/availabilityList';
 
 interface ItemCardProps {
   item: Item;
@@ -27,6 +28,8 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
       : statusColorToken === 'success'
         ? theme.customColors.success
         : theme.colors.outline;
+
+  const listAvailability = availabilityTypesForList(item.availabilityTypes);
 
   return (
     <AnimatedPressable
@@ -89,9 +92,9 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           </Text>
         )}
 
-        {!compact && item.availabilityTypes.length > 0 && (
+        {!compact && listAvailability.length > 0 && (
           <View style={styles.chips}>
-            {item.availabilityTypes.map((type) => (
+            {listAvailability.map((type) => (
               <View
                 key={type}
                 style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
@@ -101,6 +104,24 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
                   style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
                 >
                   {t(`availability.${type}`)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {!compact && item.tags.length > 0 && (
+          <View style={styles.chips}>
+            {item.tags.map((tag) => (
+              <View
+                key={tag}
+                style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
+              >
+                <Text
+                  variant="labelSmall"
+                  style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {tag}
                 </Text>
               </View>
             ))}
