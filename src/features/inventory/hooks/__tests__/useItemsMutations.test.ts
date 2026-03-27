@@ -1,6 +1,12 @@
 import { renderHook } from '@testing-library/react-native';
-import type { ItemId } from '@/shared/types';
-import { ItemStatus, Visibility } from '@/shared/types';
+import type { GroupId, ItemId } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  ItemStatus,
+  Visibility,
+} from '@/shared/types';
 import { supabase } from '@/shared/api/supabase';
 
 let mockCallCount = 0;
@@ -41,7 +47,6 @@ import {
   useUpdateItemStatus,
   useDeleteItem,
 } from '../useItems';
-
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -108,7 +113,9 @@ describe('useItemPhotos', () => {
       },
     ];
 
-    renderHook(() => useItemPhotos('item-1' as ItemId), { wrapper: createQueryClientHookWrapper() });
+    renderHook(() => useItemPhotos('item-1' as ItemId), {
+      wrapper: createQueryClientHookWrapper(),
+    });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(supabase.from).toHaveBeenCalledWith('item_photos');
@@ -130,14 +137,17 @@ describe('useCreateItem', () => {
       },
     ];
 
-    const { result } = renderHook(() => useCreateItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       name: 'Chain',
-      category: 'drivetrain',
-      condition: 'good',
-      availabilityTypes: ['borrow'],
-    } as never);
+      category: ItemCategory.Component,
+      subcategory: 'drivetrain',
+      condition: ItemCondition.Good,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
 
     expect(supabase.from).toHaveBeenCalledWith('items');
   });
@@ -164,16 +174,19 @@ describe('useCreateItem', () => {
       },
     ];
 
-    const { result } = renderHook(() => useCreateItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       name: 'Chain',
-      category: 'drivetrain',
-      condition: 'good',
-      availabilityTypes: ['borrow'],
+      category: ItemCategory.Component,
+      subcategory: 'drivetrain',
+      condition: ItemCondition.Good,
+      availabilityTypes: [AvailabilityType.Borrowable],
       visibility: Visibility.Groups,
-      groupIds: ['g1'],
-    } as never);
+      groupIds: ['g1' as GroupId],
+    });
 
     expect(mockCallCount).toBe(3);
   });
@@ -196,7 +209,9 @@ describe('useUpdateItemStatus', () => {
       },
     ];
 
-    const { result } = renderHook(() => useUpdateItemStatus(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUpdateItemStatus(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Archived });
 
@@ -214,7 +229,9 @@ describe('useDeleteItem', () => {
       },
     ];
 
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Stored });
 
@@ -222,7 +239,9 @@ describe('useDeleteItem', () => {
   });
 
   it('throws when deleting item with loaned status', async () => {
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Loaned }),
