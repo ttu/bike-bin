@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, Menu, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -113,6 +113,7 @@ export function ItemForm({
   const [groupIds, setGroupIds] = useState<GroupId[]>(initialData?.groupIds ?? []);
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
   const [tagInput, setTagInput] = useState('');
+  const tagBlurCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState(false);
   const { data: userTags } = useUserTags();
   const [showOptional, setShowOptional] = useState(false);
@@ -188,8 +189,18 @@ export function ItemForm({
     );
   }, [userTags, tagInput, tags]);
 
+  const clearTagBlurCommitTimeout = useCallback(() => {
+    if (tagBlurCommitTimeoutRef.current !== null) {
+      clearTimeout(tagBlurCommitTimeoutRef.current);
+      tagBlurCommitTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearTagBlurCommitTimeout(), [clearTagBlurCommitTimeout]);
+
   const handleAddTag = useCallback(
     (rawInput: string) => {
+      clearTagBlurCommitTimeout();
       const tag = sanitizeTag(rawInput);
       if (canAddTag(tag, tags)) {
         setTags((prev) => [...prev, tag]);
@@ -197,7 +208,7 @@ export function ItemForm({
       setTagInput('');
       setTagSuggestionsVisible(false);
     },
-    [tags],
+    [tags, clearTagBlurCommitTimeout],
   );
 
   const handleRemoveTag = useCallback((tagToRemove: string) => {
@@ -205,6 +216,13 @@ export function ItemForm({
   }, []);
 
   const handleSubmit = useCallback(() => {
+    clearTagBlurCommitTimeout();
+    const pendingTag = sanitizeTag(tagInput);
+    const tagsToSubmit = canAddTag(pendingTag, tags) ? [...tags, pendingTag] : tags;
+    setTags(tagsToSubmit);
+    setTagInput('');
+    setTagSuggestionsVisible(false);
+
     const formData: ItemFormData = {
       name,
       category,
@@ -223,7 +241,7 @@ export function ItemForm({
       usageUnit: usageKm ? distanceUnit : undefined,
       visibility,
       groupIds: visibility === Visibility.Groups ? groupIds : undefined,
-      tags,
+      tags: tagsToSubmit,
     };
 
     const validationErrors = validateItem(formData);
@@ -251,6 +269,8 @@ export function ItemForm({
     visibility,
     groupIds,
     tags,
+    tagInput,
+    clearTagBlurCommitTimeout,
     isSellable,
     isBorrowable,
     onSave,
@@ -876,7 +896,12 @@ export function ItemForm({
                 }
               }}
               onBlur={() => {
-                setTimeout(() => setTagSuggestionsVisible(false), 200);
+                clearTagBlurCommitTimeout();
+                const rawAtBlur = tagInput;
+                tagBlurCommitTimeoutRef.current = setTimeout(() => {
+                  tagBlurCommitTimeoutRef.current = null;
+                  handleAddTag(rawAtBlur);
+                }, 200);
               }}
               onSubmitEditing={() => handleAddTag(tagInput)}
               placeholder={t('form.tagsPlaceholder')}

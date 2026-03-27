@@ -1,4 +1,4 @@
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemForm } from '../ItemForm';
@@ -21,6 +21,10 @@ jest.mock('@/features/groups', () => ({
 
 jest.mock('../../../hooks/useItems', () => ({
   useItems: () => ({ data: [], isLoading: false }),
+}));
+
+jest.mock('../../../hooks/useUserTags', () => ({
+  useUserTags: () => ({ data: [], isLoading: false }),
 }));
 
 describe('ItemForm', () => {
@@ -220,6 +224,30 @@ describe('ItemForm', () => {
         }),
       );
     });
+  });
+
+  it('commits pending tag text when the tag field loses focus', async () => {
+    jest.useFakeTimers();
+    try {
+      const { getByText, getByPlaceholderText } = renderWithProviders(
+        <ItemForm {...defaultProps} />,
+      );
+
+      fireEvent.press(getByText('More details'));
+      const tagField = getByPlaceholderText('Add a tag...');
+      fireEvent.changeText(tagField, 'carbon');
+      fireEvent(tagField, 'blur');
+
+      act(() => {
+        jest.advanceTimersByTime(200);
+      });
+
+      await waitFor(() => {
+        expect(getByText('carbon')).toBeTruthy();
+      });
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('shows delete button in edit mode', () => {

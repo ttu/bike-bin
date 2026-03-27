@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { createMockGroupMember } from '@/test/factories';
 import { GroupRole } from '@/shared/types';
 import type { GroupId, UserId } from '@/shared/types';
@@ -20,7 +20,6 @@ jest.mock('@/shared/api/supabase', () => ({
     })),
   },
 }));
-
 
 // Import after mocks
 import { useGroupMembers, usePromoteMember, useRemoveMember } from '../useGroupMembers';
@@ -53,13 +52,13 @@ describe('useGroupMembers', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(mockSelect).toHaveBeenCalledWith(
-      'group_id, user_id, role, joined_at, profiles(display_name, avatar_url)',
-    );
-    expect(result.current.data).toBeDefined();
-    expect(result.current.data).toHaveLength(1);
+    await waitFor(() => {
+      expect(mockSelect).toHaveBeenCalledWith(
+        'group_id, user_id, role, joined_at, profiles(display_name, avatar_url)',
+      );
+      expect(result.current.data).toBeDefined();
+      expect(result.current.data).toHaveLength(1);
+    });
   });
 
   it('throws on supabase error', async () => {
@@ -75,9 +74,9 @@ describe('useGroupMembers', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.error).toBeTruthy();
+    await waitFor(() => {
+      expect(result.current.error).toBeTruthy();
+    });
   });
 
   it('is disabled when groupId is empty', () => {
@@ -110,9 +109,9 @@ describe('useGroupMembers', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data?.[0]?.profile?.displayName).toBe('Bob');
+    await waitFor(() => {
+      expect(result.current.data?.[0]?.profile?.displayName).toBe('Bob');
+    });
     // avatar_url: null maps to null (not undefined) in the profile object
     expect(result.current.data?.[0]?.profile?.avatarUrl).toBeNull();
   });
@@ -130,9 +129,9 @@ describe('useGroupMembers', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data).toEqual([]);
+    await waitFor(() => {
+      expect(result.current.data).toEqual([]);
+    });
   });
 });
 
@@ -148,7 +147,9 @@ describe('usePromoteMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => usePromoteMember(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => usePromoteMember(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -169,7 +170,9 @@ describe('usePromoteMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => usePromoteMember(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => usePromoteMember(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({
@@ -192,7 +195,9 @@ describe('useRemoveMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => useRemoveMember(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useRemoveMember(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -213,7 +218,9 @@ describe('useRemoveMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => useRemoveMember(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useRemoveMember(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({
