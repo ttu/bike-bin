@@ -113,6 +113,7 @@ describe('useMarkDonated', () => {
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items', 'item-1'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['searchItems'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversations'] });
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversation'] });
     });
   });
 });
@@ -199,6 +200,7 @@ describe('useMarkSold', () => {
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items', 'item-2'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['searchItems'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversations'] });
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversation'] });
     });
   });
 });

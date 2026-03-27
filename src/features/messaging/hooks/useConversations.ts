@@ -37,6 +37,7 @@ export function useConversations() {
           created_at,
           items (
             id,
+            owner_id,
             name,
             status,
             availability_types
@@ -101,6 +102,7 @@ export function useConversations() {
 
         const item = (Array.isArray(conv.items) ? conv.items[0] : conv.items) as {
           id: string;
+          owner_id: string;
           name: string;
           status: string;
           availability_types: string[];
@@ -109,6 +111,7 @@ export function useConversations() {
         results.push({
           id: conv.id as ConversationId,
           itemId: (conv.item_id as ItemId) ?? undefined,
+          itemOwnerId: (item?.owner_id as UserId) ?? undefined,
           itemName: (item?.name as string) ?? undefined,
           itemStatus: (item?.status as string) ?? undefined,
           itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,

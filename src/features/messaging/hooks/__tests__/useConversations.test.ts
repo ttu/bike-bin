@@ -55,6 +55,7 @@ describe('useConversations', () => {
         created_at: '2026-01-01T10:00:00Z',
         items: {
           id: 'item-1',
+          owner_id: 'owner-1',
           name: 'Shimano Derailleur',
           status: 'available',
           availability_types: ['lend'],
@@ -133,6 +134,7 @@ describe('useConversations', () => {
     expect(result.current.data).toHaveLength(1);
     const conv = result.current.data![0];
     expect(conv.id).toBe('conv-1');
+    expect(conv.itemOwnerId).toBe('owner-1');
     expect(conv.itemName).toBe('Shimano Derailleur');
     expect(conv.otherParticipantId).toBe('user-456');
     expect(conv.otherParticipantName).toBe('Alice');

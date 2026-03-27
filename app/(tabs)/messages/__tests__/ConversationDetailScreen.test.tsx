@@ -1,9 +1,10 @@
+import { Alert } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import ConversationDetailScreen from '../[id]';
 import type { ConversationListItem } from '@/features/messaging/types';
-import type { ConversationId, UserId } from '@/shared/types';
+import type { ConversationId, ItemId, UserId } from '@/shared/types';
 
 const mockRouterPush = jest.fn();
 
@@ -52,6 +53,7 @@ jest.mock('@/shared/api/supabase', () => ({
 const mockConversation: ConversationListItem = {
   id: 'conv-1' as ConversationId,
   itemId: undefined,
+  itemOwnerId: undefined,
   itemName: undefined,
   itemStatus: undefined,
   itemAvailabilityTypes: undefined,
@@ -66,8 +68,11 @@ const mockConversation: ConversationListItem = {
   createdAt: '2026-01-01T00:00:00Z',
 };
 
+/** Mutable ref so tests can swap conversation data without remocking the module. */
+const conversationQueryState = { data: mockConversation as ConversationListItem };
+
 jest.mock('@/features/messaging', () => ({
-  useConversation: () => ({ data: mockConversation, isLoading: false }),
+  useConversation: () => ({ data: conversationQueryState.data, isLoading: false }),
   useMessages: () => ({
     data: { pages: [[]], pageParams: [] },
     isLoading: false,
@@ -93,6 +98,7 @@ jest.mock('@/features/exchange', () => ({
 describe('ConversationDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    conversationQueryState.data = mockConversation;
   });
 
   it('navigates to the other participant profile when the header is pressed', () => {
@@ -105,5 +111,30 @@ describe('ConversationDetailScreen', () => {
         returnPath: encodeReturnPath('/(tabs)/messages/conv-1'),
       },
     });
+  });
+
+  it('defers Alert after opening mark donated so confirmation is not swallowed', () => {
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation((fn: TimerHandler) => {
+      if (typeof fn === 'function') fn();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
+    });
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    conversationQueryState.data = {
+      ...mockConversation,
+      itemId: 'item-1' as ItemId,
+      itemOwnerId: 'user-123' as UserId,
+      itemName: 'Chain',
+      itemStatus: 'stored',
+    };
+
+    const { getByLabelText, getByText } = renderWithProviders(<ConversationDetailScreen />);
+
+    fireEvent.press(getByLabelText('More actions'));
+    fireEvent.press(getByText('Mark as Donated'));
+
+    expect(alertSpy).toHaveBeenCalled();
+
+    setTimeoutSpy.mockRestore();
+    alertSpy.mockRestore();
   });
 });

@@ -46,6 +46,7 @@ describe('useConversation', () => {
       created_at: '2026-01-01T10:00:00Z',
       items: {
         id: 'item-1',
+        owner_id: 'owner-1',
         name: 'SRAM Cranks',
         status: 'available',
         availability_types: ['lend', 'give'],
@@ -103,6 +104,7 @@ describe('useConversation', () => {
     expect(conv).toBeDefined();
     expect(conv!.id).toBe('conv-1');
     expect(conv!.itemId).toBe('item-1');
+    expect(conv!.itemOwnerId).toBe('owner-1');
     expect(conv!.itemName).toBe('SRAM Cranks');
     expect(conv!.itemStatus).toBe('available');
     expect(conv!.itemAvailabilityTypes).toEqual(['lend', 'give']);
@@ -163,7 +165,15 @@ describe('useConversation', () => {
       item_id: 'item-2',
       created_at: '2026-01-01T10:00:00Z',
       // Supabase returns joins as array
-      items: [{ id: 'item-2', name: 'Bike Pump', status: 'loaned', availability_types: ['lend'] }],
+      items: [
+        {
+          id: 'item-2',
+          owner_id: 'owner-2',
+          name: 'Bike Pump',
+          status: 'loaned',
+          availability_types: ['lend'],
+        },
+      ],
     };
 
     // Call 1: conversations
@@ -202,6 +212,7 @@ describe('useConversation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data!.itemName).toBe('Bike Pump');
+    expect(result.current.data!.itemOwnerId).toBe('owner-2');
     expect(result.current.data!.itemStatus).toBe('loaned');
   });
 

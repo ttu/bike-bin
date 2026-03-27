@@ -350,6 +350,7 @@ export function createMockConversationListItem(
   return {
     id: 'conv-1' as ConversationId,
     itemId: 'item-1' as ItemId,
+    itemOwnerId: 'user-1' as UserId,
     itemName: 'Shimano XT Derailleur',
     itemStatus: 'stored',
     itemAvailabilityTypes: [AvailabilityType.Borrowable],

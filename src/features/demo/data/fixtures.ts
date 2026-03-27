@@ -412,6 +412,7 @@ export const DEMO_CONVERSATIONS: ConversationListItem[] = [
   {
     id: DEMO_CONVERSATION_1,
     itemId: DEMO_ITEM_4,
+    itemOwnerId: DEMO_USER_ID,
     itemName: 'Lezyne Micro Floor Drive',
     itemStatus: ItemStatus.Loaned,
     itemAvailabilityTypes: [AvailabilityType.Borrowable],
@@ -428,6 +429,7 @@ export const DEMO_CONVERSATIONS: ConversationListItem[] = [
   {
     id: DEMO_CONVERSATION_2,
     itemId: DEMO_ITEM_2,
+    itemOwnerId: DEMO_USER_ID,
     itemName: 'Continental GP5000 Tires (pair)',
     itemStatus: ItemStatus.Stored,
     itemAvailabilityTypes: [AvailabilityType.Sellable, AvailabilityType.Donatable],
@@ -444,6 +446,7 @@ export const DEMO_CONVERSATIONS: ConversationListItem[] = [
   {
     id: DEMO_CONVERSATION_3,
     itemId: DEMO_ITEM_5,
+    itemOwnerId: DEMO_USER_ID,
     itemName: 'Fizik Antares R5 Saddle',
     itemStatus: ItemStatus.Stored,
     itemAvailabilityTypes: [AvailabilityType.Donatable],

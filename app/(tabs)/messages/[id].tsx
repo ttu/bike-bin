@@ -61,10 +61,15 @@ export default function ConversationDetailScreen() {
   // Subscribe to realtime updates
   useRealtimeMessages(conversationId);
 
-  // Determine if current user is the item owner and can perform exchange actions
-  const isOwner = item?.ownerId === user?.id;
+  // Owner/status from conversation when `useItem` is still loading (same source as list/detail).
+  const itemStatusForExchange =
+    item?.status ?? (conversation?.itemStatus as ItemStatus | undefined);
+  const isOwner =
+    item?.ownerId === user?.id || conversation?.itemOwnerId === user?.id;
   const canExchange =
-    isOwner && (item?.status === ItemStatus.Stored || item?.status === ItemStatus.Mounted);
+    isOwner &&
+    (itemStatusForExchange === ItemStatus.Stored ||
+      itemStatusForExchange === ItemStatus.Mounted);
 
   // Flatten pages into single array
   const messages = useMemo((): MessageWithSender[] => {
@@ -115,36 +120,64 @@ export default function ConversationDetailScreen() {
 
   const handleMarkDonated = useCallback(() => {
     setMenuVisible(false);
-    if (!conversation?.itemId) return;
-    Alert.alert(tExchange('confirm.donate.title'), tExchange('confirm.donate.message'), [
-      { text: tExchange('confirm.donate.cancel'), style: 'cancel' },
-      {
-        text: tExchange('confirm.donate.confirm'),
-        onPress: () => {
-          markDonated.mutate({
-            itemId: conversation.itemId as ItemId,
-            recipientId: conversation.otherParticipantId,
-          });
-        },
-      },
-    ]);
+    const conv = conversation;
+    if (!conv?.itemId) return;
+    const itemId = conv.itemId as ItemId;
+    const recipientId = conv.otherParticipantId;
+
+    // Defer confirm until after the Paper Menu modal finishes dismissing; otherwise
+    // `Alert.alert` / `window.confirm` can be swallowed on native and web.
+    setTimeout(() => {
+      if (Platform.OS === 'web') {
+        if (
+          window.confirm(
+            `${tExchange('confirm.donate.title')}\n${tExchange('confirm.donate.message')}`,
+          )
+        ) {
+          markDonated.mutate({ itemId, recipientId });
+        }
+      } else {
+        Alert.alert(tExchange('confirm.donate.title'), tExchange('confirm.donate.message'), [
+          { text: tExchange('confirm.donate.cancel'), style: 'cancel' },
+          {
+            text: tExchange('confirm.donate.confirm'),
+            onPress: () => {
+              markDonated.mutate({ itemId, recipientId });
+            },
+          },
+        ]);
+      }
+    }, 0);
   }, [conversation, tExchange, markDonated]);
 
   const handleMarkSold = useCallback(() => {
     setMenuVisible(false);
-    if (!conversation?.itemId) return;
-    Alert.alert(tExchange('confirm.sell.title'), tExchange('confirm.sell.message'), [
-      { text: tExchange('confirm.sell.cancel'), style: 'cancel' },
-      {
-        text: tExchange('confirm.sell.confirm'),
-        onPress: () => {
-          markSold.mutate({
-            itemId: conversation.itemId as ItemId,
-            buyerId: conversation.otherParticipantId,
-          });
-        },
-      },
-    ]);
+    const conv = conversation;
+    if (!conv?.itemId) return;
+    const itemId = conv.itemId as ItemId;
+    const buyerId = conv.otherParticipantId;
+
+    setTimeout(() => {
+      if (Platform.OS === 'web') {
+        if (
+          window.confirm(
+            `${tExchange('confirm.sell.title')}\n${tExchange('confirm.sell.message')}`,
+          )
+        ) {
+          markSold.mutate({ itemId, buyerId });
+        }
+      } else {
+        Alert.alert(tExchange('confirm.sell.title'), tExchange('confirm.sell.message'), [
+          { text: tExchange('confirm.sell.cancel'), style: 'cancel' },
+          {
+            text: tExchange('confirm.sell.confirm'),
+            onPress: () => {
+              markSold.mutate({ itemId, buyerId });
+            },
+          },
+        ]);
+      }
+    }, 0);
   }, [conversation, tExchange, markSold]);
 
   if (convLoading || msgsLoading) {

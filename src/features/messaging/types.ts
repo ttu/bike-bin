@@ -5,6 +5,8 @@ import type { AvailabilityType } from '@/shared/types';
 export interface ConversationListItem {
   id: ConversationId;
   itemId: ItemId | undefined;
+  /** Present when the nested item row is returned; used when `useItem` is still loading. */
+  itemOwnerId: UserId | undefined;
   itemName: string | undefined;
   itemStatus: string | undefined;
   itemAvailabilityTypes: AvailabilityType[] | undefined;

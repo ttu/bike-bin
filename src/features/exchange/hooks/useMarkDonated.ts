@@ -35,6 +35,7 @@ export function useMarkDonated() {
       void queryClient.invalidateQueries({ queryKey: ['items', variables.itemId] });
       void queryClient.invalidateQueries({ queryKey: ['searchItems'] });
       void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      void queryClient.invalidateQueries({ queryKey: ['conversation'] });
     },
   });
 }
