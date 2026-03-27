@@ -92,7 +92,7 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           </Text>
         )}
 
-        {!compact && listAvailability.length > 0 && (
+        {!compact && (listAvailability.length > 0 || item.tags.length > 0) && (
           <View style={styles.chips}>
             {listAvailability.map((type) => (
               <View
@@ -107,14 +107,9 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
                 </Text>
               </View>
             ))}
-          </View>
-        )}
-
-        {!compact && item.tags.length > 0 && (
-          <View style={styles.chips}>
             {item.tags.map((tag) => (
               <View
-                key={tag}
+                key={`tag:${tag}`}
                 style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
               >
                 <Text
