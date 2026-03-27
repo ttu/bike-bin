@@ -1,3 +1,4 @@
+import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import type { ItemId, UserId } from '@/shared/types';
@@ -145,6 +146,50 @@ describe('ListingDetail', () => {
     const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
     expect(getByText(/Contact/)).toBeTruthy();
     expect(getByText(/Request Borrow/)).toBeTruthy();
+  });
+
+  it('renders translated borrow duration', () => {
+    const item = createSearchResult({ borrowDuration: '1_week' });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText('1 week')).toBeTruthy();
+  });
+
+  it('renders raw borrow duration when no translation key matches', () => {
+    const item = createSearchResult({ borrowDuration: '7 days' });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByText('7 days')).toBeTruthy();
+  });
+
+  it('calls onOwnerPress when owner name is pressed', () => {
+    const onOwnerPress = jest.fn();
+    const item = createSearchResult({ ownerDisplayName: 'Alice' });
+    const { getByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} onOwnerPress={onOwnerPress} />,
+    );
+    fireEvent.press(getByText('Alice'));
+    expect(onOwnerPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onOwnerPress when view profile is pressed', () => {
+    const onOwnerPress = jest.fn();
+    const item = createSearchResult({ ownerDisplayName: 'Alice' });
+    const { getByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} onOwnerPress={onOwnerPress} />,
+    );
+    fireEvent.press(getByText(/View profile/));
+    expect(onOwnerPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides location row when no area name or distance', () => {
+    const item = createSearchResult({ areaName: undefined, distanceMeters: undefined });
+    const { queryByTestId } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(queryByTestId('location-row')).toBeNull();
+  });
+
+  it('shows location row when area name is present', () => {
+    const item = createSearchResult({ areaName: 'Kreuzberg', distanceMeters: undefined });
+    const { getByTestId } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(getByTestId('location-row')).toBeTruthy();
   });
 
   it('renders price for sellable items', () => {

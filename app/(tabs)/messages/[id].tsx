@@ -141,7 +141,11 @@ export default function ConversationDetailScreen() {
       >
         {/* Header */}
         <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.BackAction
+            onPress={() =>
+              router.canGoBack() ? router.back() : router.replace('/(tabs)/messages')
+            }
+          />
           <View style={styles.headerContent}>
             {conversation?.otherParticipantAvatarUrl ? (
               <Avatar.Image size={32} source={{ uri: conversation.otherParticipantAvatarUrl }} />

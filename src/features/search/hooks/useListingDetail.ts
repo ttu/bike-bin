@@ -9,51 +9,35 @@ export function useListingDetail(id: string | undefined) {
   const itemQuery = useQuery({
     queryKey: ['listing', id],
     queryFn: async (): Promise<SearchResultItem> => {
-      const { data, error } = await supabase.from('items').select('*').eq('id', id!).single();
+      const { data, error } = await supabase.rpc('get_listing_detail', { p_item_id: id! }).single();
 
       if (error) throw error;
 
-      // Fetch owner profile
-      const { data: owner } = await supabase
-        .from('profiles')
-        .select('id, display_name, avatar_url, rating_avg, rating_count')
-        .eq('id', data.owner_id)
-        .single();
-
-      // Fetch location area name
-      let areaName: string | undefined;
-      if (data.pickup_location_id) {
-        const { data: loc } = await supabase
-          .from('saved_locations')
-          .select('area_name')
-          .eq('id', data.pickup_location_id)
-          .single();
-        areaName = (loc?.area_name as string) ?? undefined;
-      }
+      const row = data as Record<string, unknown>;
 
       return {
-        id: data.id as ItemId,
-        ownerId: data.owner_id as UserId,
-        name: data.name as string,
-        category: data.category as ItemCategory,
-        brand: (data.brand as string) ?? undefined,
-        model: (data.model as string) ?? undefined,
-        description: (data.description as string) ?? undefined,
-        condition: data.condition as ItemCondition,
-        availabilityTypes: (data.availability_types ?? []) as AvailabilityType[],
-        price: (data.price as number) ?? undefined,
-        deposit: (data.deposit as number) ?? undefined,
-        borrowDuration: (data.borrow_duration as string) ?? undefined,
-        visibility: data.visibility as string,
-        pickupLocationId: (data.pickup_location_id as LocationId) ?? undefined,
-        createdAt: data.created_at as string,
-        updatedAt: data.updated_at as string,
-        distanceMeters: undefined,
-        ownerDisplayName: (owner?.display_name as string) ?? undefined,
-        ownerAvatarUrl: (owner?.avatar_url as string) ?? undefined,
-        ownerRatingAvg: (owner?.rating_avg as number) ?? 0,
-        ownerRatingCount: (owner?.rating_count as number) ?? 0,
-        areaName,
+        id: row.id as ItemId,
+        ownerId: row.owner_id as UserId,
+        name: row.name as string,
+        category: row.category as ItemCategory,
+        brand: (row.brand as string) ?? undefined,
+        model: (row.model as string) ?? undefined,
+        description: (row.description as string) ?? undefined,
+        condition: row.condition as ItemCondition,
+        availabilityTypes: (row.availability_types ?? []) as AvailabilityType[],
+        price: (row.price as number) ?? undefined,
+        deposit: (row.deposit as number) ?? undefined,
+        borrowDuration: (row.borrow_duration as string) ?? undefined,
+        visibility: row.visibility as string,
+        pickupLocationId: (row.pickup_location_id as LocationId) ?? undefined,
+        createdAt: row.created_at as string,
+        updatedAt: row.updated_at as string,
+        distanceMeters: (row.distance_meters as number) ?? undefined,
+        ownerDisplayName: (row.owner_display_name as string) ?? undefined,
+        ownerAvatarUrl: (row.owner_avatar_url as string) ?? undefined,
+        ownerRatingAvg: (row.owner_rating_avg as number) ?? 0,
+        ownerRatingCount: (row.owner_rating_count as number) ?? 0,
+        areaName: (row.area_name as string) ?? undefined,
         thumbnailStoragePath: undefined,
       };
     },

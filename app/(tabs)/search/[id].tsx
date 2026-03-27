@@ -39,6 +39,10 @@ export default function ListingDetailScreen() {
     );
   };
 
+  const handleOwnerPress = () => {
+    router.push(`/(tabs)/profile/${item.ownerId}` as never);
+  };
+
   const handleRequestBorrow = () => {
     Alert.alert(
       tBorrow('confirm.requestBorrow.title'),
@@ -65,7 +69,9 @@ export default function ListingDetailScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/search'))}
+        />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="flag-outline"
@@ -79,6 +85,7 @@ export default function ListingDetailScreen() {
         photos={photos}
         onContact={isOwnItem ? undefined : handleContact}
         onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
+        onOwnerPress={handleOwnerPress}
       />
     </SafeAreaView>
   );

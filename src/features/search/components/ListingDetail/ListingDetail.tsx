@@ -35,11 +35,16 @@ export function ListingDetail({
   onOwnerPress,
 }: ListingDetailProps) {
   const theme = useTheme<AppTheme>();
-  const { t } = useTranslation('search');
+  const { t } = useTranslation(['search', 'inventory']);
   const { isAuthenticated } = useAuth();
   const themed = useThemedStyles(theme);
 
   const distanceText = formatDistance(item.distanceMeters);
+  const durationText = item.borrowDuration
+    ? t(`inventory:form.durationOption.${item.borrowDuration}`, {
+        defaultValue: item.borrowDuration,
+      })
+    : undefined;
 
   const hasBorrowable = item.availabilityTypes.includes('borrowable' as never);
   const hasDonatable = item.availabilityTypes.includes('donatable' as never);
@@ -108,11 +113,11 @@ export function ListingDetail({
             value={t(`condition.${item.condition}`)}
             theme={theme}
           />
-          {item.borrowDuration && (
+          {durationText && (
             <DetailCard
               icon="clock-outline"
               label={t('listing.detail.ageLabel')}
-              value={item.borrowDuration}
+              value={durationText ?? ''}
               theme={theme}
             />
           )}
@@ -148,18 +153,20 @@ export function ListingDetail({
       </View>
 
       {/* Location + distance */}
-      <View style={[styles.section, styles.locationRow]}>
-        <MaterialCommunityIcons
-          name="map-marker-outline"
-          size={iconSize.sm}
-          color={theme.colors.onSurfaceVariant}
-        />
-        <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
-          {item.areaName ?? ''}
-          {item.areaName && distanceText ? ' \u00B7 ' : ''}
-          {distanceText}
-        </Text>
-      </View>
+      {(item.areaName || distanceText) && (
+        <View style={[styles.section, styles.locationRow]} testID="location-row">
+          <MaterialCommunityIcons
+            name="map-marker-outline"
+            size={iconSize.sm}
+            color={theme.colors.onSurfaceVariant}
+          />
+          <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
+            {item.areaName ?? ''}
+            {item.areaName && distanceText ? ' · ' : ''}
+            {distanceText}
+          </Text>
+        </View>
+      )}
 
       {/* Description */}
       {item.description ? (
