@@ -1,6 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { ConversationId } from '@/shared/types';
 
 // Counter-based mock for multiple sequential supabase.from() calls
@@ -21,18 +19,10 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useConversation } from '../useConversation';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -42,7 +32,7 @@ beforeEach(() => {
 
 describe('useConversation', () => {
   it('returns undefined when conversationId is undefined', async () => {
-    const { result } = renderHook(() => useConversation(undefined), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversation(undefined), { wrapper: createQueryClientHookWrapper() });
 
     // enabled: !!userId && !!conversationId — disabled when no conversationId
     expect(result.current.data).toBeUndefined();
@@ -104,7 +94,7 @@ describe('useConversation', () => {
     };
 
     const { result } = renderHook(() => useConversation('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -153,7 +143,7 @@ describe('useConversation', () => {
     };
 
     const { result } = renderHook(() => useConversation('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -206,7 +196,7 @@ describe('useConversation', () => {
     };
 
     const { result } = renderHook(() => useConversation('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -227,7 +217,7 @@ describe('useConversation', () => {
     };
 
     const { result } = renderHook(() => useConversation('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));

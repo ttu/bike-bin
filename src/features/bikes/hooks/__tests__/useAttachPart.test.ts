@@ -1,11 +1,10 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { createMockItem } from '@/test/factories';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId, BikeId } from '@/shared/types';
 import { useAttachPart } from '../useAttachPart';
 import { useDetachPart } from '../useDetachPart';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 // Mock supabase
 const mockSelect = jest.fn();
@@ -28,18 +27,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useAttachPart', () => {
   beforeEach(() => {
@@ -58,7 +45,7 @@ describe('useAttachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useAttachPart(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAttachPart(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       itemId: item.id,
@@ -84,7 +71,7 @@ describe('useAttachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useAttachPart(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAttachPart(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({
@@ -112,7 +99,7 @@ describe('useDetachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDetachPart(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDetachPart(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       itemId: item.id,
@@ -138,7 +125,7 @@ describe('useDetachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDetachPart(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDetachPart(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({

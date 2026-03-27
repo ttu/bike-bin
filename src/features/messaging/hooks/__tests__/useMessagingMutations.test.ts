@@ -1,8 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { useSendMessage } from '../useSendMessage';
 import { useCreateConversation } from '../useCreateConversation';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 const mockInsert = jest.fn();
 const mockSelect = jest.fn();
@@ -22,15 +21,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -41,7 +31,7 @@ describe('useSendMessage', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useSendMessage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSendMessage(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ conversationId: 'conv-1' as never, body: 'Hello' });
 
@@ -54,7 +44,7 @@ describe('useSendMessage', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useSendMessage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSendMessage(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ conversationId: 'conv-1' as never, body: 'Hello' });
 
@@ -75,7 +65,7 @@ describe('useCreateConversation', () => {
     });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useCreateConversation(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateConversation(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ itemId: 'item-1' as never, otherUserId: 'user-456' as never });
 
@@ -100,7 +90,7 @@ describe('useCreateConversation', () => {
       .mockReturnValueOnce({ select: mockSelectChain })
       .mockResolvedValueOnce({ error: null });
 
-    const { result } = renderHook(() => useCreateConversation(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateConversation(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ itemId: 'item-1' as never, otherUserId: 'user-456' as never });
 

@@ -1,9 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { useCreateGroup } from '../useCreateGroup';
 import { useInviteMember } from '../useInviteMember';
 import { useJoinGroup, useLeaveGroup } from '../useJoinGroup';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 const mockInsert = jest.fn();
 const mockDelete = jest.fn();
@@ -24,15 +23,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -45,7 +35,7 @@ describe('useCreateGroup', () => {
     // Second call: insert member -> resolve
     mockInsert.mockReturnValueOnce({ select: mockSelect }).mockResolvedValueOnce({ error: null });
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ name: 'MTB Club', isPublic: true } as never);
 
@@ -57,7 +47,7 @@ describe('useCreateGroup', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ name: 'MTB Club', isPublic: true } as never);
 
@@ -69,7 +59,7 @@ describe('useInviteMember', () => {
   it('invites a user to a group', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useInviteMember(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useInviteMember(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ groupId: 'group-1' as never, userId: 'user-456' as never });
 
@@ -81,7 +71,7 @@ describe('useJoinGroup', () => {
   it('joins a group', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useJoinGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useJoinGroup(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate('group-1' as never);
 
@@ -95,7 +85,7 @@ describe('useLeaveGroup', () => {
     const mockEq2 = jest.fn().mockReturnValue({ eq: mockEq });
     mockDelete.mockReturnValue({ eq: mockEq2 });
 
-    const { result } = renderHook(() => useLeaveGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useLeaveGroup(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate('group-1' as never);
 

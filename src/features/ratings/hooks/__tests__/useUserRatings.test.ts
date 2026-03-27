@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { UserId } from '@/shared/types';
 
 const mockOrder = jest.fn();
@@ -16,16 +14,8 @@ jest.mock('@/shared/api/supabase', () => ({
 }));
 
 import { useUserRatings } from '../useUserRatings';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -51,7 +41,7 @@ describe('useUserRatings', () => {
       }),
     });
 
-    renderHook(() => useUserRatings('u-2' as UserId), { wrapper: createWrapper() });
+    renderHook(() => useUserRatings('u-2' as UserId), { wrapper: createQueryClientHookWrapper() });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(mockSelect).toHaveBeenCalledWith(
@@ -71,7 +61,7 @@ describe('useUserRatings', () => {
     });
 
     const { result } = renderHook(() => useUserRatings('u-2' as UserId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
     await new Promise((r) => setTimeout(r, 100));
 

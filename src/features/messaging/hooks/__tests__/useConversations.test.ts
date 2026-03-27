@@ -1,6 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 
 // Counter-based mock for multiple sequential supabase.from() calls
 let mockCallCount = 0;
@@ -20,18 +18,10 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useConversations } from '../useConversations';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -50,7 +40,7 @@ describe('useConversations', () => {
       },
     ];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([]);
@@ -136,7 +126,7 @@ describe('useConversations', () => {
 
     mockFromChains = [mockCall1, mockCall2, mockCall3, mockCall4, mockCall5, mockCall6];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -196,7 +186,7 @@ describe('useConversations', () => {
       }),
     };
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -219,7 +209,7 @@ describe('useConversations', () => {
       },
     ];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBe(mockError);
@@ -281,7 +271,7 @@ describe('useConversations', () => {
       }),
     };
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -306,7 +296,7 @@ describe('useConversations', () => {
       },
     ];
 
-    const { result } = renderHook(() => useConversations(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useConversations(), { wrapper: createQueryClientHookWrapper() });
     // Hook is enabled because our mock always returns a user
     expect(result.current).toBeDefined();
   });

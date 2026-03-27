@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react-native';
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useOnboardingStatus } from '../hooks/useOnboardingStatus';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
@@ -18,14 +17,6 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
-}
 
 describe('useOnboardingStatus', () => {
   beforeEach(() => {
@@ -56,7 +47,7 @@ describe('useOnboardingStatus', () => {
     });
 
     const { result } = renderHook(() => useOnboardingStatus(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     // Wait for queries to resolve
@@ -91,7 +82,7 @@ describe('useOnboardingStatus', () => {
     });
 
     const { result } = renderHook(() => useOnboardingStatus(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -124,7 +115,7 @@ describe('useOnboardingStatus', () => {
     });
 
     const { result } = renderHook(() => useOnboardingStatus(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 50));

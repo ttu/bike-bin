@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 
 const mockSubscribe = jest.fn().mockReturnValue({});
 const mockOn = jest.fn().mockReturnValue({ subscribe: mockSubscribe });
@@ -20,23 +18,15 @@ jest.mock('@/features/auth', () => ({
 }));
 
 import { useRealtimeNotifications } from '../useRealtimeNotifications';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useRealtimeNotifications', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('subscribes to notification inserts for current user', () => {
     renderHook(() => useRealtimeNotifications(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     expect(mockChannel).toHaveBeenCalledWith('notifications:user-123');
@@ -54,7 +44,7 @@ describe('useRealtimeNotifications', () => {
 
   it('cleans up channel on unmount', () => {
     const { unmount } = renderHook(() => useRealtimeNotifications(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     unmount();

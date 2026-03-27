@@ -1,11 +1,10 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { createMockItemRow } from '@/test/factories';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
 import { useItems, useItem, useCreateItem, useDeleteItem } from '../useItems';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 // Mock supabase
 const mockSelect = jest.fn();
@@ -46,18 +45,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useItems', () => {
   beforeEach(() => {
@@ -72,7 +59,7 @@ describe('useItems', () => {
       }),
     });
 
-    const { result } = renderHook(() => useItems(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useItems(), { wrapper: createQueryClientHookWrapper() });
 
     expect(result.current.isLoading).toBe(true);
 
@@ -92,7 +79,7 @@ describe('useItems', () => {
       }),
     });
 
-    const { result } = renderHook(() => useItems(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useItems(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -116,7 +103,7 @@ describe('useItem', () => {
       }),
     });
 
-    const { result } = renderHook(() => useItem(itemId), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useItem(itemId), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -140,7 +127,7 @@ describe('useCreateItem', () => {
       }),
     });
 
-    const { result } = renderHook(() => useCreateItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateItem(), { wrapper: createQueryClientHookWrapper() });
 
     const item = mapItemRow(row);
     await result.current.mutateAsync({
@@ -164,7 +151,7 @@ describe('useDeleteItem', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       id: 'item-1' as ItemId,
@@ -176,7 +163,7 @@ describe('useDeleteItem', () => {
   });
 
   it('rejects deletion of loaned items', async () => {
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({

@@ -1,10 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
 import { useMarkDonated } from '../useMarkDonated';
 import { useMarkSold } from '../useMarkSold';
+import {
+  createQueryClientHookWrapper,
+  createQueryClientHookWrapperWithClient,
+  createTestQueryClient,
+} from '@/test/queryTestUtils';
 
 // Mock supabase
 const mockUpdate = jest.fn();
@@ -26,18 +29,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useMarkDonated', () => {
   beforeEach(() => {
@@ -49,7 +40,7 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({ itemId: 'item-1' as ItemId });
 
@@ -62,7 +53,7 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       itemId: 'item-1' as ItemId,
@@ -79,7 +70,7 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: supabaseError }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(result.current.mutateAsync({ itemId: 'item-1' as ItemId })).rejects.toEqual(
       supabaseError,
@@ -94,7 +85,7 @@ describe('useMarkDonated', () => {
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(result.current.mutateAsync({ itemId: 'item-1' as ItemId })).rejects.toThrow(
       'Not authenticated',
@@ -108,19 +99,12 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    });
+    const queryClient = createTestQueryClient();
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
-    function Wrapper({ children }: { children: React.ReactNode }) {
-      return React.createElement(QueryClientProvider, { client: queryClient }, children);
-    }
-
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useMarkDonated(), {
+      wrapper: createQueryClientHookWrapperWithClient(queryClient),
+    });
 
     await result.current.mutateAsync({ itemId: 'item-1' as ItemId });
 
@@ -143,7 +127,7 @@ describe('useMarkSold', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({ itemId: 'item-2' as ItemId });
 
@@ -156,7 +140,7 @@ describe('useMarkSold', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       itemId: 'item-2' as ItemId,
@@ -173,7 +157,7 @@ describe('useMarkSold', () => {
       eq: mockEq.mockResolvedValue({ error: supabaseError }),
     });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(result.current.mutateAsync({ itemId: 'item-2' as ItemId })).rejects.toEqual(
       supabaseError,
@@ -187,7 +171,7 @@ describe('useMarkSold', () => {
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(result.current.mutateAsync({ itemId: 'item-2' as ItemId })).rejects.toThrow(
       'Not authenticated',
@@ -201,19 +185,12 @@ describe('useMarkSold', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    });
+    const queryClient = createTestQueryClient();
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
-    function Wrapper({ children }: { children: React.ReactNode }) {
-      return React.createElement(QueryClientProvider, { client: queryClient }, children);
-    }
-
-    const { result } = renderHook(() => useMarkSold(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useMarkSold(), {
+      wrapper: createQueryClientHookWrapperWithClient(queryClient),
+    });
 
     await result.current.mutateAsync({ itemId: 'item-2' as ItemId });
 

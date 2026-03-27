@@ -1,47 +1,40 @@
 import { renderWithProviders } from '@/test/utils';
 import { fireEvent } from '@testing-library/react-native';
+import { createMockConversationListItem } from '@/test/factories';
 import { ItemReferenceCard } from '../ItemReferenceCard/ItemReferenceCard';
 import type { ConversationListItem } from '../../types';
-import type { ConversationId, ItemId, UserId } from '@/shared/types';
 
-function createConversation(overrides?: Partial<ConversationListItem>): ConversationListItem {
-  return {
-    id: 'conv-1' as ConversationId,
-    itemId: 'item-1' as ItemId,
+function itemRefConversation(overrides?: Partial<ConversationListItem>) {
+  return createMockConversationListItem({
     itemName: 'Shimano Pedals',
-    itemStatus: 'stored',
     itemAvailabilityTypes: undefined,
-    itemPhotoPath: undefined,
-    otherParticipantId: 'user-2' as UserId,
     otherParticipantName: undefined,
-    otherParticipantAvatarUrl: undefined,
     lastMessageBody: undefined,
     lastMessageSenderId: undefined,
     lastMessageAt: undefined,
-    unreadCount: 0,
     createdAt: '2026-03-15T10:00:00Z',
     ...overrides,
-  };
+  });
 }
 
 describe('ItemReferenceCard', () => {
   it('renders item name', () => {
     const { getByText } = renderWithProviders(
-      <ItemReferenceCard conversation={createConversation()} />,
+      <ItemReferenceCard conversation={itemRefConversation()} />,
     );
     expect(getByText('Shimano Pedals')).toBeTruthy();
   });
 
   it('returns null when no itemId', () => {
     const { queryByText } = renderWithProviders(
-      <ItemReferenceCard conversation={createConversation({ itemId: undefined })} />,
+      <ItemReferenceCard conversation={itemRefConversation({ itemId: undefined })} />,
     );
     expect(queryByText('Shimano Pedals')).toBeNull();
   });
 
   it('returns null when no itemName', () => {
     const { queryByText } = renderWithProviders(
-      <ItemReferenceCard conversation={createConversation({ itemName: undefined })} />,
+      <ItemReferenceCard conversation={itemRefConversation({ itemName: undefined })} />,
     );
     expect(queryByText('Shimano Pedals')).toBeNull();
   });
@@ -49,7 +42,7 @@ describe('ItemReferenceCard', () => {
   it('calls onViewItem when pressed', () => {
     const onViewItem = jest.fn();
     const { getByRole } = renderWithProviders(
-      <ItemReferenceCard conversation={createConversation()} onViewItem={onViewItem} />,
+      <ItemReferenceCard conversation={itemRefConversation()} onViewItem={onViewItem} />,
     );
     fireEvent.press(getByRole('link'));
     expect(onViewItem).toHaveBeenCalled();

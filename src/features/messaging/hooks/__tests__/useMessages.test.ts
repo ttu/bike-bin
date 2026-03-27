@@ -1,6 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { ConversationId } from '@/shared/types';
 
 const mockSelect = jest.fn();
@@ -21,24 +19,16 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useMessages } from '../useMessages';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 beforeEach(() => jest.clearAllMocks());
 
 describe('useMessages', () => {
   it('is disabled when conversationId is undefined', () => {
-    const { result } = renderHook(() => useMessages(undefined), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMessages(undefined), { wrapper: createQueryClientHookWrapper() });
 
     expect(result.current.fetchStatus).toBe('idle');
     expect(result.current.data).toBeUndefined();
@@ -68,7 +58,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -105,7 +95,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -120,7 +110,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -137,7 +127,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -160,7 +150,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -185,7 +175,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -213,7 +203,7 @@ describe('useMessages', () => {
     mockSelect.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

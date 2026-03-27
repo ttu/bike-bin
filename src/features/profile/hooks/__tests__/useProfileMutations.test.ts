@@ -1,9 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { useDeleteAccount } from '../useDeleteAccount';
 import { useSubmitSupport } from '../useSubmitSupport';
 import { useUpdateProfile } from '../useUpdateProfile';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 const mockInsert = jest.fn();
 const mockUpdate = jest.fn();
@@ -30,15 +29,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -49,7 +39,7 @@ describe('useDeleteAccount', () => {
     });
     mockInvoke.mockResolvedValue({ data: { success: true }, error: null });
 
-    const { result } = renderHook(() => useDeleteAccount(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteAccount(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate();
 
@@ -64,7 +54,7 @@ describe('useDeleteAccount', () => {
       data: { session: null },
     });
 
-    const { result } = renderHook(() => useDeleteAccount(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteAccount(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate();
 
@@ -77,7 +67,7 @@ describe('useSubmitSupport', () => {
   it('inserts a support request', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useSubmitSupport(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSubmitSupport(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({
       subject: 'Bug report',
@@ -91,7 +81,7 @@ describe('useSubmitSupport', () => {
   it('propagates errors', async () => {
     mockInsert.mockResolvedValue({ error: { message: 'fail' } });
 
-    const { result } = renderHook(() => useSubmitSupport(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSubmitSupport(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ subject: 'Bug', body: 'Broken' });
 
@@ -105,7 +95,7 @@ describe('useUpdateProfile', () => {
     mockUpdate.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useUpdateProfile('user-123' as never), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     result.current.mutate({ displayName: 'NewName' });
@@ -118,7 +108,7 @@ describe('useUpdateProfile', () => {
     mockUpdate.mockReturnValue({ eq: mockEq });
 
     const { result } = renderHook(() => useUpdateProfile('user-123' as never), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     result.current.mutate({ avatarUrl: 'https://example.com/new.jpg' });

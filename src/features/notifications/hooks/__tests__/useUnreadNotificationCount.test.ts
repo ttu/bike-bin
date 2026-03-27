@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 
 const mockEq2 = jest.fn();
 const mockEq = jest.fn();
@@ -25,16 +23,8 @@ jest.mock('@/features/auth', () => ({
 }));
 
 import { useUnreadNotificationCount } from '../useUnreadNotificationCount';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useUnreadNotificationCount', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -47,7 +37,7 @@ describe('useUnreadNotificationCount', () => {
     });
 
     renderHook(() => useUnreadNotificationCount(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((r) => setTimeout(r, 100));

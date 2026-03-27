@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { ConversationId } from '@/shared/types';
 
 const mockSubscribe = jest.fn().mockReturnValue({});
@@ -20,23 +18,15 @@ jest.mock('@/features/auth', () => ({
 }));
 
 import { useRealtimeMessages } from '../useRealtimeMessages';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useRealtimeMessages', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('subscribes to channel for given conversation', () => {
     renderHook(() => useRealtimeMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     expect(mockChannel).toHaveBeenCalledWith('messages:conv-1');
@@ -54,7 +44,7 @@ describe('useRealtimeMessages', () => {
 
   it('does not subscribe when conversationId is undefined', () => {
     renderHook(() => useRealtimeMessages(undefined), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     expect(mockChannel).not.toHaveBeenCalled();
@@ -62,7 +52,7 @@ describe('useRealtimeMessages', () => {
 
   it('cleans up channel on unmount', () => {
     const { unmount } = renderHook(() => useRealtimeMessages('conv-1' as ConversationId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     unmount();

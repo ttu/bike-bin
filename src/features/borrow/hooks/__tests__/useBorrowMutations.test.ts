@@ -1,11 +1,10 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { useCreateBorrowRequest } from '../useCreateBorrowRequest';
 import { useAcceptBorrowRequest } from '../useAcceptBorrowRequest';
 import { useCancelBorrowRequest } from '../useCancelBorrowRequest';
 import { useDeclineBorrowRequest } from '../useDeclineBorrowRequest';
 import { useMarkReturned } from '../useMarkReturned';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 const mockInsert = jest.fn();
 const mockUpdate = jest.fn();
@@ -26,15 +25,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 function setupChain(data: unknown = { id: 'req-1' }) {
   mockSingle.mockResolvedValue({ data, error: null });
@@ -57,7 +47,7 @@ beforeEach(() => jest.clearAllMocks());
 describe('useCreateBorrowRequest', () => {
   it('creates a borrow request and updates item status', async () => {
     setupChain({ id: 'req-1' });
-    const { result } = renderHook(() => useCreateBorrowRequest(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ itemId: 'item-1' as never, message: 'Please!' });
 
@@ -67,7 +57,7 @@ describe('useCreateBorrowRequest', () => {
 
   it('propagates errors', async () => {
     setupChainError();
-    const { result } = renderHook(() => useCreateBorrowRequest(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ itemId: 'item-1' as never });
 
@@ -78,7 +68,7 @@ describe('useCreateBorrowRequest', () => {
 describe('useAcceptBorrowRequest', () => {
   it('accepts a borrow request', async () => {
     setupChain({ id: 'req-1', status: 'accepted' });
-    const { result } = renderHook(() => useAcceptBorrowRequest(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAcceptBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
@@ -89,7 +79,7 @@ describe('useAcceptBorrowRequest', () => {
 describe('useCancelBorrowRequest', () => {
   it('cancels a borrow request', async () => {
     setupChain({ id: 'req-1', status: 'cancelled' });
-    const { result } = renderHook(() => useCancelBorrowRequest(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCancelBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
@@ -100,7 +90,7 @@ describe('useCancelBorrowRequest', () => {
 describe('useDeclineBorrowRequest', () => {
   it('declines a borrow request', async () => {
     setupChain({ id: 'req-1', status: 'rejected' });
-    const { result } = renderHook(() => useDeclineBorrowRequest(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeclineBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
@@ -111,7 +101,7 @@ describe('useDeclineBorrowRequest', () => {
 describe('useMarkReturned', () => {
   it('marks a borrow request as returned', async () => {
     setupChain({ id: 'req-1', status: 'returned' });
-    const { result } = renderHook(() => useMarkReturned(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useMarkReturned(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 

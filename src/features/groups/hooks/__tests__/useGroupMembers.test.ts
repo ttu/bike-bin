@@ -1,6 +1,4 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { createMockGroupMember } from '@/test/factories';
 import { GroupRole } from '@/shared/types';
 import type { GroupId, UserId } from '@/shared/types';
@@ -23,21 +21,10 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useGroupMembers, usePromoteMember, useRemoveMember } from '../useGroupMembers';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 describe('useGroupMembers', () => {
   beforeEach(() => {
@@ -63,7 +50,7 @@ describe('useGroupMembers', () => {
     });
 
     const { result } = renderHook(() => useGroupMembers(member.groupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -85,7 +72,7 @@ describe('useGroupMembers', () => {
     });
 
     const { result } = renderHook(() => useGroupMembers('group-1' as GroupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -95,7 +82,7 @@ describe('useGroupMembers', () => {
 
   it('is disabled when groupId is empty', () => {
     const { result } = renderHook(() => useGroupMembers('' as GroupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     expect(result.current.fetchStatus).toBe('idle');
@@ -120,7 +107,7 @@ describe('useGroupMembers', () => {
     });
 
     const { result } = renderHook(() => useGroupMembers('group-1' as GroupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -140,7 +127,7 @@ describe('useGroupMembers', () => {
     });
 
     const { result } = renderHook(() => useGroupMembers('group-1' as GroupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -161,7 +148,7 @@ describe('usePromoteMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => usePromoteMember(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => usePromoteMember(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -182,7 +169,7 @@ describe('usePromoteMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => usePromoteMember(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => usePromoteMember(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({
@@ -205,7 +192,7 @@ describe('useRemoveMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => useRemoveMember(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useRemoveMember(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -226,7 +213,7 @@ describe('useRemoveMember', () => {
       }),
     });
 
-    const { result } = renderHook(() => useRemoveMember(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useRemoveMember(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({

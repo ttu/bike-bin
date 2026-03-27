@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 
 export const UNREAD_COUNT_QUERY_KEY = 'unread_message_count';

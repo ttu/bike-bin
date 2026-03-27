@@ -8,6 +8,9 @@ import {
   createMockBorrowRequest,
   createMockRating,
   createMockGroup,
+  createMockSearchResultItem,
+  createMockConversationListItem,
+  createMockSearchItemsRpcRow,
 } from '../factories';
 
 describe('createMockUser', () => {
@@ -191,5 +194,29 @@ describe('createMockGroup', () => {
     const group = createMockGroup({ name: 'Berlin Cyclists', isPublic: false });
     expect(group.name).toBe('Berlin Cyclists');
     expect(group.isPublic).toBe(false);
+  });
+});
+
+describe('createMockSearchResultItem', () => {
+  it('returns deterministic fields with overrides', () => {
+    const item = createMockSearchResultItem({ name: 'Tire' });
+    expect(item.name).toBe('Tire');
+    expect(item.ownerDisplayName).toBe('Alice');
+  });
+});
+
+describe('createMockConversationListItem', () => {
+  it('returns deterministic fields with overrides', () => {
+    const row = createMockConversationListItem({ unreadCount: 2 });
+    expect(row.unreadCount).toBe(2);
+    expect(row.otherParticipantName).toBe('Alice');
+  });
+});
+
+describe('createMockSearchItemsRpcRow', () => {
+  it('includes distance_meters and applies overrides', () => {
+    const row = createMockSearchItemsRpcRow({ owner_id: 'x' });
+    expect(row.owner_id).toBe('x');
+    expect(row.distance_meters).toBe(1500);
   });
 });

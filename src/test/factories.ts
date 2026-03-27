@@ -39,6 +39,8 @@ import {
   TransactionType,
   GroupRole,
 } from '@/shared/types';
+import type { SearchResultItem } from '@/features/search/types';
+import type { ConversationListItem } from '@/features/messaging/types';
 
 export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
   return {
@@ -280,6 +282,86 @@ export function createMockReport(overrides?: Partial<Report>): Report {
     text: faker.helpers.maybe(() => faker.lorem.sentence()),
     status: faker.helpers.arrayElement(['open', 'reviewed', 'closed'] as const),
     createdAt: faker.date.recent().toISOString(),
+    ...overrides,
+  };
+}
+
+/** Search listing row with distance — shape returned by search RPC + `createMockItemRow` fields. */
+export function createMockSearchItemsRpcRow(overrides?: Record<string, unknown>): Record<string, unknown> {
+  return {
+    ...createMockItemRow({
+      id: 'item-1',
+      owner_id: 'owner-1',
+      name: 'Shimano Cassette',
+      category: ItemCategory.Component,
+      brand: 'Shimano',
+      model: '105 R7000',
+      description: 'Good cassette',
+      condition: ItemCondition.Good,
+      status: ItemStatus.Stored,
+      availability_types: [AvailabilityType.Borrowable],
+      price: null,
+      deposit: null,
+      borrow_duration: null,
+      visibility: 'all',
+      pickup_location_id: 'loc-2',
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-15T00:00:00Z',
+    }),
+    distance_meters: 1500,
+    ...overrides,
+  };
+}
+
+/** Deterministic `SearchResultItem` for component and hook tests. */
+export function createMockSearchResultItem(overrides?: Partial<SearchResultItem>): SearchResultItem {
+  return {
+    id: 'item-1' as ItemId,
+    ownerId: 'owner-1' as UserId,
+    name: 'Shimano Cassette',
+    category: ItemCategory.Component,
+    brand: 'Shimano',
+    model: '105 R7000',
+    description: 'Good cassette for road bikes',
+    condition: ItemCondition.Good,
+    availabilityTypes: [AvailabilityType.Borrowable],
+    price: undefined,
+    deposit: undefined,
+    borrowDuration: undefined,
+    visibility: 'all',
+    pickupLocationId: undefined,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-15T00:00:00Z',
+    distanceMeters: 1500,
+    ownerDisplayName: 'Alice',
+    ownerAvatarUrl: undefined,
+    ownerRatingAvg: 4.5,
+    ownerRatingCount: 12,
+    areaName: 'Berlin Mitte',
+    thumbnailStoragePath: undefined,
+    ...overrides,
+  };
+}
+
+/** Deterministic conversation row for list UI tests (matches typical `ConversationCard` data). */
+export function createMockConversationListItem(
+  overrides?: Partial<ConversationListItem>,
+): ConversationListItem {
+  return {
+    id: 'conv-1' as ConversationId,
+    itemId: 'item-1' as ItemId,
+    itemName: 'Shimano XT Derailleur',
+    itemStatus: 'stored',
+    itemAvailabilityTypes: [AvailabilityType.Borrowable],
+    itemPhotoPath: undefined,
+    otherParticipantId: 'user-2' as UserId,
+    otherParticipantName: 'Alice',
+    otherParticipantAvatarUrl: undefined,
+    lastMessageBody: 'Is this still available?',
+    lastMessageSenderId: 'user-2' as UserId,
+    lastMessageAt: '2026-01-10T12:00:00.000Z',
+    unreadCount: 0,
+    createdAt: '2026-01-01T00:00:00Z',
     ...overrides,
   };
 }

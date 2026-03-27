@@ -1,9 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { useCreateRating } from '../useCreateRating';
 import { useUpdateRating } from '../useUpdateRating';
 import { useDeleteRating } from '../useDeleteRating';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 const mockInsert = jest.fn();
 const mockUpdate = jest.fn();
@@ -26,15 +25,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -56,7 +46,7 @@ describe('useCreateRating', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useCreateRating(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateRating(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({
       toUserId: 'user-456' as never,
@@ -75,7 +65,7 @@ describe('useCreateRating', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useCreateRating(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateRating(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({
       toUserId: 'user-456' as never,
@@ -104,7 +94,7 @@ describe('useUpdateRating', () => {
     mockEq.mockReturnValue({ select: mockSelect });
     mockUpdate.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useUpdateRating(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useUpdateRating(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({
       id: 'rating-1' as never,
@@ -123,7 +113,7 @@ describe('useDeleteRating', () => {
     mockEq.mockResolvedValue({ error: null });
     mockDelete.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useDeleteRating(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteRating(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ id: 'rating-1' as never, toUserId: 'user-456' as never });
 
@@ -134,7 +124,7 @@ describe('useDeleteRating', () => {
     mockEq.mockResolvedValue({ error: { message: 'fail' } });
     mockDelete.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useDeleteRating(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteRating(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ id: 'rating-1' as never, toUserId: 'user-456' as never });
 

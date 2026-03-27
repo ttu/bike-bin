@@ -1,9 +1,8 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import type { ItemId } from '@/shared/types';
 import { usePhotoUpload } from '../usePhotoUpload';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 // Mock dependencies
 jest.mock('expo-image-picker', () => ({
@@ -47,25 +46,16 @@ global.fetch = jest.fn().mockResolvedValue({
   blob: jest.fn().mockResolvedValue(new Blob()),
 }) as jest.Mock;
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('usePhotoUpload', () => {
   it('starts with isUploading false and no error', () => {
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
     expect(result.current.isUploading).toBe(false);
     expect(result.current.error).toBeUndefined();
   });
 
   it('uploads a photo and returns storage path', async () => {
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let storagePath: string | undefined;
     await act(async () => {
@@ -81,7 +71,7 @@ describe('usePhotoUpload', () => {
       .mocked(ImagePicker.requestMediaLibraryPermissionsAsync)
       .mockResolvedValueOnce({ granted: false } as never);
 
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let storagePath: string | undefined;
     await act(async () => {
@@ -100,7 +90,7 @@ describe('usePhotoUpload', () => {
       .mocked(ImagePicker.launchImageLibraryAsync)
       .mockResolvedValueOnce({ canceled: true, assets: [] } as never);
 
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let storagePath: string | undefined;
     await act(async () => {

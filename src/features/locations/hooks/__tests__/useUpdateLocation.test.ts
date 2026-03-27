@@ -1,7 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { useUpdateLocation } from '../useUpdateLocation';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 // Matches: .update(x).eq('id', y).select().single()
 function mockBuildUpdateChain(resolvedData: Record<string, unknown>) {
@@ -52,15 +51,6 @@ jest.mock('../../utils/geocoding', () => ({
   }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -73,7 +63,7 @@ describe('useUpdateLocation', () => {
     const locData = { id: 'loc-1', label: 'Home' };
     mockFromChains = [mockBuildUpdateChain(locData)];
 
-    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ id: 'loc-1' as never, label: 'Home' });
 
@@ -84,7 +74,7 @@ describe('useUpdateLocation', () => {
     const locData = { id: 'loc-1', postcode: 'SW1A 1AA' };
     mockFromChains = [mockBuildUpdateChain(locData)];
 
-    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ id: 'loc-1' as never, postcode: 'SW1A 1AA', country: 'GB' });
 
@@ -100,7 +90,7 @@ describe('useUpdateLocation', () => {
     // Second from(): actual update (.update().eq().select().single())
     mockFromChains = [mockBuildDemoteChain(), mockBuildUpdateChain(locData)];
 
-    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createQueryClientHookWrapper() });
 
     result.current.mutate({ id: 'loc-1' as never, isPrimary: true });
 

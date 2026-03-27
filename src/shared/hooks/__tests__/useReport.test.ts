@@ -1,6 +1,4 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { UserId } from '@/shared/types';
 
 const mockInsert = jest.fn();
@@ -13,21 +11,10 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useReport } from '../useReport';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 describe('useReport', () => {
   beforeEach(() => {
@@ -37,7 +24,7 @@ describe('useReport', () => {
   it('inserts a report with all required fields', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useReport(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useReport(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -62,7 +49,7 @@ describe('useReport', () => {
   it('sets text to null when not provided', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useReport(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useReport(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -79,7 +66,7 @@ describe('useReport', () => {
   it('throws on supabase error', async () => {
     mockInsert.mockResolvedValue({ error: new Error('RLS violation') });
 
-    const { result } = renderHook(() => useReport(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useReport(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({
@@ -94,7 +81,7 @@ describe('useReport', () => {
   it('always sets status to "open"', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useReport(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useReport(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.mutateAsync({

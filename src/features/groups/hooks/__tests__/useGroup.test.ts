@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { createMockGroup } from '@/test/factories';
 import type { GroupId } from '@/shared/types';
 
@@ -16,21 +14,10 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useGroup } from '../useGroup';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 describe('useGroup', () => {
   beforeEach(() => {
@@ -46,7 +33,7 @@ describe('useGroup', () => {
       }),
     });
 
-    const { result } = renderHook(() => useGroup(group.id), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useGroup(group.id), { wrapper: createQueryClientHookWrapper() });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -63,7 +50,7 @@ describe('useGroup', () => {
     });
 
     const { result } = renderHook(() => useGroup('missing-id' as GroupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -73,7 +60,7 @@ describe('useGroup', () => {
 
   it('is disabled when id is empty', () => {
     const { result } = renderHook(() => useGroup('' as GroupId), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientHookWrapper(),
     });
 
     expect(result.current.fetchStatus).toBe('idle');

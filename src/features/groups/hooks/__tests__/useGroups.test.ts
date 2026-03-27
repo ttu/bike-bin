@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import { createMockGroup } from '@/test/factories';
 import { GroupRole } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
@@ -32,21 +30,10 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useGroups, useCreateGroup, useDeleteGroup } from '../useGroups';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 describe('useGroups', () => {
   beforeEach(() => {
@@ -70,7 +57,7 @@ describe('useGroups', () => {
       }),
     });
 
-    renderHook(() => useGroups(), { wrapper: createWrapper() });
+    renderHook(() => useGroups(), { wrapper: createQueryClientHookWrapper() });
 
     // Wait for query to settle
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -98,7 +85,7 @@ describe('useCreateGroup', () => {
     // Second call: insert group_member
     mockInsert.mockReturnValueOnce(Promise.resolve({ error: null }));
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       name: 'Test Group',
@@ -120,7 +107,7 @@ describe('useCreateGroup', () => {
       }),
     });
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({
@@ -141,7 +128,7 @@ describe('useDeleteGroup', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useDeleteGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteGroup(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync('group-1' as GroupId);
 
@@ -154,7 +141,7 @@ describe('useDeleteGroup', () => {
       eq: mockEq.mockResolvedValue({ error: new Error('Not authorized') }),
     });
 
-    const { result } = renderHook(() => useDeleteGroup(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteGroup(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(result.current.mutateAsync('group-1' as GroupId)).rejects.toThrow(
       'Not authorized',

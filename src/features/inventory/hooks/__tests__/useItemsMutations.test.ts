@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { ItemId } from '@/shared/types';
 import { ItemStatus, Visibility } from '@/shared/types';
 import { supabase } from '@/shared/api/supabase';
@@ -34,6 +32,7 @@ jest.mock('@/shared/utils/mapItemRow', () => ({
   })),
 }));
 
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 import {
   useItems,
   useItem,
@@ -43,15 +42,6 @@ import {
   useDeleteItem,
 } from '../useItems';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -74,7 +64,7 @@ describe('useItems', () => {
       },
     ];
 
-    renderHook(() => useItems(), { wrapper: createWrapper() });
+    renderHook(() => useItems(), { wrapper: createQueryClientHookWrapper() });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(supabase.from).toHaveBeenCalledWith('items');
@@ -96,7 +86,7 @@ describe('useItem', () => {
       },
     ];
 
-    renderHook(() => useItem('item-1' as ItemId), { wrapper: createWrapper() });
+    renderHook(() => useItem('item-1' as ItemId), { wrapper: createQueryClientHookWrapper() });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(supabase.from).toHaveBeenCalledWith('items');
@@ -118,7 +108,7 @@ describe('useItemPhotos', () => {
       },
     ];
 
-    renderHook(() => useItemPhotos('item-1' as ItemId), { wrapper: createWrapper() });
+    renderHook(() => useItemPhotos('item-1' as ItemId), { wrapper: createQueryClientHookWrapper() });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(supabase.from).toHaveBeenCalledWith('item_photos');
@@ -140,7 +130,7 @@ describe('useCreateItem', () => {
       },
     ];
 
-    const { result } = renderHook(() => useCreateItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateItem(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       name: 'Chain',
@@ -174,7 +164,7 @@ describe('useCreateItem', () => {
       },
     ];
 
-    const { result } = renderHook(() => useCreateItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreateItem(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({
       name: 'Chain',
@@ -206,7 +196,7 @@ describe('useUpdateItemStatus', () => {
       },
     ];
 
-    const { result } = renderHook(() => useUpdateItemStatus(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useUpdateItemStatus(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Archived });
 
@@ -224,7 +214,7 @@ describe('useDeleteItem', () => {
       },
     ];
 
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
 
     await result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Stored });
 
@@ -232,7 +222,7 @@ describe('useDeleteItem', () => {
   });
 
   it('throws when deleting item with loaned status', async () => {
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
 
     await expect(
       result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Loaned }),

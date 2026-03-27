@@ -1,6 +1,4 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { ItemId } from '@/shared/types';
 
 const mockUpload = jest.fn();
@@ -28,16 +26,8 @@ const mockFetch = jest.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
 import { useStagedPhotos } from '../useStagedPhotos';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useStagedPhotos', () => {
   beforeEach(() => {
@@ -45,13 +35,13 @@ describe('useStagedPhotos', () => {
   });
 
   it('starts with empty staged photos', () => {
-    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createQueryClientHookWrapper() });
     expect(result.current.stagedPhotos).toEqual([]);
     expect(result.current.isUploading).toBe(false);
   });
 
   it('adds a staged photo', () => {
-    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createQueryClientHookWrapper() });
 
     act(() => {
       result.current.addStaged('file:///photo.jpg', 'photo.jpg');
@@ -62,7 +52,7 @@ describe('useStagedPhotos', () => {
   });
 
   it('removes a staged photo', () => {
-    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createQueryClientHookWrapper() });
 
     act(() => {
       result.current.addStaged('file:///photo.jpg', 'photo.jpg');
@@ -83,7 +73,7 @@ describe('useStagedPhotos', () => {
     mockUpload.mockResolvedValue({ error: null });
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createQueryClientHookWrapper() });
 
     act(() => {
       result.current.addStaged('file:///photo1.jpg', 'photo1.jpg');
@@ -100,7 +90,7 @@ describe('useStagedPhotos', () => {
   });
 
   it('does nothing when no photos to upload', async () => {
-    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.uploadAll('item-1' as ItemId);
@@ -114,7 +104,7 @@ describe('useStagedPhotos', () => {
     mockFetch.mockResolvedValue({ blob: () => Promise.resolve(mockBlob) });
     mockUpload.mockResolvedValue({ error: new Error('Upload failed') });
 
-    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useStagedPhotos(), { wrapper: createQueryClientHookWrapper() });
 
     act(() => {
       result.current.addStaged('file:///photo1.jpg', 'photo1.jpg');

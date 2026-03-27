@@ -1,6 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 
 const mockSelect = jest.fn();
 const mockEq = jest.fn();
@@ -18,18 +16,10 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 // Import after mocks
 import { useNotifications } from '../useNotifications';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -39,7 +29,7 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotifications(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([]);
@@ -73,7 +63,7 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotifications(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -99,7 +89,7 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    renderHook(() => useNotifications(), { wrapper: createWrapper() });
+    renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(mockEq).toHaveBeenCalledWith('user_id', 'user-123'));
     expect(mockOrder).toHaveBeenCalledWith('created_at', { ascending: false });
@@ -112,7 +102,7 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotifications(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBe(mockError);

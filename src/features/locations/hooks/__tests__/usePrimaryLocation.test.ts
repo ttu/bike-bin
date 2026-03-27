@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
@@ -27,16 +25,8 @@ jest.mock('../../utils/mapLocationRow', () => ({
 }));
 
 import { usePrimaryLocation } from '../usePrimaryLocation';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -61,7 +51,7 @@ describe('usePrimaryLocation', () => {
       },
     ];
 
-    renderHook(() => usePrimaryLocation(), { wrapper: createWrapper() });
+    renderHook(() => usePrimaryLocation(), { wrapper: createQueryClientHookWrapper() });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(mockCallCount).toBeGreaterThan(0);
@@ -99,7 +89,7 @@ describe('usePrimaryLocation', () => {
       },
     ];
 
-    renderHook(() => usePrimaryLocation(), { wrapper: createWrapper() });
+    renderHook(() => usePrimaryLocation(), { wrapper: createQueryClientHookWrapper() });
     await new Promise((r) => setTimeout(r, 100));
 
     expect(mockCallCount).toBe(2);

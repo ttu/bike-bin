@@ -1,6 +1,4 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import type { BikeId } from '@/shared/types';
 
 // Mock expo-image-picker
@@ -52,16 +50,8 @@ global.fetch = jest.fn().mockResolvedValue({
 }) as jest.Mock;
 
 import { useBikePhotoUpload } from '../useBikePhotoUpload';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-  }
-  return Wrapper;
-}
 
 describe('useBikePhotoUpload', () => {
   beforeEach(() => {
@@ -71,7 +61,7 @@ describe('useBikePhotoUpload', () => {
   it('returns error when permission denied', async () => {
     mockRequestPermissions.mockResolvedValue({ granted: false });
 
-    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let returnValue: string | undefined;
     await act(async () => {
@@ -86,7 +76,7 @@ describe('useBikePhotoUpload', () => {
     mockRequestPermissions.mockResolvedValue({ granted: true });
     mockLaunchLibrary.mockResolvedValue({ canceled: true, assets: [] });
 
-    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let returnValue: string | undefined;
     await act(async () => {
@@ -110,7 +100,7 @@ describe('useBikePhotoUpload', () => {
     });
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let returnValue: string | undefined;
     await act(async () => {
@@ -142,7 +132,7 @@ describe('useBikePhotoUpload', () => {
       }),
     });
 
-    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     let returnValue: string | undefined;
     await act(async () => {
@@ -162,7 +152,7 @@ describe('useBikePhotoUpload', () => {
     mockManipulate.mockResolvedValue({ uri: 'file:///compressed.jpg' });
     mockUpload.mockResolvedValue({ error: new Error('Storage full') });
 
-    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useBikePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
 
     await act(async () => {
       await result.current.pickAndUpload('bike-1' as BikeId);
