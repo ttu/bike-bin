@@ -1,5 +1,6 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
+import { encodeReturnPath } from '@/shared/utils/returnPath';
 import ConversationDetailScreen from '../[id]';
 import type { ConversationListItem } from '@/features/messaging/types';
 import type { ConversationId, UserId } from '@/shared/types';
@@ -97,6 +98,12 @@ describe('ConversationDetailScreen', () => {
   it('navigates to the other participant profile when the header is pressed', () => {
     const { getByTestId } = renderWithProviders(<ConversationDetailScreen />);
     fireEvent.press(getByTestId('conversation-header-profile'));
-    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/profile/other-user-456');
+    expect(mockRouterPush).toHaveBeenCalledWith({
+      pathname: '/(tabs)/profile/[userId]',
+      params: {
+        userId: 'other-user-456',
+        returnPath: encodeReturnPath('/(tabs)/messages/conv-1'),
+      },
+    });
   });
 });

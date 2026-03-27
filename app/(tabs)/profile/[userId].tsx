@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
 import { Text, Avatar, Appbar, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { Href } from 'expo-router';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -12,6 +13,11 @@ import { useAuth } from '@/features/auth';
 import { spacing, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { UserId } from '@/shared/types';
+import {
+  decodeReturnPathParam,
+  encodeReturnPath,
+  isSafeTabReturnPath,
+} from '@/shared/utils/returnPath';
 import { usePublicProfile, usePublicListings } from '@/features/profile';
 import { useUserRatings } from '@/features/ratings/hooks/useUserRatings';
 import { ReviewCard } from '@/features/ratings/components/ReviewCard/ReviewCard';
@@ -21,7 +27,20 @@ export default function PublicUserProfileScreen() {
   const { t } = useTranslation('ratings');
   const { t: tProfile } = useTranslation('profile');
   const router = useRouter();
-  const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { userId, returnPath } = useLocalSearchParams<{ userId: string; returnPath?: string }>();
+
+  const handleBack = useCallback(() => {
+    const decoded = decodeReturnPathParam(returnPath);
+    if (decoded && isSafeTabReturnPath(decoded)) {
+      router.replace(decoded as Href);
+      return;
+    }
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(tabs)/profile');
+  }, [returnPath, router]);
   const { user } = useAuth();
   const [reportVisible, setReportVisible] = useState(false);
   const reportMutation = useReport();
@@ -44,9 +63,7 @@ export default function PublicUserProfileScreen() {
     return (
       <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
         <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-          <Appbar.BackAction
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/profile'))}
-          />
+          <Appbar.BackAction onPress={handleBack} />
           <Appbar.Content title={tProfile('publicProfile.notFoundTitle')} />
         </Appbar.Header>
         <View style={styles.notFoundBody}>
@@ -91,9 +108,7 @@ export default function PublicUserProfileScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/profile'))}
-        />
+        <Appbar.BackAction onPress={handleBack} />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="flag-outline"
@@ -175,7 +190,15 @@ export default function PublicUserProfileScreen() {
               <Pressable
                 key={listing.id}
                 style={[styles.listingCard, { backgroundColor: theme.colors.surfaceVariant }]}
-                onPress={() => router.push(`/(tabs)/search/${listing.id}` as never)}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(tabs)/search/[id]',
+                    params: {
+                      id: listing.id,
+                      returnPath: encodeReturnPath(`/(tabs)/profile/${userId}`),
+                    },
+                  })
+                }
                 accessibilityRole="button"
               >
                 <View style={styles.listingContent}>

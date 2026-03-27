@@ -30,6 +30,7 @@ import { useItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
 import { LoadingScreen } from '@/shared/components';
+import { encodeReturnPath } from '@/shared/utils/returnPath';
 
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -90,16 +91,27 @@ export default function ConversationDetailScreen() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleViewItem = useCallback(() => {
-    if (conversation?.itemId) {
-      router.push(`/search/${conversation.itemId}`);
-    }
-  }, [conversation, router]);
+    if (!conversation?.itemId || !conversationId) return;
+    router.push({
+      pathname: '/(tabs)/search/[id]',
+      params: {
+        id: conversation.itemId,
+        returnPath: encodeReturnPath(`/(tabs)/messages/${conversationId}`),
+      },
+    });
+  }, [conversation, router, conversationId]);
 
   const handleOpenProfile = useCallback(() => {
     const otherId = conversation?.otherParticipantId;
-    if (!otherId) return;
-    router.push(`/(tabs)/profile/${otherId}` as never);
-  }, [conversation, router]);
+    if (!otherId || !conversationId) return;
+    router.push({
+      pathname: '/(tabs)/profile/[userId]',
+      params: {
+        userId: otherId,
+        returnPath: encodeReturnPath(`/(tabs)/messages/${conversationId}`),
+      },
+    });
+  }, [conversation, router, conversationId]);
 
   const handleMarkDonated = useCallback(() => {
     setMenuVisible(false);

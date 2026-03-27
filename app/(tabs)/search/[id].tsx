@@ -1,8 +1,14 @@
 import { StyleSheet, Alert } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { Href } from 'expo-router';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import {
+  decodeReturnPathParam,
+  encodeReturnPath,
+  isSafeTabReturnPath,
+} from '@/shared/utils/returnPath';
 import type { AppTheme } from '@/shared/theme';
 import { LoadingScreen } from '@/shared/components';
 import { ListingDetail, useListingDetail } from '@/features/search';
@@ -15,7 +21,7 @@ export default function ListingDetailScreen() {
   const { t } = useTranslation('search');
   const { t: tBorrow } = useTranslation('borrow');
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, returnPath } = useLocalSearchParams<{ id: string; returnPath?: string }>();
   const { mutate: createConversation } = useCreateConversation();
   const { mutate: createBorrowRequest } = useCreateBorrowRequest();
   const { user } = useAuth();
@@ -43,7 +49,26 @@ export default function ListingDetailScreen() {
   };
 
   const handleOwnerPress = () => {
-    router.push(`/(tabs)/profile/${item.ownerId}` as never);
+    router.push({
+      pathname: '/(tabs)/profile/[userId]',
+      params: {
+        userId: item.ownerId,
+        returnPath: encodeReturnPath(`/(tabs)/search/${item.id}`),
+      },
+    });
+  };
+
+  const handleBack = () => {
+    const decoded = decodeReturnPathParam(returnPath);
+    if (decoded && isSafeTabReturnPath(decoded)) {
+      router.replace(decoded as Href);
+      return;
+    }
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(tabs)/search');
   };
 
   const handleRequestBorrow = () => {
@@ -72,9 +97,7 @@ export default function ListingDetailScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/search'))}
-        />
+        <Appbar.BackAction onPress={handleBack} />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="flag-outline"
