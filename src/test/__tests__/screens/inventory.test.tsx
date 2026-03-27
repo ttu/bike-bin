@@ -3,10 +3,11 @@ import { screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 
+const mockRouterPush = jest.fn();
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
   useLocalSearchParams: jest.fn(() => ({})),
-  router: { push: jest.fn() },
+  router: { push: (...args: unknown[]) => mockRouterPush(...args) },
 }));
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -68,6 +69,16 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('InventoryScreen', () => {
+  beforeEach(() => {
+    mockRouterPush.mockClear();
+  });
+
+  it('navigates to bikes list when bikes link is pressed', () => {
+    renderWithProviders(<InventoryScreen />);
+    fireEvent.press(screen.getByText('Bikes →'));
+    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/bikes');
+  });
+
   it('renders the search bar', () => {
     renderWithProviders(<InventoryScreen />);
     expect(screen.getByPlaceholderText(/Search/)).toBeTruthy();

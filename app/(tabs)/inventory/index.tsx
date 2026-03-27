@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, ScrollView, StyleSheet, RefreshControl } from 'react-native';
-import { Text, FAB, Chip, Searchbar, useTheme } from 'react-native-paper';
+import { Text, FAB, Chip, Searchbar, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -107,14 +107,26 @@ export default function InventoryScreen() {
       ]}
     >
       <View style={styles.searchContainer}>
-        <Searchbar
-          placeholder={searchPlaceholder}
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
-          inputStyle={styles.searchInput}
-          elevation={0}
-        />
+        <View style={styles.searchbarWrap}>
+          <Searchbar
+            placeholder={searchPlaceholder}
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
+            inputStyle={styles.searchInput}
+            elevation={0}
+          />
+        </View>
+        <Button
+          mode="text"
+          compact
+          onPress={() => router.push('/(tabs)/inventory/bikes' as never)}
+          accessibilityRole="link"
+          accessibilityLabel={t('bikesLink')}
+          style={styles.bikesLinkButton}
+        >
+          {t('bikesLink')}
+        </Button>
       </View>
 
       <DemoBanner />
@@ -240,9 +252,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing.base,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
+    gap: spacing.xs,
+  },
+  searchbarWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
+  bikesLinkButton: {
+    marginRight: -spacing.sm,
+    flexShrink: 0,
   },
   searchbar: {
     borderRadius: 28,
