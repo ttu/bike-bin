@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Appbar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
+import { Appbar, Avatar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
@@ -142,10 +142,21 @@ export default function ConversationDetailScreen() {
         {/* Header */}
         <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
           <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content
-            title={conversation?.otherParticipantName ?? ''}
-            subtitle={conversation?.itemName ?? ''}
-          />
+          <View style={styles.headerContent}>
+            {conversation?.otherParticipantAvatarUrl ? (
+              <Avatar.Image size={32} source={{ uri: conversation.otherParticipantAvatarUrl }} />
+            ) : (
+              <Avatar.Icon
+                size={32}
+                icon="account"
+                style={{ backgroundColor: theme.colors.surfaceVariant }}
+              />
+            )}
+            <Appbar.Content
+              title={conversation?.otherParticipantName || t('conversation.anonymousUser')}
+              subtitle={conversation?.itemName ?? ''}
+            />
+          </View>
           {canExchange && (
             <Menu
               visible={menuVisible}
@@ -243,6 +254,12 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  headerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   messagesContent: {
     paddingVertical: spacing.sm,

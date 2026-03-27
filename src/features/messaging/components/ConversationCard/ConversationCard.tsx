@@ -50,7 +50,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
         },
         isCompleted && styles.dimmed,
       ]}
-      accessibilityLabel={conversation.otherParticipantName ?? ''}
+      accessibilityLabel={conversation.otherParticipantName || t('conversation.anonymousUser')}
       accessibilityRole="button"
     >
       {/* Avatar */}
@@ -83,7 +83,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
             numberOfLines={1}
             style={[styles.name, { color: theme.colors.onSurface }]}
           >
-            {conversation.otherParticipantName ?? ''}
+            {conversation.otherParticipantName || t('conversation.anonymousUser')}
           </Text>
           <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
             {timestamp}

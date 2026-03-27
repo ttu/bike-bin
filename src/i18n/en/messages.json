@@ -11,7 +11,8 @@
     "you": "You",
     "lastMessagePrefix": "{{name}}: {{message}}",
     "noMessages": "No messages yet",
-    "moreActions": "More actions"
+    "moreActions": "More actions",
+    "anonymousUser": "Anonymous"
   },
   "detail": {
     "inputPlaceholder": "Type a message...",

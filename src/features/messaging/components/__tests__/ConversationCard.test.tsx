@@ -31,6 +31,18 @@ describe('ConversationCard', () => {
     expect(getByText('Alice')).toBeTruthy();
   });
 
+  it('renders anonymous fallback when participant name is undefined', () => {
+    const conv = createConversationItem({ otherParticipantName: undefined });
+    const { getByText } = renderWithProviders(<ConversationCard conversation={conv} />);
+    expect(getByText('Anonymous')).toBeTruthy();
+  });
+
+  it('renders anonymous fallback when participant name is empty string', () => {
+    const conv = createConversationItem({ otherParticipantName: '' });
+    const { getByText } = renderWithProviders(<ConversationCard conversation={conv} />);
+    expect(getByText('Anonymous')).toBeTruthy();
+  });
+
   it('renders item reference with item name', () => {
     const conv = createConversationItem();
     const { getByText } = renderWithProviders(<ConversationCard conversation={conv} />);
