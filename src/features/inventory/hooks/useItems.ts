@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { ItemId, GroupId } from '@/shared/types';
+import type { Item, ItemId, GroupId } from '@/shared/types';
 import { ItemStatus, Visibility } from '@/shared/types';
 import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
@@ -151,7 +151,8 @@ export function useUpdateItem() {
           deposit: formData.deposit,
           borrow_duration: formData.borrowDuration,
           storage_location: formData.storageLocation,
-          age: formData.age,
+          // null so PostgREST clears the column; undefined is omitted and leaves old values
+          age: formData.age ?? null,
           usage_km: formData.usageKm,
           usage_unit: formData.usageUnit,
           purchase_date: formData.purchaseDate,
@@ -175,9 +176,13 @@ export function useUpdateItem() {
 
       return item;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (item, variables) => {
+      queryClient.setQueryData<Item>(['items', variables.id], (previous) =>
+        previous === undefined
+          ? item
+          : { ...item, thumbnailStoragePath: previous.thumbnailStoragePath },
+      );
       queryClient.invalidateQueries({ queryKey: ['items'] });
-      queryClient.invalidateQueries({ queryKey: ['items', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['user-tags'] });
     },
   });

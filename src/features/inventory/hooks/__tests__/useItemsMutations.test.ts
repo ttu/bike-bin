@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-native';
-import type { GroupId, ItemId } from '@/shared/types';
+import type { GroupId, ItemId, Item } from '@/shared/types';
 import {
   AvailabilityType,
   ItemCategory,
@@ -31,19 +31,28 @@ jest.mock('@/shared/utils/fetchThumbnailPaths', () => ({
 }));
 
 jest.mock('@/shared/utils/mapItemRow', () => ({
-  mapItemRow: jest.fn((row: Record<string, unknown>) => ({ id: row.id, name: row.name })),
+  mapItemRow: jest.fn((row: Record<string, unknown>) => ({
+    id: row.id,
+    name: row.name,
+    age: row.age != null ? (row.age as string) : undefined,
+  })),
   mapItemPhotoRow: jest.fn((row: Record<string, unknown>) => ({
     id: row.id,
     storagePath: row.storage_path,
   })),
 }));
 
-import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
+import {
+  createQueryClientHookWrapper,
+  createQueryClientHookWrapperWithClient,
+  createTestQueryClient,
+} from '@/test/queryTestUtils';
 import {
   useItems,
   useItem,
   useItemPhotos,
   useCreateItem,
+  useUpdateItem,
   useUpdateItemStatus,
   useDeleteItem,
 } from '../useItems';
@@ -189,6 +198,66 @@ describe('useCreateItem', () => {
     });
 
     expect(mockCallCount).toBe(3);
+  });
+});
+
+describe('useUpdateItem', () => {
+  it('writes the updated item into the item detail query cache on success', async () => {
+    mockFromChains = [
+      {
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: {
+                  id: 'item-1',
+                  name: 'Pedals',
+                  age: '1_to_2_years',
+                },
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      },
+      {
+        delete: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ error: null }),
+        }),
+      },
+    ];
+
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(['items', 'item-1' as ItemId], {
+      id: 'item-1',
+      name: 'Pedals',
+      age: 'less_than_6_months',
+      thumbnailStoragePath: 'items/u1/item-1/thumb.jpg',
+    } as unknown as Item);
+
+    const { result } = renderHook(() => useUpdateItem(), {
+      wrapper: createQueryClientHookWrapperWithClient(queryClient),
+    });
+
+    await result.current.mutateAsync({
+      id: 'item-1' as ItemId,
+      name: 'Pedals',
+      category: ItemCategory.Component,
+      subcategory: 'drivetrain',
+      condition: ItemCondition.Good,
+      availabilityTypes: [AvailabilityType.Private],
+      visibility: Visibility.Private,
+      age: '1_to_2_years',
+      tags: [],
+    });
+
+    const cached = queryClient.getQueryData<Item>(['items', 'item-1' as ItemId]);
+    expect(cached).toMatchObject({
+      id: 'item-1',
+      name: 'Pedals',
+      age: '1_to_2_years',
+      thumbnailStoragePath: 'items/u1/item-1/thumb.jpg',
+    });
   });
 });
 
