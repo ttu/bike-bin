@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
-import { ItemStatus } from '@/shared/types';
+import { AvailabilityType, ItemStatus } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
@@ -61,7 +61,9 @@ export function ItemDetail({
 
   const canShowDonateAction =
     item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted;
-  const canShowSoldAction = item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted;
+  const canShowSoldAction =
+    (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&
+    item.availabilityTypes.includes(AvailabilityType.Sellable);
   const canShowReturnedAction = item.status === ItemStatus.Loaned;
   const canShowArchiveAction = item.status !== ItemStatus.Archived;
   const canShowDeleteAction = canDelete(item);

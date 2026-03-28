@@ -109,6 +109,18 @@ describe('ItemDetail', () => {
     expect(queryByText('Mark as Sold')).toBeNull();
   });
 
+  it('hides Mark as Sold when item is not sellable', () => {
+    const donatableOnly = createMockItem({
+      ...baseItem,
+      availabilityTypes: [AvailabilityType.Donatable],
+    });
+    const { queryByText, getByText } = renderWithProviders(
+      <ItemDetail item={donatableOnly} photos={[]} onMarkDonated={jest.fn()} onMarkSold={jest.fn()} />,
+    );
+    expect(getByText('Mark as Donated')).toBeTruthy();
+    expect(queryByText('Mark as Sold')).toBeNull();
+  });
+
   it('hides delete action when item cannot be deleted', () => {
     const loanedItem = createMockItem({ ...baseItem, status: ItemStatus.Loaned });
     const { queryByText } = renderWithProviders(
