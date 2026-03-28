@@ -32,9 +32,41 @@ describe('validateItem', () => {
     expect(errors.category).toBeDefined();
   });
 
-  it('requires condition', () => {
+  it('requires condition for non-consumables', () => {
     const errors = validateItem(validFormData({ condition: undefined }));
     expect(errors.condition).toBeDefined();
+  });
+
+  it('does not require condition for consumables', () => {
+    const errors = validateItem(
+      validFormData({
+        category: ItemCategory.Consumable,
+        condition: undefined,
+        remainingFraction: 0.5,
+      }),
+    );
+    expect(errors.condition).toBeUndefined();
+  });
+
+  it('requires remaining fraction for consumables', () => {
+    const errors = validateItem(
+      validFormData({
+        category: ItemCategory.Consumable,
+        condition: undefined,
+        remainingFraction: undefined,
+      }),
+    );
+    expect(errors.remainingFraction).toBeDefined();
+  });
+
+  it('rejects consumable remaining fraction out of range', () => {
+    const errors = validateItem(
+      validFormData({
+        category: ItemCategory.Consumable,
+        remainingFraction: 1.5,
+      }),
+    );
+    expect(errors.remainingFraction).toBeDefined();
   });
 
   it('requires price when sellable', () => {

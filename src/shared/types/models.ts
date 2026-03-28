@@ -69,6 +69,8 @@ export interface Item {
   age: string | undefined;
   usageKm: number | undefined;
   usageUnit: string | undefined;
+  /** Consumables only: approximate fraction left (0–1). */
+  remainingFraction: number | undefined;
   purchaseDate: string | undefined;
   pickupLocationId: LocationId | undefined;
   visibility: Visibility;

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The core feature of Bike Bin. Users manage their personal collection of bike parts, tools, accessories, consumables, and clothing. Each item has a category, subcategory, condition, status (lifecycle state), availability types (borrow/donate/sell), visibility (private/groups/public), photos, and private tags. The inventory list hides terminal items (archived/sold/donated) by default with a toggle to reveal them.
+The core feature of Bike Bin. Users manage their personal collection of bike parts, tools, accessories, consumables, and clothing. Each item has a category, subcategory, condition (non-consumables) or **amount remaining** (consumables via `remaining_fraction`), status (lifecycle state), availability types (borrow/donate/sell), visibility (private/groups/public), photos, and private tags. The inventory list hides terminal items (archived/sold/donated) by default with a toggle to reveal them.
 
 ## Data Model
 
@@ -15,7 +15,8 @@ The core feature of Bike Bin. Users manage their personal collection of bike par
 | name               | text                        | Item name                                                  |
 | category           | item_category enum          | component, tool, accessory, consumable, clothing, bike     |
 | subcategory        | text                        | Free-text subcategory within parent category               |
-| condition          | item_condition enum         | new, good, worn, broken                                    |
+| condition          | item_condition enum         | new, good, worn, broken (consumables default to good in DB; UI uses remaining_fraction) |
+| remaining_fraction | numeric                     | For consumables: fraction left 0–1; NULL otherwise         |
 | status             | item_status enum            | stored, mounted, loaned, reserved, donated, sold, archived |
 | availability_types | text[]                      | Array of: borrowable, donatable, sellable, private         |
 | visibility         | item_visibility enum        | private, groups, all                                       |

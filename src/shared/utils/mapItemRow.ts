@@ -15,6 +15,10 @@ export function mapItemRow(row: Record<string, unknown>): Item {
   const usageUnit =
     usageKm !== undefined ? ((row.usage_unit as string | null) ?? undefined) : undefined;
 
+  const rawRemaining = row.remaining_fraction as number | null | undefined;
+  const remainingFraction =
+    rawRemaining === null || rawRemaining === undefined ? undefined : rawRemaining;
+
   return {
     id: row.id as ItemId,
     ownerId: row.owner_id as UserId,
@@ -35,6 +39,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     age: (row.age as string) ?? undefined,
     usageKm,
     usageUnit,
+    remainingFraction,
     purchaseDate: (row.purchase_date as string) ?? undefined,
     pickupLocationId: (row.pickup_location_id as LocationId) ?? undefined,
     visibility: row.visibility as Visibility,

@@ -87,6 +87,7 @@ export function createMockItemRow(overrides?: Record<string, unknown>): Record<s
           usage_km !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
       };
     })(),
+    remaining_fraction: null,
     purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
@@ -127,6 +128,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
           usageKm !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : undefined,
       };
     })(),
+    remainingFraction: undefined,
     purchaseDate: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickupLocationId: faker.helpers.maybe(() => faker.string.uuid() as LocationId),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),

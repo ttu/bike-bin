@@ -66,6 +66,7 @@ export default function NewItemScreen() {
           age: data.age,
           usageKm: data.usageKm,
           usageUnit: data.usageUnit,
+          remainingFraction: data.remainingFraction,
           purchaseDate: data.purchaseDate,
           pickupLocationId: data.pickupLocationId,
           visibility: data.visibility ?? Visibility.Private,

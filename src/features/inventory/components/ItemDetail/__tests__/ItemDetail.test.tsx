@@ -73,6 +73,19 @@ describe('ItemDetail', () => {
     expect(getByText('Garage shelf')).toBeTruthy();
   });
 
+  it('shows amount left for consumables with remaining fraction', () => {
+    const item = createMockItem({
+      category: ItemCategory.Consumable,
+      subcategory: 'chain_lube',
+      condition: ItemCondition.Good,
+      remainingFraction: 0.4,
+      usageKm: undefined,
+      usageUnit: undefined,
+    });
+    const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);
+    expect(getByText('40% left')).toBeTruthy();
+  });
+
   it('renders description', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
     expect(getByText('Good condition cassette')).toBeTruthy();

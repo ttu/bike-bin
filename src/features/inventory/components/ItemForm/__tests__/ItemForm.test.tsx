@@ -39,6 +39,7 @@ describe('ItemForm', () => {
     const { getByText } = renderWithProviders(<ItemForm {...defaultProps} />);
     expect(getByText('Name')).toBeTruthy();
     expect(getByText('Category')).toBeTruthy();
+    fireEvent.press(getByText('Components'));
     expect(getByText('Condition')).toBeTruthy();
   });
 
@@ -51,6 +52,7 @@ describe('ItemForm', () => {
 
   it('renders condition chips as single-select', () => {
     const { getByText } = renderWithProviders(<ItemForm {...defaultProps} />);
+    fireEvent.press(getByText('Components'));
     expect(getByText('New')).toBeTruthy();
     expect(getByText('Good')).toBeTruthy();
     expect(getByText('Worn')).toBeTruthy();
@@ -184,12 +186,14 @@ describe('ItemForm', () => {
 
     // Fill remaining required fields and submit to verify the category is sent
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Test Lube');
-    fireEvent.press(getByText('Good'));
+    fireEvent.changeText(getByPlaceholderText('e.g. 50'), '75');
     fireEvent.press(getByText('Save'));
 
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
         category: ItemCategory.Consumable,
+        remainingFraction: 0.75,
+        condition: ItemCondition.Good,
       }),
     );
   });

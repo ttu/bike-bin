@@ -10,6 +10,10 @@ import type { GroupId } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
 
 import { validateItem, type ItemFormData, type ItemFormErrors } from '../../utils/validation';
+import {
+  formatRemainingPercentField,
+  parseRemainingPercentInput,
+} from '../../utils/remainingFractionInput';
 import { useUserTags } from '../../hooks/useUserTags';
 import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useGroups } from '@/features/groups';
@@ -108,6 +112,9 @@ export function ItemForm({
   const [age, setAge] = useState(initialData?.age ?? '');
   const [ageMenuVisible, setAgeMenuVisible] = useState(false);
   const [usageKm, setUsageKm] = useState(initialData?.usageKm?.toString() ?? '');
+  const [remainingPercentStr, setRemainingPercentStr] = useState(() =>
+    formatRemainingPercentField(initialData?.remainingFraction),
+  );
   const { distanceUnit } = useDistanceUnit();
   const [durationMenuVisible, setDurationMenuVisible] = useState(false);
   const [visibility, setVisibility] = useState<Visibility>(
@@ -164,6 +171,11 @@ export function ItemForm({
   const handleCategoryChange = useCallback((cat: ItemCategory) => {
     setCategory(cat);
     setSubcategory(''); // Reset subcategory when category changes
+    if (cat === ItemCategory.Consumable) {
+      setUsageKm('');
+    } else {
+      setRemainingPercentStr('');
+    }
   }, []);
 
   const handleBrandSelect = useCallback((selectedBrand: string) => {
@@ -226,11 +238,16 @@ export function ItemForm({
     setTagInput('');
     setTagSuggestionsVisible(false);
 
+    const parsedRemaining =
+      category === ItemCategory.Consumable
+        ? parseRemainingPercentInput(remainingPercentStr)
+        : undefined;
+
     const formData: ItemFormData = {
       name,
       category,
       subcategory: subcategory || undefined,
-      condition,
+      condition: category === ItemCategory.Consumable ? ItemCondition.Good : condition,
       brand: brand || undefined,
       model: model || undefined,
       description: description || undefined,
@@ -242,6 +259,7 @@ export function ItemForm({
       age: age || undefined,
       usageKm: usageKm ? parseInt(usageKm, 10) : undefined,
       usageUnit: usageKm ? distanceUnit : undefined,
+      remainingFraction: parsedRemaining,
       visibility,
       groupIds: visibility === Visibility.Groups ? groupIds : undefined,
       tags: tagsToSubmit,
@@ -268,6 +286,7 @@ export function ItemForm({
     storageLocation,
     age,
     usageKm,
+    remainingPercentStr,
     distanceUnit,
     visibility,
     groupIds,
@@ -448,6 +467,37 @@ export function ItemForm({
         {errors.condition && (
           <HelperText type="error" visible>
             {errors.condition}
+          </HelperText>
+        )}
+      </>
+    );
+  }
+
+  function renderRemainingFractionSection() {
+    return (
+      <>
+        <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+          {t('form.remainingLabel')}
+        </Text>
+        <View style={styles.usageRow}>
+          <TextInput
+            mode="flat"
+            value={remainingPercentStr}
+            onChangeText={setRemainingPercentStr}
+            placeholder={t('form.remainingPlaceholder')}
+            keyboardType="number-pad"
+            error={!!errors.remainingFraction}
+            style={[softInputStyle, styles.usageInput]}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
+          />
+          <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('form.remainingPercentSuffix')}
+          </Text>
+        </View>
+        {errors.remainingFraction && (
+          <HelperText type="error" visible>
+            {errors.remainingFraction}
           </HelperText>
         )}
       </>
@@ -991,7 +1041,7 @@ export function ItemForm({
         {showOptional && (
           <View style={styles.optionalSection}>
             {renderAgeField()}
-            {renderUsageField()}
+            {category !== ItemCategory.Consumable && renderUsageField()}
             {renderStorageField()}
             {renderDescriptionField()}
             {renderTagsField()}
@@ -1038,7 +1088,8 @@ export function ItemForm({
       {photoSection}
       {renderNameSection()}
       {renderCategorySection()}
-      {renderConditionSection()}
+      {category && category !== ItemCategory.Consumable && renderConditionSection()}
+      {category === ItemCategory.Consumable && renderRemainingFractionSection()}
       {renderBrandModelSection()}
       {renderAvailabilitySection()}
       {renderVisibilitySection()}

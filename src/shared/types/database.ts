@@ -401,6 +401,7 @@ export type Database = {
           pickup_location_id: string | null;
           price: number | null;
           purchase_date: string | null;
+          remaining_fraction: number | null;
           status: Database['public']['Enums']['item_status'];
           storage_location: string | null;
           subcategory: string | null;
@@ -428,6 +429,7 @@ export type Database = {
           pickup_location_id?: string | null;
           price?: number | null;
           purchase_date?: string | null;
+          remaining_fraction?: number | null;
           status?: Database['public']['Enums']['item_status'];
           storage_location?: string | null;
           subcategory?: string | null;
@@ -455,6 +457,7 @@ export type Database = {
           pickup_location_id?: string | null;
           price?: number | null;
           purchase_date?: string | null;
+          remaining_fraction?: number | null;
           status?: Database['public']['Enums']['item_status'];
           storage_location?: string | null;
           subcategory?: string | null;

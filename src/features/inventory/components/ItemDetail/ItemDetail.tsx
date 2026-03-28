@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
-import { AvailabilityType, ItemStatus } from '@/shared/types';
+import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
@@ -143,12 +143,24 @@ export function ItemDetail({
             { backgroundColor: theme.customColors.surfaceContainerLow },
           ]}
         >
-          <DetailCard
-            icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
-            label={t('detail.conditionLabel')}
-            value={t(`condition.${item.condition}`)}
-            theme={theme}
-          />
+          {item.category === ItemCategory.Consumable &&
+          item.remainingFraction !== undefined ? (
+            <DetailCard
+              icon="cup-outline"
+              label={t('detail.remainingLabel')}
+              value={t('detail.remainingValue', {
+                percent: Math.round(item.remainingFraction * 100),
+              })}
+              theme={theme}
+            />
+          ) : (
+            <DetailCard
+              icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
+              label={t('detail.conditionLabel')}
+              value={t(`condition.${item.condition}`)}
+              theme={theme}
+            />
+          )}
           {item.age && (
             <DetailCard
               icon="calendar-month-outline"

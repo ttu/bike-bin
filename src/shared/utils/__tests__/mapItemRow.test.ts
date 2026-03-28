@@ -72,4 +72,24 @@ describe('mapItemRow', () => {
     expect(item.usageKm).toBe(0);
     expect(item.usageUnit).toBe('km');
   });
+
+  it('treats remaining_fraction null as unset', () => {
+    const item = mapItemRow({
+      ...baseRow,
+      id: 'i4',
+      owner_id: 'u1',
+      remaining_fraction: null,
+    });
+    expect(item.remainingFraction).toBeUndefined();
+  });
+
+  it('maps remaining_fraction when set', () => {
+    const item = mapItemRow({
+      ...baseRow,
+      id: 'i5',
+      owner_id: 'u1',
+      remaining_fraction: 0.25,
+    });
+    expect(item.remainingFraction).toBe(0.25);
+  });
 });

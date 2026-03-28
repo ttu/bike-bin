@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { Item, ItemId, GroupId } from '@/shared/types';
-import { ItemStatus, Visibility } from '@/shared/types';
+import { ItemCategory, ItemStatus, Visibility } from '@/shared/types';
 import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
 import { mapItemRow, mapItemPhotoRow } from '@/shared/utils/mapItemRow';
@@ -105,6 +105,10 @@ export function useCreateItem() {
           age: formData.age,
           usage_km: formData.usageKm,
           usage_unit: formData.usageUnit,
+          remaining_fraction:
+            formData.category === ItemCategory.Consumable
+              ? formData.remainingFraction
+              : null,
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility ?? 'private',
@@ -155,6 +159,10 @@ export function useUpdateItem() {
           age: formData.age ?? null,
           usage_km: formData.usageKm,
           usage_unit: formData.usageUnit,
+          remaining_fraction:
+            formData.category === ItemCategory.Consumable
+              ? (formData.remainingFraction ?? null)
+              : null,
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility,

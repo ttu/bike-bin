@@ -1,4 +1,5 @@
 import type { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
+import { ItemCategory as ItemCategoryEnum } from '@/shared/types';
 import {
   AvailabilityType as AvailabilityTypeEnum,
   Visibility as VisibilityEnum,
@@ -21,6 +22,8 @@ export interface ItemFormData {
   age?: string;
   usageKm?: number;
   usageUnit?: string;
+  /** Consumables: fraction remaining 0–1 */
+  remainingFraction?: number;
   purchaseDate?: string;
   pickupLocationId?: LocationId;
   visibility?: Visibility;
@@ -41,8 +44,18 @@ export function validateItem(data: ItemFormData): ItemFormErrors {
     errors.category = 'Category is required';
   }
 
-  if (!data.condition) {
+  const isConsumable = data.category === ItemCategoryEnum.Consumable;
+
+  if (!isConsumable && !data.condition) {
     errors.condition = 'Condition is required';
+  }
+
+  if (isConsumable) {
+    if (data.remainingFraction === undefined) {
+      errors.remainingFraction = 'Amount remaining is required';
+    } else if (data.remainingFraction < 0 || data.remainingFraction > 1) {
+      errors.remainingFraction = 'Enter a whole percent from 0 to 100';
+    }
   }
 
   const isSellable = data.availabilityTypes.includes(AvailabilityTypeEnum.Sellable);

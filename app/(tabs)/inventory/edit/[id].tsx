@@ -142,6 +142,7 @@ export default function EditItemScreen() {
     storageLocation: item.storageLocation,
     age: item.age,
     usageKm: item.usageKm,
+    remainingFraction: item.remainingFraction,
     purchaseDate: item.purchaseDate,
     pickupLocationId: item.pickupLocationId,
     visibility: item.visibility,
