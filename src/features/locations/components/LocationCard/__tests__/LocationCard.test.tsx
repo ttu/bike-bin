@@ -48,6 +48,23 @@ describe('LocationCard', () => {
     expect(onPress).toHaveBeenCalledWith(location);
   });
 
+  it('invokes onDelete and onPress on separate targets when both are provided', () => {
+    const location = createMockLocation({ isPrimary: false, label: 'Workshop' });
+    const onPress = jest.fn();
+    const onDelete = jest.fn();
+
+    renderWithProviders(<LocationCard location={location} onPress={onPress} onDelete={onDelete} />);
+
+    fireEvent.press(screen.getByRole('button', { name: 'Delete location' }));
+    expect(onDelete).toHaveBeenCalledWith(location);
+    expect(onPress).not.toHaveBeenCalled();
+
+    onDelete.mockClear();
+    fireEvent.press(screen.getByRole('button', { name: 'Workshop' }));
+    expect(onPress).toHaveBeenCalledWith(location);
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
   it('handles missing area name gracefully', () => {
     const location = createMockLocation({ areaName: undefined });
 

@@ -15,58 +15,66 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
   const theme = useTheme();
   const { t } = useTranslation('locations');
 
-  return (
-    <Pressable
-      onPress={() => onPress?.(location)}
-      style={[styles.container, { backgroundColor: theme.colors.surface }]}
-      accessibilityRole="button"
-      accessibilityLabel={`${location.label}${location.isPrimary ? `, ${t('primaryBadge')}` : ''}`}
-    >
-      <View style={styles.iconContainer}>
-        <MaterialCommunityIcons
-          name="map-marker"
-          size={iconSize.lg}
-          color={location.isPrimary ? theme.colors.primary : theme.colors.onSurfaceVariant}
-        />
-      </View>
+  const cardAccessibilityLabel = `${location.label}${location.isPrimary ? `, ${t('primaryBadge')}` : ''}`;
 
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text
-            variant="titleMedium"
-            numberOfLines={1}
-            style={[styles.label, { color: theme.colors.onSurface }]}
-          >
-            {location.label}
-          </Text>
-          {location.isPrimary && (
-            <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Text
-                variant="labelSmall"
-                style={[styles.badgeText, { color: theme.colors.onPrimaryContainer }]}
-              >
-                {t('primaryBadge')}
-              </Text>
-            </View>
-          )}
+  const handleCardPress = () => onPress?.(location);
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <Pressable
+        onPress={handleCardPress}
+        style={styles.mainPressable}
+        accessibilityRole="button"
+        accessibilityLabel={cardAccessibilityLabel}
+      >
+        <View style={styles.iconContainer}>
+          <MaterialCommunityIcons
+            name="map-marker"
+            size={iconSize.lg}
+            color={location.isPrimary ? theme.colors.primary : theme.colors.onSurfaceVariant}
+          />
         </View>
 
-        {location.areaName && (
-          <Text
-            variant="bodyMedium"
-            numberOfLines={1}
-            style={{ color: theme.colors.onSurfaceVariant }}
-          >
-            {location.areaName}
-          </Text>
-        )}
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text
+              variant="titleMedium"
+              numberOfLines={1}
+              style={[styles.label, { color: theme.colors.onSurface }]}
+            >
+              {location.label}
+            </Text>
+            {location.isPrimary && (
+              <View
+                style={[styles.primaryBadge, { backgroundColor: theme.colors.primaryContainer }]}
+              >
+                <Text
+                  variant="labelSmall"
+                  style={[styles.badgeText, { color: theme.colors.onPrimaryContainer }]}
+                >
+                  {t('primaryBadge')}
+                </Text>
+              </View>
+            )}
+          </View>
 
-        {location.postcode && (
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-            {location.postcode}
-          </Text>
-        )}
-      </View>
+          {location.areaName && (
+            <Text
+              variant="bodyMedium"
+              numberOfLines={1}
+              style={{ color: theme.colors.onSurfaceVariant }}
+            >
+              {location.areaName}
+            </Text>
+          )}
+
+          {location.postcode && (
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              {location.postcode}
+            </Text>
+          )}
+        </View>
+      </Pressable>
 
       {onDelete && !location.isPrimary && (
         <Pressable
@@ -84,13 +92,19 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
         </Pressable>
       )}
 
-      <MaterialCommunityIcons
-        name="chevron-right"
-        size={iconSize.md}
-        color={theme.colors.onSurfaceVariant}
-        style={styles.chevron}
-      />
-    </Pressable>
+      <Pressable
+        onPress={handleCardPress}
+        style={styles.chevronPressable}
+        tabIndex={-1}
+        hitSlop={8}
+      >
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={iconSize.md}
+          color={theme.colors.onSurfaceVariant}
+        />
+      </Pressable>
+    </View>
   );
 }
 
@@ -102,6 +116,17 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
+  },
+  mainPressable: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    minWidth: 0,
+  },
+  chevronPressable: {
+    justifyContent: 'center' as const,
+    alignSelf: 'stretch' as const,
+    paddingLeft: spacing.xs,
   },
   iconContainer: {
     width: 48,
@@ -135,8 +160,5 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: spacing.sm,
-  },
-  chevron: {
-    marginLeft: spacing.xs,
   },
 });
