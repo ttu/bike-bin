@@ -60,7 +60,8 @@ export function ItemDetail({
         : theme.colors.outline;
 
   const canShowDonateAction =
-    item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted;
+    (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&
+    item.availabilityTypes.includes(AvailabilityType.Donatable);
   const canShowSoldAction =
     (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&
     item.availabilityTypes.includes(AvailabilityType.Sellable);

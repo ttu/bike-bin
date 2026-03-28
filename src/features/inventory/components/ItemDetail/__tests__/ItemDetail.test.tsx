@@ -83,12 +83,23 @@ describe('ItemDetail', () => {
     expect(getByText('No photos')).toBeTruthy();
   });
 
-  it('shows Mark as Donated when status allows', () => {
+  it('shows Mark as Donated when item is donatable', () => {
     const onMarkDonated = jest.fn();
+    const donatableItem = createMockItem({
+      ...baseItem,
+      availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Donatable],
+    });
     const { getByText } = renderWithProviders(
-      <ItemDetail item={baseItem} photos={[]} onMarkDonated={onMarkDonated} />,
+      <ItemDetail item={donatableItem} photos={[]} onMarkDonated={onMarkDonated} />,
     );
     expect(getByText('Mark as Donated')).toBeTruthy();
+  });
+
+  it('hides Mark as Donated when item is not donatable', () => {
+    const { queryByText } = renderWithProviders(
+      <ItemDetail item={baseItem} photos={[]} onMarkDonated={jest.fn()} />,
+    );
+    expect(queryByText('Mark as Donated')).toBeNull();
   });
 
   it('shows Mark as Returned when Loaned', () => {
@@ -115,7 +126,12 @@ describe('ItemDetail', () => {
       availabilityTypes: [AvailabilityType.Donatable],
     });
     const { queryByText, getByText } = renderWithProviders(
-      <ItemDetail item={donatableOnly} photos={[]} onMarkDonated={jest.fn()} onMarkSold={jest.fn()} />,
+      <ItemDetail
+        item={donatableOnly}
+        photos={[]}
+        onMarkDonated={jest.fn()}
+        onMarkSold={jest.fn()}
+      />,
     );
     expect(getByText('Mark as Donated')).toBeTruthy();
     expect(queryByText('Mark as Sold')).toBeNull();
