@@ -139,4 +139,27 @@ test.describe('Listing detail', () => {
       timeout: 10000,
     });
   });
+
+  test('listing detail page loads item content', async ({ loggedInPage }) => {
+    await navigateToSearch(loggedInPage);
+
+    const searchInput = loggedInPage.getByPlaceholder('Parts, tools, bikes...');
+    await searchInput.fill('shimano');
+    await searchInput.press('Enter');
+
+    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Click the first search result
+    const firstResult = loggedInPage.getByText('Shimano').first();
+    await firstResult.click();
+
+    // Wait for the detail page URL
+    await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+
+    // The detail page should show condition info and owner section
+    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('View profile')).toBeVisible();
+  });
 });
