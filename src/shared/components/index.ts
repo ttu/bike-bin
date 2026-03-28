@@ -1,4 +1,5 @@
 export { AnimatedPressable } from './AnimatedPressable/AnimatedPressable';
+export { DetailCard, detailCardStyles } from './DetailCard';
 export { EmptyState } from './EmptyState';
 export { GradientButton } from './GradientButton';
 export { LoadingScreen } from './LoadingScreen';

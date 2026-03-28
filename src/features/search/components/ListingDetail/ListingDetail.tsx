@@ -10,7 +10,7 @@ import { formatDistance } from '@/shared/utils';
 import { useAuth } from '@/features/auth';
 import type { SearchResultItem } from '../../types';
 import type { ItemPhoto } from '@/shared/types';
-import { PhotoGallery } from '@/shared/components';
+import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 
 const CONDITION_ICONS: Record<string, string> = {
   new: 'shield-check',
@@ -103,7 +103,7 @@ export function ListingDetail({
       <View style={styles.section}>
         <View
           style={[
-            styles.detailCardsContainer,
+            detailCardStyles.container,
             { backgroundColor: theme.customColors.surfaceContainerLow },
           ]}
         >
@@ -111,7 +111,6 @@ export function ListingDetail({
             icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
             label={t('listing.detail.conditionLabel')}
             value={t(`condition.${item.condition}`)}
-            theme={theme}
           />
           {durationText && (
             <DetailCard
@@ -229,50 +228,6 @@ export function ListingDetail({
   );
 }
 
-function DetailCard({
-  icon,
-  label,
-  value,
-  theme,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-  theme: AppTheme;
-}) {
-  return (
-    <View style={styles.detailCard}>
-      <View
-        style={[
-          styles.detailCardIcon,
-          { backgroundColor: theme.customColors.surfaceContainerHighest },
-        ]}
-      >
-        <MaterialCommunityIcons
-          name={icon as never}
-          size={iconSize.md}
-          color={theme.colors.primary}
-        />
-      </View>
-      <View style={styles.detailCardText}>
-        <Text
-          variant="labelSmall"
-          style={{
-            color: theme.colors.onSurfaceVariant,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
-          {label}
-        </Text>
-        <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-          {value}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 function useThemedStyles(theme: AppTheme) {
   return useMemo(
     () =>
@@ -316,28 +271,6 @@ const styles = StyleSheet.create({
   },
   availabilityChip: {
     borderRadius: borderRadius.full,
-  },
-  detailCardsContainer: {
-    borderRadius: borderRadius.lg,
-    padding: spacing.base,
-    gap: spacing.md,
-  },
-  detailCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  detailCardIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  detailCardText: {
-    flex: 1,
-    gap: 2,
   },
   ownerCard: {
     flexDirection: 'row',

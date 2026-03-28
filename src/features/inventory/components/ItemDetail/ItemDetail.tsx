@@ -1,15 +1,14 @@
 import { useMemo, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, canDelete } from '../../utils/status';
-import { PhotoGallery } from '@/shared/components';
+import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 import { useDistanceUnit } from '@/features/profile';
 
 const WIDE_BREAKPOINT = 768;
@@ -139,7 +138,7 @@ export function ItemDetail({
       <View style={styles.section}>
         <View
           style={[
-            styles.detailCardsContainer,
+            detailCardStyles.container,
             { backgroundColor: theme.customColors.surfaceContainerLow },
           ]}
         >
@@ -151,14 +150,12 @@ export function ItemDetail({
               value={t('detail.remainingValue', {
                 percent: Math.round(item.remainingFraction * 100),
               })}
-              theme={theme}
             />
           ) : (
             <DetailCard
               icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
               label={t('detail.conditionLabel')}
               value={t(`condition.${item.condition}`)}
-              theme={theme}
             />
           )}
           {item.age && (
@@ -166,7 +163,6 @@ export function ItemDetail({
               icon="calendar-month-outline"
               label={t('detail.ageLabel')}
               value={t(`form.ageOption.${item.age}`, { defaultValue: item.age })}
-              theme={theme}
             />
           )}
           {item.usageKm !== undefined && (
@@ -174,7 +170,6 @@ export function ItemDetail({
               icon="road-variant"
               label={t('detail.usageLabel')}
               value={`${item.usageKm} ${distanceUnit}`}
-              theme={theme}
             />
           )}
           {item.storageLocation && (
@@ -182,7 +177,6 @@ export function ItemDetail({
               icon="map-marker-outline"
               label={t('detail.storageLabel')}
               value={item.storageLocation}
-              theme={theme}
             />
           )}
         </View>
@@ -308,50 +302,6 @@ function ActionSlot({
   );
 }
 
-function DetailCard({
-  icon,
-  label,
-  value,
-  theme,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-  theme: AppTheme;
-}) {
-  return (
-    <View style={styles.detailCard}>
-      <View
-        style={[
-          styles.detailCardIcon,
-          { backgroundColor: theme.customColors.surfaceContainerHighest },
-        ]}
-      >
-        <MaterialCommunityIcons
-          name={icon as never}
-          size={iconSize.md}
-          color={theme.colors.primary}
-        />
-      </View>
-      <View style={styles.detailCardText}>
-        <Text
-          variant="labelSmall"
-          style={{
-            color: theme.colors.onSurfaceVariant,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
-          {label}
-        </Text>
-        <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-          {value}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 function SpecRow({ label, value, theme }: { label: string; value: string; theme: AppTheme }) {
   return (
     <View style={[styles.specRow, { borderBottomColor: theme.colors.outlineVariant + '40' }]}>
@@ -427,28 +377,6 @@ const styles = StyleSheet.create({
   },
   statusChip: {
     borderRadius: borderRadius.full,
-  },
-  detailCardsContainer: {
-    borderRadius: borderRadius.lg,
-    padding: spacing.base,
-    gap: spacing.md,
-  },
-  detailCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  detailCardIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  detailCardText: {
-    flex: 1,
-    gap: 2,
   },
   sectionHeader: {
     textTransform: 'uppercase',
