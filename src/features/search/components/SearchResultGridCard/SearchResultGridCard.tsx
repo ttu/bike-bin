@@ -32,46 +32,63 @@ export function SearchResultGridCard({ item, onPress }: SearchResultGridCardProp
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
-      <View style={[styles.imageContainer, themed.surfaceVariantBg]}>
-        {item.thumbnailStoragePath ? (
-          <Image
-            source={{
-              uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
-                .publicUrl,
-            }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        ) : (
-          <MaterialCommunityIcons
-            name="image-outline"
-            size={iconSize.lg}
-            color={theme.colors.onSurfaceVariant}
-          />
-        )}
-      </View>
-      <View style={styles.content}>
-        <Text variant="titleSmall" numberOfLines={2} style={themed.onSurface}>
-          {item.name}
-        </Text>
-
-        <Text variant="labelSmall" style={themed.onSurfaceVariant} numberOfLines={1}>
-          {t(`condition.${item.condition}`)}
-        </Text>
-
-        {distanceText && (
-          <View style={styles.locationRow}>
-            <MaterialCommunityIcons
-              name="map-marker-outline"
-              size={12}
-              color={theme.colors.onSurfaceVariant}
-            />
-            <Text variant="labelSmall" style={themed.onSurfaceVariant} numberOfLines={1}>
-              {item.areaName ? `${item.areaName} · ` : ''}
-              {distanceText}
-            </Text>
-          </View>
-        )}
+      <View style={styles.cardBody}>
+        {[
+          <View key="image" style={[styles.imageContainer, themed.surfaceVariantBg]}>
+            {item.thumbnailStoragePath ? (
+              <Image
+                source={{
+                  uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath)
+                    .data.publicUrl,
+                }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="image-outline"
+                size={iconSize.lg}
+                color={theme.colors.onSurfaceVariant}
+              />
+            )}
+          </View>,
+          <View key="content" style={styles.content}>
+            {[
+              <Text key="name" variant="titleSmall" numberOfLines={2} style={themed.onSurface}>
+                {item.name}
+              </Text>,
+              <Text
+                key="condition"
+                variant="labelSmall"
+                style={themed.onSurfaceVariant}
+                numberOfLines={1}
+              >
+                {t(`condition.${item.condition}`)}
+              </Text>,
+              distanceText ? (
+                <View key="distance" style={styles.locationRow}>
+                  {[
+                    <MaterialCommunityIcons
+                      key="pin"
+                      name="map-marker-outline"
+                      size={12}
+                      color={theme.colors.onSurfaceVariant}
+                    />,
+                    <Text
+                      key="distanceLabel"
+                      variant="labelSmall"
+                      style={themed.onSurfaceVariant}
+                      numberOfLines={1}
+                    >
+                      {item.areaName ? `${item.areaName} · ` : ''}
+                      {distanceText}
+                    </Text>,
+                  ]}
+                </View>
+              ) : null,
+            ]}
+          </View>,
+        ]}
       </View>
     </AnimatedPressable>
   );
@@ -103,6 +120,9 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     overflow: 'hidden',
     marginBottom: COLUMN_GAP,
+  },
+  cardBody: {
+    width: '100%',
   },
   imageContainer: {
     width: '100%',
