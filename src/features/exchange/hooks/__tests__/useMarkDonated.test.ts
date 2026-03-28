@@ -29,7 +29,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-
 describe('useMarkDonated', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,7 +39,9 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({ itemId: 'item-1' as ItemId });
 
@@ -53,7 +54,9 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       itemId: 'item-1' as ItemId,
@@ -70,7 +73,9 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: supabaseError }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(result.current.mutateAsync({ itemId: 'item-1' as ItemId })).rejects.toEqual(
       supabaseError,
@@ -85,7 +90,9 @@ describe('useMarkDonated', () => {
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 
-    const { result } = renderHook(() => useMarkDonated(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkDonated(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(result.current.mutateAsync({ itemId: 'item-1' as ItemId })).rejects.toThrow(
       'Not authenticated',

@@ -287,7 +287,9 @@ export function createMockReport(overrides?: Partial<Report>): Report {
 }
 
 /** Search listing row with distance — shape returned by search RPC + `createMockItemRow` fields. */
-export function createMockSearchItemsRpcRow(overrides?: Record<string, unknown>): Record<string, unknown> {
+export function createMockSearchItemsRpcRow(
+  overrides?: Record<string, unknown>,
+): Record<string, unknown> {
   return {
     ...createMockItemRow({
       id: 'item-1',
@@ -314,7 +316,9 @@ export function createMockSearchItemsRpcRow(overrides?: Record<string, unknown>)
 }
 
 /** Deterministic `SearchResultItem` for component and hook tests. */
-export function createMockSearchResultItem(overrides?: Partial<SearchResultItem>): SearchResultItem {
+export function createMockSearchResultItem(
+  overrides?: Partial<SearchResultItem>,
+): SearchResultItem {
   return {
     id: 'item-1' as ItemId,
     ownerId: 'owner-1' as UserId,

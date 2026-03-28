@@ -19,7 +19,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 // Import after mocks
 import { useMessages } from '../useMessages';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -28,7 +27,9 @@ beforeEach(() => jest.clearAllMocks());
 
 describe('useMessages', () => {
   it('is disabled when conversationId is undefined', () => {
-    const { result } = renderHook(() => useMessages(undefined), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMessages(undefined), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     expect(result.current.fetchStatus).toBe('idle');
     expect(result.current.data).toBeUndefined();

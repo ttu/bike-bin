@@ -64,12 +64,10 @@ export default function ConversationDetailScreen() {
   // Owner/status from conversation when `useItem` is still loading (same source as list/detail).
   const itemStatusForExchange =
     item?.status ?? (conversation?.itemStatus as ItemStatus | undefined);
-  const isOwner =
-    item?.ownerId === user?.id || conversation?.itemOwnerId === user?.id;
+  const isOwner = item?.ownerId === user?.id || conversation?.itemOwnerId === user?.id;
   const canExchange =
     isOwner &&
-    (itemStatusForExchange === ItemStatus.Stored ||
-      itemStatusForExchange === ItemStatus.Mounted);
+    (itemStatusForExchange === ItemStatus.Stored || itemStatusForExchange === ItemStatus.Mounted);
 
   // Flatten pages into single array
   const messages = useMemo((): MessageWithSender[] => {
@@ -160,9 +158,7 @@ export default function ConversationDetailScreen() {
     setTimeout(() => {
       if (Platform.OS === 'web') {
         if (
-          window.confirm(
-            `${tExchange('confirm.sell.title')}\n${tExchange('confirm.sell.message')}`,
-          )
+          window.confirm(`${tExchange('confirm.sell.title')}\n${tExchange('confirm.sell.message')}`)
         ) {
           markSold.mutate({ itemId, buyerId });
         }

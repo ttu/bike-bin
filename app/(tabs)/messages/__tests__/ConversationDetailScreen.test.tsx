@@ -114,10 +114,12 @@ describe('ConversationDetailScreen', () => {
   });
 
   it('defers Alert after opening mark donated so confirmation is not swallowed', () => {
-    const setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation((fn: TimerHandler) => {
-      if (typeof fn === 'function') fn();
-      return 0 as unknown as ReturnType<typeof setTimeout>;
-    });
+    const setTimeoutSpy = jest
+      .spyOn(global, 'setTimeout')
+      .mockImplementation((fn: TimerHandler) => {
+        if (typeof fn === 'function') fn();
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      });
     const alertSpy = jest.spyOn(Alert, 'alert');
     conversationQueryState.data = {
       ...mockConversation,

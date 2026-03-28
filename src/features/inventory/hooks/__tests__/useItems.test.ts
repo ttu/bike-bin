@@ -45,7 +45,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-
 describe('useItems', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -103,7 +102,9 @@ describe('useItem', () => {
       }),
     });
 
-    const { result } = renderHook(() => useItem(itemId), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useItem(itemId), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -127,7 +128,9 @@ describe('useCreateItem', () => {
       }),
     });
 
-    const { result } = renderHook(() => useCreateItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     const item = mapItemRow(row);
     await result.current.mutateAsync({
@@ -151,7 +154,9 @@ describe('useDeleteItem', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       id: 'item-1' as ItemId,
@@ -163,7 +168,9 @@ describe('useDeleteItem', () => {
   });
 
   it('rejects deletion of loaned items', async () => {
-    const { result } = renderHook(() => useDeleteItem(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteItem(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({

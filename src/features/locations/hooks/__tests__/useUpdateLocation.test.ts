@@ -51,7 +51,6 @@ jest.mock('../../utils/geocoding', () => ({
   }),
 }));
 
-
 beforeEach(() => {
   jest.clearAllMocks();
   mockCallCount = 0;
@@ -63,7 +62,9 @@ describe('useUpdateLocation', () => {
     const locData = { id: 'loc-1', label: 'Home' };
     mockFromChains = [mockBuildUpdateChain(locData)];
 
-    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUpdateLocation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ id: 'loc-1' as never, label: 'Home' });
 
@@ -74,7 +75,9 @@ describe('useUpdateLocation', () => {
     const locData = { id: 'loc-1', postcode: 'SW1A 1AA' };
     mockFromChains = [mockBuildUpdateChain(locData)];
 
-    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUpdateLocation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ id: 'loc-1' as never, postcode: 'SW1A 1AA', country: 'GB' });
 
@@ -90,7 +93,9 @@ describe('useUpdateLocation', () => {
     // Second from(): actual update (.update().eq().select().single())
     mockFromChains = [mockBuildDemoteChain(), mockBuildUpdateChain(locData)];
 
-    const { result } = renderHook(() => useUpdateLocation(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUpdateLocation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ id: 'loc-1' as never, isPrimary: true });
 

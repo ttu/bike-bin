@@ -17,7 +17,6 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-
 describe('useOnboardingStatus', () => {
   beforeEach(() => {
     jest.clearAllMocks();

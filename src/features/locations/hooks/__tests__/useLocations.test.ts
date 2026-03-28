@@ -47,7 +47,6 @@ jest.mock('../../utils/geocoding', () => ({
   }),
 }));
 
-
 describe('useLocations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -67,7 +66,9 @@ describe('useLocations', () => {
       }),
     });
 
-    const { result } = renderHook(() => useLocations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useLocations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -86,7 +87,9 @@ describe('useLocations', () => {
       }),
     });
 
-    const { result } = renderHook(() => useLocations(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useLocations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);

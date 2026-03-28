@@ -14,14 +14,15 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 // Import after mocks
 import { useUnreadCount } from '../useUnreadCount';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 describe('useUnreadCount', () => {
   it('returns 0 for MVP implementation', async () => {
-    const { result } = renderHook(() => useUnreadCount(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUnreadCount(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBe(0);

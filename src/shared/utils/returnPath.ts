@@ -8,9 +8,7 @@ export function encodeReturnPath(path: string): string {
 /**
  * Decodes returnPath from useLocalSearchParams (handles string | string[] from query).
  */
-export function decodeReturnPathParam(
-  value: string | string[] | undefined,
-): string | undefined {
+export function decodeReturnPathParam(value: string | string[] | undefined): string | undefined {
   if (value === undefined) return undefined;
   const raw = Array.isArray(value) ? value[0] : value;
   if (typeof raw !== 'string' || raw.length === 0) return undefined;

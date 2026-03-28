@@ -11,7 +11,6 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-
 // Import after mocks
 import { useReport } from '../useReport';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';

@@ -27,7 +27,6 @@ jest.mock('../../utils/mapLocationRow', () => ({
 import { usePrimaryLocation } from '../usePrimaryLocation';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-
 beforeEach(() => {
   jest.clearAllMocks();
   mockCallCount = 0;

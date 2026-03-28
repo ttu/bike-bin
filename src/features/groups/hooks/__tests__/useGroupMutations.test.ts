@@ -23,7 +23,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 beforeEach(() => jest.clearAllMocks());
 
 describe('useCreateGroup', () => {
@@ -35,7 +34,9 @@ describe('useCreateGroup', () => {
     // Second call: insert member -> resolve
     mockInsert.mockReturnValueOnce({ select: mockSelect }).mockResolvedValueOnce({ error: null });
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ name: 'MTB Club', isPublic: true } as never);
 
@@ -47,7 +48,9 @@ describe('useCreateGroup', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ name: 'MTB Club', isPublic: true } as never);
 
@@ -59,7 +62,9 @@ describe('useInviteMember', () => {
   it('invites a user to a group', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useInviteMember(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useInviteMember(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ groupId: 'group-1' as never, userId: 'user-456' as never });
 
@@ -71,7 +76,9 @@ describe('useJoinGroup', () => {
   it('joins a group', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useJoinGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useJoinGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate('group-1' as never);
 
@@ -85,7 +92,9 @@ describe('useLeaveGroup', () => {
     const mockEq2 = jest.fn().mockReturnValue({ eq: mockEq });
     mockDelete.mockReturnValue({ eq: mockEq2 });
 
-    const { result } = renderHook(() => useLeaveGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useLeaveGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate('group-1' as never);
 

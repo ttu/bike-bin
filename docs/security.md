@@ -101,12 +101,12 @@ Supabase Realtime `postgres_changes` subscriptions **do not enforce RLS**. The s
 
 All four Realtime subscriptions have been reviewed:
 
-| Hook | Filter | Assessment |
-|---|---|---|
-| `useRealtimeMessages` | `conversation_id=eq.<uuid>` | Low risk — IDs are UUIDs exposed only to participants via the RLS-guarded API |
-| `useRealtimeNotifications` | `user_id=eq.<auth.uid()>` | Safe — filter is the user's own JWT subject |
-| `useUnreadNotificationCount` | `user_id=eq.<auth.uid()>` | Safe — filter is the user's own JWT subject |
-| `useUnreadCount` | ~~no filter~~ | **Removed** — unfiltered subscription delivered every message row (including content) to every authenticated client |
+| Hook                         | Filter                      | Assessment                                                                                                          |
+| ---------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `useRealtimeMessages`        | `conversation_id=eq.<uuid>` | Low risk — IDs are UUIDs exposed only to participants via the RLS-guarded API                                       |
+| `useRealtimeNotifications`   | `user_id=eq.<auth.uid()>`   | Safe — filter is the user's own JWT subject                                                                         |
+| `useUnreadNotificationCount` | `user_id=eq.<auth.uid()>`   | Safe — filter is the user's own JWT subject                                                                         |
+| `useUnreadCount`             | ~~no filter~~               | **Removed** — unfiltered subscription delivered every message row (including content) to every authenticated client |
 
 ### 4.2 `useUnreadCount` — removed subscription
 
@@ -121,6 +121,7 @@ Full unread tracking across all conversations is a post-MVP feature and will req
 The subscription filter `conversation_id=eq.<uuid>` scopes events to one conversation but does not verify the subscriber is a participant. Any authenticated user who knows a conversation UUID can receive its messages in real time.
 
 **Mitigations in place:**
+
 - Conversation IDs are UUIDs (128-bit) — not guessable.
 - The only way to discover a conversation UUID is via the REST API, which enforces RLS and only returns conversations where the requester is a participant.
 

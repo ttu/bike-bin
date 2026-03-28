@@ -14,7 +14,6 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-
 // Import after mocks
 import { useGroup } from '../useGroup';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -33,7 +32,9 @@ describe('useGroup', () => {
       }),
     });
 
-    const { result } = renderHook(() => useGroup(group.id), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useGroup(group.id), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 

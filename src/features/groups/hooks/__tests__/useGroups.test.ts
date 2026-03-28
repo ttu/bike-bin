@@ -30,7 +30,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-
 // Import after mocks
 import { useGroups, useCreateGroup, useDeleteGroup } from '../useGroups';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -85,7 +84,9 @@ describe('useCreateGroup', () => {
     // Second call: insert group_member
     mockInsert.mockReturnValueOnce(Promise.resolve({ error: null }));
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       name: 'Test Group',
@@ -107,7 +108,9 @@ describe('useCreateGroup', () => {
       }),
     });
 
-    const { result } = renderHook(() => useCreateGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({
@@ -128,7 +131,9 @@ describe('useDeleteGroup', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useDeleteGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync('group-1' as GroupId);
 
@@ -141,7 +146,9 @@ describe('useDeleteGroup', () => {
       eq: mockEq.mockResolvedValue({ error: new Error('Not authorized') }),
     });
 
-    const { result } = renderHook(() => useDeleteGroup(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteGroup(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(result.current.mutateAsync('group-1' as GroupId)).rejects.toThrow(
       'Not authorized',

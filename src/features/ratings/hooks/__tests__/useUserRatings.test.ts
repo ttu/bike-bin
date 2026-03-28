@@ -16,7 +16,6 @@ jest.mock('@/shared/api/supabase', () => ({
 import { useUserRatings } from '../useUserRatings';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-
 beforeEach(() => jest.clearAllMocks());
 
 describe('useUserRatings', () => {

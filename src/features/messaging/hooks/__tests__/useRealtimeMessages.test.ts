@@ -20,7 +20,6 @@ jest.mock('@/features/auth', () => ({
 import { useRealtimeMessages } from '../useRealtimeMessages';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-
 describe('useRealtimeMessages', () => {
   beforeEach(() => jest.clearAllMocks());
 

@@ -25,7 +25,6 @@ jest.mock('@/features/auth', () => ({
 import { useUnreadNotificationCount } from '../useUnreadNotificationCount';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-
 describe('useUnreadNotificationCount', () => {
   beforeEach(() => jest.clearAllMocks());
 

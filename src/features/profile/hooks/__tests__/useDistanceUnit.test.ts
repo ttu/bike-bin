@@ -29,24 +29,29 @@ jest.mock('../useProfile', () => ({
 import { useDistanceUnit } from '../useDistanceUnit';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-
 describe('useDistanceUnit', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('returns distance unit from profile', () => {
-    const { result } = renderHook(() => useDistanceUnit(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDistanceUnit(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
     expect(result.current.distanceUnit).toBe('mi');
   });
 
   it('provides setDistanceUnit function', () => {
-    const { result } = renderHook(() => useDistanceUnit(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDistanceUnit(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
     expect(typeof result.current.setDistanceUnit).toBe('function');
   });
 
   it('calls supabase update when setDistanceUnit is called', async () => {
-    const { result } = renderHook(() => useDistanceUnit(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDistanceUnit(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     act(() => {
       result.current.setDistanceUnit('km');

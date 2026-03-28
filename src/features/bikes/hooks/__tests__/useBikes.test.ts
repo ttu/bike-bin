@@ -34,7 +34,6 @@ jest.mock('@/shared/utils/fetchBikeThumbnailPaths', () => ({
   fetchBikeThumbnailPaths: jest.fn().mockResolvedValue(new Map()),
 }));
 
-
 // Import after mocks
 import {
   useBikes,
@@ -169,7 +168,9 @@ describe('useBike', () => {
       }),
     });
 
-    const { result } = renderHook(() => useBike(bikeId), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBike(bikeId), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -226,7 +227,9 @@ describe('useBikePhotos', () => {
       }),
     });
 
-    const { result } = renderHook(() => useBikePhotos(bikeId), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBikePhotos(bikeId), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -247,7 +250,9 @@ describe('useBikePhotos', () => {
       }),
     });
 
-    const { result } = renderHook(() => useBikePhotos(bikeId), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useBikePhotos(bikeId), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -280,7 +285,9 @@ describe('useCreateBike', () => {
       }),
     });
 
-    const { result } = renderHook(() => useCreateBike(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     const created = await result.current.mutateAsync({
       name: 'My Gravel Bike',
@@ -303,7 +310,9 @@ describe('useCreateBike', () => {
       }),
     });
 
-    const { result } = renderHook(() => useCreateBike(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({ name: 'Fail Bike', type: BikeType.MTB }),
@@ -338,7 +347,9 @@ describe('useUpdateBike', () => {
       }),
     });
 
-    const { result } = renderHook(() => useUpdateBike(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUpdateBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     const updated = await result.current.mutateAsync({
       id: bike.id,
@@ -362,7 +373,9 @@ describe('useUpdateBike', () => {
       }),
     });
 
-    const { result } = renderHook(() => useUpdateBike(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useUpdateBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({ id: bikeId, name: 'X', type: BikeType.MTB }),
@@ -380,7 +393,9 @@ describe('useDeleteBike', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useDeleteBike(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync('bike-del-1' as BikeId);
 
@@ -393,7 +408,9 @@ describe('useDeleteBike', () => {
       eq: mockEq.mockResolvedValue({ error: new Error('Delete failed') }),
     });
 
-    const { result } = renderHook(() => useDeleteBike(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(result.current.mutateAsync('bike-del-2' as BikeId)).rejects.toThrow(
       'Delete failed',

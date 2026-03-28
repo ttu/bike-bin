@@ -25,7 +25,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 function setupChain(data: unknown = { id: 'req-1' }) {
   mockSingle.mockResolvedValue({ data, error: null });
   mockSelect.mockReturnValue({ single: mockSingle });
@@ -47,7 +46,9 @@ beforeEach(() => jest.clearAllMocks());
 describe('useCreateBorrowRequest', () => {
   it('creates a borrow request and updates item status', async () => {
     setupChain({ id: 'req-1' });
-    const { result } = renderHook(() => useCreateBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ itemId: 'item-1' as never, message: 'Please!' });
 
@@ -57,7 +58,9 @@ describe('useCreateBorrowRequest', () => {
 
   it('propagates errors', async () => {
     setupChainError();
-    const { result } = renderHook(() => useCreateBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ itemId: 'item-1' as never });
 
@@ -68,7 +71,9 @@ describe('useCreateBorrowRequest', () => {
 describe('useAcceptBorrowRequest', () => {
   it('accepts a borrow request', async () => {
     setupChain({ id: 'req-1', status: 'accepted' });
-    const { result } = renderHook(() => useAcceptBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useAcceptBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
@@ -79,7 +84,9 @@ describe('useAcceptBorrowRequest', () => {
 describe('useCancelBorrowRequest', () => {
   it('cancels a borrow request', async () => {
     setupChain({ id: 'req-1', status: 'cancelled' });
-    const { result } = renderHook(() => useCancelBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCancelBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
@@ -90,7 +97,9 @@ describe('useCancelBorrowRequest', () => {
 describe('useDeclineBorrowRequest', () => {
   it('declines a borrow request', async () => {
     setupChain({ id: 'req-1', status: 'rejected' });
-    const { result } = renderHook(() => useDeclineBorrowRequest(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeclineBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
@@ -101,7 +110,9 @@ describe('useDeclineBorrowRequest', () => {
 describe('useMarkReturned', () => {
   it('marks a borrow request as returned', async () => {
     setupChain({ id: 'req-1', status: 'returned' });
-    const { result } = renderHook(() => useMarkReturned(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkReturned(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 

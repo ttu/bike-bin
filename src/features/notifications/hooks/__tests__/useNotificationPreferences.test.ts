@@ -18,7 +18,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 // Import after mocks
 import { useNotificationPreferences } from '../useNotificationPreferences';
 import {
@@ -44,7 +43,9 @@ describe('useNotificationPreferences — parsePreferences (via hook behaviour)',
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.preferences).toEqual(mockDefaultPreferences);
@@ -55,7 +56,9 @@ describe('useNotificationPreferences — parsePreferences (via hook behaviour)',
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.preferences).toEqual(mockDefaultPreferences);
@@ -66,7 +69,9 @@ describe('useNotificationPreferences — parsePreferences (via hook behaviour)',
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     // Empty object — all categories fall back to defaults
@@ -82,7 +87,9 @@ describe('useNotificationPreferences — parsePreferences (via hook behaviour)',
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.preferences.messages).toEqual({ push: false, email: true });
@@ -101,7 +108,9 @@ describe('useNotificationPreferences — parsePreferences (via hook behaviour)',
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     // Non-boolean values fall back to defaults (push: true, email: true for messages)
@@ -118,7 +127,9 @@ describe('useNotificationPreferences — parsePreferences (via hook behaviour)',
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.preferences).toEqual(mockValid);
@@ -132,7 +143,9 @@ describe('useNotificationPreferences — query', () => {
     mockEq.mockReturnValue({ single: mockSingle });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     expect(result.current.isLoading).toBe(true);
   });
@@ -211,7 +224,9 @@ describe('useNotificationPreferences — mutation (updatePreferences)', () => {
     const mockUpdateEq = jest.fn().mockReturnValue(new Promise(() => {}));
     mockUpdate.mockReturnValue({ eq: mockUpdateEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -231,7 +246,9 @@ describe('useNotificationPreferences — mutation (updatePreferences)', () => {
     const mockUpdateEq = jest.fn().mockResolvedValue({ error: mockError });
     mockUpdate.mockReturnValue({ eq: mockUpdateEq });
 
-    const { result } = renderHook(() => useNotificationPreferences(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotificationPreferences(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 

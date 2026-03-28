@@ -27,7 +27,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-
 describe('useAttachPart', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -45,7 +44,9 @@ describe('useAttachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useAttachPart(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useAttachPart(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       itemId: item.id,
@@ -71,7 +72,9 @@ describe('useAttachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useAttachPart(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useAttachPart(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({
@@ -99,7 +102,9 @@ describe('useDetachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDetachPart(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDetachPart(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({
       itemId: item.id,
@@ -125,7 +130,9 @@ describe('useDetachPart', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDetachPart(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDetachPart(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(
       result.current.mutateAsync({

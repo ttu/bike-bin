@@ -29,7 +29,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 beforeEach(() => jest.clearAllMocks());
 
 describe('useDeleteAccount', () => {
@@ -39,7 +38,9 @@ describe('useDeleteAccount', () => {
     });
     mockInvoke.mockResolvedValue({ data: { success: true }, error: null });
 
-    const { result } = renderHook(() => useDeleteAccount(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteAccount(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate();
 
@@ -54,7 +55,9 @@ describe('useDeleteAccount', () => {
       data: { session: null },
     });
 
-    const { result } = renderHook(() => useDeleteAccount(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useDeleteAccount(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate();
 
@@ -67,7 +70,9 @@ describe('useSubmitSupport', () => {
   it('inserts a support request', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useSubmitSupport(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSubmitSupport(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({
       subject: 'Bug report',
@@ -81,7 +86,9 @@ describe('useSubmitSupport', () => {
   it('propagates errors', async () => {
     mockInsert.mockResolvedValue({ error: { message: 'fail' } });
 
-    const { result } = renderHook(() => useSubmitSupport(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSubmitSupport(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ subject: 'Bug', body: 'Broken' });
 

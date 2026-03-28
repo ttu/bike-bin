@@ -22,7 +22,6 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-
 // Import after mocks
 import { useSearchGroups } from '../useSearchGroups';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -35,7 +34,9 @@ describe('useSearchGroups', () => {
   });
 
   it('is disabled when query is shorter than 2 characters', () => {
-    const { result } = renderHook(() => useSearchGroups('a'), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSearchGroups('a'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     expect(result.current.fetchStatus).toBe('idle');
   });
@@ -56,7 +57,9 @@ describe('useSearchGroups', () => {
       },
     ];
 
-    const { result } = renderHook(() => useSearchGroups('road'), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSearchGroups('road'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -110,7 +113,9 @@ describe('useSearchGroups', () => {
 
     mockFromChains = [mockGroupsChain, mockCountsChain, mockMembershipsChain];
 
-    const { result } = renderHook(() => useSearchGroups('road'), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSearchGroups('road'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -163,7 +168,9 @@ describe('useSearchGroups', () => {
 
     mockFromChains = [mockGroupsChain, mockCountsChain, mockMembershipsChain];
 
-    const { result } = renderHook(() => useSearchGroups('mtb'), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSearchGroups('mtb'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -186,7 +193,9 @@ describe('useSearchGroups', () => {
       },
     ];
 
-    const { result } = renderHook(() => useSearchGroups('road'), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSearchGroups('road'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -223,7 +232,9 @@ describe('useSearchGroups', () => {
 
     mockFromChains = [mockGroupsChain, mockCountsChain];
 
-    const { result } = renderHook(() => useSearchGroups('road'), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSearchGroups('road'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 

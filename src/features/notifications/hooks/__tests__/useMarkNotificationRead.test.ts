@@ -13,7 +13,6 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-
 beforeEach(() => jest.clearAllMocks());
 
 describe('useMarkNotificationRead', () => {

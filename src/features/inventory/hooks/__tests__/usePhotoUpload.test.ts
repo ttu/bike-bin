@@ -46,16 +46,19 @@ global.fetch = jest.fn().mockResolvedValue({
   blob: jest.fn().mockResolvedValue(new Blob()),
 }) as jest.Mock;
 
-
 describe('usePhotoUpload', () => {
   it('starts with isUploading false and no error', () => {
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
     expect(result.current.isUploading).toBe(false);
     expect(result.current.error).toBeUndefined();
   });
 
   it('uploads a photo and returns storage path', async () => {
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     let storagePath: string | undefined;
     await act(async () => {
@@ -71,7 +74,9 @@ describe('usePhotoUpload', () => {
       .mocked(ImagePicker.requestMediaLibraryPermissionsAsync)
       .mockResolvedValueOnce({ granted: false } as never);
 
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     let storagePath: string | undefined;
     await act(async () => {
@@ -90,7 +95,9 @@ describe('usePhotoUpload', () => {
       .mocked(ImagePicker.launchImageLibraryAsync)
       .mockResolvedValueOnce({ canceled: true, assets: [] } as never);
 
-    const { result } = renderHook(() => usePhotoUpload(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => usePhotoUpload(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     let storagePath: string | undefined;
     await act(async () => {

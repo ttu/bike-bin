@@ -16,7 +16,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 // Import after mocks
 import { useNotifications } from '../useNotifications';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -29,7 +28,9 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotifications(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([]);
@@ -63,7 +64,9 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotifications(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -102,7 +105,9 @@ describe('useNotifications', () => {
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useNotifications(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useNotifications(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBe(mockError);

@@ -21,7 +21,6 @@ jest.mock('@/features/auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
 }));
 
-
 beforeEach(() => jest.clearAllMocks());
 
 describe('useSendMessage', () => {
@@ -31,7 +30,9 @@ describe('useSendMessage', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useSendMessage(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSendMessage(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ conversationId: 'conv-1' as never, body: 'Hello' });
 
@@ -44,7 +45,9 @@ describe('useSendMessage', () => {
     mockSelect.mockReturnValue({ single: mockSingle });
     mockInsert.mockReturnValue({ select: mockSelect });
 
-    const { result } = renderHook(() => useSendMessage(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useSendMessage(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ conversationId: 'conv-1' as never, body: 'Hello' });
 
@@ -65,7 +68,9 @@ describe('useCreateConversation', () => {
     });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    const { result } = renderHook(() => useCreateConversation(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateConversation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ itemId: 'item-1' as never, otherUserId: 'user-456' as never });
 
@@ -90,7 +95,9 @@ describe('useCreateConversation', () => {
       .mockReturnValueOnce({ select: mockSelectChain })
       .mockResolvedValueOnce({ error: null });
 
-    const { result } = renderHook(() => useCreateConversation(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useCreateConversation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     result.current.mutate({ itemId: 'item-1' as never, otherUserId: 'user-456' as never });
 
