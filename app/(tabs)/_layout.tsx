@@ -16,6 +16,7 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   return (
     <BlurView
+      accessibilityRole="tablist"
       intensity={20}
       tint={isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
       style={[
@@ -47,7 +48,7 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           <Pressable
             key={route.key}
             onPress={onPress}
-            accessibilityRole="button"
+            accessibilityRole="tab"
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
             style={tabBarStyles.tab}

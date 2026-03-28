@@ -39,14 +39,15 @@ Aim for roughly:
 - **~20% E2E** — Critical flows (auth, inventory, borrow, messaging as they stabilize).
 - **~10% unit** — Pure functions in `utils/` (validation, state transitions, formatting).
 
-### Current status (894 app tests + 126 RLS tests)
+### Current status (894 app tests + 118 E2E tests + 126 RLS tests)
 
 | Category                         | Tests | Share | Target | Status |
 | -------------------------------- | ----: | ----: | -----: | ------ |
 | Integration (components + hooks) |   478 |   62% |    70% | close  |
 | Screen-level (near-E2E)          |    53 |    6% |    20% | low    |
 | Unit (utils, mappers, pure fns)  |   237 |   30% |    10% | high   |
-| **RLS (separate suite)**         |   126 |     — |      — | —      |
+| **E2E (Playwright)**             |   118 |     — |      — | green  |
+| **RLS (separate suite)**         |   126 |     — |      — | green  |
 
 Unit tests are over-represented relative to the diamond target. The main gap is screen-level / E2E coverage — prioritize adding screen integration tests for critical flows (messaging, borrow, profile) and Playwright E2E specs to move toward the 70-20-10 split.
 
