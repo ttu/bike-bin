@@ -104,7 +104,7 @@ npm run storybook              # React Native Storybook
 | [docs/system-architecture.md](docs/system-architecture.md) | System design, feature slices, data flow          |
 | [docs/security.md](docs/security.md)                       | Auth, RLS, privacy, GDPR                          |
 | [docs/feature-design.md](docs/feature-design.md)           | Design decisions, screen-level UX specs           |
-| [docs/specs/README.md](docs/specs/README.md)               | Per-topic feature design specs index              |
+| [docs/design-docs/README.md](docs/design-docs/README.md)   | Per-feature design documentation index            |
 | [docs/description.md](docs/description.md)                 | App description (update with implementation)      |
 | [docs/development.md](docs/development.md)                 | Dev setup, run, debug                             |
 | [docs/architecture.md](docs/architecture.md)               | Current architecture (update with implementation) |
