@@ -10,6 +10,11 @@ import type {
 
 /** Transforms a Supabase row into the Item domain model. */
 export function mapItemRow(row: Record<string, unknown>): Item {
+  const rawUsageKm = row.usage_km as number | null | undefined;
+  const usageKm = rawUsageKm === null || rawUsageKm === undefined ? undefined : rawUsageKm;
+  const usageUnit =
+    usageKm !== undefined ? ((row.usage_unit as string | null) ?? undefined) : undefined;
+
   return {
     id: row.id as ItemId,
     ownerId: row.owner_id as UserId,
@@ -28,8 +33,8 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     borrowDuration: (row.borrow_duration as string) ?? undefined,
     storageLocation: (row.storage_location as string) ?? undefined,
     age: (row.age as string) ?? undefined,
-    usageKm: (row.usage_km as number) ?? undefined,
-    usageUnit: (row.usage_unit as string) ?? undefined,
+    usageKm,
+    usageUnit,
     purchaseDate: (row.purchase_date as string) ?? undefined,
     pickupLocationId: (row.pickup_location_id as LocationId) ?? undefined,
     visibility: row.visibility as Visibility,

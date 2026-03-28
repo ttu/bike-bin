@@ -24,7 +24,7 @@ User-owned pickup areas: label, optional `area_name`, `postcode`, **PostGIS** `g
 
 ### `items` → `Item`
 
-Inventory rows: owner, name, `category`, `subcategory` (free text), brand, model, description, `condition`, `status`, `availability_types` (text array), optional price/deposit/borrow metadata, `storage_location`, `age`, `usage_km`, `usage_unit` (km or mi), `purchase_date`, optional `pickup_location_id`, `visibility` (defaults to `private`), optional `bike_id`, **`tags`** (text array, max 20 items / 50 chars each, enforced by DB constraint + trigger). Timestamps for create/update.
+Inventory rows: owner, name, `category`, `subcategory` (free text), brand, model, description, `condition`, `status`, `availability_types` (text array), optional price/deposit/borrow metadata, `storage_location`, `age`, optional `usage_km` and `usage_unit` (km or mi; both unset when distance is not tracked), `purchase_date`, optional `pickup_location_id`, `visibility` (defaults to `private`), optional `bike_id`, **`tags`** (text array, max 20 items / 50 chars each, enforced by DB constraint + trigger). Timestamps for create/update.
 
 The TS model also carries `thumbnailStoragePath` — this is **not** a DB column; it is resolved client-side by fetching the first `item_photos` row for the item.
 

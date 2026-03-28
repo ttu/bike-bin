@@ -79,8 +79,14 @@ export function createMockItemRow(overrides?: Record<string, unknown>): Record<s
     borrow_duration: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`),
     storage_location: faker.helpers.maybe(() => faker.location.city()),
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
-    usage_km: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })),
-    usage_unit: faker.helpers.arrayElement(['km', 'mi']),
+    ...(() => {
+      const usage_km = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 }));
+      return {
+        usage_km,
+        usage_unit:
+          usage_km !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
+      };
+    })(),
     purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
@@ -113,8 +119,14 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     borrowDuration: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`),
     storageLocation: faker.helpers.maybe(() => faker.location.city()),
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
-    usageKm: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })),
-    usageUnit: faker.helpers.arrayElement(['km', 'mi']),
+    ...(() => {
+      const usageKm = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 }));
+      return {
+        usageKm,
+        usageUnit:
+          usageKm !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : undefined,
+      };
+    })(),
     purchaseDate: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickupLocationId: faker.helpers.maybe(() => faker.string.uuid() as LocationId),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
