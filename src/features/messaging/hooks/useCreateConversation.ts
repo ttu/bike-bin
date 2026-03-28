@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { randomUuidV4 } from '@/shared/utils/randomUuid';
 import { useAuth } from '@/features/auth';
 import { CONVERSATIONS_QUERY_KEY } from './useConversations';
 import type { ConversationId, ItemId, UserId } from '@/shared/types';
@@ -49,25 +50,25 @@ export function useCreateConversation() {
         }
       }
 
-      // Create new conversation
-      const { data: newConv, error: convError } = await supabase
-        .from('conversations')
-        .insert({ item_id: itemId })
-        .select()
-        .single();
+      // Create new conversation (client id: INSERT…RETURNING is blocked by RLS until we are a participant)
+      const conversationId = randomUuidV4() as ConversationId;
+      const { error: convError } = await supabase.from('conversations').insert({
+        id: conversationId,
+        item_id: itemId,
+      });
 
       if (convError) throw convError;
 
       // Add both participants
       const { error: partError } = await supabase.from('conversation_participants').insert([
-        { conversation_id: newConv.id, user_id: user.id },
-        { conversation_id: newConv.id, user_id: otherUserId },
+        { conversation_id: conversationId, user_id: user.id },
+        { conversation_id: conversationId, user_id: otherUserId },
       ]);
 
       if (partError) throw partError;
 
       return {
-        conversationId: newConv.id as ConversationId,
+        conversationId,
         isExisting: false,
       };
     },

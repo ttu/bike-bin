@@ -3,6 +3,10 @@ import { useSendMessage } from '../useSendMessage';
 import { useCreateConversation } from '../useCreateConversation';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
+jest.mock('@/shared/utils/randomUuid', () => ({
+  randomUuidV4: jest.fn(() => 'conv-new'),
+}));
+
 const mockInsert = jest.fn();
 const mockSelect = jest.fn();
 const mockSingle = jest.fn();
@@ -86,14 +90,8 @@ describe('useCreateConversation', () => {
     mockEq.mockResolvedValue({ data: [] });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    // Mock insert for new conversation
-    const newConvData = { id: 'conv-new' };
-    mockSingle.mockResolvedValue({ data: newConvData, error: null });
-    const mockSelectChain = jest.fn().mockReturnValue({ single: mockSingle });
-    // First insert (conversation) returns select chain, second (participants) resolves
-    mockInsert
-      .mockReturnValueOnce({ select: mockSelectChain })
-      .mockResolvedValueOnce({ error: null });
+    // Conversation insert without RETURNING, then participants insert
+    mockInsert.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: null });
 
     const { result } = renderHook(() => useCreateConversation(), {
       wrapper: createQueryClientHookWrapper(),

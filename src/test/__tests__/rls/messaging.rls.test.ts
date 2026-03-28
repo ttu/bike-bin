@@ -116,6 +116,33 @@ describe('conversations — INSERT', () => {
     }
   });
 
+  it('app flow: client-supplied conversation id, then both participants, then SELECT works', async () => {
+    const newConvId = crypto.randomUUID();
+    const { error: insertConvError } = await userB.client.from('conversations').insert({
+      id: newConvId,
+      item_id: itemAId,
+    });
+    expect(insertConvError).toBeNull();
+
+    const { error: insertParticipantsError } = await userB.client
+      .from('conversation_participants')
+      .insert([
+        { conversation_id: newConvId, user_id: userB.id },
+        { conversation_id: newConvId, user_id: userA.id },
+      ]);
+    expect(insertParticipantsError).toBeNull();
+
+    const { data, error } = await userB.client
+      .from('conversations')
+      .select('id')
+      .eq('id', newConvId);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+
+    await adminClient.from('conversation_participants').delete().eq('conversation_id', newConvId);
+    await adminClient.from('conversations').delete().eq('id', newConvId);
+  });
+
   it('user cannot create conversation without item_id', async () => {
     const { error } = await userA.client.from('conversations').insert({});
     expect(error).toBeTruthy();
