@@ -1,7 +1,18 @@
 import { fireEvent } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import { renderWithProviders } from '@/test/utils';
 import ListingDetailScreen from '../[id]';
+
+const mockShowSnackbarAlert = jest.fn();
+
+jest.mock('@/shared/components/SnackbarAlerts', () => {
+  const actual = jest.requireActual<typeof import('@/shared/components/SnackbarAlerts')>(
+    '@/shared/components/SnackbarAlerts',
+  );
+  return {
+    ...actual,
+    useSnackbarAlerts: () => ({ showSnackbarAlert: mockShowSnackbarAlert }),
+  };
+});
 
 const mockRouterPush = jest.fn();
 const mockRouterReplace = jest.fn();
@@ -112,6 +123,7 @@ jest.mock('@/features/borrow', () => ({
 describe('ListingDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockShowSnackbarAlert.mockClear();
     mockCanDismiss.mockReturnValue(true);
   });
 
@@ -171,8 +183,7 @@ describe('ListingDetailScreen', () => {
     expect(photos[0]).not.toHaveProperty('storage_path');
   });
 
-  it('shows an Alert when createConversation fails', () => {
-    const alertSpy = jest.spyOn(Alert, 'alert');
+  it('shows a snackbar when createConversation fails', () => {
     // Override the useQuery mock to return a sellable item so the Contact button is visible
     const reactQuery = jest.requireMock('@tanstack/react-query');
     const originalUseQuery = reactQuery.useQuery;
@@ -196,9 +207,12 @@ describe('ListingDetailScreen', () => {
     ];
     callbacks.onError();
 
-    expect(alertSpy).toHaveBeenCalledWith('Failed to start conversation. Please try again.');
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith({
+      message: 'Failed to start conversation. Please try again.',
+      variant: 'error',
+      duration: 'long',
+    });
 
     reactQuery.useQuery = originalUseQuery;
-    alertSpy.mockRestore();
   });
 });

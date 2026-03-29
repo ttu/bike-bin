@@ -12,6 +12,7 @@ import {
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { AppTheme } from '@/shared/theme';
 import { LoadingScreen } from '@/shared/components';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { ListingDetail, useListingDetail } from '@/features/search';
 import { useCreateConversation } from '@/features/messaging';
 import { useCreateBorrowRequest } from '@/features/borrow';
@@ -26,6 +27,7 @@ export default function ListingDetailScreen() {
   const { mutate: createConversation } = useCreateConversation();
   const { mutate: createBorrowRequest } = useCreateBorrowRequest();
   const { user } = useAuth();
+  const { showSnackbarAlert } = useSnackbarAlerts();
 
   const { item, photos, isLoading } = useListingDetail(id);
 
@@ -43,7 +45,11 @@ export default function ListingDetailScreen() {
           router.push(`/messages/${result.conversationId}`);
         },
         onError: () => {
-          Alert.alert(t('listing.errors.contactFailed'));
+          showSnackbarAlert({
+            message: t('listing.errors.contactFailed'),
+            variant: 'error',
+            duration: 'long',
+          });
         },
       },
     );

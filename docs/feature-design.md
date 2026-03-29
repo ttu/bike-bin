@@ -493,6 +493,7 @@ Every list screen has a dedicated empty state with:
 - **Network/server errors**: inline error banner at top, retry button, dismissible
 - **Form field errors**: inline below the field in error color
 - **Offline writes**: "pending sync" indicator on items created offline
+- **Transient success and error feedback**: Material snackbars (theme tokens) via `useSnackbarAlerts`; destructive or multi-step actions still use confirmation `Alert` / dialogs
 
 ---
 

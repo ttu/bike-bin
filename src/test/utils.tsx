@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lightTheme } from '@/shared/theme';
 import { ThemePreferenceProvider } from '@/shared/hooks/useThemePreference';
 import { DemoModeProvider } from '@/features/demo';
+import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
 import '@/shared/i18n/config';
 
 // SafeAreaProvider is excluded because jest-expo does not render it in tests.
@@ -22,7 +23,9 @@ function AllProviders({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <DemoModeProvider>
         <ThemePreferenceProvider>
-          <PaperProvider theme={lightTheme}>{children}</PaperProvider>
+          <PaperProvider theme={lightTheme}>
+            <SnackbarAlertsProvider>{children}</SnackbarAlertsProvider>
+          </PaperProvider>
         </ThemePreferenceProvider>
       </DemoModeProvider>
     </QueryClientProvider>

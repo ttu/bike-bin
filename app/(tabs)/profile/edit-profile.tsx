@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, TextInput, Button, Avatar, Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -8,12 +8,15 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import { useProfile, useUpdateProfile } from '@/features/profile';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import type { UserId } from '@/shared/types';
 
 export default function EditProfileScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation('common');
   const { user } = useAuth();
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const userId = (user?.id ?? '') as UserId;
 
   const { data: profile } = useProfile(userId || undefined);
@@ -26,20 +29,21 @@ export default function EditProfileScreen() {
       { displayName: displayName.trim() || undefined },
       {
         onSuccess: () => {
-          if (Platform.OS === 'web') {
-            tabScopedBack('/(tabs)/profile');
-          } else {
-            Alert.alert(t('editScreen.successTitle'), t('editScreen.successMessage'), [
-              { text: 'OK', onPress: () => tabScopedBack('/(tabs)/profile') },
-            ]);
-          }
+          showSnackbarAlert({
+            message: t('editScreen.successMessage'),
+            variant: 'success',
+            action: {
+              label: tCommon('actions.done'),
+              onPress: () => tabScopedBack('/(tabs)/profile'),
+            },
+          });
         },
         onError: () => {
-          if (Platform.OS === 'web') {
-            window.alert(t('editScreen.errorMessage'));
-          } else {
-            Alert.alert(t('editScreen.errorTitle'), t('editScreen.errorMessage'));
-          }
+          showSnackbarAlert({
+            message: t('editScreen.errorMessage'),
+            variant: 'error',
+            duration: 'long',
+          });
         },
       },
     );

@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { ConfirmDialog } from '@/shared/components';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -45,6 +46,7 @@ export default function GroupDetailScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('groups');
   const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
@@ -76,7 +78,6 @@ export default function GroupDetailScreen() {
   const [editNameError, setEditNameError] = useState('');
 
   const [confirm, setConfirm] = useState<GroupConfirmConfig | null>(null);
-  const [acknowledge, setAcknowledge] = useState<{ title: string; message: string } | null>(null);
 
   // Current user's membership
   const currentMember = useMemo(
@@ -101,7 +102,7 @@ export default function GroupDetailScreen() {
 
   const handleEditSave = useCallback(async () => {
     if (!editName.trim()) {
-      setEditNameError('Name is required');
+      setEditNameError(t('validation.nameRequired'));
       return;
     }
     setEditNameError('');
@@ -115,12 +116,9 @@ export default function GroupDetailScreen() {
       });
       setMode('detail');
     } catch {
-      setAcknowledge({
-        title: tCommon('alerts.errorTitle'),
-        message: t('errors.updateFailed'),
-      });
+      showSnackbarAlert({ message: t('errors.updateFailed'), variant: 'error', duration: 'long' });
     }
-  }, [groupId, editName, editDescription, editIsPublic, updateGroup, t, tCommon]);
+  }, [groupId, editName, editDescription, editIsPublic, updateGroup, showSnackbarAlert, t]);
 
   const handleDeleteGroup = useCallback(() => {
     setConfirm({
@@ -136,23 +134,25 @@ export default function GroupDetailScreen() {
             await deleteGroup.mutateAsync(groupId);
             tabScopedBack('/(tabs)/profile/groups');
           } catch {
-            setAcknowledge({
-              title: tCommon('alerts.errorTitle'),
+            showSnackbarAlert({
               message: t('errors.deleteFailed'),
+              variant: 'error',
+              duration: 'long',
             });
           }
         })();
       },
     });
-  }, [groupId, deleteGroup, t, tCommon]);
+  }, [groupId, deleteGroup, showSnackbarAlert, t, tCommon]);
 
   const handleLeaveGroup = useCallback(() => {
     if (!currentMember || !members) return;
 
     if (!canLeaveGroup(currentMember, members)) {
-      setAcknowledge({
-        title: tCommon('alerts.noticeTitle'),
+      showSnackbarAlert({
         message: t('detail.lastAdminWarning'),
+        variant: 'error',
+        duration: 'long',
       });
       return;
     }
@@ -170,15 +170,16 @@ export default function GroupDetailScreen() {
             await leaveGroup.mutateAsync(groupId);
             tabScopedBack('/(tabs)/profile/groups');
           } catch {
-            setAcknowledge({
-              title: tCommon('alerts.errorTitle'),
+            showSnackbarAlert({
               message: t('errors.leaveFailed'),
+              variant: 'error',
+              duration: 'long',
             });
           }
         })();
       },
     });
-  }, [groupId, currentMember, members, leaveGroup, t, tCommon]);
+  }, [groupId, currentMember, members, leaveGroup, showSnackbarAlert, t, tCommon]);
 
   const handlePromoteMember = useCallback(
     (member: GroupMemberWithProfile) => {
@@ -197,16 +198,17 @@ export default function GroupDetailScreen() {
                 userId: member.userId,
               });
             } catch {
-              setAcknowledge({
-                title: tCommon('alerts.errorTitle'),
+              showSnackbarAlert({
                 message: t('errors.promoteFailed'),
+                variant: 'error',
+                duration: 'long',
               });
             }
           })();
         },
       });
     },
-    [groupId, promoteMember, t, tCommon],
+    [groupId, promoteMember, showSnackbarAlert, t, tCommon],
   );
 
   const handleRemoveMember = useCallback(
@@ -227,16 +229,17 @@ export default function GroupDetailScreen() {
                 userId: member.userId,
               });
             } catch {
-              setAcknowledge({
-                title: tCommon('alerts.errorTitle'),
+              showSnackbarAlert({
                 message: t('errors.removeFailed'),
+                variant: 'error',
+                duration: 'long',
               });
             }
           })();
         },
       });
     },
-    [groupId, removeMember, t, tCommon],
+    [groupId, removeMember, showSnackbarAlert, t, tCommon],
   );
 
   if (!group) {
@@ -331,15 +334,6 @@ export default function GroupDetailScreen() {
           destructive={confirm?.destructive}
           onDismiss={() => setConfirm(null)}
           onConfirm={() => confirm?.onConfirm()}
-        />
-        <ConfirmDialog
-          visible={acknowledge !== null}
-          title={acknowledge?.title ?? ''}
-          message={acknowledge?.message ?? ''}
-          confirmLabel={tCommon('actions.ok')}
-          variant="acknowledge"
-          onDismiss={() => setAcknowledge(null)}
-          onConfirm={() => setAcknowledge(null)}
         />
       </View>
     );
@@ -459,15 +453,6 @@ export default function GroupDetailScreen() {
         destructive={confirm?.destructive}
         onDismiss={() => setConfirm(null)}
         onConfirm={() => confirm?.onConfirm()}
-      />
-      <ConfirmDialog
-        visible={acknowledge !== null}
-        title={acknowledge?.title ?? ''}
-        message={acknowledge?.message ?? ''}
-        confirmLabel={tCommon('actions.ok')}
-        variant="acknowledge"
-        onDismiss={() => setAcknowledge(null)}
-        onConfirm={() => setAcknowledge(null)}
       />
     </View>
   );

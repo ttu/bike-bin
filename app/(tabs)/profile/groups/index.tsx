@@ -1,13 +1,5 @@
 import { useState, useCallback } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  RefreshControl,
-  Alert,
-  Pressable,
-  ScrollView,
-} from 'react-native';
+import { View, FlatList, StyleSheet, RefreshControl, Pressable, ScrollView } from 'react-native';
 import {
   Text,
   FAB,
@@ -26,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useGroups, useCreateGroup, useSearchGroups, useJoinGroup } from '@/features/groups';
 import type { GroupWithRole, SearchGroupResult } from '@/features/groups';
 import type { GroupId } from '@/shared/types';
@@ -35,6 +28,7 @@ type ScreenMode = 'list' | 'create' | 'search';
 export default function GroupsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('groups');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const insets = useSafeAreaInsets();
 
   const [mode, setMode] = useState<ScreenMode>('list');
@@ -75,7 +69,7 @@ export default function GroupsScreen() {
 
   const handleCreateSubmit = useCallback(async () => {
     if (!name.trim()) {
-      setNameError('Name is required');
+      setNameError(t('validation.nameRequired'));
       return;
     }
     setNameError('');
@@ -88,19 +82,19 @@ export default function GroupsScreen() {
       });
       setMode('list');
     } catch {
-      Alert.alert('Error', 'Failed to create group');
+      showSnackbarAlert({ message: t('errors.createFailed'), variant: 'error', duration: 'long' });
     }
-  }, [name, description, isPublic, createGroup]);
+  }, [name, description, isPublic, createGroup, showSnackbarAlert, t]);
 
   const handleJoinGroup = useCallback(
     async (groupId: GroupId) => {
       try {
         await joinGroup.mutateAsync(groupId);
       } catch {
-        Alert.alert('Error', 'Failed to join group');
+        showSnackbarAlert({ message: t('errors.joinFailed'), variant: 'error', duration: 'long' });
       }
     },
-    [joinGroup],
+    [joinGroup, showSnackbarAlert, t],
   );
 
   const handleGroupPress = useCallback((group: GroupWithRole) => {

@@ -19,6 +19,7 @@ import { queryClient } from '@/shared/api';
 import { AuthProvider } from '@/features/auth';
 import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
+import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -32,11 +33,13 @@ function AppContent() {
 
   return (
     <PaperProvider theme={theme}>
-      <DemoModeProvider>
-        <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }} />
-        </AuthProvider>
-      </DemoModeProvider>
+      <SnackbarAlertsProvider>
+        <DemoModeProvider>
+          <AuthProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </AuthProvider>
+        </DemoModeProvider>
+      </SnackbarAlertsProvider>
     </PaperProvider>
   );
 }

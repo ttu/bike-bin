@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Platform, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Platform } from 'react-native';
 import { Text, TextInput, Button, Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -7,13 +7,16 @@ import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import { spacing, borderRadius } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useSubmitSupport } from '@/features/profile/hooks/useSubmitSupport';
 import type { UserId } from '@/shared/types';
 
 export default function SupportScreen() {
   const theme = useTheme();
   const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation('common');
   const { user } = useAuth();
+  const { showSnackbarAlert } = useSnackbarAlerts();
 
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -46,12 +49,21 @@ export default function SupportScreen() {
       },
       {
         onSuccess: () => {
-          Alert.alert(t('support.successTitle'), t('support.successMessage'), [
-            { text: 'OK', onPress: () => tabScopedBack('/(tabs)/profile') },
-          ]);
+          showSnackbarAlert({
+            message: t('support.successMessage'),
+            variant: 'success',
+            action: {
+              label: tCommon('actions.done'),
+              onPress: () => tabScopedBack('/(tabs)/profile'),
+            },
+          });
         },
         onError: () => {
-          Alert.alert(t('support.errorTitle'), t('support.errorMessage'));
+          showSnackbarAlert({
+            message: t('support.errorMessage'),
+            variant: 'error',
+            duration: 'long',
+          });
         },
       },
     );

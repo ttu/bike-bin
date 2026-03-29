@@ -62,5 +62,17 @@
     "selectGroups": "Select groups",
     "selectedCount": "{{count}} group selected",
     "selectedCount_plural": "{{count}} groups selected"
+  },
+  "errors": {
+    "createFailed": "Could not create the group. Please try again.",
+    "joinFailed": "Could not join the group. Please try again.",
+    "updateFailed": "Could not save changes. Please try again.",
+    "deleteFailed": "Could not delete the group. Please try again.",
+    "leaveFailed": "Could not leave the group. Please try again.",
+    "promoteFailed": "Could not promote this member. Please try again.",
+    "removeFailed": "Could not remove this member. Please try again."
+  },
+  "validation": {
+    "nameRequired": "Name is required"
   }
 }

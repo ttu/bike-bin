@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { View, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Appbar, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Href } from 'expo-router';
@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LoadingScreen, ReportDialog } from '@/shared/components';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import type { ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
 import { useAuth } from '@/features/auth';
@@ -41,6 +42,7 @@ export default function PublicUserProfileScreen() {
   const { user } = useAuth();
   const [reportVisible, setReportVisible] = useState(false);
   const reportMutation = useReport();
+  const { showSnackbarAlert } = useSnackbarAlerts();
 
   const {
     data: profile,
@@ -93,10 +95,17 @@ export default function PublicUserProfileScreen() {
       {
         onSuccess: () => {
           setReportVisible(false);
-          Alert.alert(tProfile('report.successTitle'), tProfile('report.successMessage'));
+          showSnackbarAlert({
+            message: tProfile('report.successMessage'),
+            variant: 'success',
+          });
         },
         onError: () => {
-          Alert.alert(tProfile('report.errorTitle'), tProfile('report.errorMessage'));
+          showSnackbarAlert({
+            message: tProfile('report.errorMessage'),
+            variant: 'error',
+            duration: 'long',
+          });
         },
       },
     );

@@ -10,3 +10,5 @@ export { ConfirmDialog } from './ConfirmDialog/ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogVariant } from './ConfirmDialog/ConfirmDialog';
 export { ReportDialog } from './ReportDialog/ReportDialog';
 export type { ReportReason } from './ReportDialog/ReportDialog';
+export { SnackbarAlertsProvider, useSnackbarAlerts } from './SnackbarAlerts';
+export type { ShowSnackbarAlertOptions, SnackbarAlertVariant } from './SnackbarAlerts';
