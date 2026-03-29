@@ -21,8 +21,8 @@
     "viewItem": "View",
     "itemAvailability": {
       "borrowable": "Available to borrow",
-      "donatable": "Available for donation",
-      "sellable": "For sale",
+      "donatable": "Available to donate",
+      "sellable": "Available to sell",
       "private": "Private"
     },
     "loadMore": "Load older messages"

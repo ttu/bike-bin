@@ -52,7 +52,7 @@ describe('ListingDetail', () => {
     });
     const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText('Donatable')).toBeTruthy();
+    expect(getByText('Donate')).toBeTruthy();
   });
 
   it('renders owner card with display name', () => {

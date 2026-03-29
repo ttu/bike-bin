@@ -52,8 +52,8 @@ describe('FilterSheet', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText('Donatable')).toBeTruthy();
-    expect(getByText('Sellable')).toBeTruthy();
+    expect(getByText('Donate')).toBeTruthy();
+    expect(getByText('Sell')).toBeTruthy();
   });
 
   it('calls onCategoriesChange when category chip pressed', () => {

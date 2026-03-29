@@ -23,8 +23,8 @@ test.describe('Inventory list with data', () => {
 
   test('shows availability chips', async ({ loggedInPage }) => {
     await expect(loggedInPage.getByText('Borrowable').first()).toBeVisible();
-    await expect(loggedInPage.getByText('Sellable').first()).toBeVisible();
-    await expect(loggedInPage.getByText('Donatable').first()).toBeVisible();
+    await expect(loggedInPage.getByText('Sell').first()).toBeVisible();
+    await expect(loggedInPage.getByText('Donate').first()).toBeVisible();
   });
 
   test('category filter - Components', async ({ loggedInPage }) => {

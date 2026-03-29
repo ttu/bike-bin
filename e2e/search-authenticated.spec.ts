@@ -62,7 +62,7 @@ test.describe('Search with authenticated user', () => {
       timeout: 10000,
     });
 
-    await expect(loggedInPage.getByText(/Borrowable|Sellable|Donatable/).first()).toBeVisible();
+    await expect(loggedInPage.getByText(/Borrowable|Sell|Donate/).first()).toBeVisible();
   });
 
   test('quick filter chips appear after search', async ({ loggedInPage }) => {

@@ -44,7 +44,7 @@ describe('SearchResultCard', () => {
     });
     const { getByText } = renderWithProviders(<SearchResultCard item={item} />);
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText(/Sellable/)).toBeTruthy();
+    expect(getByText(/Sell ·/)).toBeTruthy();
   });
 
   it('renders area name and distance', () => {

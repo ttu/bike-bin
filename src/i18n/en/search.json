@@ -64,8 +64,8 @@
   },
   "availability": {
     "borrowable": "Borrowable",
-    "donatable": "Donatable",
-    "sellable": "Sellable"
+    "donatable": "Donate",
+    "sellable": "Sell"
   },
   "listing": {
     "report": "Report",

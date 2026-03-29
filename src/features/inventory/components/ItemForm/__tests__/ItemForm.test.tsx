@@ -63,9 +63,9 @@ describe('ItemForm', () => {
     const { getByText, getAllByText } = renderWithProviders(<ItemForm {...defaultProps} />);
     expect(getByText('Private')).toBeTruthy();
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText('Donatable')).toBeTruthy();
-    expect(getByText('Sellable')).toBeTruthy();
-    const row = getAllByText(/Private|Borrowable|Donatable|Sellable/);
+    expect(getByText('Donate')).toBeTruthy();
+    expect(getByText('Sell')).toBeTruthy();
+    const row = getAllByText(/Private|Borrowable|Donate|Sell/);
     expect(row[0].props.children).toBe('Private');
   });
 
@@ -95,14 +95,14 @@ describe('ItemForm', () => {
     expect(getByText('Wrenches')).toBeTruthy();
   });
 
-  it('shows price input when Sellable is selected', () => {
+  it('shows price input when Sell is selected', () => {
     const { getByText, queryByText } = renderWithProviders(<ItemForm {...defaultProps} />);
 
     // Price should not be visible initially
     expect(queryByText('Price')).toBeNull();
 
-    // Select Sellable
-    fireEvent.press(getByText('Sellable'));
+    // Select Sell
+    fireEvent.press(getByText('Sell'));
     expect(getByText('Price')).toBeTruthy();
   });
 

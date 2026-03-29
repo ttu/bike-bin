@@ -62,7 +62,7 @@ describe('ItemDetail', () => {
   it('renders availability chips', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText('Sellable')).toBeTruthy();
+    expect(getByText('Sell')).toBeTruthy();
   });
 
   it('renders detail grid', () => {

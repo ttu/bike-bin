@@ -70,7 +70,7 @@ describe('ItemCard', () => {
   it('renders availability chips', () => {
     const { getByText } = renderWithProviders(<ItemCard item={baseItem} />);
     expect(getByText('Borrowable')).toBeTruthy();
-    expect(getByText('Sellable')).toBeTruthy();
+    expect(getByText('Sell')).toBeTruthy();
   });
 
   it('does not show Private availability chip (implicit default)', () => {
