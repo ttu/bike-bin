@@ -13,9 +13,9 @@ Search reads from existing tables — no dedicated search tables. Key database f
 
 Search results join data from: `items`, `profiles` (owner info), `saved_locations` (area names), `item_photos` (thumbnails).
 
-### Own-items exclusion
+### Authentication
 
-The `search_nearby_items` RPC accepts an optional "exclude owner" parameter. The app passes the signed-in user's ID so their own listings are excluded. Anonymous search leaves this unset. This is a UX preference, not a security boundary.
+`search_nearby_items` is executable only by the `authenticated` role; anonymous JWTs cannot call it. The function also raises if `auth.uid()` is null. The app shows a sign-in prompt on the Search tab for guests (demo mode still uses mock results). Own listings are excluded with `i.owner_id != auth.uid()` in SQL.
 
 ## Architecture
 
@@ -66,7 +66,7 @@ Distance presets: 5, 10, 25, 50, 100 km.
 4. Fetches thumbnail paths for result items (batch)
 5. Applies client-side filters for multi-value category/condition, offer types, price range
 6. Applies client-side sorting (distance is default from RPC, newest/recently_available sorted client-side)
-7. Only fires when query is non-empty; stale time: 1 minute
+7. Only fires when the user is signed in and query is non-empty; stale time: 1 minute
 
 ### SearchFiltersProvider
 

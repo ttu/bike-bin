@@ -7,6 +7,8 @@ import { useSearchItems } from '../useSearchItems';
 import { DEFAULT_SEARCH_FILTERS } from '../../types';
 import type { SearchFilters } from '../../types';
 
+const mockAuth = { isAuthenticated: true };
+
 const mockFetchPublicProfilesMap = jest.fn();
 
 jest.mock('@/shared/api/fetchPublicProfile', () => ({
@@ -50,6 +52,18 @@ jest.mock('@/features/locations', () => ({
   }),
 }));
 
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({
+    isAuthenticated: mockAuth.isAuthenticated,
+    isLoading: false,
+    user: mockAuth.isAuthenticated ? { id: 'current-user-id' } : null,
+    session: null,
+    signInWithGoogle: jest.fn(),
+    signInWithApple: jest.fn(),
+    signOut: jest.fn(),
+  }),
+}));
+
 function createWrapper() {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -90,6 +104,7 @@ function createRpcRow(overrides?: Record<string, unknown>) {
 describe('useSearchItems', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuth.isAuthenticated = true;
     mockFetchPublicProfilesMap.mockResolvedValue(new Map());
 
     mockFrom.mockImplementation((table: string) => {
@@ -115,6 +130,17 @@ describe('useSearchItems', () => {
 
   it('does not fetch when query is empty', () => {
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: '' };
+    const { result } = renderHook(() => useSearchItems({ filters }), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it('does not fetch when user is not authenticated', () => {
+    mockAuth.isAuthenticated = false;
+    const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'cassette' };
     const { result } = renderHook(() => useSearchItems({ filters }), {
       wrapper: createWrapper(),
     });

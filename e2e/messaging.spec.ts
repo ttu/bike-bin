@@ -54,22 +54,15 @@ test.describe('Messages tab', () => {
 });
 
 test.describe('Messaging from listing detail', () => {
-  test('unauthenticated user sees sign-in prompt instead of contact button', async ({ page }) => {
+  test('unauthenticated user sees search sign-in wall on Search tab', async ({ page }) => {
     await browseWithoutSignIn(page);
 
-    // Navigate to Search tab
     const tablist = page.getByRole('tablist');
     await tablist.getByRole('tab', { name: /Search/ }).click();
     await page.waitForURL(/\/search/);
 
-    // Search for items
-    const searchInput = page.getByPlaceholder('Parts, tools, bikes...');
-    await searchInput.fill('bike');
-    await searchInput.press('Enter');
-
-    // If results exist, click the first one; otherwise verify no contact button in search
-    // Since local DB may be empty, we verify the search screen loads correctly
-    await expect(searchInput).toBeVisible();
+    await expect(page.getByText('Sign in to search')).toBeVisible();
+    await expect(page.getByPlaceholder('Parts, tools, bikes...')).toHaveCount(0);
   });
 });
 

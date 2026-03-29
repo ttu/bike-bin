@@ -7,6 +7,11 @@
     "title": "Find what you need",
     "description": "Search for parts, tools, or bikes from cyclists nearby"
   },
+  "authRequired": {
+    "title": "Sign in to search",
+    "description": "Create an account or sign in to discover parts and bikes from cyclists nearby.",
+    "signIn": "Sign in"
+  },
   "noResults": {
     "title": "No items found nearby",
     "description": "Try increasing your distance or changing filters."

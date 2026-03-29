@@ -19,6 +19,7 @@ import {
 } from '@/features/search';
 import type { SearchResultItem, SearchSortOption } from '@/features/search';
 import { AvailabilityType } from '@/shared/types';
+import { useAuth } from '@/features/auth';
 import { useDemoMode, DemoBanner } from '@/features/demo';
 import { DEMO_SEARCH_RESULTS } from '@/features/demo/data';
 
@@ -28,14 +29,18 @@ function SearchScreenContent() {
   const router = useRouter();
   const { filters, updateFilters, resetFilters, hasActiveFilters } = useSearchFilters();
   const { data: primaryLocation } = usePrimaryLocation();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { isDemoMode } = useDemoMode();
+
+  const showGuestWall = !isDemoMode && !authLoading && !isAuthenticated;
+  const showAuthSpinner = !isDemoMode && authLoading;
 
   const [hasSearched, setHasSearched] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
 
   const { data: serverResults, isLoading } = useSearchItems({
     filters,
-    enabled: hasSearched && !isDemoMode,
+    enabled: hasSearched && !isDemoMode && isAuthenticated,
   });
 
   // In demo mode, show results immediately to showcase the app
@@ -112,181 +117,214 @@ function SearchScreenContent() {
         </Text>
       </View>
 
-      {/* Search bar */}
-      <SearchBar
-        query={filters.query}
-        onQueryChange={handleQueryChange}
-        onSubmit={handleSubmit}
-        areaName={primaryLocation?.areaName}
-        distanceKm={filters.maxDistanceKm}
-        onDistanceChange={(km) => updateFilters({ maxDistanceKm: km })}
-      />
-
-      <DemoBanner />
-
-      {/* Quick filter chips + Filters button */}
-      {effectiveHasSearched && (
-        <View style={styles.quickFilters}>
-          <Chip
-            selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
-            onPress={() => toggleQuickFilter(AvailabilityType.Borrowable)}
-            compact
-            showSelectedCheck={false}
-            textStyle={
-              filters.offerTypes.includes(AvailabilityType.Borrowable)
-                ? { color: theme.colors.onPrimary }
-                : undefined
-            }
-            style={[
-              styles.quickChip,
-              {
-                backgroundColor: filters.offerTypes.includes(AvailabilityType.Borrowable)
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t('quickFilter.borrow')}
-          </Chip>
-          <Chip
-            selected={filters.offerTypes.includes(AvailabilityType.Donatable)}
-            onPress={() => toggleQuickFilter(AvailabilityType.Donatable)}
-            compact
-            showSelectedCheck={false}
-            textStyle={
-              filters.offerTypes.includes(AvailabilityType.Donatable)
-                ? { color: theme.colors.onPrimary }
-                : undefined
-            }
-            style={[
-              styles.quickChip,
-              {
-                backgroundColor: filters.offerTypes.includes(AvailabilityType.Donatable)
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t('quickFilter.donate')}
-          </Chip>
-          <Chip
-            selected={filters.offerTypes.includes(AvailabilityType.Sellable)}
-            onPress={() => toggleQuickFilter(AvailabilityType.Sellable)}
-            compact
-            showSelectedCheck={false}
-            textStyle={
-              filters.offerTypes.includes(AvailabilityType.Sellable)
-                ? { color: theme.colors.onPrimary }
-                : undefined
-            }
-            style={[
-              styles.quickChip,
-              {
-                backgroundColor: filters.offerTypes.includes(AvailabilityType.Sellable)
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t('quickFilter.sell')}
-          </Chip>
-          <Chip
-            icon={() => (
-              <MaterialCommunityIcons
-                name="filter-variant"
-                size={16}
-                color={hasActiveFilters ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
-              />
-            )}
-            onPress={() => setFilterVisible(true)}
-            compact
-            showSelectedCheck={false}
-            textStyle={hasActiveFilters ? { color: theme.colors.onPrimary } : undefined}
-            style={[
-              styles.quickChip,
-              {
-                backgroundColor: hasActiveFilters
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t('filter.title')}
-          </Chip>
-        </View>
-      )}
-
-      {/* Result count + sort */}
-      {showResults && (
-        <View style={styles.resultHeader}>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-            {t('results.count', {
-              count: results.length,
-              distance: filters.maxDistanceKm,
-            })}
-          </Text>
-          <Text variant="labelSmall" style={{ color: theme.colors.primary }} onPress={cycleSortBy}>
-            {sortLabel}
-          </Text>
-        </View>
-      )}
-
-      {/* Loading */}
-      {effectiveHasSearched && effectiveIsLoading && (
+      {showAuthSpinner && (
         <View style={styles.centered}>
           <ActivityIndicator size="large" />
         </View>
       )}
 
-      {/* Results list */}
-      {showResults && (
-        <FlatList
-          data={results}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={styles.list}
-        />
-      )}
-
-      {/* Empty results */}
-      {showEmpty && (
+      {showGuestWall && (
         <EmptyState
-          icon="magnify-close"
-          title={t('noResults.title')}
-          description={t('noResults.description')}
+          icon="account-lock-outline"
+          title={t('authRequired.title')}
+          description={t('authRequired.description')}
+          ctaLabel={t('authRequired.signIn')}
+          onCtaPress={() => router.push('/(auth)/login' as never)}
         />
       )}
 
-      {/* Initial state */}
-      {showInitial && (
-        <EmptyState icon="magnify" title={t('empty.title')} description={t('empty.description')} />
-      )}
-
-      {/* Filter bottom sheet (modal) */}
-      <Portal>
-        <Modal
-          visible={filterVisible}
-          onDismiss={() => setFilterVisible(false)}
-          contentContainerStyle={[styles.filterModal, { backgroundColor: theme.colors.surface }]}
-        >
-          <FilterSheet
-            categories={filters.categories}
-            onCategoriesChange={(categories) => updateFilters({ categories })}
-            conditions={filters.conditions}
-            onConditionsChange={(conditions) => updateFilters({ conditions })}
-            offerTypes={filters.offerTypes}
-            onOfferTypesChange={(offerTypes) => updateFilters({ offerTypes })}
-            priceMin={filters.priceMin}
-            priceMax={filters.priceMax}
-            onPriceMinChange={(priceMin) => updateFilters({ priceMin })}
-            onPriceMaxChange={(priceMax) => updateFilters({ priceMax })}
-            onReset={resetFilters}
-            onApply={() => setFilterVisible(false)}
+      {!showAuthSpinner && !showGuestWall && (
+        <>
+          {/* Search bar */}
+          <SearchBar
+            query={filters.query}
+            onQueryChange={handleQueryChange}
+            onSubmit={handleSubmit}
+            areaName={primaryLocation?.areaName}
+            distanceKm={filters.maxDistanceKm}
+            onDistanceChange={(km) => updateFilters({ maxDistanceKm: km })}
           />
-        </Modal>
-      </Portal>
+
+          <DemoBanner />
+
+          {/* Quick filter chips + Filters button */}
+          {effectiveHasSearched && (
+            <View style={styles.quickFilters}>
+              <Chip
+                selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
+                onPress={() => toggleQuickFilter(AvailabilityType.Borrowable)}
+                compact
+                showSelectedCheck={false}
+                textStyle={
+                  filters.offerTypes.includes(AvailabilityType.Borrowable)
+                    ? { color: theme.colors.onPrimary }
+                    : undefined
+                }
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: filters.offerTypes.includes(AvailabilityType.Borrowable)
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('quickFilter.borrow')}
+              </Chip>
+              <Chip
+                selected={filters.offerTypes.includes(AvailabilityType.Donatable)}
+                onPress={() => toggleQuickFilter(AvailabilityType.Donatable)}
+                compact
+                showSelectedCheck={false}
+                textStyle={
+                  filters.offerTypes.includes(AvailabilityType.Donatable)
+                    ? { color: theme.colors.onPrimary }
+                    : undefined
+                }
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: filters.offerTypes.includes(AvailabilityType.Donatable)
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('quickFilter.donate')}
+              </Chip>
+              <Chip
+                selected={filters.offerTypes.includes(AvailabilityType.Sellable)}
+                onPress={() => toggleQuickFilter(AvailabilityType.Sellable)}
+                compact
+                showSelectedCheck={false}
+                textStyle={
+                  filters.offerTypes.includes(AvailabilityType.Sellable)
+                    ? { color: theme.colors.onPrimary }
+                    : undefined
+                }
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: filters.offerTypes.includes(AvailabilityType.Sellable)
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('quickFilter.sell')}
+              </Chip>
+              <Chip
+                icon={() => (
+                  <MaterialCommunityIcons
+                    name="filter-variant"
+                    size={16}
+                    color={
+                      hasActiveFilters ? theme.colors.onPrimary : theme.colors.onSurfaceVariant
+                    }
+                  />
+                )}
+                onPress={() => setFilterVisible(true)}
+                compact
+                showSelectedCheck={false}
+                textStyle={hasActiveFilters ? { color: theme.colors.onPrimary } : undefined}
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: hasActiveFilters
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('filter.title')}
+              </Chip>
+            </View>
+          )}
+
+          {/* Result count + sort */}
+          {showResults && (
+            <View style={styles.resultHeader}>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {t('results.count', {
+                  count: results.length,
+                  distance: filters.maxDistanceKm,
+                })}
+              </Text>
+              <Text
+                variant="labelSmall"
+                style={{ color: theme.colors.primary }}
+                onPress={cycleSortBy}
+              >
+                {sortLabel}
+              </Text>
+            </View>
+          )}
+
+          {/* Loading */}
+          {effectiveHasSearched && effectiveIsLoading && (
+            <View style={styles.centered}>
+              <ActivityIndicator size="large" />
+            </View>
+          )}
+
+          {/* Results list */}
+          {showResults && (
+            <FlatList
+              data={results}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              contentContainerStyle={styles.list}
+            />
+          )}
+
+          {/* Empty results */}
+          {showEmpty && (
+            <EmptyState
+              icon="magnify-close"
+              title={t('noResults.title')}
+              description={t('noResults.description')}
+            />
+          )}
+
+          {/* Initial state */}
+          {showInitial && (
+            <EmptyState
+              icon="magnify"
+              title={t('empty.title')}
+              description={t('empty.description')}
+            />
+          )}
+
+          {/* Filter bottom sheet (modal) */}
+          <Portal>
+            <Modal
+              visible={filterVisible}
+              onDismiss={() => setFilterVisible(false)}
+              contentContainerStyle={[
+                styles.filterModal,
+                { backgroundColor: theme.colors.surface },
+              ]}
+            >
+              <FilterSheet
+                categories={filters.categories}
+                onCategoriesChange={(categories) => updateFilters({ categories })}
+                conditions={filters.conditions}
+                onConditionsChange={(conditions) => updateFilters({ conditions })}
+                offerTypes={filters.offerTypes}
+                onOfferTypesChange={(offerTypes) => updateFilters({ offerTypes })}
+                priceMin={filters.priceMin}
+                priceMax={filters.priceMax}
+                onPriceMinChange={(priceMin) => updateFilters({ priceMin })}
+                onPriceMaxChange={(priceMax) => updateFilters({ priceMax })}
+                onReset={resetFilters}
+                onApply={() => setFilterVisible(false)}
+              />
+            </Modal>
+          </Portal>
+        </>
+      )}
     </SafeAreaView>
   );
 }

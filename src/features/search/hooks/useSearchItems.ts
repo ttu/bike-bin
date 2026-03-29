@@ -4,6 +4,7 @@ import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
 import type { ItemId, UserId, LocationId } from '@/shared/types';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import { useAuth } from '@/features/auth';
 import { usePrimaryLocation } from '@/features/locations';
 import type { SearchFilters, SearchResultItem } from '../types';
 
@@ -17,6 +18,7 @@ interface UseSearchItemsOptions {
  * with the current search filters and the user's primary location.
  */
 export function useSearchItems({ filters, enabled = true }: UseSearchItemsOptions) {
+  const { isAuthenticated } = useAuth();
   const { data: primaryLocation } = usePrimaryLocation();
 
   const lat = primaryLocation?.coordinates?.latitude;
@@ -84,7 +86,7 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
 
       return results;
     },
-    enabled: enabled && filters.query.length > 0,
+    enabled: enabled && isAuthenticated && filters.query.length > 0,
     staleTime: 60_000, // 1 minute
   });
 }
