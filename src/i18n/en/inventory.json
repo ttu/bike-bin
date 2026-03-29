@@ -105,7 +105,7 @@
   "addItem": "Add item",
   "editItem": "Edit item",
   "deleteItem": "Delete item",
-  "removeFromBin": "Remove from Bin",
+  "removeFromInventory": "Remove from inventory",
   "inventoryId": "Inventory ID: {{id}}",
   "deleteConfirm": "Are you sure you want to delete this item?",
   "confirm": {
@@ -120,6 +120,12 @@
       "message": "Are you sure you want to archive this item?",
       "cancel": "Cancel",
       "confirm": "Archive"
+    },
+    "unarchive": {
+      "title": "Restore Item",
+      "message": "Restore this item to your inventory as stored? You can edit it again afterward.",
+      "cancel": "Cancel",
+      "confirm": "Restore"
     },
     "removePhoto": {
       "title": "Remove Photo",
@@ -136,6 +142,9 @@
     "markSold": "Mark as Sold",
     "markReturned": "Mark as Returned",
     "archive": "Archive",
+    "unarchive": "Restore to inventory",
+    "removeFromInventoryTitle": "Remove from inventory",
+    "removeFromInventoryMessage": "Archive to hide the item from active lists, or delete to remove it permanently.",
     "conditionLabel": "Condition",
     "remainingLabel": "Amount left",
     "remainingValue": "{{percent}}% left",

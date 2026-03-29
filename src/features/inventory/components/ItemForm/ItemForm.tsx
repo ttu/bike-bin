@@ -1063,7 +1063,7 @@ export function ItemForm({
             textColor={theme.colors.error}
             style={styles.deleteButton}
           >
-            {t('removeFromBin')}
+            {t('removeFromInventory')}
           </Button>
         )}
       </>

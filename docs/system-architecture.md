@@ -151,12 +151,10 @@ features/{feature-name}/
 Each feature’s `index.ts` exports only the public API:
 
 ```typescript
-// features/inventory/index.ts
-export { ItemList, ItemForm } from './components/...';
-export { useInventory } from './hooks/useInventory';
-export { InventoryProvider } from './provider';
-export type { InventoryItem } from './types';
-export { calculateItemStatus } from './utils/status';
+// features/inventory/index.ts (illustrative)
+export { useItems, useItem, useUpdateItemStatus, useDeleteItem, ... } from './hooks/useItems';
+export { canDelete, canUnarchive, getStatusColor, ... } from './utils/status';
+// Components such as ItemDetail, ItemForm, RemoveFromInventoryDialog are imported by route screens, not always re-exported here.
 ```
 
 ---

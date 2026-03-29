@@ -7,7 +7,7 @@ import type { Item, ItemPhoto } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
-import { getStatusColor, canDelete } from '../../utils/status';
+import { getStatusColor } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 import { useDistanceUnit } from '@/features/profile';
 
@@ -30,8 +30,10 @@ interface ItemDetailProps {
   onMarkReturned?: () => void;
   /** While resolving the active borrow request (mark returned uses it when present). */
   markReturnedLoading?: boolean;
-  onArchive?: () => void;
-  onDelete?: () => void;
+  /** Opens archive vs delete choice; parent runs the usual confirmations. */
+  onRemoveFromBin?: () => void;
+  /** Restores an archived item to stored; parent runs confirmation. */
+  onUnarchive?: () => void;
 }
 
 export function ItemDetail({
@@ -41,8 +43,8 @@ export function ItemDetail({
   onMarkSold,
   onMarkReturned,
   markReturnedLoading = false,
-  onArchive,
-  onDelete,
+  onRemoveFromBin,
+  onUnarchive,
 }: ItemDetailProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -68,8 +70,6 @@ export function ItemDetail({
     (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&
     item.availabilityTypes.includes(AvailabilityType.Sellable);
   const canShowReturnedAction = item.status === ItemStatus.Loaned;
-  const canShowArchiveAction = item.status !== ItemStatus.Archived;
-  const canShowDeleteAction = canDelete(item);
   const categoryBreadcrumb = [
     t(`category.${item.category}`),
     item.subcategory
@@ -247,26 +247,24 @@ export function ItemDetail({
             </Button>
           </ActionSlot>
         )}
-        {canShowArchiveAction && onArchive && (
+        {item.status === ItemStatus.Archived && onUnarchive && (
+          <ActionSlot isWide={isWide}>
+            <GradientButton
+              onPress={onUnarchive}
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('detail.unarchive')}
+            </GradientButton>
+          </ActionSlot>
+        )}
+        {onRemoveFromBin && (
           <ActionSlot isWide={isWide}>
             <Button
               mode="outlined"
-              onPress={onArchive}
+              onPress={onRemoveFromBin}
               style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
             >
-              {t('detail.archive')}
-            </Button>
-          </ActionSlot>
-        )}
-        {canShowDeleteAction && onDelete && (
-          <ActionSlot isWide={isWide} fullWidth>
-            <Button
-              mode="text"
-              onPress={onDelete}
-              textColor={theme.colors.error}
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('deleteItem')}
+              {t('removeFromInventory')}
             </Button>
           </ActionSlot>
         )}

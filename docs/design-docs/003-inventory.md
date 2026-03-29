@@ -78,6 +78,8 @@ src/features/inventory/
 │   │   └── ItemCard.tsx             # List item card with thumbnail
 │   ├── ItemDetail/
 │   │   └── ItemDetail.tsx           # Full item detail view
+│   ├── RemoveFromInventoryDialog/
+│   │   └── RemoveFromInventoryDialog.tsx  # Archive vs delete chooser (Paper Dialog + theme tokens; web-safe)
 │   ├── ItemForm/
 │   │   └── ItemForm.tsx             # Create/edit form
 │   └── PhotoPicker/
@@ -89,7 +91,7 @@ src/features/inventory/
 │   ├── useStagedPhotos.ts           # Manages photos before save
 │   └── useUserTags.ts              # Distinct user tags for autocomplete
 ├── utils/
-│   ├── status.ts                    # Status helpers: canDelete, canEditAvailability, isTerminalStatus, getStatusColor
+│   ├── status.ts                    # Status helpers: canDelete, canUnarchive, canEditAvailability, isTerminalStatus, getStatusColor
 │   ├── validation.ts                # ItemFormData type + validateItem
 │   ├── availabilityList.ts          # Filter private from availability chips
 │   └── tagUtils.ts                  # Tag deduplication, formatting
@@ -114,6 +116,7 @@ src/features/inventory/
 
 - **Terminal statuses:** archived, sold, donated — hidden from inventory list by default
 - **Non-deletable:** loaned, reserved — cannot be deleted while in these states
+- **Unarchive:** `canUnarchive(item)` is true only when `status === archived`. **Restore to inventory** sets status to **stored** via `useUpdateItemStatus` (same RLS path as other owner updates; not borrow-locked).
 - **Status colors:** loaned/reserved → warning, donated/sold → success, others → outline
 
 ## Screens & Navigation
@@ -143,14 +146,24 @@ src/features/inventory/
 
 Actions on item detail are gated by both **status** and **availability types**:
 
-| Action        | Requires availability | Status gate            |
-| ------------- | --------------------- | ---------------------- |
-| Mark sold     | Sellable              | Stored or mounted      |
-| Mark donated  | Donatable             | Stored or mounted      |
-| Mark loaned   | Borrowable            | Stored or mounted      |
-| Mark returned | Borrowable            | Loaned                 |
-| Archive       | —                     | Not already archived   |
-| Delete        | —                     | Not loaned or reserved |
+| Action                    | Requires availability | Status gate                                     |
+| ------------------------- | --------------------- | ----------------------------------------------- |
+| Mark sold                 | Sellable              | Stored or mounted                               |
+| Mark donated              | Donatable             | Stored or mounted                               |
+| Mark loaned               | Borrowable            | Stored or mounted                               |
+| Mark returned             | Borrowable            | Loaned                                          |
+| **Restore to inventory**  | —                     | **Archived** only → sets **stored** (unarchive) |
+| **Remove from inventory** | —                     | Opens chooser dialog (see below)                |
+
+**Remove from inventory** (`(tabs)/inventory/[id].tsx`): opens **`RemoveFromInventoryDialog`** — a **React Native Paper** `Portal` + `Dialog` styled with shared **theme tokens** (`surface`, `surfaceContainerLow`, `borderRadius`, `spacing`). Actions inside the dialog:
+
+- **Archive** — shown when the item is **not** already archived; then the existing archive confirmation (`Alert` on native, `window.confirm` on web).
+- **Delete item** — shown when `canDelete(item)` (not loaned/reserved); then the existing delete confirmation.
+- **Cancel** — closes the dialog (`common.actions.cancel`).
+
+Using a Dialog instead of a multi-button `Alert.alert` avoids **no-op alerts on web** and matches app chrome.
+
+**Archived items** still see **Remove from inventory** when delete is allowed (delete-only in the dialog). They also see **Restore to inventory** as a primary **GradientButton** on the detail screen.
 
 "Mark loaned" allows informal/offline loans without a formal borrow request.
 
@@ -191,12 +204,12 @@ Tags privacy: the `tags` column is readable via generic item SELECT policies, bu
 
 Namespace: `inventory`
 
-Key areas: `form.*` (field labels, placeholders, validation), `status.*` (status labels), `category.*` (category names), `subcategory.*` (subcategory names), `detail.*` (detail screen labels), `list.*` (list screen labels), `tags.*` (tag UI), `filter.*` (filter labels).
+Key areas: `form.*` (field labels, placeholders, validation), `status.*` (status labels), `category.*` (category names), `subcategory.*` (subcategory names), `detail.*` (detail screen labels, including **remove / restore** copy), `confirm.unarchive.*` (restore confirmation), `removeFromInventory` (button label), `list.*` (list screen labels), `tags.*` (tag UI), `filter.*` (filter labels).
 
 Also uses `common` namespace for shared action labels.
 
 ## Current Status
 
-- **Implemented:** Full CRUD, photo upload, category/subcategory system with 70+ subcategories, status lifecycle with availability-gated actions, private tags with autocomplete, terminal item hiding, visibility scoping (private/groups/all), brand suggestions (60+ default brands), age and duration options, form validation
-- **Working:** All status transitions, photo management, tag filtering, group visibility syncing
+- **Implemented:** Full CRUD, photo upload, category/subcategory system with 70+ subcategories, status lifecycle with availability-gated actions, **Remove from inventory** dialog (archive/delete chooser) + **Restore to inventory** (unarchive archived → stored), private tags with autocomplete, terminal item hiding, visibility scoping (private/groups/all), brand suggestions (60+ default brands), age and duration options, form validation
+- **Working:** All status transitions above, photo management, tag filtering, group visibility syncing
 - **Known limitations:** Price validation only checks presence for sellable items (no currency formatting), usage tracking is basic (km only)

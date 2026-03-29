@@ -893,7 +893,7 @@ Horizontal `FlatList` / `ScrollView` with paging. Dot indicator. Tap to open ful
 
 - [ ] **Step 3: Implement ItemDetail**
 
-Per [feature-design.md §3.6](feature-design.md). Photo gallery at top, title + status, availability chips, detail grid, pickup area, notes, visibility, action buttons. Status change actions use `useUpdateItem()`.
+Per [feature-design.md §3.6](feature-design.md). Photo gallery at top, title + status, availability chips, detail grid, pickup area, notes, visibility, action buttons. Status changes use `useUpdateItemStatus` / exchange hooks as appropriate; **Remove from inventory** uses `RemoveFromInventoryDialog`; unarchive uses `useUpdateItemStatus` → `stored`.
 
 - [ ] **Step 4: Run tests, commit**
 

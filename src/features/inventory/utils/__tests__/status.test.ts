@@ -1,6 +1,19 @@
 import { ItemStatus } from '@/shared/types';
 import { createMockItem } from '@/test/factories';
-import { canDelete, canEditAvailability, getStatusColor, isTerminalStatus } from '../status';
+import {
+  canDelete,
+  canEditAvailability,
+  canUnarchive,
+  getStatusColor,
+  isTerminalStatus,
+} from '../status';
+
+describe('canUnarchive', () => {
+  it('returns true only for archived', () => {
+    expect(canUnarchive(createMockItem({ status: ItemStatus.Archived }))).toBe(true);
+    expect(canUnarchive(createMockItem({ status: ItemStatus.Stored }))).toBe(false);
+  });
+});
 
 describe('canDelete', () => {
   it.each([

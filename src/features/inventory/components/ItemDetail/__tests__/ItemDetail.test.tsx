@@ -150,12 +150,35 @@ describe('ItemDetail', () => {
     expect(queryByText('Mark as Sold')).toBeNull();
   });
 
-  it('hides delete action when item cannot be deleted', () => {
+  it('does not show standalone delete label when using remove-from-bin only', () => {
     const loanedItem = createMockItem({ ...baseItem, status: ItemStatus.Loaned });
-    const { queryByText } = renderWithProviders(
-      <ItemDetail item={loanedItem} photos={[]} onDelete={jest.fn()} />,
+    const { queryByText, getByText } = renderWithProviders(
+      <ItemDetail item={loanedItem} photos={[]} onRemoveFromBin={jest.fn()} />,
     );
     expect(queryByText('Delete item')).toBeNull();
+    expect(getByText('Remove from inventory')).toBeTruthy();
+  });
+
+  it('shows Remove from inventory when onRemoveFromBin is provided', () => {
+    const { getByText } = renderWithProviders(
+      <ItemDetail item={baseItem} photos={[]} onRemoveFromBin={jest.fn()} />,
+    );
+    expect(getByText('Remove from inventory')).toBeTruthy();
+  });
+
+  it('shows Restore to inventory when archived and onUnarchive is provided', () => {
+    const archived = createMockItem({ ...baseItem, status: ItemStatus.Archived });
+    const { getByText } = renderWithProviders(
+      <ItemDetail item={archived} photos={[]} onUnarchive={jest.fn()} />,
+    );
+    expect(getByText('Restore to inventory')).toBeTruthy();
+  });
+
+  it('hides Restore to inventory when not archived', () => {
+    const { queryByText } = renderWithProviders(
+      <ItemDetail item={baseItem} photos={[]} onUnarchive={jest.fn()} />,
+    );
+    expect(queryByText('Restore to inventory')).toBeNull();
   });
 
   it('renders centered wide column layout on wide screens', () => {

@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
-import { useItem, useItemPhotos, useUpdateItemStatus, useDeleteItem } from '@/features/inventory';
+import {
+  useItem,
+  useItemPhotos,
+  useUpdateItemStatus,
+  useDeleteItem,
+  canDelete,
+  canUnarchive,
+} from '@/features/inventory';
 import { useAcceptedBorrowRequestForItem, useMarkReturned } from '@/features/borrow';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetail';
+import { RemoveFromInventoryDialog } from '@/features/inventory/components/RemoveFromInventoryDialog/RemoveFromInventoryDialog';
 import { LoadingScreen } from '@/shared/components/LoadingScreen/LoadingScreen';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
@@ -29,6 +38,8 @@ export default function ItemDetailScreen() {
     useAcceptedBorrowRequestForItem(id as ItemId, {
       enabled: !isLoading && item !== undefined && item.status === ItemStatus.Loaned,
     });
+
+  const [removeInventoryOpen, setRemoveInventoryOpen] = useState(false);
 
   if (isLoading || !item) {
     return <LoadingScreen />;
@@ -73,6 +84,23 @@ export default function ItemDetailScreen() {
     }
   };
 
+  const handleUnarchive = () => {
+    const doUnarchive = () => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
+
+    if (Platform.OS === 'web') {
+      if (
+        window.confirm(`${tInv('confirm.unarchive.title')}\n${tInv('confirm.unarchive.message')}`)
+      ) {
+        void doUnarchive();
+      }
+    } else {
+      Alert.alert(tInv('confirm.unarchive.title'), tInv('confirm.unarchive.message'), [
+        { text: tInv('confirm.unarchive.cancel'), style: 'cancel' },
+        { text: tInv('confirm.unarchive.confirm'), onPress: () => void doUnarchive() },
+      ]);
+    }
+  };
+
   const handleDelete = () => {
     const doDelete = async () => {
       await deleteItem.mutateAsync({ id: item.id, status: item.status });
@@ -90,6 +118,10 @@ export default function ItemDetailScreen() {
       ]);
     }
   };
+
+  const canArchive = item.status !== ItemStatus.Archived;
+  const itemDeletable = canDelete(item);
+  const showRemoveFromBin = canArchive || itemDeletable;
 
   const handleMarkReturned = () => {
     const run = () => {
@@ -133,8 +165,28 @@ export default function ItemDetailScreen() {
         onMarkSold={handleMarkSold}
         onMarkReturned={handleMarkReturned}
         markReturnedLoading={item.status === ItemStatus.Loaned && isFetchingAcceptedBorrowRequest}
-        onArchive={handleArchive}
-        onDelete={handleDelete}
+        onUnarchive={canUnarchive(item) ? handleUnarchive : undefined}
+        onRemoveFromBin={showRemoveFromBin ? () => setRemoveInventoryOpen(true) : undefined}
+      />
+      <RemoveFromInventoryDialog
+        visible={removeInventoryOpen}
+        onDismiss={() => setRemoveInventoryOpen(false)}
+        onArchive={
+          canArchive
+            ? () => {
+                setRemoveInventoryOpen(false);
+                handleArchive();
+              }
+            : undefined
+        }
+        onDelete={
+          itemDeletable
+            ? () => {
+                setRemoveInventoryOpen(false);
+                handleDelete();
+              }
+            : undefined
+        }
       />
     </View>
   );

@@ -273,9 +273,10 @@ My Profile & Settings
 - Visibility scope ("All users" / group names / "Only me")
 - Actions (when status allows):
   - "Mark as Donated" / "Mark as Sold" → confirmation dialog → status change + notification to conversation partners
-  - "Archive" → moves item to Archived status (hidden from lists by default, no longer available)
+  - **"Remove from inventory"** → in-app **modal** (Material dialog): choose **Archive** and/or **Delete item** when allowed; each choice runs a **second confirmation** (native `Alert` or web `confirm`). Archive hides the item from the default list; delete removes the row when status permits (not Loaned/Reserved).
+  - **"Restore to inventory"** (archived only) → confirmation → status **Stored** (back in default list).
   - When Loaned: show borrower info + "Mark as Returned" instead
-  - When Donated/Sold/Archived: item remains in inventory list with dimmed appearance. "Delete" available. Archived items can be "Unarchived" (→ Stored).
+  - When Donated/Sold/Archived: item remains findable via terminal filter where applicable; archived items see **Restore** + **Remove from inventory** (delete path inside modal when allowed).
 
 ### 3.7 Add / Edit Item Form
 

@@ -272,6 +272,6 @@ describe('ItemForm', () => {
       />,
     );
 
-    expect(getByText('Remove from Bin')).toBeTruthy();
+    expect(getByText('Remove from inventory')).toBeTruthy();
   });
 });

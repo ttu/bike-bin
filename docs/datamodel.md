@@ -30,6 +30,8 @@ The TS model also carries `thumbnailStoragePath` — this is **not** a DB column
 
 Related: **`item_photos`**, **`item_groups`** (many-to-many with `groups`).
 
+**Lifecycle (app):** Owners may set `status` to **`archived`** or back to **`stored`** (unarchive) when RLS allows updates — see `items_update_own` (not loaned/reserved) and migration **`00029`** for borrow-lock exceptions. Product behavior for **Remove from inventory** / **Restore** is documented in [design-docs/003-inventory.md](design-docs/003-inventory.md).
+
 ### `item_photos` → `ItemPhoto`
 
 Ordered photos for an item; `storage_path` points at Supabase Storage.

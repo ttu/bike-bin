@@ -20,6 +20,10 @@ export function canDelete(item: Pick<Item, 'status'>): boolean {
   return !NON_DELETABLE_STATUSES.has(item.status);
 }
 
+export function canUnarchive(item: Pick<Item, 'status'>): boolean {
+  return item.status === ItemStatus.Archived;
+}
+
 export function canEditAvailability(item: Pick<Item, 'status'>): boolean {
   return !NON_DELETABLE_STATUSES.has(item.status);
 }

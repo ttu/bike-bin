@@ -133,20 +133,22 @@ To protect privacy and support discovery, listings use a **general area** for pi
 
 Items can have the following states:
 
-| Status       | Description                    |
-| ------------ | ------------------------------ |
-| **Stored**   | Item is available in inventory |
-| **Mounted**  | Installed on a bike            |
-| **Loaned**   | Currently borrowed by someone  |
-| **Reserved** | Someone requested the item     |
-| **Donated**  | Given away                     |
-| **Sold**     | Item sold                      |
-| **Archived** | No longer tracked              |
+| Status       | Description                                                                                               |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| **Stored**   | Item is available in inventory                                                                            |
+| **Mounted**  | Installed on a bike                                                                                       |
+| **Loaned**   | Currently borrowed by someone                                                                             |
+| **Reserved** | Someone requested the item                                                                                |
+| **Donated**  | Given away                                                                                                |
+| **Sold**     | Item sold                                                                                                 |
+| **Archived** | Hidden from the default inventory list; can be **restored** to active inventory or **deleted** (see §3.4) |
 
 ### 3.4 Editing and Deleting Items
 
 - Items can be **edited** at any time (name, description, photos, condition, etc.).
 - **Availability type** can be changed unless the item is currently **Loaned** or **Reserved** (active transaction must be completed or cancelled first).
+- **Remove from inventory** (item detail): user chooses **archive** and/or **delete** when allowed — each action is confirmed separately. **Archive** moves the item to **Archived**; **delete** permanently removes the row when permitted.
+- **Restore to inventory** (item detail, archived items only): returns the item to **Stored** so it appears in the default list again and can be edited like other active items.
 - Items can be **deleted** (permanently removed) only when status is Stored, Mounted, Donated, Sold, or Archived — not while Loaned or Reserved.
 - Deleting an item removes it from search results and closes any open conversations about it (with a notification to the other party).
 
