@@ -63,7 +63,7 @@
     "broken": "Broken"
   },
   "availability": {
-    "borrowable": "Borrowable",
+    "borrowable": "Borrow",
     "donatable": "Donate",
     "sellable": "Sell"
   },

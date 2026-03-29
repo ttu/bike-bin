@@ -20,9 +20,9 @@
     "send": "Send",
     "viewItem": "View",
     "itemAvailability": {
-      "borrowable": "Available to borrow",
-      "donatable": "Available to donate",
-      "sellable": "Available to sell",
+      "borrowable": "Borrow",
+      "donatable": "Donate",
+      "sellable": "Sell",
       "private": "Private"
     },
     "loadMore": "Load older messages"

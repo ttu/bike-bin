@@ -51,7 +51,7 @@ describe('ListingDetail', () => {
       availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Donatable],
     });
     const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(getByText('Donate')).toBeTruthy();
   });
 

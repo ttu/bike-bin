@@ -62,10 +62,10 @@ describe('ItemForm', () => {
   it('renders availability checkboxes with Private first', () => {
     const { getByText, getAllByText } = renderWithProviders(<ItemForm {...defaultProps} />);
     expect(getByText('Private')).toBeTruthy();
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(getByText('Donate')).toBeTruthy();
     expect(getByText('Sell')).toBeTruthy();
-    const row = getAllByText(/Private|Borrowable|Donate|Sell/);
+    const row = getAllByText(/Private|Borrow|Donate|Sell/);
     expect(row[0].props.children).toBe('Private');
   });
 
@@ -106,12 +106,12 @@ describe('ItemForm', () => {
     expect(getByText('Price')).toBeTruthy();
   });
 
-  it('shows deposit/duration when Borrowable is selected', () => {
+  it('shows deposit/duration when Borrow is selected', () => {
     const { getByText, queryByText } = renderWithProviders(<ItemForm {...defaultProps} />);
 
     expect(queryByText('Deposit')).toBeNull();
 
-    fireEvent.press(getByText('Borrowable'));
+    fireEvent.press(getByText('Borrow'));
     expect(getByText('Deposit')).toBeTruthy();
     expect(getByText('Suggested duration')).toBeTruthy();
   });

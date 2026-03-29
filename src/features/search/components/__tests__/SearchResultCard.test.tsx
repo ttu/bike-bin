@@ -43,7 +43,7 @@ describe('SearchResultCard', () => {
       price: 25,
     });
     const { getByText } = renderWithProviders(<SearchResultCard item={item} />);
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(getByText(/Sell ·/)).toBeTruthy();
   });
 

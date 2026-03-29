@@ -61,7 +61,7 @@ describe('ItemDetail', () => {
 
   it('renders availability chips', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(getByText('Sell')).toBeTruthy();
   });
 

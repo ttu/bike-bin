@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
@@ -118,14 +117,13 @@ describe('ConversationDetailScreen', () => {
     });
   });
 
-  it('defers Alert after opening mark donated so confirmation is not swallowed', () => {
+  it('defers ConfirmDialog after opening mark donated so confirmation is not swallowed', () => {
     const setTimeoutSpy = jest
       .spyOn(global, 'setTimeout')
       .mockImplementation((fn: TimerHandler) => {
         if (typeof fn === 'function') fn();
         return 0 as unknown as ReturnType<typeof setTimeout>;
       });
-    const alertSpy = jest.spyOn(Alert, 'alert');
     conversationQueryState.data = {
       ...mockConversation,
       itemId: 'item-1' as ItemId,
@@ -139,9 +137,8 @@ describe('ConversationDetailScreen', () => {
     fireEvent.press(getByLabelText('More actions'));
     fireEvent.press(getByText('Mark as Donated'));
 
-    expect(alertSpy).toHaveBeenCalled();
+    expect(getByText('Mark as donated?')).toBeTruthy();
 
     setTimeoutSpy.mockRestore();
-    alertSpy.mockRestore();
   });
 });

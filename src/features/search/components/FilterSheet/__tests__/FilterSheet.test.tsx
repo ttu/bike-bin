@@ -51,7 +51,7 @@ describe('FilterSheet', () => {
   it('renders offer type chips', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(getByText('Donate')).toBeTruthy();
     expect(getByText('Sell')).toBeTruthy();
   });
@@ -73,7 +73,7 @@ describe('FilterSheet', () => {
   it('calls onOfferTypesChange when offer type chip pressed', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
-    fireEvent.press(getByText('Borrowable'));
+    fireEvent.press(getByText('Borrow'));
     expect(props.onOfferTypesChange).toHaveBeenCalledWith(['borrowable']);
   });
 

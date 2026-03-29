@@ -69,7 +69,7 @@ describe('ItemCard', () => {
 
   it('renders availability chips', () => {
     const { getByText } = renderWithProviders(<ItemCard item={baseItem} />);
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(getByText('Sell')).toBeTruthy();
   });
 
@@ -79,7 +79,7 @@ describe('ItemCard', () => {
       availabilityTypes: [AvailabilityType.Private, AvailabilityType.Borrowable],
     });
     const { getByText, queryByText } = renderWithProviders(<ItemCard item={item} />);
-    expect(getByText('Borrowable')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
     expect(queryByText('Private')).toBeNull();
   });
 
@@ -108,7 +108,7 @@ describe('ItemCard', () => {
     });
     const { queryByText } = renderWithProviders(<ItemCard item={item} compact />);
     expect(queryByText(/Components · Drivetrain/)).toBeNull();
-    expect(queryByText('Borrowable')).toBeNull();
+    expect(queryByText('Borrow')).toBeNull();
     expect(queryByText('tag-one')).toBeNull();
   });
 

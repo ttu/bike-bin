@@ -22,7 +22,7 @@ test.describe('Inventory list with data', () => {
   });
 
   test('shows availability chips', async ({ loggedInPage }) => {
-    await expect(loggedInPage.getByText('Borrowable').first()).toBeVisible();
+    await expect(loggedInPage.getByText('Borrow').first()).toBeVisible();
     await expect(loggedInPage.getByText('Sell').first()).toBeVisible();
     await expect(loggedInPage.getByText('Donate').first()).toBeVisible();
   });

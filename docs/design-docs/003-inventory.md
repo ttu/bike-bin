@@ -148,10 +148,10 @@ Actions on item detail are gated by both **status** and **availability types**:
 
 | Action                    | Requires availability | Status gate                                     |
 | ------------------------- | --------------------- | ----------------------------------------------- |
-| Mark sold                 | Sellable              | Stored or mounted                               |
-| Mark donated              | Donatable             | Stored or mounted                               |
-| Mark loaned               | Borrowable            | Stored or mounted                               |
-| Mark returned             | Borrowable            | Loaned                                          |
+| Mark sold                 | Sell                  | Stored or mounted                               |
+| Mark donated              | Donate                | Stored or mounted                               |
+| Mark loaned               | Borrow                | Stored or mounted                               |
+| Mark returned             | Borrow                | Loaned                                          |
 | **Restore to inventory**  | —                     | **Archived** only → sets **stored** (unarchive) |
 | **Remove from inventory** | —                     | Opens chooser dialog (see below)                |
 
