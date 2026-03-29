@@ -21,6 +21,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
@@ -242,7 +243,7 @@ export default function GroupsScreen() {
       ]}
     >
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button">
+        <Pressable onPress={() => tabScopedBack('/(tabs)/profile')} accessibilityRole="button">
           <MaterialCommunityIcons
             name="arrow-left"
             size={iconSize.md}

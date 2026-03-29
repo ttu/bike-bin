@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet } from 'react-native';
 import { IconButton, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Bike } from '@/shared/types';
 import { useBikes } from '@/features/bikes';
@@ -37,7 +38,11 @@ export default function BikesScreen() {
       ]}
     >
       <View style={styles.header}>
-        <IconButton icon="arrow-left" onPress={() => router.back()} style={styles.backButton} />
+        <IconButton
+          icon="arrow-left"
+          onPress={() => tabScopedBack('/(tabs)/inventory')}
+          style={styles.backButton}
+        />
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
           {t('title')}
         </Text>

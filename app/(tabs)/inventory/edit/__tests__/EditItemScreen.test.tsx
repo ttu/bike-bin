@@ -14,8 +14,10 @@ import EditItemScreen from '../[id]';
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'item-123' }),
   router: {
-    back: jest.fn(),
     push: jest.fn(),
+    canDismiss: () => true,
+    dismiss: jest.fn(),
+    replace: jest.fn(),
   },
 }));
 

@@ -3,17 +3,22 @@ import { Alert } from 'react-native';
 import { renderWithProviders } from '@/test/utils';
 import ListingDetailScreen from '../[id]';
 
-const mockRouterBack = jest.fn();
 const mockRouterPush = jest.fn();
+const mockRouterReplace = jest.fn();
+const mockDismiss = jest.fn();
+const mockCanDismiss = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'item-1' }),
   useRouter: () => ({
-    canGoBack: () => true,
-    back: mockRouterBack,
     push: mockRouterPush,
-    replace: jest.fn(),
+    replace: mockRouterReplace,
   }),
+  router: {
+    canDismiss: () => mockCanDismiss(),
+    dismiss: (...args: unknown[]) => mockDismiss(...args),
+    replace: (...args: unknown[]) => mockRouterReplace(...args),
+  },
 }));
 
 jest.mock('react-native-safe-area-context', () => {
@@ -107,6 +112,22 @@ jest.mock('@/features/borrow', () => ({
 describe('ListingDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCanDismiss.mockReturnValue(true);
+  });
+
+  it('calls dismiss(1) on back when tab stack can dismiss', () => {
+    const { getByLabelText } = renderWithProviders(<ListingDetailScreen />);
+    fireEvent.press(getByLabelText('Back'));
+    expect(mockDismiss).toHaveBeenCalledWith(1);
+    expect(mockRouterReplace).not.toHaveBeenCalled();
+  });
+
+  it('replaces to search index on back when tab stack cannot dismiss', () => {
+    mockCanDismiss.mockReturnValue(false);
+    const { getByLabelText } = renderWithProviders(<ListingDetailScreen />);
+    fireEvent.press(getByLabelText('Back'));
+    expect(mockRouterReplace).toHaveBeenCalledWith('/(tabs)/search');
+    expect(mockDismiss).not.toHaveBeenCalled();
   });
 
   it('renders without crashing when photos have storagePath', () => {

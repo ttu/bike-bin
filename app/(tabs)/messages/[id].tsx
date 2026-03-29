@@ -31,6 +31,7 @@ import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
 import { LoadingScreen } from '@/shared/components';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -189,11 +190,7 @@ export default function ConversationDetailScreen() {
       >
         {/* Header */}
         <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-          <Appbar.BackAction
-            onPress={() =>
-              router.canGoBack() ? router.back() : router.replace('/(tabs)/messages')
-            }
-          />
+          <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/messages')} />
           <Pressable
             style={styles.headerContent}
             onPress={handleOpenProfile}

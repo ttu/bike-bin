@@ -3,7 +3,8 @@ import { Alert, Image, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useItem,
@@ -42,7 +43,7 @@ export default function EditItemScreen() {
 
   const handleSave = async (data: ItemFormData) => {
     await updateItem.mutateAsync({ ...data, id: itemId });
-    router.back();
+    tabScopedBack('/(tabs)/inventory');
   };
 
   const handleAddPhoto = useCallback(() => {
@@ -100,7 +101,7 @@ export default function EditItemScreen() {
 
     const doDelete = async () => {
       await deleteItem.mutateAsync({ id: item.id, status: item.status });
-      router.back();
+      tabScopedBack('/(tabs)/inventory');
     };
 
     if (Platform.OS === 'web') {
@@ -201,7 +202,7 @@ export default function EditItemScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
         <Appbar.Content title={t('editItem')} />
         <Appbar.Action icon="dots-vertical" onPress={() => {}} />
       </Appbar.Header>

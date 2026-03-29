@@ -2,6 +2,7 @@ import { FlatList, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { LoadingScreen } from '@/shared/components';
@@ -69,7 +70,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
         <Appbar.Content title={t('title')} />
       </Appbar.Header>
 

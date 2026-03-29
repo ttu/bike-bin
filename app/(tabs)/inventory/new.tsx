@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useAuth } from '@/features/auth';
 import { useLocalInventory } from '@/features/auth/hooks/useLocalInventory';
 import { useCreateItem } from '@/features/inventory';
@@ -76,7 +77,7 @@ export default function NewItemScreen() {
           thumbnailStoragePath: undefined,
         });
       }
-      router.back();
+      tabScopedBack('/(tabs)/inventory');
     } finally {
       setIsSaving(false);
     }
@@ -96,7 +97,7 @@ export default function NewItemScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
         <Appbar.Content title={t('addItem')} />
       </Appbar.Header>
       <ItemForm

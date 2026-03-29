@@ -6,14 +6,15 @@ import { BikeType } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
 import EditBikeScreen from '../../edit/[id]';
 
-const mockRouterBack = jest.fn();
 const mockRouterNavigate = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'bike-123' }),
   router: {
-    back: (...args: unknown[]) => mockRouterBack(...args),
     navigate: (...args: unknown[]) => mockRouterNavigate(...args),
+    canDismiss: () => true,
+    dismiss: jest.fn(),
+    replace: jest.fn(),
   },
 }));
 

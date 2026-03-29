@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import type { BikeId } from '@/shared/types';
 import {
@@ -35,7 +36,7 @@ export default function EditBikeScreen() {
         { id: bikeId, ...data },
         {
           onSuccess: () => {
-            router.back();
+            tabScopedBack('/(tabs)/inventory/bikes');
           },
         },
       );
@@ -101,7 +102,7 @@ export default function EditBikeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory/bikes')} />
         <Appbar.Content title={t('editBike')} />
       </Appbar.Header>
       <BikeForm

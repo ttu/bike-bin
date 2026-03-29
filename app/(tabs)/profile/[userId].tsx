@@ -18,6 +18,7 @@ import {
   encodeReturnPath,
   isSafeTabReturnPath,
 } from '@/shared/utils/returnPath';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { usePublicProfile, usePublicListings } from '@/features/profile';
 import { useUserRatings } from '@/features/ratings/hooks/useUserRatings';
 import { ReviewCard } from '@/features/ratings/components/ReviewCard/ReviewCard';
@@ -35,11 +36,7 @@ export default function PublicUserProfileScreen() {
       router.replace(decoded as Href);
       return;
     }
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/(tabs)/profile');
+    tabScopedBack('/(tabs)/profile');
   }, [returnPath, router]);
   const { user } = useAuth();
   const [reportVisible, setReportVisible] = useState(false);

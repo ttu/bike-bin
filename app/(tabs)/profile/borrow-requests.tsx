@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Alert, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
@@ -189,7 +189,7 @@ export default function BorrowRequestsScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button">
+        <Pressable onPress={() => tabScopedBack('/(tabs)/profile')} accessibilityRole="button">
           <MaterialCommunityIcons
             name="arrow-left"
             size={iconSize.md}

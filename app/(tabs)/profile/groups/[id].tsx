@@ -3,7 +3,8 @@ import { View, StyleSheet, Alert, Pressable, ScrollView } from 'react-native';
 import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
@@ -114,7 +115,7 @@ export default function GroupDetailScreen() {
         onPress: async () => {
           try {
             await deleteGroup.mutateAsync(groupId);
-            router.back();
+            tabScopedBack('/(tabs)/profile/groups');
           } catch {
             Alert.alert('Error', 'Failed to delete group');
           }
@@ -139,7 +140,7 @@ export default function GroupDetailScreen() {
         onPress: async () => {
           try {
             await leaveGroup.mutateAsync(groupId);
-            router.back();
+            tabScopedBack('/(tabs)/profile/groups');
           } catch {
             Alert.alert('Error', 'Failed to leave group');
           }
@@ -291,7 +292,10 @@ export default function GroupDetailScreen() {
       ]}
     >
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button">
+        <Pressable
+          onPress={() => tabScopedBack('/(tabs)/profile/groups')}
+          accessibilityRole="button"
+        >
           <MaterialCommunityIcons
             name="arrow-left"
             size={iconSize.md}

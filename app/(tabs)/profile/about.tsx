@@ -1,14 +1,13 @@
 import { Linking, ScrollView, StyleSheet } from 'react-native';
 import { Appbar, List, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import { spacing } from '@/shared/theme';
 
 export default function AboutScreen() {
   const theme = useTheme();
-  const router = useRouter();
   const { t } = useTranslation('profile');
 
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
@@ -19,7 +18,7 @@ export default function AboutScreen() {
       edges={['bottom', 'left', 'right']}
     >
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('about.title')} />
       </Appbar.Header>
 

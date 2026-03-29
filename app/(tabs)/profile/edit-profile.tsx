@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
 import { Text, TextInput, Button, Avatar, Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -13,7 +13,6 @@ import type { UserId } from '@/shared/types';
 export default function EditProfileScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('profile');
-  const router = useRouter();
   const { user } = useAuth();
   const userId = (user?.id ?? '') as UserId;
 
@@ -28,10 +27,10 @@ export default function EditProfileScreen() {
       {
         onSuccess: () => {
           if (Platform.OS === 'web') {
-            router.back();
+            tabScopedBack('/(tabs)/profile');
           } else {
             Alert.alert(t('editScreen.successTitle'), t('editScreen.successMessage'), [
-              { text: 'OK', onPress: () => router.back() },
+              { text: 'OK', onPress: () => tabScopedBack('/(tabs)/profile') },
             ]);
           }
         },
@@ -52,7 +51,7 @@ export default function EditProfileScreen() {
       edges={['bottom']}
     >
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('editScreen.title')} />
       </Appbar.Header>
 

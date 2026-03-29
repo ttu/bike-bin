@@ -6,16 +6,16 @@ import { BikeType } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
 import BikeDetailScreen from '../[id]';
 
-const mockRouterBack = jest.fn();
 const mockRouterPush = jest.fn();
+const mockDismiss = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'bike-123' }),
   router: {
-    back: (...args: unknown[]) => mockRouterBack(...args),
     push: (...args: unknown[]) => mockRouterPush(...args),
     replace: jest.fn(),
-    canGoBack: () => true,
+    canDismiss: () => true,
+    dismiss: (...args: unknown[]) => mockDismiss(...args),
   },
 }));
 
@@ -81,11 +81,11 @@ describe('BikeDetailScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders back button that calls router.back', () => {
+  it('renders back button that calls router.dismiss(1)', () => {
     const { getByLabelText } = renderWithProviders(<BikeDetailScreen />);
     const backButton = getByLabelText('Back');
     fireEvent.press(backButton);
-    expect(mockRouterBack).toHaveBeenCalledTimes(1);
+    expect(mockDismiss).toHaveBeenCalledWith(1);
   });
 
   it('renders edit button that navigates to edit screen', () => {

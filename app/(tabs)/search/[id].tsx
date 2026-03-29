@@ -9,6 +9,7 @@ import {
   encodeReturnPath,
   isSafeTabReturnPath,
 } from '@/shared/utils/returnPath';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { AppTheme } from '@/shared/theme';
 import { LoadingScreen } from '@/shared/components';
 import { ListingDetail, useListingDetail } from '@/features/search';
@@ -64,11 +65,7 @@ export default function ListingDetailScreen() {
       router.replace(decoded as Href);
       return;
     }
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/(tabs)/search');
+    tabScopedBack('/(tabs)/search');
   };
 
   const handleRequestBorrow = () => {

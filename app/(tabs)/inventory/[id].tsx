@@ -1,6 +1,7 @@
 import { Alert, Platform, View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import { useItem, useItemPhotos, useUpdateItemStatus, useDeleteItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
@@ -68,11 +69,7 @@ export default function ItemDetailScreen() {
   const handleDelete = () => {
     const doDelete = async () => {
       await deleteItem.mutateAsync({ id: item.id, status: item.status });
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/(tabs)/inventory');
-      }
+      tabScopedBack('/(tabs)/inventory');
     };
 
     if (Platform.OS === 'web') {
@@ -90,9 +87,7 @@ export default function ItemDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/inventory'))}
-        />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="pencil"

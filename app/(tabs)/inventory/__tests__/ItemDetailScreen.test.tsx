@@ -6,17 +6,17 @@ import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/sha
 import type { ItemId } from '@/shared/types';
 import ItemDetailScreen from '../[id]';
 
-const mockRouterBack = jest.fn();
 const mockRouterReplace = jest.fn();
-const mockCanGoBack = jest.fn();
+const mockDismiss = jest.fn();
+const mockCanDismiss = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'item-123' }),
   router: {
-    back: (...args: unknown[]) => mockRouterBack(...args),
     replace: (...args: unknown[]) => mockRouterReplace(...args),
     push: jest.fn(),
-    canGoBack: () => mockCanGoBack(),
+    canDismiss: () => mockCanDismiss(),
+    dismiss: (...args: unknown[]) => mockDismiss(...args),
   },
 }));
 
@@ -83,31 +83,31 @@ describe('ItemDetailScreen back navigation', () => {
     jest.clearAllMocks();
   });
 
-  it('calls router.back() when history exists', () => {
-    mockCanGoBack.mockReturnValue(true);
+  it('calls router.dismiss(1) when tab stack can dismiss', () => {
+    mockCanDismiss.mockReturnValue(true);
     const { getByRole } = renderWithProviders(<ItemDetailScreen />);
 
     fireEvent.press(getByRole('button', { name: 'Back' }));
 
-    expect(mockRouterBack).toHaveBeenCalled();
+    expect(mockDismiss).toHaveBeenCalledWith(1);
     expect(mockRouterReplace).not.toHaveBeenCalled();
   });
 
-  it('replaces to inventory index when no history exists', () => {
-    mockCanGoBack.mockReturnValue(false);
+  it('replaces to inventory index when tab stack cannot dismiss', () => {
+    mockCanDismiss.mockReturnValue(false);
     const { getByRole } = renderWithProviders(<ItemDetailScreen />);
 
     fireEvent.press(getByRole('button', { name: 'Back' }));
 
     expect(mockRouterReplace).toHaveBeenCalledWith('/(tabs)/inventory');
-    expect(mockRouterBack).not.toHaveBeenCalled();
+    expect(mockDismiss).not.toHaveBeenCalled();
   });
 });
 
 describe('ItemDetailScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCanGoBack.mockReturnValue(true);
+    mockCanDismiss.mockReturnValue(true);
   });
 
   it('shows confirmation before deleting item', () => {

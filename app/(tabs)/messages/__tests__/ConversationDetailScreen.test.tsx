@@ -7,15 +7,20 @@ import type { ConversationListItem } from '@/features/messaging/types';
 import type { ConversationId, ItemId, UserId } from '@/shared/types';
 
 const mockRouterPush = jest.fn();
+const mockRouterReplace = jest.fn();
+const mockDismiss = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'conv-1' }),
   useRouter: () => ({
-    canGoBack: () => true,
-    back: jest.fn(),
     push: mockRouterPush,
-    replace: jest.fn(),
+    replace: mockRouterReplace,
   }),
+  router: {
+    canDismiss: () => true,
+    dismiss: (...args: unknown[]) => mockDismiss(...args),
+    replace: (...args: unknown[]) => mockRouterReplace(...args),
+  },
 }));
 
 jest.mock('react-native-safe-area-context', () => {

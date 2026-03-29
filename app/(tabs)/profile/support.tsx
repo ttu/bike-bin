@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Platform, Alert } from 'react-native';
 import { Text, TextInput, Button, Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -12,7 +12,6 @@ import type { UserId } from '@/shared/types';
 
 export default function SupportScreen() {
   const theme = useTheme();
-  const router = useRouter();
   const { t } = useTranslation('profile');
   const { user } = useAuth();
 
@@ -48,7 +47,7 @@ export default function SupportScreen() {
       {
         onSuccess: () => {
           Alert.alert(t('support.successTitle'), t('support.successMessage'), [
-            { text: 'OK', onPress: () => router.back() },
+            { text: 'OK', onPress: () => tabScopedBack('/(tabs)/profile') },
           ]);
         },
         onError: () => {
@@ -64,7 +63,7 @@ export default function SupportScreen() {
       edges={['bottom', 'left', 'right']}
     >
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('support.title')} />
       </Appbar.Header>
 
