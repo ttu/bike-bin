@@ -103,7 +103,7 @@ export const SUBCATEGORY_ICONS: Record<string, string> = {
   tire_levers: 'arrow-up-bold',
   pumps: 'air-filter',
   torque_wrenches: 'speedometer',
-  stands: 'easel',
+  stands: 'tools',
   cleaning: 'spray-bottle',
   measurement: 'ruler',
   other_tool: 'dots-horizontal',

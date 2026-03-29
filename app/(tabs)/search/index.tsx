@@ -43,6 +43,16 @@ function SearchScreenContent() {
   const effectiveHasSearched = isDemoMode || hasSearched;
   const effectiveIsLoading = isDemoMode ? false : isLoading;
 
+  const handleQueryChange = useCallback(
+    (query: string) => {
+      updateFilters({ query });
+      if (query.trim().length === 0) {
+        setHasSearched(false);
+      }
+    },
+    [updateFilters],
+  );
+
   const handleSubmit = useCallback(() => {
     if (filters.query.trim().length > 0) {
       setHasSearched(true);
@@ -105,7 +115,7 @@ function SearchScreenContent() {
       {/* Search bar */}
       <SearchBar
         query={filters.query}
-        onQueryChange={(query) => updateFilters({ query })}
+        onQueryChange={handleQueryChange}
         onSubmit={handleSubmit}
         areaName={primaryLocation?.areaName}
         distanceKm={filters.maxDistanceKm}

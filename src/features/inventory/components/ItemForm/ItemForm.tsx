@@ -528,9 +528,7 @@ export function ItemForm({
             activeUnderlineColor={activeUnderlineColor}
           />
           {brandMenuVisible && filteredBrands.length > 0 && (
-            <View
-              style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}
-            >
+            <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
               <ScrollView
                 style={styles.suggestionsList}
                 keyboardShouldPersistTaps="handled"
@@ -890,9 +888,7 @@ export function ItemForm({
             activeUnderlineColor={activeUnderlineColor}
           />
           {storageMenuVisible && existingStorageLocations.length > 0 && (
-            <View
-              style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}
-            >
+            <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
               <ScrollView
                 style={styles.suggestionsList}
                 keyboardShouldPersistTaps="handled"
@@ -901,8 +897,7 @@ export function ItemForm({
                 {existingStorageLocations
                   .filter(
                     (loc) =>
-                      !storageLocation ||
-                      loc.toLowerCase().includes(storageLocation.toLowerCase()),
+                      !storageLocation || loc.toLowerCase().includes(storageLocation.toLowerCase()),
                   )
                   .map((loc) => (
                     <Pressable
@@ -973,9 +968,7 @@ export function ItemForm({
                 return;
               }
               setTagInput(text);
-              setTagSuggestionsVisible(
-                text.trim().length > 0 && filteredTagSuggestions.length > 0,
-              );
+              setTagSuggestionsVisible(text.trim().length > 0 && filteredTagSuggestions.length > 0);
             }}
             onFocus={() => {
               if (tagInput.trim() && filteredTagSuggestions.length > 0) {
@@ -998,9 +991,7 @@ export function ItemForm({
             returnKeyType="done"
           />
           {tagSuggestionsVisible && filteredTagSuggestions.length > 0 && (
-            <View
-              style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}
-            >
+            <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
               <ScrollView
                 style={styles.suggestionsList}
                 keyboardShouldPersistTaps="handled"
@@ -1041,7 +1032,8 @@ export function ItemForm({
         {showOptional && (
           <View style={styles.optionalSection}>
             {renderAgeField()}
-            {category !== ItemCategory.Consumable && renderUsageField()}
+            {(category === ItemCategory.Component || category === ItemCategory.Accessory) &&
+              renderUsageField()}
             {renderStorageField()}
             {renderDescriptionField()}
             {renderTagsField()}

@@ -8,34 +8,34 @@ The core feature of Bike Bin. Users manage their personal collection of bike par
 
 ### items table
 
-| Column             | Type                        | Description                                                |
-| ------------------ | --------------------------- | ---------------------------------------------------------- |
-| id                 | uuid (PK)                   | ItemId branded type                                        |
-| owner_id           | uuid (FK → profiles)        | Item owner                                                 |
-| name               | text                        | Item name                                                  |
-| category           | item_category enum          | component, tool, accessory, consumable, clothing, bike     |
-| subcategory        | text                        | Free-text subcategory within parent category               |
+| Column             | Type                        | Description                                                                             |
+| ------------------ | --------------------------- | --------------------------------------------------------------------------------------- |
+| id                 | uuid (PK)                   | ItemId branded type                                                                     |
+| owner_id           | uuid (FK → profiles)        | Item owner                                                                              |
+| name               | text                        | Item name                                                                               |
+| category           | item_category enum          | component, tool, accessory, consumable, clothing, bike                                  |
+| subcategory        | text                        | Free-text subcategory within parent category                                            |
 | condition          | item_condition enum         | new, good, worn, broken (consumables default to good in DB; UI uses remaining_fraction) |
-| remaining_fraction | numeric                     | For consumables: fraction left 0–1; NULL otherwise         |
-| status             | item_status enum            | stored, mounted, loaned, reserved, donated, sold, archived |
-| availability_types | text[]                      | Array of: borrowable, donatable, sellable, private         |
-| visibility         | item_visibility enum        | private, groups, all                                       |
-| brand              | text                        | Manufacturer/brand                                         |
-| model              | text                        | Model name                                                 |
-| description        | text                        | Free-text description                                      |
-| price              | numeric                     | Selling price (required when sellable)                     |
-| deposit            | numeric                     | Borrow deposit amount                                      |
-| borrow_duration    | text                        | Suggested borrow duration                                  |
-| storage_location   | text                        | Where the item is stored                                   |
-| age                | text                        | Predefined age range key                                   |
-| usage_km           | numeric                     | Usage in kilometers                                        |
-| usage_unit         | text                        | Unit for usage                                             |
-| purchase_date      | date                        | Purchase date                                              |
-| pickup_location_id | uuid (FK → saved_locations) | Pickup location                                            |
-| bike_id            | uuid (FK → bikes)           | Bike this part is mounted on                               |
-| tags               | text[]                      | Private user tags (max 20)                                 |
-| created_at         | timestamptz                 | Creation timestamp                                         |
-| updated_at         | timestamptz                 | Last update timestamp                                      |
+| remaining_fraction | numeric                     | For consumables: fraction left 0–1; NULL otherwise                                      |
+| status             | item_status enum            | stored, mounted, loaned, reserved, donated, sold, archived                              |
+| availability_types | text[]                      | Array of: borrowable, donatable, sellable, private                                      |
+| visibility         | item_visibility enum        | private, groups, all                                                                    |
+| brand              | text                        | Manufacturer/brand                                                                      |
+| model              | text                        | Model name                                                                              |
+| description        | text                        | Free-text description                                                                   |
+| price              | numeric                     | Selling price (required when sellable)                                                  |
+| deposit            | numeric                     | Borrow deposit amount                                                                   |
+| borrow_duration    | text                        | Suggested borrow duration                                                               |
+| storage_location   | text                        | Where the item is stored                                                                |
+| age                | text                        | Predefined age range key                                                                |
+| usage_km           | numeric                     | Usage in kilometers                                                                     |
+| usage_unit         | text                        | Unit for usage                                                                          |
+| purchase_date      | date                        | Purchase date                                                                           |
+| pickup_location_id | uuid (FK → saved_locations) | Pickup location                                                                         |
+| bike_id            | uuid (FK → bikes)           | Bike this part is mounted on                                                            |
+| tags               | text[]                      | Private user tags (max 20)                                                              |
+| created_at         | timestamptz                 | Creation timestamp                                                                      |
+| updated_at         | timestamptz                 | Last update timestamp                                                                   |
 
 ### item_photos table
 

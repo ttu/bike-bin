@@ -106,9 +106,7 @@ export function useCreateItem() {
           usage_km: formData.usageKm,
           usage_unit: formData.usageUnit,
           remaining_fraction:
-            formData.category === ItemCategory.Consumable
-              ? formData.remainingFraction
-              : null,
+            formData.category === ItemCategory.Consumable ? formData.remainingFraction : null,
           purchase_date: formData.purchaseDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility ?? 'private',

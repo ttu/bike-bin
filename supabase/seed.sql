@@ -163,6 +163,10 @@ INSERT INTO group_members (group_id, user_id, role, joined_at) VALUES
 INSERT INTO item_groups (item_id, group_id) VALUES
   ('d0000001-0004-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001');
 
+-- ── Consumable Remaining Fractions ─────────────────────────
+UPDATE items SET remaining_fraction = 0.5  WHERE id = 'd0000001-0008-4000-8000-000000000001'; -- Muc-Off Chain Lube: ~half bottle
+UPDATE items SET remaining_fraction = 0.67 WHERE id = 'd0000001-0005-4000-8000-000000000006'; -- Stan's Sealant: ~2/3 bottle
+
 -- ── Conversations ───────────────────────────────────────────
 
 -- Conv 1: Kai borrowing Test User's repair stand (MTB crew)

@@ -1,7 +1,4 @@
-import {
-  formatRemainingPercentField,
-  parseRemainingPercentInput,
-} from '../remainingFractionInput';
+import { formatRemainingPercentField, parseRemainingPercentInput } from '../remainingFractionInput';
 
 describe('parseRemainingPercentInput', () => {
   it('returns undefined for empty input', () => {

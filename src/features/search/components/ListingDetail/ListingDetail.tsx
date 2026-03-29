@@ -117,7 +117,6 @@ export function ListingDetail({
               icon="clock-outline"
               label={t('listing.detail.ageLabel')}
               value={durationText ?? ''}
-              theme={theme}
             />
           )}
         </View>

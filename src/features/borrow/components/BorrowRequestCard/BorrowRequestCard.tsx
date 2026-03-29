@@ -64,71 +64,79 @@ export function BorrowRequestCard({
   };
 
   return (
-    <Pressable
-      onPress={() => onPress?.(request)}
-      style={({ pressed }) => [
+    <View
+      style={[
         styles.container,
         {
-          backgroundColor: pressed ? theme.colors.surfaceVariant : theme.colors.surface,
+          backgroundColor: theme.colors.surface,
           borderColor: theme.colors.outlineVariant,
         },
       ]}
-      accessibilityLabel={`${t('card.itemLabel', { itemName: request.itemName })} - ${personLabel}`}
-      accessibilityRole="button"
     >
-      {/* Header row: avatar + person info + status badge */}
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          {personAvatarUrl ? (
-            <Avatar.Image size={40} source={{ uri: personAvatarUrl }} />
-          ) : (
-            <Avatar.Icon
-              size={40}
-              icon="account"
-              style={{ backgroundColor: theme.colors.surfaceVariant }}
-            />
-          )}
-        </View>
-
-        <View style={styles.headerContent}>
-          <Text variant="titleSmall" numberOfLines={1} style={{ color: theme.colors.onSurface }}>
-            {personLabel}
-          </Text>
-          <Text variant="bodySmall" numberOfLines={1} style={{ color: theme.colors.primary }}>
-            {request.itemName}
-          </Text>
-        </View>
-
-        <View
-          style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}
-          testID="status-badge"
-        >
-          <Text variant="labelSmall" style={{ color: statusColor.text }}>
-            {t(`card.status.${request.status}`)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Optional message */}
-      {request.message && (
-        <Text
-          variant="bodySmall"
-          numberOfLines={2}
-          style={[styles.message, { color: theme.colors.onSurfaceVariant }]}
-        >
-          {t('card.message', { message: request.message })}
-        </Text>
-      )}
-
-      {/* Timestamp */}
-      <Text
-        variant="labelSmall"
-        style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}
+      <Pressable
+        onPress={() => onPress?.(request)}
+        style={({ pressed }) => [
+          styles.pressableContent,
+          actions.length === 0 && { paddingBottom: spacing.base },
+          pressed && { backgroundColor: theme.colors.surfaceVariant },
+        ]}
+        accessibilityLabel={`${t('card.itemLabel', { itemName: request.itemName })} - ${personLabel}`}
+        accessibilityRole="button"
       >
-        {t('card.requestedAt', { time: formatRelativeTime(request.createdAt) })}
-      </Text>
+        {/* Header row: avatar + person info + status badge */}
+        <View style={styles.header}>
+          <View style={styles.avatarContainer}>
+            {personAvatarUrl ? (
+              <Avatar.Image size={40} source={{ uri: personAvatarUrl }} />
+            ) : (
+              <Avatar.Icon
+                size={40}
+                icon="account"
+                style={{ backgroundColor: theme.colors.surfaceVariant }}
+              />
+            )}
+          </View>
 
-      {/* Action buttons */}
+          <View style={styles.headerContent}>
+            <Text variant="titleSmall" numberOfLines={1} style={{ color: theme.colors.onSurface }}>
+              {personLabel}
+            </Text>
+            <Text variant="bodySmall" numberOfLines={1} style={{ color: theme.colors.primary }}>
+              {request.itemName}
+            </Text>
+          </View>
+
+          <View
+            style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}
+            testID="status-badge"
+          >
+            <Text variant="labelSmall" style={{ color: statusColor.text }}>
+              {t(`card.status.${request.status}`)}
+            </Text>
+          </View>
+        </View>
+
+        {/* Optional message */}
+        {request.message && (
+          <Text
+            variant="bodySmall"
+            numberOfLines={2}
+            style={[styles.message, { color: theme.colors.onSurfaceVariant }]}
+          >
+            {t('card.message', { message: request.message })}
+          </Text>
+        )}
+
+        {/* Timestamp */}
+        <Text
+          variant="labelSmall"
+          style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}
+        >
+          {t('card.requestedAt', { time: formatRelativeTime(request.createdAt) })}
+        </Text>
+      </Pressable>
+
+      {/* Action buttons — outside the Pressable to avoid nested <button> on web */}
       {actions.length > 0 && (
         <View style={styles.actions}>
           {actions.includes('accept') && (
@@ -173,7 +181,7 @@ export function BorrowRequestCard({
           )}
         </View>
       )}
-    </Pressable>
+    </View>
   );
 }
 
@@ -199,9 +207,14 @@ function getStatusColor(
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing.base,
     borderRadius: borderRadius.md,
     borderWidth: 1,
+    gap: spacing.sm,
+    overflow: 'hidden',
+  },
+  pressableContent: {
+    padding: spacing.base,
+    paddingBottom: 0,
     gap: spacing.sm,
   },
   header: {
@@ -231,7 +244,8 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: spacing.sm,
-    paddingTop: spacing.xs,
+    paddingHorizontal: spacing.base,
+    paddingBottom: spacing.base,
   },
   actionButton: {
     flex: 0,

@@ -21,6 +21,7 @@ import type { AppTheme } from '@/shared/theme';
 
 const MAX_GALLERY_WIDTH = 500;
 const ASPECT_RATIO = 0.75; // 4:3
+const PLACEHOLDER_MAX_HEIGHT = 280;
 
 interface PhotoGalleryProps {
   photos: GalleryPhoto[];
@@ -91,12 +92,13 @@ export function PhotoGallery({ photos, maxGalleryWidth }: PhotoGalleryProps) {
   );
 
   if (photos.length === 0) {
+    const placeholderHeight = Math.min(galleryHeight, PLACEHOLDER_MAX_HEIGHT);
     return (
       <View
         style={[
           styles.placeholder,
           themed.surfaceVariantBg,
-          { width: galleryWidth, height: galleryHeight },
+          { width: galleryWidth, height: placeholderHeight },
         ]}
       >
         <MaterialCommunityIcons

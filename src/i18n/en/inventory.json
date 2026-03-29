@@ -1,9 +1,11 @@
 {
   "title": "Inventory",
   "bikesLink": "Bikes →",
-  "searchPlaceholder": "Search {{count}} items in your collection...",
+  "searchPlaceholder_one": "Search {{count}} item in your collection...",
+  "searchPlaceholder_other": "Search {{count}} items in your collection...",
   "searchPlaceholderEmpty": "Search your collection...",
-  "showingItems": "Showing {{count}} items",
+  "showingItems_one": "Showing {{count}} item",
+  "showingItems_other": "Showing {{count}} items",
   "categoriesLabel": "Categories",
   "empty": {
     "title": "No items yet",

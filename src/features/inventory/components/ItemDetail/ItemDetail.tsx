@@ -142,8 +142,7 @@ export function ItemDetail({
             { backgroundColor: theme.customColors.surfaceContainerLow },
           ]}
         >
-          {item.category === ItemCategory.Consumable &&
-          item.remainingFraction !== undefined ? (
+          {item.category === ItemCategory.Consumable && item.remainingFraction !== undefined ? (
             <DetailCard
               icon="cup-outline"
               label={t('detail.remainingLabel')}
