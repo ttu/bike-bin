@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import { useItem, useItemPhotos, useUpdateItemStatus, useDeleteItem } from '@/features/inventory';
+import { useAcceptedBorrowRequestForItem, useMarkReturned } from '@/features/borrow';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetail';
 import { LoadingScreen } from '@/shared/components/LoadingScreen/LoadingScreen';
@@ -14,6 +15,7 @@ export default function ItemDetailScreen() {
   const theme = useTheme();
   const { t } = useTranslation('exchange');
   const { t: tInv } = useTranslation('inventory');
+  const { t: tBorrow } = useTranslation('borrow');
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: item, isLoading } = useItem(id as ItemId);
@@ -22,6 +24,11 @@ export default function ItemDetailScreen() {
   const deleteItem = useDeleteItem();
   const markDonated = useMarkDonated();
   const markSold = useMarkSold();
+  const markReturned = useMarkReturned();
+  const { data: acceptedBorrowRequestId, isFetching: isFetchingAcceptedBorrowRequest } =
+    useAcceptedBorrowRequestForItem(id as ItemId, {
+      enabled: !isLoading && item !== undefined && item.status === ItemStatus.Loaned,
+    });
 
   if (isLoading || !item) {
     return <LoadingScreen />;
@@ -84,6 +91,31 @@ export default function ItemDetailScreen() {
     }
   };
 
+  const handleMarkReturned = () => {
+    const run = () => {
+      if (acceptedBorrowRequestId != null) {
+        markReturned.mutate({ requestId: acceptedBorrowRequestId, itemId: item.id });
+      } else {
+        void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (
+        window.confirm(
+          `${tBorrow('confirm.markReturned.title')}\n${tBorrow('confirm.markReturned.message')}`,
+        )
+      ) {
+        run();
+      }
+    } else {
+      Alert.alert(tBorrow('confirm.markReturned.title'), tBorrow('confirm.markReturned.message'), [
+        { text: tBorrow('confirm.markReturned.cancel'), style: 'cancel' },
+        { text: tBorrow('confirm.markReturned.confirm'), onPress: run },
+      ]);
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
@@ -99,7 +131,8 @@ export default function ItemDetailScreen() {
         photos={photos ?? []}
         onMarkDonated={handleMarkDonated}
         onMarkSold={handleMarkSold}
-        onMarkReturned={() => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored })}
+        onMarkReturned={handleMarkReturned}
+        markReturnedLoading={item.status === ItemStatus.Loaned && isFetchingAcceptedBorrowRequest}
         onArchive={handleArchive}
         onDelete={handleDelete}
       />

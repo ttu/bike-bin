@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
+import { ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY } from './useAcceptedBorrowRequestForItem';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
 import type { BorrowRequestId, ItemId } from '@/shared/types';
 
@@ -40,6 +41,9 @@ export function useMarkReturned() {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [BORROW_REQUESTS_QUERY_KEY],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY],
       });
       void queryClient.invalidateQueries({
         queryKey: ['items'],

@@ -34,12 +34,15 @@ All database tables use Row Level Security (RLS) enforced at the PostgreSQL leve
 
 ### items
 
-| Policy                | Operation | Rule                                                                                 |
-| --------------------- | --------- | ------------------------------------------------------------------------------------ |
-| `items_select_public` | SELECT    | `visibility = 'all'` OR owner OR group member (via item_groups + group_members join) |
-| `items_insert_own`    | INSERT    | `auth.uid() = owner_id`                                                              |
-| `items_update_own`    | UPDATE    | `auth.uid() = owner_id` AND status NOT IN (loaned, reserved)                         |
-| `items_delete_own`    | DELETE    | `auth.uid() = owner_id` AND status NOT IN (loaned, reserved)                         |
+| Policy                                   | Operation | Rule                                                                                                    |
+| ---------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| `items_select_public`                    | SELECT    | `visibility = 'all'` OR owner OR group member (via item_groups + group_members join)                    |
+| `items_insert_own`                       | INSERT    | `auth.uid() = owner_id`                                                                                 |
+| `items_update_own`                       | UPDATE    | `auth.uid() = owner_id` AND status NOT IN (loaned, reserved)                                            |
+| `items_update_owner_release_borrow_lock` | UPDATE    | `auth.uid() = owner_id`; row currently loaned/reserved; **new** row status = `stored` (migration 00029) |
+| `items_delete_own`                       | DELETE    | `auth.uid() = owner_id` AND status NOT IN (loaned, reserved)                                            |
+
+**Borrow-locked edits (loaned / reserved):** Permissive RLS OR-combines `WITH CHECK` across policies, so an extra policy that only allows release to `stored` would still allow unrelated column changes while the row stays loaned. Migration **00029** adds trigger `trg_items_enforce_borrow_locked_update` (`enforce_item_no_edits_while_borrow_locked`) so that if status stays `loaned` or `reserved`, only `updated_at` may differ from the previous row.
 
 ### item_photos
 
@@ -91,11 +94,13 @@ Follows same pattern as item_photos — parent bike must be owned by user.
 
 ### borrow_requests
 
-| Policy                   | Operation | Rule                                         |
-| ------------------------ | --------- | -------------------------------------------- |
-| `borrow_requests_select` | SELECT    | Requester OR item owner                      |
-| `borrow_requests_insert` | INSERT    | `auth.uid() = requester_id` AND not own item |
-| `borrow_requests_update` | UPDATE    | Requester OR item owner                      |
+| Policy                   | Operation | Rule                                                             |
+| ------------------------ | --------- | ---------------------------------------------------------------- |
+| `borrow_requests_select` | SELECT    | Requester OR item owner                                          |
+| `borrow_requests_insert` | INSERT    | `auth.uid() = requester_id` AND not own item                     |
+| `borrow_requests_update` | UPDATE    | Requester OR item owner (same for `WITH CHECK`; migration 00030) |
+
+**Status transitions:** Migration **00019** added a `WITH CHECK` that compared “old” status using column references that, in PostgreSQL, resolve to the **new** row — so every transition failed (403 from PostgREST). Migration **00030** replaces that with a simple owner/requester `WITH CHECK` and enforces the state machine in trigger `trg_borrow_requests_enforce_update_rules` (`borrow_requests_enforce_update_rules`): e.g. owner pending→accepted/rejected, requester pending→cancelled, owner accepted→returned, requester accepted→cancelled; `item_id` / `requester_id` immutable; terminal statuses cannot change.
 
 ### conversations
 
@@ -170,7 +175,7 @@ Admin operations check `role = 'admin'` in group_members via EXISTS subqueries.
 
 ### Status Guards (Items)
 
-UPDATE and DELETE blocked when status is `loaned` or `reserved` — prevents modifying items during active transactions.
+DELETE is blocked when status is `loaned` or `reserved`. **UPDATE** while loaned/reserved is limited: owners may set status to `stored` (return / release) via `items_update_owner_release_borrow_lock`; other edits while the row stays borrow-locked are blocked by `trg_items_enforce_borrow_locked_update` (see items table above).
 
 ## Integration Testing
 
@@ -199,7 +204,6 @@ UPDATE and DELETE blocked when status is `loaned` or `reserved` — prevents mod
 
 ## Known Gaps & Limitations
 
-- **Borrow request state machine:** UPDATE policy allows both requester and owner to update, but doesn't enforce valid state transitions at the RLS level (e.g., only owner should accept). Transitions are enforced in application code.
 - **Conversation creation chicken-and-egg:** INSERT requires authenticated user but SELECT requires being a participant — conversation creator can't see it until participants are added.
 - **Tags privacy:** Tags column is technically readable via item SELECT policies even by non-owners. Privacy enforced by not exposing tags in search/public APIs.
 - **Notification INSERT:** Currently allows users to insert their own notifications, but in practice notifications should be created by server-side triggers/functions.
@@ -208,4 +212,4 @@ UPDATE and DELETE blocked when status is `loaned` or `reserved` — prevents mod
 
 - **Implemented:** RLS on all 17 tables, comprehensive policy set covering CRUD operations
 - **Tested:** Integration tests across 7 security domains with local Supabase
-- **Migrations:** Base policies in 00004, fixes in 00010 (item_groups recursion), 00019 (medium security fixes)
+- **Migrations:** Base policies in 00004, fixes in 00010 (item_groups recursion), 00019 (medium security fixes), 00029 (items release from loan + borrow-lock trigger), 00030 (borrow_requests update policy + transition trigger)

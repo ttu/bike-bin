@@ -222,13 +222,13 @@ describe('items — UPDATE', () => {
     expect(error).toBeNull();
   });
 
-  it('owner cannot update loaned item (status guard)', async () => {
+  it('owner cannot update loaned item except marking returned (name change blocked)', async () => {
     const { data, error } = await userA.client
       .from('items')
       .update({ name: 'Should Not Update' })
       .eq('id', loanedItemId)
       .select();
-    // RLS using_expr blocks the row — either error or empty result set
+    // No policy allows loaned row with new row still loaned + renamed
     if (!error) {
       expect(data).toEqual([]);
     } else {
@@ -241,6 +241,34 @@ describe('items — UPDATE', () => {
       .eq('id', loanedItemId)
       .single();
     expect(adminData?.name).toBe('Loaned Item');
+  });
+
+  it('owner can mark loaned item as stored (return from loan)', async () => {
+    const { data: tempRow, error: insertError } = await adminClient
+      .from('items')
+      .insert({
+        owner_id: userA.id,
+        name: 'Temp Return From Loan',
+        category: 'bike',
+        condition: 'good',
+        visibility: 'all',
+        status: 'loaned',
+      })
+      .select('id')
+      .single();
+    if (insertError) throw new Error(`Failed to seed temp loaned item: ${insertError.message}`);
+    const tempId = tempRow.id;
+
+    const { data, error } = await userA.client
+      .from('items')
+      .update({ status: 'stored' })
+      .eq('id', tempId)
+      .select('id, status')
+      .single();
+    expect(error).toBeNull();
+    expect(data?.status).toBe('stored');
+
+    await adminClient.from('items').delete().eq('id', tempId);
   });
 
   it('other user cannot update items they do not own', async () => {

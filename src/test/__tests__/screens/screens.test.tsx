@@ -69,9 +69,9 @@ describe('Tab screens render visible content', () => {
     expect(screen.getByPlaceholderText(/Search/)).toBeVisible();
   });
 
-  it('Search screen shows search bar', () => {
+  it('Search screen shows guest sign-in prompt when unauthenticated', () => {
     renderWithProviders(<SearchScreen />);
-    expect(screen.getByTestId('search-bar')).toBeVisible();
+    expect(screen.getByText('Sign in to search')).toBeVisible();
   });
 
   it('Messages screen shows heading', () => {

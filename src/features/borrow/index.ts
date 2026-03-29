@@ -11,6 +11,10 @@ export { useAcceptBorrowRequest } from './hooks/useAcceptBorrowRequest';
 export { useDeclineBorrowRequest } from './hooks/useDeclineBorrowRequest';
 export { useCancelBorrowRequest } from './hooks/useCancelBorrowRequest';
 export { useMarkReturned } from './hooks/useMarkReturned';
+export {
+  useAcceptedBorrowRequestForItem,
+  ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
+} from './hooks/useAcceptedBorrowRequestForItem';
 
 // Utils
 export {

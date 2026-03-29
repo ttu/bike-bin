@@ -113,67 +113,102 @@ describe('borrow_requests — INSERT', () => {
 });
 
 // ============================================================
-// borrow_requests — UPDATE (state machine)
+// borrow_requests — UPDATE (state machine via trigger)
 // ============================================================
 
 describe('borrow_requests — UPDATE (state machine)', () => {
-  // NOTE: The WITH CHECK policy uses `borrow_requests.status` which in PostgreSQL
-  // WITH CHECK refers to the NEW row (not OLD). This means the state machine guard
-  // compares NEW.status against itself, making ALL transitions fail.
-  // This is a known policy limitation — valid transitions are rejected just like
-  // invalid ones. The tests below verify actual behavior.
-
-  it('owner cannot update status (state machine policy blocks all transitions)', async () => {
-    const { error } = await owner.client
-      .from('borrow_requests')
-      .update({ status: 'accepted' })
-      .eq('id', borrowRequestId);
-    // WITH CHECK fails because it compares new status against itself
-    expect(error).toBeTruthy();
-  });
-
-  it('requester cannot update status (state machine policy blocks all transitions)', async () => {
-    const { error } = await requester.client
-      .from('borrow_requests')
-      .update({ status: 'cancelled' })
-      .eq('id', borrowRequestId);
-    expect(error).toBeTruthy();
-  });
-
-  it('owner CANNOT cancel a request (invalid transition for owner)', async () => {
-    const { data: brData, error: brError } = await adminClient
+  async function seedPendingBorrowRequest(): Promise<string> {
+    const { data, error } = await adminClient
       .from('borrow_requests')
       .insert({ item_id: itemId, requester_id: requester.id, status: 'pending' })
       .select('id')
       .single();
-    if (brError) throw new Error(`Failed to seed borrow_request: ${brError.message}`);
-    const localBrId = brData.id;
+    if (error) throw new Error(`Failed to seed borrow_request: ${error.message}`);
+    return data.id as string;
+  }
+
+  it('owner can accept a pending request', async () => {
+    const id = await seedPendingBorrowRequest();
+    const { error } = await owner.client
+      .from('borrow_requests')
+      .update({ status: 'accepted' })
+      .eq('id', id);
+    expect(error).toBeNull();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('owner can reject a pending request', async () => {
+    const id = await seedPendingBorrowRequest();
+    const { error } = await owner.client
+      .from('borrow_requests')
+      .update({ status: 'rejected' })
+      .eq('id', id);
+    expect(error).toBeNull();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('requester can cancel a pending request', async () => {
+    const id = await seedPendingBorrowRequest();
+    const { error } = await requester.client
+      .from('borrow_requests')
+      .update({ status: 'cancelled' })
+      .eq('id', id);
+    expect(error).toBeNull();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('owner can mark an accepted request as returned', async () => {
+    const { data: brData, error: brError } = await adminClient
+      .from('borrow_requests')
+      .insert({ item_id: itemId, requester_id: requester.id, status: 'accepted' })
+      .select('id')
+      .single();
+    if (brError) throw new Error(`Failed to seed accepted borrow_request: ${brError.message}`);
+    const id = brData.id as string;
 
     const { error } = await owner.client
       .from('borrow_requests')
-      .update({ status: 'cancelled' })
-      .eq('id', localBrId);
-    expect(error).toBeTruthy();
-
-    await adminClient.from('borrow_requests').delete().eq('id', localBrId);
+      .update({ status: 'returned' })
+      .eq('id', id);
+    expect(error).toBeNull();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
   });
 
-  it('requester CANNOT accept a request (invalid transition for requester)', async () => {
+  it('requester can cancel an accepted request', async () => {
     const { data: brData, error: brError } = await adminClient
       .from('borrow_requests')
-      .insert({ item_id: itemId, requester_id: requester.id, status: 'pending' })
+      .insert({ item_id: itemId, requester_id: requester.id, status: 'accepted' })
       .select('id')
       .single();
-    if (brError) throw new Error(`Failed to seed borrow_request: ${brError.message}`);
-    const localBrId = brData.id;
+    if (brError) throw new Error(`Failed to seed accepted borrow_request: ${brError.message}`);
+    const id = brData.id as string;
 
     const { error } = await requester.client
       .from('borrow_requests')
-      .update({ status: 'accepted' })
-      .eq('id', localBrId);
-    expect(error).toBeTruthy();
+      .update({ status: 'cancelled' })
+      .eq('id', id);
+    expect(error).toBeNull();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
 
-    await adminClient.from('borrow_requests').delete().eq('id', localBrId);
+  it('owner cannot cancel a pending request', async () => {
+    const id = await seedPendingBorrowRequest();
+    const { error } = await owner.client
+      .from('borrow_requests')
+      .update({ status: 'cancelled' })
+      .eq('id', id);
+    expect(error).toBeTruthy();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('requester cannot accept a pending request', async () => {
+    const id = await seedPendingBorrowRequest();
+    const { error } = await requester.client
+      .from('borrow_requests')
+      .update({ status: 'accepted' })
+      .eq('id', id);
+    expect(error).toBeTruthy();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
   });
 
   it('outsider cannot update any request', async () => {

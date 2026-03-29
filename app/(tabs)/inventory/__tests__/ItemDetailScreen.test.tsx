@@ -76,6 +76,11 @@ jest.mock('@/features/exchange', () => ({
   useMarkSold: () => ({ mutate: jest.fn() }),
 }));
 
+jest.mock('@/features/borrow', () => ({
+  useAcceptedBorrowRequestForItem: () => ({ data: undefined, isFetching: false }),
+  useMarkReturned: () => ({ mutate: jest.fn() }),
+}));
+
 jest.spyOn(Alert, 'alert');
 
 describe('ItemDetailScreen back navigation', () => {

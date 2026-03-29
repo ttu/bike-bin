@@ -12,7 +12,7 @@
 | `npm test`              | Jest — unit and integration tests                               |
 | `npm run test:watch`    | Jest in watch mode                                              |
 | `npm run test:coverage` | Jest with coverage report                                       |
-| `npm run test:rls`      | Jest — RLS integration tests against local Supabase (126 tests) |
+| `npm run test:rls`      | Jest — RLS integration tests against local Supabase (131 tests) |
 | `npm run test:e2e`      | Playwright (`npx playwright test`) — specs under `e2e/`         |
 
 **Local gate before commit:** `npm run validate` runs `format:check`, `lint`, `type-check`, and `npm test` (see [code-quality.md](code-quality.md)).
@@ -39,7 +39,7 @@ Aim for roughly:
 - **~20% E2E** — Critical flows (auth, inventory, borrow, messaging as they stabilize).
 - **~10% unit** — Pure functions in `utils/` (validation, state transitions, formatting).
 
-### Current status (894 app tests + 118 E2E tests + 126 RLS tests)
+### Current status (894 app tests + 118 E2E tests + 131 RLS tests)
 
 | Category                         | Tests | Share | Target | Status |
 | -------------------------------- | ----: | ----: | -----: | ------ |
@@ -47,7 +47,7 @@ Aim for roughly:
 | Screen-level (near-E2E)          |    53 |    6% |    20% | low    |
 | Unit (utils, mappers, pure fns)  |   237 |   30% |    10% | high   |
 | **E2E (Playwright)**             |   118 |     — |      — | green  |
-| **RLS (separate suite)**         |   126 |     — |      — | green  |
+| **RLS (separate suite)**         |   131 |     — |      — | green  |
 
 Unit tests are over-represented relative to the diamond target. The main gap is screen-level / E2E coverage — prioritize adding screen integration tests for critical flows (messaging, borrow, profile) and Playwright E2E specs to move toward the 70-20-10 split.
 
@@ -72,15 +72,15 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 
 **Location:** `src/test/__tests__/rls/` — one file per domain:
 
-| Suite                        | What it covers                                            |
-| ---------------------------- | --------------------------------------------------------- |
-| `inventory.rls.test.ts`      | Items, photos, tags — owner vs. other user vs. anon       |
-| `borrowing.rls.test.ts`      | Borrow requests — requester, owner, outsider access       |
-| `messaging.rls.test.ts`      | Conversations, messages — participant vs. non-participant |
-| `groups.rls.test.ts`         | Groups, memberships, group items — member vs. outsider    |
-| `community.rls.test.ts`      | Profiles, ratings, notifications, locations               |
-| `ownership.rls.test.ts`      | Cross-cutting ownership policies (bikes, parts)           |
-| `infrastructure.rls.test.ts` | System tables (geocode_cache, etc.) — no user access      |
+| Suite                        | What it covers                                                  |
+| ---------------------------- | --------------------------------------------------------------- |
+| `inventory.rls.test.ts`      | Items, photos, tags — owner vs. other user vs. anon             |
+| `borrowing.rls.test.ts`      | Borrow requests — SELECT/INSERT; UPDATE state machine (trigger) |
+| `messaging.rls.test.ts`      | Conversations, messages — participant vs. non-participant       |
+| `groups.rls.test.ts`         | Groups, memberships, group items — member vs. outsider          |
+| `community.rls.test.ts`      | Profiles, ratings, notifications, locations                     |
+| `ownership.rls.test.ts`      | Cross-cutting ownership policies (bikes, parts)                 |
+| `infrastructure.rls.test.ts` | System tables (geocode_cache, etc.) — no user access            |
 
 **How they work:**
 

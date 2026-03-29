@@ -23,7 +23,8 @@ Manages the borrow request lifecycle between users. A requester can ask to borro
 
 `pending` → `accepted` → `returned`
 `pending` → `rejected`
-`pending` → `cancelled`
+`pending` → `cancelled` (requester)
+`accepted` → `cancelled` (requester)
 
 ## Architecture
 
@@ -38,7 +39,8 @@ src/features/borrow/
 │   ├── useAcceptBorrowRequest.ts    # Accept request + set item loaned
 │   ├── useDeclineBorrowRequest.ts   # Decline request
 │   ├── useCancelBorrowRequest.ts    # Cancel own request
-│   └── useMarkReturned.ts           # Mark item returned
+│   ├── useMarkReturned.ts           # Mark item returned (request + item status)
+│   └── useAcceptedBorrowRequestForItem.ts  # Active accepted request id for an item (inventory mark returned)
 ├── utils/
 │   └── borrowWorkflow.ts            # State machine guards for actions
 ├── types.ts                          # BorrowRequestWithDetails (extended with joined data)
@@ -97,14 +99,12 @@ Accessed from the profile menu.
 
 ### Mark Returned
 
-1. Owner taps "Mark Returned" on active loan
-2. `useMarkReturned` sets request to "returned", item status back to "stored"
+1. **Borrow Requests screen:** Owner taps "Mark Returned" on an active (accepted) loan → `useMarkReturned` sets request to `returned` and item status to `stored`.
+2. **Inventory item detail** (`(tabs)/inventory/[id].tsx`): Same action when an **accepted** `borrow_requests` row exists for that item (via `useAcceptedBorrowRequestForItem` + `useMarkReturned`). If no accepted row is found (e.g. informal loan), the app falls back to `useUpdateItemStatus` only; DB RLS still allows owner **loaned/reserved → stored** (see [016-rls-security.md](016-rls-security.md)).
 
 ## RLS & Security
 
-Borrow requests are accessible to both the requester and the item owner. RLS policies ensure users can only see and act on requests they're involved in.
-
-**Known limitation:** RLS UPDATE policies for borrow_requests state machine transitions need refinement (documented in RLS test findings).
+Borrow requests are visible to the requester and the item owner. **UPDATE** is allowed by RLS when the user is the requester or owns the item (`borrow_requests_update`, migration 00030). **Valid status transitions** (who may move which state) are enforced in the database by trigger `borrow_requests_enforce_update_rules`, not by comparing “old” status inside RLS `WITH CHECK` (that pattern was broken in 00019 and is superseded by 00030). Details: [016-rls-security.md](016-rls-security.md).
 
 ## i18n
 
@@ -116,4 +116,4 @@ Key areas: `tabs.*` (tab labels), `empty.*` (empty states per tab), `card.*` (re
 
 - **Implemented:** Full request lifecycle (create, accept, decline, cancel, mark returned), three-tab view, workflow guards, request cards with joined details
 - **Working:** All state transitions with confirmation dialogs and success/error feedback
-- **Known gaps:** RLS UPDATE policies for state machine may need tightening; no borrow duration enforcement
+- **Known gaps:** No borrow duration enforcement at the DB layer

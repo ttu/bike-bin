@@ -28,6 +28,8 @@ interface ItemDetailProps {
   onMarkDonated?: () => void;
   onMarkSold?: () => void;
   onMarkReturned?: () => void;
+  /** While resolving the active borrow request (mark returned uses it when present). */
+  markReturnedLoading?: boolean;
   onArchive?: () => void;
   onDelete?: () => void;
 }
@@ -38,6 +40,7 @@ export function ItemDetail({
   onMarkDonated,
   onMarkSold,
   onMarkReturned,
+  markReturnedLoading = false,
   onArchive,
   onDelete,
 }: ItemDetailProps) {
@@ -67,7 +70,6 @@ export function ItemDetail({
   const canShowReturnedAction = item.status === ItemStatus.Loaned;
   const canShowArchiveAction = item.status !== ItemStatus.Archived;
   const canShowDeleteAction = canDelete(item);
-
   const categoryBreadcrumb = [
     t(`category.${item.category}`),
     item.subcategory
@@ -216,6 +218,7 @@ export function ItemDetail({
           <ActionSlot isWide={isWide}>
             <GradientButton
               onPress={onMarkReturned}
+              loading={markReturnedLoading}
               style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
             >
               {t('detail.markReturned')}

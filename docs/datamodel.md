@@ -119,7 +119,7 @@ Migrations may define **SECURITY DEFINER** functions (e.g. tag autocomplete, sea
 
 ## RLS
 
-All user-facing tables use **Row Level Security**. Policy definitions live in migration files (e.g. `00004_rls_policies.sql` and later fixes). When adding tables or columns, add matching policies — see [security.md](security.md).
+All user-facing tables use **Row Level Security**. Policy definitions live in migration files (e.g. `00004_rls_policies.sql` and later fixes). **Items:** extra policy + trigger for owner **loaned/reserved → stored** and borrow-lock edits (`00029_items_owner_return_from_loan.sql`). **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger (`00030_borrow_requests_update_trigger.sql`) — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
 
 ---
 

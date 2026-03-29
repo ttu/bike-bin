@@ -154,6 +154,8 @@ Actions on item detail are gated by both **status** and **availability types**:
 
 "Mark loaned" allows informal/offline loans without a formal borrow request.
 
+**Mark returned (implementation):** On item detail, if an **accepted** borrow request exists for the item, the app calls **`useMarkReturned`** (updates `borrow_requests` to `returned` and item to `stored`). Otherwise it uses **`useUpdateItemStatus`** to set `stored` only (informal loan). See [006-borrow.md](006-borrow.md).
+
 ### Terminal Item Filtering
 
 - Default: terminal items (archived, sold, donated) hidden from inventory list
@@ -171,12 +173,15 @@ Actions on item detail are gated by both **status** and **availability types**:
 
 ## RLS & Security
 
-| Policy                | Operation | Rule                                                                  |
-| --------------------- | --------- | --------------------------------------------------------------------- |
-| `items_select_public` | SELECT    | Public items (visibility = 'all') readable by all authenticated users |
-| `items_insert_own`    | INSERT    | Users can only insert items with `owner_id = auth.uid()`              |
-| `items_update_own`    | UPDATE    | Users can only update their own items                                 |
-| `items_delete_own`    | DELETE    | Users can only delete their own items                                 |
+| Policy                                   | Operation | Rule                                                                   |
+| ---------------------------------------- | --------- | ---------------------------------------------------------------------- |
+| `items_select_public`                    | SELECT    | Public items (visibility = 'all') readable by all authenticated users  |
+| `items_insert_own`                       | INSERT    | Users can only insert items with `owner_id = auth.uid()`               |
+| `items_update_own`                       | UPDATE    | Own items; not while loaned/reserved (except see release policy below) |
+| `items_update_owner_release_borrow_lock` | UPDATE    | Own item: **loaned or reserved → stored** only (migration 00029)       |
+| `items_delete_own`                       | DELETE    | Own items; not while loaned or reserved                                |
+
+Borrow-lock trigger (`00029`) prevents arbitrary column changes while status stays loaned/reserved. Full policy inventory: [016-rls-security.md](016-rls-security.md).
 
 Group-scoped visibility is enforced via `item_groups` junction + group membership checks.
 

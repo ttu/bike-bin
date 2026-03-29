@@ -20,12 +20,12 @@ enabled = true
 site_url = "http://127.0.0.1:8081"
 additional_redirect_urls = ["https://127.0.0.1:8081"]
 jwt_expiry = 3600
-enable_signup = false
+enable_signup = true
 
 [auth.email]
 # Email login enabled for pre-seeded test users only (no signup).
 # Production: disable email provider entirely in Supabase Dashboard.
-enable_signup = false
+enable_signup = true
 double_confirm_changes = false
 enable_confirmations = false
 
