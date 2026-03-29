@@ -1,4 +1,5 @@
-import { View, ScrollView, StyleSheet, Pressable, Alert, Platform } from 'react-native';
+import { useState } from 'react';
+import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, Badge, Button, SegmentedButtons, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -13,6 +14,7 @@ import { BorrowRequestStatus } from '@/shared/types';
 import type { UserId } from '@/shared/types';
 import type { ThemePreference } from '@/shared/hooks/useThemePreference';
 import { useDemoMode, DemoBanner } from '@/features/demo';
+import { ConfirmDialog } from '@/shared/components';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -36,26 +38,18 @@ export default function ProfileScreen() {
     (r) => r.itemOwnerId === userId && r.status === BorrowRequestStatus.Pending,
   ).length;
 
+  const [signOutConfirmVisible, setSignOutConfirmVisible] = useState(false);
+
   const handleSignOut = () => {
-    const doSignOut = async () => {
+    setSignOutConfirmVisible(true);
+  };
+
+  const handleConfirmSignOut = () => {
+    setSignOutConfirmVisible(false);
+    void (async () => {
       await signOut();
       router.replace('/(auth)/login');
-    };
-
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${t('signOutConfirm.title')}\n${t('signOutConfirm.message')}`)) {
-        doSignOut();
-      }
-    } else {
-      Alert.alert(t('signOutConfirm.title'), t('signOutConfirm.message'), [
-        { text: t('signOutConfirm.cancel'), style: 'cancel' },
-        {
-          text: t('signOutConfirm.confirm'),
-          style: 'destructive',
-          onPress: doSignOut,
-        },
-      ]);
-    }
+    })();
   };
 
   const handleExitDemo = () => {
@@ -75,6 +69,7 @@ export default function ProfileScreen() {
   ];
 
   return (
+    <>
     <ScrollView
       style={[
         styles.container,
@@ -235,6 +230,17 @@ export default function ProfileScreen() {
         </Pressable>
       )}
     </ScrollView>
+    <ConfirmDialog
+      visible={signOutConfirmVisible}
+      title={t('signOutConfirm.title')}
+      message={t('signOutConfirm.message')}
+      cancelLabel={t('signOutConfirm.cancel')}
+      confirmLabel={t('signOutConfirm.confirm')}
+      destructive
+      onDismiss={() => setSignOutConfirmVisible(false)}
+      onConfirm={handleConfirmSignOut}
+    />
+    </>
   );
 }
 

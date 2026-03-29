@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
@@ -97,8 +96,6 @@ jest.mock('@/features/borrow', () => ({
   useMarkReturned: () => ({ mutate: jest.fn() }),
 }));
 
-jest.spyOn(Alert, 'alert');
-
 describe('ItemDetailScreen back navigation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -137,7 +134,6 @@ describe('ItemDetailScreen confirmations', () => {
 
     fireEvent.press(getByText('Remove from inventory'));
 
-    expect(Alert.alert).not.toHaveBeenCalled();
     expect(getByTestId('remove-inventory-archive')).toBeTruthy();
     expect(getByTestId('remove-inventory-delete')).toBeTruthy();
     expect(mockDeleteMutateAsync).not.toHaveBeenCalled();
@@ -149,19 +145,8 @@ describe('ItemDetailScreen confirmations', () => {
     fireEvent.press(getByText('Remove from inventory'));
     fireEvent.press(getByTestId('remove-inventory-delete'));
 
-    expect(Alert.alert).toHaveBeenLastCalledWith(
-      'Delete Item',
-      'Are you sure you want to delete this item? This cannot be undone.',
-      expect.arrayContaining([
-        expect.objectContaining({ text: 'Cancel', style: 'cancel' }),
-        expect.objectContaining({ text: 'Delete', style: 'destructive' }),
-      ]),
-    );
-
-    const confirmDelete = (Alert.alert as jest.Mock).mock.calls[0][2].find(
-      (btn: { text: string }) => btn.text === 'Delete',
-    );
-    await confirmDelete.onPress();
+    expect(getByText('Delete Item')).toBeTruthy();
+    fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockDeleteMutateAsync).toHaveBeenCalled();
   });
@@ -172,14 +157,7 @@ describe('ItemDetailScreen confirmations', () => {
     fireEvent.press(getByText('Remove from inventory'));
     fireEvent.press(getByTestId('remove-inventory-archive'));
 
-    expect(Alert.alert).toHaveBeenLastCalledWith(
-      'Archive Item',
-      'Are you sure you want to archive this item?',
-      expect.arrayContaining([
-        expect.objectContaining({ text: 'Cancel', style: 'cancel' }),
-        expect.objectContaining({ text: 'Archive' }),
-      ]),
-    );
+    expect(getByText('Archive Item')).toBeTruthy();
     expect(mockUpdateStatusMutateAsync).not.toHaveBeenCalled();
   });
 
@@ -189,10 +167,7 @@ describe('ItemDetailScreen confirmations', () => {
     fireEvent.press(getByText('Remove from inventory'));
     fireEvent.press(getByTestId('remove-inventory-archive'));
 
-    const confirmArchive = (Alert.alert as jest.Mock).mock.calls[0][2].find(
-      (btn: { text: string }) => btn.text === 'Archive',
-    );
-    confirmArchive.onPress();
+    fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
       id: 'item-123',
@@ -222,23 +197,12 @@ describe('ItemDetailScreen archived item', () => {
   });
 
   it('restores item to stored when unarchive is confirmed', () => {
-    const { getByText } = renderWithProviders(<ItemDetailScreen />);
+    const { getByText, getByTestId } = renderWithProviders(<ItemDetailScreen />);
 
     fireEvent.press(getByText('Restore to inventory'));
 
-    expect(Alert.alert).toHaveBeenCalledWith(
-      'Restore Item',
-      'Restore this item to your inventory as stored? You can edit it again afterward.',
-      expect.arrayContaining([
-        expect.objectContaining({ text: 'Cancel', style: 'cancel' }),
-        expect.objectContaining({ text: 'Restore' }),
-      ]),
-    );
-
-    const confirmRestore = (Alert.alert as jest.Mock).mock.calls[0][2].find(
-      (btn: { text: string }) => btn.text === 'Restore',
-    );
-    confirmRestore.onPress();
+    expect(getByText('Restore Item')).toBeTruthy();
+    fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
       id: 'item-123',

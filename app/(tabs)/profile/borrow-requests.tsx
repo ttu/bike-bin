@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl, Alert, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { ConfirmDialog } from '@/shared/components';
 import { useAuth } from '@/features/auth';
 import {
   BorrowRequestCard,
@@ -22,6 +23,15 @@ import { BorrowRequestStatus } from '@/shared/types';
 
 type Tab = 'incoming' | 'outgoing' | 'active';
 
+type BorrowConfirmConfig = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+};
+
 export default function BorrowRequestsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('borrow');
@@ -30,6 +40,7 @@ export default function BorrowRequestsScreen() {
   const userId = (user?.id ?? '') as UserId;
 
   const [activeTab, setActiveTab] = useState<Tab>('incoming');
+  const [confirm, setConfirm] = useState<BorrowConfirmConfig | null>(null);
 
   const { data: allRequests, isLoading, refetch } = useBorrowRequests();
   const acceptRequest = useAcceptBorrowRequest();
@@ -74,70 +85,66 @@ export default function BorrowRequestsScreen() {
 
   const handleAccept = useCallback(
     (request: BorrowRequestWithDetails) => {
-      Alert.alert(
-        t('confirm.accept.title'),
-        t('confirm.accept.message', { name: request.requesterName ?? '?' }),
-        [
-          { text: t('confirm.accept.cancel'), style: 'cancel' },
-          {
-            text: t('confirm.accept.confirm'),
-            onPress: () => {
-              acceptRequest.mutate({ requestId: request.id, itemId: request.itemId });
-            },
-          },
-        ],
-      );
+      setConfirm({
+        title: t('confirm.accept.title'),
+        message: t('confirm.accept.message', { name: request.requesterName ?? '?' }),
+        cancelLabel: t('confirm.accept.cancel'),
+        confirmLabel: t('confirm.accept.confirm'),
+        onConfirm: () => {
+          setConfirm(null);
+          acceptRequest.mutate({ requestId: request.id, itemId: request.itemId });
+        },
+      });
     },
     [acceptRequest, t],
   );
 
   const handleDecline = useCallback(
     (request: BorrowRequestWithDetails) => {
-      Alert.alert(t('confirm.decline.title'), t('confirm.decline.message'), [
-        { text: t('confirm.decline.cancel'), style: 'cancel' },
-        {
-          text: t('confirm.decline.confirm'),
-          style: 'destructive',
-          onPress: () => {
-            declineRequest.mutate({ requestId: request.id, itemId: request.itemId });
-          },
+      setConfirm({
+        title: t('confirm.decline.title'),
+        message: t('confirm.decline.message'),
+        cancelLabel: t('confirm.decline.cancel'),
+        confirmLabel: t('confirm.decline.confirm'),
+        destructive: true,
+        onConfirm: () => {
+          setConfirm(null);
+          declineRequest.mutate({ requestId: request.id, itemId: request.itemId });
         },
-      ]);
+      });
     },
     [declineRequest, t],
   );
 
   const handleCancel = useCallback(
     (request: BorrowRequestWithDetails) => {
-      Alert.alert(
-        t('confirm.cancel.title'),
-        t('confirm.cancel.message', { itemName: request.itemName }),
-        [
-          { text: t('confirm.cancel.cancel'), style: 'cancel' },
-          {
-            text: t('confirm.cancel.confirm'),
-            style: 'destructive',
-            onPress: () => {
-              cancelRequest.mutate({ requestId: request.id, itemId: request.itemId });
-            },
-          },
-        ],
-      );
+      setConfirm({
+        title: t('confirm.cancel.title'),
+        message: t('confirm.cancel.message', { itemName: request.itemName }),
+        cancelLabel: t('confirm.cancel.cancel'),
+        confirmLabel: t('confirm.cancel.confirm'),
+        destructive: true,
+        onConfirm: () => {
+          setConfirm(null);
+          cancelRequest.mutate({ requestId: request.id, itemId: request.itemId });
+        },
+      });
     },
     [cancelRequest, t],
   );
 
   const handleMarkReturned = useCallback(
     (request: BorrowRequestWithDetails) => {
-      Alert.alert(t('confirm.markReturned.title'), t('confirm.markReturned.message'), [
-        { text: t('confirm.markReturned.cancel'), style: 'cancel' },
-        {
-          text: t('confirm.markReturned.confirm'),
-          onPress: () => {
-            markReturned.mutate({ requestId: request.id, itemId: request.itemId });
-          },
+      setConfirm({
+        title: t('confirm.markReturned.title'),
+        message: t('confirm.markReturned.message'),
+        cancelLabel: t('confirm.markReturned.cancel'),
+        confirmLabel: t('confirm.markReturned.confirm'),
+        onConfirm: () => {
+          setConfirm(null);
+          markReturned.mutate({ requestId: request.id, itemId: request.itemId });
         },
-      ]);
+      });
     },
     [markReturned, t],
   );
@@ -250,6 +257,17 @@ export default function BorrowRequestsScreen() {
           contentContainerStyle={styles.list}
         />
       )}
+
+      <ConfirmDialog
+        visible={confirm !== null}
+        title={confirm?.title ?? ''}
+        message={confirm?.message ?? ''}
+        confirmLabel={confirm?.confirmLabel ?? ''}
+        cancelLabel={confirm?.cancelLabel}
+        destructive={confirm?.destructive}
+        onDismiss={() => setConfirm(null)}
+        onConfirm={() => confirm?.onConfirm()}
+      />
     </View>
   );
 }

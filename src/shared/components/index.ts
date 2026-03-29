@@ -6,5 +6,7 @@ export { LoadingScreen } from './LoadingScreen';
 export { MaxWidthContainer } from './MaxWidthContainer/MaxWidthContainer';
 export { OfflineBanner } from './OfflineBanner/OfflineBanner';
 export { PhotoGallery } from './PhotoGallery/PhotoGallery';
+export { ConfirmDialog } from './ConfirmDialog/ConfirmDialog';
+export type { ConfirmDialogProps, ConfirmDialogVariant } from './ConfirmDialog/ConfirmDialog';
 export { ReportDialog } from './ReportDialog/ReportDialog';
 export type { ReportReason } from './ReportDialog/ReportDialog';

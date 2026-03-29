@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
@@ -85,38 +84,26 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
-jest.spyOn(Alert, 'alert');
-
 describe('EditBikeScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('shows confirmation before deleting bike', () => {
-    const { getByText } = renderWithProviders(<EditBikeScreen />);
+    const { getByText, getByTestId } = renderWithProviders(<EditBikeScreen />);
 
     fireEvent.press(getByText('Delete Bike'));
 
-    expect(Alert.alert).toHaveBeenCalledWith(
-      'Delete Bike',
-      'Are you sure you want to delete this bike? This cannot be undone.',
-      expect.arrayContaining([
-        expect.objectContaining({ text: 'Cancel', style: 'cancel' }),
-        expect.objectContaining({ text: 'Delete', style: 'destructive' }),
-      ]),
-    );
+    expect(getByTestId('confirm-dialog')).toBeTruthy();
+    expect(getByTestId('confirm-dialog-confirm')).toBeTruthy();
     expect(mockDeleteMutate).not.toHaveBeenCalled();
   });
 
   it('deletes bike when confirmation is accepted', () => {
-    const { getByText } = renderWithProviders(<EditBikeScreen />);
+    const { getByText, getByTestId } = renderWithProviders(<EditBikeScreen />);
 
     fireEvent.press(getByText('Delete Bike'));
-
-    const confirmButton = (Alert.alert as jest.Mock).mock.calls[0][2].find(
-      (btn: { text: string }) => btn.text === 'Delete',
-    );
-    confirmButton.onPress();
+    fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockDeleteMutate).toHaveBeenCalledWith('bike-123', expect.any(Object));
   });

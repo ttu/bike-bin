@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl, Alert, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { SavedLocation } from '@/shared/types';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { ConfirmDialog } from '@/shared/components';
 import {
   useLocations,
   useCreateLocation,
@@ -24,10 +25,13 @@ type ScreenMode = 'list' | 'add' | 'edit';
 export default function SavedLocationsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('locations');
+  const { t: tCommon } = useTranslation('common');
   const insets = useSafeAreaInsets();
 
   const [mode, setMode] = useState<ScreenMode>('list');
   const [editingLocation, setEditingLocation] = useState<SavedLocation | undefined>(undefined);
+  const [deleteTarget, setDeleteTarget] = useState<SavedLocation | null>(null);
+  const [acknowledge, setAcknowledge] = useState<{ title: string; message: string } | null>(null);
 
   const { data: locations, isLoading, refetch } = useLocations();
   const createLocation = useCreateLocation();
@@ -64,10 +68,13 @@ export default function SavedLocationsScreen() {
         });
         setMode('list');
       } catch {
-        Alert.alert(t('errors.saveFailed'));
+        setAcknowledge({
+          title: tCommon('alerts.errorTitle'),
+          message: t('errors.saveFailed'),
+        });
       }
     },
-    [createLocation, t],
+    [createLocation, t, tCommon],
   );
 
   const handleSaveEdit = useCallback(
@@ -89,39 +96,48 @@ export default function SavedLocationsScreen() {
         setMode('list');
         setEditingLocation(undefined);
       } catch {
-        Alert.alert(t('errors.saveFailed'));
+        setAcknowledge({
+          title: tCommon('alerts.errorTitle'),
+          message: t('errors.saveFailed'),
+        });
       }
     },
-    [editingLocation, updateLocation, t],
+    [editingLocation, updateLocation, t, tCommon],
   );
 
-  const handleDelete = useCallback(
-    (location: SavedLocation) => {
-      Alert.alert(t('delete.title'), t('delete.confirm'), [
-        { text: t('form.cancel'), style: 'cancel' },
-        {
-          text: t('delete.title'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteLocation.mutateAsync(location.id);
-            } catch (e) {
-              if (e instanceof DeleteLocationError) {
-                if (e.code === 'LAST_LOCATION') {
-                  Alert.alert(t('delete.lastLocation'));
-                } else if (e.code === 'HAS_ITEMS') {
-                  Alert.alert(t('delete.hasItems'));
-                }
-              } else {
-                Alert.alert(t('errors.deleteFailed'));
-              }
-            }
-          },
-        },
-      ]);
-    },
-    [deleteLocation, t],
-  );
+  const handleDelete = useCallback((location: SavedLocation) => {
+    setDeleteTarget(location);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    const targetId = deleteTarget.id;
+    setDeleteTarget(null);
+    void (async () => {
+      try {
+        await deleteLocation.mutateAsync(targetId);
+      } catch (e) {
+        if (e instanceof DeleteLocationError) {
+          if (e.code === 'LAST_LOCATION') {
+            setAcknowledge({
+              title: tCommon('alerts.noticeTitle'),
+              message: t('delete.lastLocation'),
+            });
+          } else if (e.code === 'HAS_ITEMS') {
+            setAcknowledge({
+              title: tCommon('alerts.noticeTitle'),
+              message: t('delete.hasItems'),
+            });
+          }
+        } else {
+          setAcknowledge({
+            title: tCommon('alerts.errorTitle'),
+            message: t('errors.deleteFailed'),
+          });
+        }
+      }
+    })();
+  }, [deleteTarget, deleteLocation, t, tCommon]);
 
   const renderItem = useCallback(
     ({ item }: { item: SavedLocation }) => (
@@ -159,6 +175,15 @@ export default function SavedLocationsScreen() {
           onCancel={handleCancel}
           isSubmitting={createLocation.isPending}
         />
+        <ConfirmDialog
+          visible={acknowledge !== null}
+          title={acknowledge?.title ?? ''}
+          message={acknowledge?.message ?? ''}
+          confirmLabel={tCommon('actions.ok')}
+          variant="acknowledge"
+          onDismiss={() => setAcknowledge(null)}
+          onConfirm={() => setAcknowledge(null)}
+        />
       </View>
     );
   }
@@ -195,6 +220,15 @@ export default function SavedLocationsScreen() {
           onSave={handleSaveEdit}
           onCancel={handleCancel}
           isSubmitting={updateLocation.isPending}
+        />
+        <ConfirmDialog
+          visible={acknowledge !== null}
+          title={acknowledge?.title ?? ''}
+          message={acknowledge?.message ?? ''}
+          confirmLabel={tCommon('actions.ok')}
+          variant="acknowledge"
+          onDismiss={() => setAcknowledge(null)}
+          onConfirm={() => setAcknowledge(null)}
         />
       </View>
     );
@@ -267,6 +301,26 @@ export default function SavedLocationsScreen() {
         color={theme.colors.onPrimary}
         onPress={handleAddPress}
         accessibilityLabel={t('addLocation')}
+      />
+
+      <ConfirmDialog
+        visible={deleteTarget !== null}
+        title={t('delete.title')}
+        message={t('delete.confirm')}
+        cancelLabel={t('form.cancel')}
+        confirmLabel={t('delete.title')}
+        destructive
+        onDismiss={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
+      <ConfirmDialog
+        visible={acknowledge !== null}
+        title={acknowledge?.title ?? ''}
+        message={acknowledge?.message ?? ''}
+        confirmLabel={tCommon('actions.ok')}
+        variant="acknowledge"
+        onDismiss={() => setAcknowledge(null)}
+        onConfirm={() => setAcknowledge(null)}
       />
     </View>
   );

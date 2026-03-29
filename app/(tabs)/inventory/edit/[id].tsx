@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { Alert, Image, Platform, View, StyleSheet } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Image, View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,7 @@ import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { canDelete } from '@/features/inventory';
-import { LoadingScreen } from '@/shared/components/LoadingScreen/LoadingScreen';
+import { ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -27,6 +27,15 @@ function formatInventoryId(id: string): string {
   const short = id.slice(0, 8).toUpperCase();
   return `BB-${short.slice(0, 3)}-${short.slice(3, 4)}`;
 }
+
+type EditItemConfirmConfig = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+};
 
 export default function EditItemScreen() {
   const theme = useTheme<AppTheme>();
@@ -40,6 +49,8 @@ export default function EditItemScreen() {
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
   const { pickAndUpload, isUploading } = usePhotoUpload();
+
+  const [confirm, setConfirm] = useState<EditItemConfirmConfig | null>(null);
 
   const handleSave = async (data: ItemFormData) => {
     await updateItem.mutateAsync({ ...data, id: itemId });
@@ -80,18 +91,17 @@ export default function EditItemScreen() {
         }
       };
 
-      if (Platform.OS === 'web') {
-        if (
-          window.confirm(`${t('confirm.removePhoto.title')}\n${t('confirm.removePhoto.message')}`)
-        ) {
-          doRemove();
-        }
-      } else {
-        Alert.alert(t('confirm.removePhoto.title'), t('confirm.removePhoto.message'), [
-          { text: t('confirm.removePhoto.cancel'), style: 'cancel' },
-          { text: t('confirm.removePhoto.confirm'), style: 'destructive', onPress: doRemove },
-        ]);
-      }
+      setConfirm({
+        title: t('confirm.removePhoto.title'),
+        message: t('confirm.removePhoto.message'),
+        cancelLabel: t('confirm.removePhoto.cancel'),
+        confirmLabel: t('confirm.removePhoto.confirm'),
+        destructive: true,
+        onConfirm: () => {
+          setConfirm(null);
+          void doRemove();
+        },
+      });
     },
     [photos, itemId, queryClient, t],
   );
@@ -99,21 +109,20 @@ export default function EditItemScreen() {
   const handleDelete = () => {
     if (!item || !canDelete(item)) return;
 
-    const doDelete = async () => {
-      await deleteItem.mutateAsync({ id: item.id, status: item.status });
-      tabScopedBack('/(tabs)/inventory');
-    };
-
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${t('confirm.delete.title')}\n${t('confirm.delete.message')}`)) {
-        doDelete();
-      }
-    } else {
-      Alert.alert(t('confirm.delete.title'), t('confirm.delete.message'), [
-        { text: t('confirm.delete.cancel'), style: 'cancel' },
-        { text: t('confirm.delete.confirm'), style: 'destructive', onPress: doDelete },
-      ]);
-    }
+    setConfirm({
+      title: t('confirm.delete.title'),
+      message: t('confirm.delete.message'),
+      cancelLabel: t('confirm.delete.cancel'),
+      confirmLabel: t('confirm.delete.confirm'),
+      destructive: true,
+      onConfirm: () => {
+        setConfirm(null);
+        void (async () => {
+          await deleteItem.mutateAsync({ id: item.id, status: item.status });
+          tabScopedBack('/(tabs)/inventory');
+        })();
+      },
+    });
   };
 
   if (isLoading || !item) {
@@ -214,6 +223,16 @@ export default function EditItemScreen() {
         isEditMode
         headerComponent={heroSection}
         photoSection={photoSection}
+      />
+      <ConfirmDialog
+        visible={confirm !== null}
+        title={confirm?.title ?? ''}
+        message={confirm?.message ?? ''}
+        confirmLabel={confirm?.confirmLabel ?? ''}
+        cancelLabel={confirm?.cancelLabel}
+        destructive={confirm?.destructive}
+        onDismiss={() => setConfirm(null)}
+        onConfirm={() => confirm?.onConfirm()}
       />
     </View>
   );

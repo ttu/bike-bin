@@ -51,6 +51,13 @@
     "title": "Edit Group",
     "save": "Save Changes"
   },
+  "errors": {
+    "updateFailed": "Failed to update group.",
+    "deleteFailed": "Failed to delete group.",
+    "leaveFailed": "Failed to leave group.",
+    "promoteFailed": "Failed to promote member.",
+    "removeFailed": "Failed to remove member."
+  },
   "visibility": {
     "selectGroups": "Select groups",
     "selectedCount": "{{count}} group selected",

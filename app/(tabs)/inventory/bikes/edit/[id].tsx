@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { Alert, Platform, View, StyleSheet } from 'react-native';
+import { useCallback, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -16,6 +16,16 @@ import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
 import { supabase } from '@/shared/api/supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { ConfirmDialog } from '@/shared/components';
+
+type EditBikeConfirmConfig = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+};
 
 export default function EditBikeScreen() {
   const theme = useTheme();
@@ -29,6 +39,8 @@ export default function EditBikeScreen() {
   const deleteBike = useDeleteBike();
   const { pickAndUpload, isUploading } = useBikePhotoUpload();
   const queryClient = useQueryClient();
+
+  const [confirm, setConfirm] = useState<EditBikeConfirmConfig | null>(null);
 
   const handleSave = useCallback(
     (data: BikeFormData) => {
@@ -60,41 +72,37 @@ export default function EditBikeScreen() {
         }
       };
 
-      if (Platform.OS === 'web') {
-        if (
-          window.confirm(`${t('confirm.removePhoto.title')}\n${t('confirm.removePhoto.message')}`)
-        ) {
-          doRemove();
-        }
-      } else {
-        Alert.alert(t('confirm.removePhoto.title'), t('confirm.removePhoto.message'), [
-          { text: t('confirm.removePhoto.cancel'), style: 'cancel' },
-          { text: t('confirm.removePhoto.confirm'), style: 'destructive', onPress: doRemove },
-        ]);
-      }
+      setConfirm({
+        title: t('confirm.removePhoto.title'),
+        message: t('confirm.removePhoto.message'),
+        cancelLabel: t('confirm.removePhoto.cancel'),
+        confirmLabel: t('confirm.removePhoto.confirm'),
+        destructive: true,
+        onConfirm: () => {
+          setConfirm(null);
+          void doRemove();
+        },
+      });
     },
     [photos, bikeId, queryClient, t],
   );
 
   const handleDelete = useCallback(() => {
-    const doDelete = () => {
-      deleteBike.mutate(bikeId, {
-        onSuccess: () => {
-          router.navigate('/(tabs)/inventory/bikes' as never);
-        },
-      });
-    };
-
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${t('confirm.delete.title')}\n${t('confirm.delete.message')}`)) {
-        doDelete();
-      }
-    } else {
-      Alert.alert(t('confirm.delete.title'), t('confirm.delete.message'), [
-        { text: t('confirm.delete.cancel'), style: 'cancel' },
-        { text: t('confirm.delete.confirm'), style: 'destructive', onPress: doDelete },
-      ]);
-    }
+    setConfirm({
+      title: t('confirm.delete.title'),
+      message: t('confirm.delete.message'),
+      cancelLabel: t('confirm.delete.cancel'),
+      confirmLabel: t('confirm.delete.confirm'),
+      destructive: true,
+      onConfirm: () => {
+        setConfirm(null);
+        deleteBike.mutate(bikeId, {
+          onSuccess: () => {
+            router.navigate('/(tabs)/inventory/bikes' as never);
+          },
+        });
+      },
+    });
   }, [deleteBike, bikeId, t]);
 
   if (!bike) return null;
@@ -121,6 +129,16 @@ export default function EditBikeScreen() {
         onSave={handleSave}
         onDelete={handleDelete}
         isSubmitting={updateBike.isPending}
+      />
+      <ConfirmDialog
+        visible={confirm !== null}
+        title={confirm?.title ?? ''}
+        message={confirm?.message ?? ''}
+        confirmLabel={confirm?.confirmLabel ?? ''}
+        cancelLabel={confirm?.cancelLabel}
+        destructive={confirm?.destructive}
+        onDismiss={() => setConfirm(null)}
+        onConfirm={() => confirm?.onConfirm()}
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Platform, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -16,9 +16,18 @@ import { useAcceptedBorrowRequestForItem, useMarkReturned } from '@/features/bor
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetail';
 import { RemoveFromInventoryDialog } from '@/features/inventory/components/RemoveFromInventoryDialog/RemoveFromInventoryDialog';
-import { LoadingScreen } from '@/shared/components/LoadingScreen/LoadingScreen';
+import { ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
+
+type ItemConfirmConfig = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+};
 
 export default function ItemDetailScreen() {
   const theme = useTheme();
@@ -40,83 +49,83 @@ export default function ItemDetailScreen() {
     });
 
   const [removeInventoryOpen, setRemoveInventoryOpen] = useState(false);
+  const [confirm, setConfirm] = useState<ItemConfirmConfig | null>(null);
 
   if (isLoading || !item) {
     return <LoadingScreen />;
   }
 
+  const openConfirm = (config: ItemConfirmConfig) => {
+    setConfirm(config);
+  };
+
   const handleMarkDonated = () => {
-    Alert.alert(t('confirm.donate.title'), t('confirm.donate.message'), [
-      { text: t('confirm.donate.cancel'), style: 'cancel' },
-      {
-        text: t('confirm.donate.confirm'),
-        onPress: () => {
-          markDonated.mutate({ itemId: item.id });
-        },
+    openConfirm({
+      title: t('confirm.donate.title'),
+      message: t('confirm.donate.message'),
+      cancelLabel: t('confirm.donate.cancel'),
+      confirmLabel: t('confirm.donate.confirm'),
+      onConfirm: () => {
+        setConfirm(null);
+        markDonated.mutate({ itemId: item.id });
       },
-    ]);
+    });
   };
 
   const handleMarkSold = () => {
-    Alert.alert(t('confirm.sell.title'), t('confirm.sell.message'), [
-      { text: t('confirm.sell.cancel'), style: 'cancel' },
-      {
-        text: t('confirm.sell.confirm'),
-        onPress: () => {
-          markSold.mutate({ itemId: item.id });
-        },
+    openConfirm({
+      title: t('confirm.sell.title'),
+      message: t('confirm.sell.message'),
+      cancelLabel: t('confirm.sell.cancel'),
+      confirmLabel: t('confirm.sell.confirm'),
+      onConfirm: () => {
+        setConfirm(null);
+        markSold.mutate({ itemId: item.id });
       },
-    ]);
+    });
   };
 
   const handleArchive = () => {
-    const doArchive = () => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived });
-
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${tInv('confirm.archive.title')}\n${tInv('confirm.archive.message')}`)) {
-        doArchive();
-      }
-    } else {
-      Alert.alert(tInv('confirm.archive.title'), tInv('confirm.archive.message'), [
-        { text: tInv('confirm.archive.cancel'), style: 'cancel' },
-        { text: tInv('confirm.archive.confirm'), onPress: doArchive },
-      ]);
-    }
+    openConfirm({
+      title: tInv('confirm.archive.title'),
+      message: tInv('confirm.archive.message'),
+      cancelLabel: tInv('confirm.archive.cancel'),
+      confirmLabel: tInv('confirm.archive.confirm'),
+      onConfirm: () => {
+        setConfirm(null);
+        void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived });
+      },
+    });
   };
 
   const handleUnarchive = () => {
-    const doUnarchive = () => updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
-
-    if (Platform.OS === 'web') {
-      if (
-        window.confirm(`${tInv('confirm.unarchive.title')}\n${tInv('confirm.unarchive.message')}`)
-      ) {
-        void doUnarchive();
-      }
-    } else {
-      Alert.alert(tInv('confirm.unarchive.title'), tInv('confirm.unarchive.message'), [
-        { text: tInv('confirm.unarchive.cancel'), style: 'cancel' },
-        { text: tInv('confirm.unarchive.confirm'), onPress: () => void doUnarchive() },
-      ]);
-    }
+    openConfirm({
+      title: tInv('confirm.unarchive.title'),
+      message: tInv('confirm.unarchive.message'),
+      cancelLabel: tInv('confirm.unarchive.cancel'),
+      confirmLabel: tInv('confirm.unarchive.confirm'),
+      onConfirm: () => {
+        setConfirm(null);
+        void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
+      },
+    });
   };
 
   const handleDelete = () => {
-    const doDelete = async () => {
-      await deleteItem.mutateAsync({ id: item.id, status: item.status });
-      tabScopedBack('/(tabs)/inventory');
-    };
-
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${tInv('confirm.delete.title')}\n${tInv('confirm.delete.message')}`)) {
-        doDelete();
-      }
-    } else {
-      Alert.alert(tInv('confirm.delete.title'), tInv('confirm.delete.message'), [
-        { text: tInv('confirm.delete.cancel'), style: 'cancel' },
-        { text: tInv('confirm.delete.confirm'), style: 'destructive', onPress: doDelete },
-      ]);
-    }
+    openConfirm({
+      title: tInv('confirm.delete.title'),
+      message: tInv('confirm.delete.message'),
+      cancelLabel: tInv('confirm.delete.cancel'),
+      confirmLabel: tInv('confirm.delete.confirm'),
+      destructive: true,
+      onConfirm: () => {
+        setConfirm(null);
+        void (async () => {
+          await deleteItem.mutateAsync({ id: item.id, status: item.status });
+          tabScopedBack('/(tabs)/inventory');
+        })();
+      },
+    });
   };
 
   const canArchive = item.status !== ItemStatus.Archived;
@@ -132,20 +141,16 @@ export default function ItemDetailScreen() {
       }
     };
 
-    if (Platform.OS === 'web') {
-      if (
-        window.confirm(
-          `${tBorrow('confirm.markReturned.title')}\n${tBorrow('confirm.markReturned.message')}`,
-        )
-      ) {
+    openConfirm({
+      title: tBorrow('confirm.markReturned.title'),
+      message: tBorrow('confirm.markReturned.message'),
+      cancelLabel: tBorrow('confirm.markReturned.cancel'),
+      confirmLabel: tBorrow('confirm.markReturned.confirm'),
+      onConfirm: () => {
+        setConfirm(null);
         run();
-      }
-    } else {
-      Alert.alert(tBorrow('confirm.markReturned.title'), tBorrow('confirm.markReturned.message'), [
-        { text: tBorrow('confirm.markReturned.cancel'), style: 'cancel' },
-        { text: tBorrow('confirm.markReturned.confirm'), onPress: run },
-      ]);
-    }
+      },
+    });
   };
 
   return (
@@ -187,6 +192,16 @@ export default function ItemDetailScreen() {
               }
             : undefined
         }
+      />
+      <ConfirmDialog
+        visible={confirm !== null}
+        title={confirm?.title ?? ''}
+        message={confirm?.message ?? ''}
+        confirmLabel={confirm?.confirmLabel ?? ''}
+        cancelLabel={confirm?.cancelLabel}
+        destructive={confirm?.destructive}
+        onDismiss={() => setConfirm(null)}
+        onConfirm={() => confirm?.onConfirm()}
       />
     </View>
   );

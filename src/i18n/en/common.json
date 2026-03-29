@@ -16,6 +16,11 @@
     "back": "Back",
     "done": "Done",
     "close": "Close",
-    "retry": "Retry"
+    "retry": "Retry",
+    "ok": "OK"
+  },
+  "alerts": {
+    "errorTitle": "Error",
+    "noticeTitle": "Notice"
   }
 }

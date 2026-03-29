@@ -6,7 +6,6 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
 import { spacing } from '@/shared/theme';
 import { ItemStatus } from '@/shared/types';
-import type { ConversationId, ItemId } from '@/shared/types';
+import type { ConversationId, ItemId, UserId } from '@/shared/types';
 import {
   useConversation,
   useMessages,
@@ -29,9 +28,13 @@ import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
-import { LoadingScreen } from '@/shared/components';
+import { ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+
+type ExchangeConfirm =
+  | { kind: 'donate'; itemId: ItemId; recipientId: UserId }
+  | { kind: 'sell'; itemId: ItemId; buyerId: UserId };
 
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -45,6 +48,7 @@ export default function ConversationDetailScreen() {
   const insets = useSafeAreaInsets();
   const [messageText, setMessageText] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
+  const [exchangeConfirm, setExchangeConfirm] = useState<ExchangeConfirm | null>(null);
 
   const { data: conversation, isLoading: convLoading } = useConversation(conversationId);
   const { data: item } = useItem(conversation?.itemId as ItemId);
@@ -122,60 +126,73 @@ export default function ConversationDetailScreen() {
     const conv = conversation;
     if (!conv?.itemId) return;
     const itemId = conv.itemId as ItemId;
-    const recipientId = conv.otherParticipantId;
+    const recipientId = conv.otherParticipantId as UserId;
 
-    // Defer confirm until after the Paper Menu modal finishes dismissing; otherwise
-    // `Alert.alert` / `window.confirm` can be swallowed on native and web.
+    // Defer confirm until after the Paper Menu modal finishes dismissing.
     setTimeout(() => {
-      if (Platform.OS === 'web') {
-        if (
-          window.confirm(
-            `${tExchange('confirm.donate.title')}\n${tExchange('confirm.donate.message')}`,
-          )
-        ) {
-          markDonated.mutate({ itemId, recipientId });
-        }
-      } else {
-        Alert.alert(tExchange('confirm.donate.title'), tExchange('confirm.donate.message'), [
-          { text: tExchange('confirm.donate.cancel'), style: 'cancel' },
-          {
-            text: tExchange('confirm.donate.confirm'),
-            onPress: () => {
-              markDonated.mutate({ itemId, recipientId });
-            },
-          },
-        ]);
-      }
+      setExchangeConfirm({ kind: 'donate', itemId, recipientId });
     }, 0);
-  }, [conversation, tExchange, markDonated]);
+  }, [conversation]);
 
   const handleMarkSold = useCallback(() => {
     setMenuVisible(false);
     const conv = conversation;
     if (!conv?.itemId) return;
     const itemId = conv.itemId as ItemId;
-    const buyerId = conv.otherParticipantId;
+    const buyerId = conv.otherParticipantId as UserId;
 
     setTimeout(() => {
-      if (Platform.OS === 'web') {
-        if (
-          window.confirm(`${tExchange('confirm.sell.title')}\n${tExchange('confirm.sell.message')}`)
-        ) {
-          markSold.mutate({ itemId, buyerId });
-        }
-      } else {
-        Alert.alert(tExchange('confirm.sell.title'), tExchange('confirm.sell.message'), [
-          { text: tExchange('confirm.sell.cancel'), style: 'cancel' },
-          {
-            text: tExchange('confirm.sell.confirm'),
-            onPress: () => {
-              markSold.mutate({ itemId, buyerId });
-            },
-          },
-        ]);
-      }
+      setExchangeConfirm({ kind: 'sell', itemId, buyerId });
     }, 0);
-  }, [conversation, tExchange, markSold]);
+  }, [conversation]);
+
+  const handleDismissExchangeConfirm = useCallback(() => {
+    setExchangeConfirm(null);
+  }, []);
+
+  const handleConfirmExchange = useCallback(() => {
+    if (!exchangeConfirm) return;
+    if (exchangeConfirm.kind === 'donate') {
+      markDonated.mutate({
+        itemId: exchangeConfirm.itemId,
+        recipientId: exchangeConfirm.recipientId,
+      });
+    } else {
+      markSold.mutate({
+        itemId: exchangeConfirm.itemId,
+        buyerId: exchangeConfirm.buyerId,
+      });
+    }
+    setExchangeConfirm(null);
+  }, [exchangeConfirm, markDonated, markSold]);
+
+  const exchangeDialogTitle =
+    exchangeConfirm?.kind === 'donate'
+      ? tExchange('confirm.donate.title')
+      : exchangeConfirm?.kind === 'sell'
+        ? tExchange('confirm.sell.title')
+        : '';
+
+  const exchangeDialogMessage =
+    exchangeConfirm?.kind === 'donate'
+      ? tExchange('confirm.donate.message')
+      : exchangeConfirm?.kind === 'sell'
+        ? tExchange('confirm.sell.message')
+        : '';
+
+  const exchangeCancelLabel =
+    exchangeConfirm?.kind === 'donate'
+      ? tExchange('confirm.donate.cancel')
+      : exchangeConfirm?.kind === 'sell'
+        ? tExchange('confirm.sell.cancel')
+        : undefined;
+
+  const exchangeConfirmLabel =
+    exchangeConfirm?.kind === 'donate'
+      ? tExchange('confirm.donate.confirm')
+      : exchangeConfirm?.kind === 'sell'
+        ? tExchange('confirm.sell.confirm')
+        : '';
 
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
@@ -301,6 +318,16 @@ export default function ConversationDetailScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      <ConfirmDialog
+        visible={exchangeConfirm !== null}
+        title={exchangeDialogTitle}
+        message={exchangeDialogMessage}
+        cancelLabel={exchangeCancelLabel}
+        confirmLabel={exchangeConfirmLabel}
+        onDismiss={handleDismissExchangeConfirm}
+        onConfirm={handleConfirmExchange}
+      />
     </View>
   );
 }

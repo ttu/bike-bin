@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, Alert, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
+import { ConfirmDialog } from '@/shared/components';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -29,12 +30,21 @@ import { GroupRole } from '@/shared/types';
 
 type ScreenMode = 'detail' | 'edit';
 
+type GroupConfirmConfig = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+};
+
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const groupId = id as GroupId;
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('groups');
-  const { t: tCommon } = useTranslation();
+  const { t: tCommon } = useTranslation('common');
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
@@ -64,6 +74,9 @@ export default function GroupDetailScreen() {
   const [editDescription, setEditDescription] = useState('');
   const [editIsPublic, setEditIsPublic] = useState(false);
   const [editNameError, setEditNameError] = useState('');
+
+  const [confirm, setConfirm] = useState<GroupConfirmConfig | null>(null);
+  const [acknowledge, setAcknowledge] = useState<{ title: string; message: string } | null>(null);
 
   // Current user's membership
   const currentMember = useMemo(
@@ -102,72 +115,96 @@ export default function GroupDetailScreen() {
       });
       setMode('detail');
     } catch {
-      Alert.alert('Error', 'Failed to update group');
+      setAcknowledge({
+        title: tCommon('alerts.errorTitle'),
+        message: t('errors.updateFailed'),
+      });
     }
-  }, [groupId, editName, editDescription, editIsPublic, updateGroup]);
+  }, [groupId, editName, editDescription, editIsPublic, updateGroup, t, tCommon]);
 
   const handleDeleteGroup = useCallback(() => {
-    Alert.alert(t('detail.deleteGroup'), t('detail.deleteConfirm'), [
-      { text: tCommon('actions.cancel'), style: 'cancel' },
-      {
-        text: tCommon('actions.delete'),
-        style: 'destructive',
-        onPress: async () => {
+    setConfirm({
+      title: t('detail.deleteGroup'),
+      message: t('detail.deleteConfirm'),
+      cancelLabel: tCommon('actions.cancel'),
+      confirmLabel: tCommon('actions.delete'),
+      destructive: true,
+      onConfirm: () => {
+        setConfirm(null);
+        void (async () => {
           try {
             await deleteGroup.mutateAsync(groupId);
             tabScopedBack('/(tabs)/profile/groups');
           } catch {
-            Alert.alert('Error', 'Failed to delete group');
+            setAcknowledge({
+              title: tCommon('alerts.errorTitle'),
+              message: t('errors.deleteFailed'),
+            });
           }
-        },
+        })();
       },
-    ]);
+    });
   }, [groupId, deleteGroup, t, tCommon]);
 
   const handleLeaveGroup = useCallback(() => {
     if (!currentMember || !members) return;
 
     if (!canLeaveGroup(currentMember, members)) {
-      Alert.alert(t('detail.lastAdminWarning'));
+      setAcknowledge({
+        title: tCommon('alerts.noticeTitle'),
+        message: t('detail.lastAdminWarning'),
+      });
       return;
     }
 
-    Alert.alert(t('detail.leaveGroup'), t('detail.leaveConfirm'), [
-      { text: tCommon('actions.cancel'), style: 'cancel' },
-      {
-        text: t('detail.leaveGroup'),
-        style: 'destructive',
-        onPress: async () => {
+    setConfirm({
+      title: t('detail.leaveGroup'),
+      message: t('detail.leaveConfirm'),
+      cancelLabel: tCommon('actions.cancel'),
+      confirmLabel: t('detail.leaveGroup'),
+      destructive: true,
+      onConfirm: () => {
+        setConfirm(null);
+        void (async () => {
           try {
             await leaveGroup.mutateAsync(groupId);
             tabScopedBack('/(tabs)/profile/groups');
           } catch {
-            Alert.alert('Error', 'Failed to leave group');
+            setAcknowledge({
+              title: tCommon('alerts.errorTitle'),
+              message: t('errors.leaveFailed'),
+            });
           }
-        },
+        })();
       },
-    ]);
+    });
   }, [groupId, currentMember, members, leaveGroup, t, tCommon]);
 
   const handlePromoteMember = useCallback(
     (member: GroupMemberWithProfile) => {
       const displayName = member.profile.displayName ?? 'this member';
-      Alert.alert(t('detail.promote'), t('detail.promoteConfirm', { name: displayName }), [
-        { text: tCommon('actions.cancel'), style: 'cancel' },
-        {
-          text: t('detail.promote'),
-          onPress: async () => {
+      setConfirm({
+        title: t('detail.promote'),
+        message: t('detail.promoteConfirm', { name: displayName }),
+        cancelLabel: tCommon('actions.cancel'),
+        confirmLabel: t('detail.promote'),
+        onConfirm: () => {
+          setConfirm(null);
+          void (async () => {
             try {
               await promoteMember.mutateAsync({
                 groupId,
                 userId: member.userId,
               });
             } catch {
-              Alert.alert('Error', 'Failed to promote member');
+              setAcknowledge({
+                title: tCommon('alerts.errorTitle'),
+                message: t('errors.promoteFailed'),
+              });
             }
-          },
+          })();
         },
-      ]);
+      });
     },
     [groupId, promoteMember, t, tCommon],
   );
@@ -175,23 +212,29 @@ export default function GroupDetailScreen() {
   const handleRemoveMember = useCallback(
     (member: GroupMemberWithProfile) => {
       const displayName = member.profile.displayName ?? 'this member';
-      Alert.alert(t('detail.remove'), t('detail.removeConfirm', { name: displayName }), [
-        { text: tCommon('actions.cancel'), style: 'cancel' },
-        {
-          text: t('detail.remove'),
-          style: 'destructive',
-          onPress: async () => {
+      setConfirm({
+        title: t('detail.remove'),
+        message: t('detail.removeConfirm', { name: displayName }),
+        cancelLabel: tCommon('actions.cancel'),
+        confirmLabel: t('detail.remove'),
+        destructive: true,
+        onConfirm: () => {
+          setConfirm(null);
+          void (async () => {
             try {
               await removeMember.mutateAsync({
                 groupId,
                 userId: member.userId,
               });
             } catch {
-              Alert.alert('Error', 'Failed to remove member');
+              setAcknowledge({
+                title: tCommon('alerts.errorTitle'),
+                message: t('errors.removeFailed'),
+              });
             }
-          },
+          })();
         },
-      ]);
+      });
     },
     [groupId, removeMember, t, tCommon],
   );
@@ -279,6 +322,25 @@ export default function GroupDetailScreen() {
             {t('edit.save')}
           </GradientButton>
         </ScrollView>
+        <ConfirmDialog
+          visible={confirm !== null}
+          title={confirm?.title ?? ''}
+          message={confirm?.message ?? ''}
+          confirmLabel={confirm?.confirmLabel ?? ''}
+          cancelLabel={confirm?.cancelLabel}
+          destructive={confirm?.destructive}
+          onDismiss={() => setConfirm(null)}
+          onConfirm={() => confirm?.onConfirm()}
+        />
+        <ConfirmDialog
+          visible={acknowledge !== null}
+          title={acknowledge?.title ?? ''}
+          message={acknowledge?.message ?? ''}
+          confirmLabel={tCommon('actions.ok')}
+          variant="acknowledge"
+          onDismiss={() => setAcknowledge(null)}
+          onConfirm={() => setAcknowledge(null)}
+        />
       </View>
     );
   }
@@ -388,6 +450,25 @@ export default function GroupDetailScreen() {
           </View>
         )}
       </ScrollView>
+      <ConfirmDialog
+        visible={confirm !== null}
+        title={confirm?.title ?? ''}
+        message={confirm?.message ?? ''}
+        confirmLabel={confirm?.confirmLabel ?? ''}
+        cancelLabel={confirm?.cancelLabel}
+        destructive={confirm?.destructive}
+        onDismiss={() => setConfirm(null)}
+        onConfirm={() => confirm?.onConfirm()}
+      />
+      <ConfirmDialog
+        visible={acknowledge !== null}
+        title={acknowledge?.title ?? ''}
+        message={acknowledge?.message ?? ''}
+        confirmLabel={tCommon('actions.ok')}
+        variant="acknowledge"
+        onDismiss={() => setAcknowledge(null)}
+        onConfirm={() => setAcknowledge(null)}
+      />
     </View>
   );
 }
