@@ -101,13 +101,14 @@ test.describe('Borrow on listing detail', () => {
     await tablist.getByRole('tab', { name: /Search/ }).click();
     await page.waitForURL(/\/search/);
 
-    // Search screen is accessible — borrow actions require authentication
-    await expect(page.getByPlaceholder('Parts, tools, bikes...')).toBeVisible();
-
-    // When viewing a listing as unauthenticated user, they should see
-    // "Sign in to contact" instead of "Request Borrow" or "Contact" buttons.
-    // We verify the search tab loads correctly (listing detail requires items in DB).
-    await expect(page.getByText('Find what you need')).toBeVisible();
+    // Search requires auth — guests see a sign-in prompt instead of the search bar.
+    await expect(page.getByText('Sign in to search')).toBeVisible();
+    await expect(
+      page.getByText(
+        'Create an account or sign in to discover parts and bikes from cyclists nearby.',
+      ),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Sign in$/ })).toBeVisible();
   });
 });
 
