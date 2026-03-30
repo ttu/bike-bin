@@ -70,176 +70,176 @@ export default function ProfileScreen() {
 
   return (
     <>
-    <ScrollView
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-          {t('title')}
-        </Text>
-      </View>
-
-      <DemoBanner />
-
-      {!user && !isDemoMode && (
-        <View style={[styles.guestCard, { backgroundColor: theme.colors.primaryContainer }]}>
-          <MaterialCommunityIcons
-            name="account-circle-outline"
-            size={48}
-            color={theme.colors.primary}
-          />
-          <Text
-            variant="titleMedium"
-            style={[styles.guestTitle, { color: theme.colors.onSurface }]}
-          >
-            {tAuth('guestProfile.title')}
-          </Text>
-          <Text
-            variant="bodyMedium"
-            style={[styles.guestDescription, { color: theme.colors.onSurfaceVariant }]}
-          >
-            {tAuth('guestProfile.benefits')}
-          </Text>
-          <Button
-            mode="contained"
-            onPress={() => router.push('/(auth)/login' as never)}
-            style={styles.guestButton}
-          >
-            {tAuth('guestProfile.signIn')}
-          </Button>
-        </View>
-      )}
-
-      {(user || isDemoMode) && profile && (
-        <ProfileHeader
-          profile={profile}
-          onEditPress={() => router.push('/(tabs)/profile/edit-profile' as never)}
-        />
-      )}
-
-      {/* Saved Locations */}
-      <MenuItem
-        icon="map-marker"
-        label={t('menu.savedLocations')}
-        onPress={() => router.push('/(tabs)/profile/locations' as never)}
-      />
-
-      {/* Borrow Requests */}
-      <MenuItem
-        icon="swap-horizontal"
-        label={tBorrow('profileMenu.label')}
-        badge={incomingPendingCount}
-        onPress={() => router.push('/(tabs)/profile/borrow-requests' as never)}
-      />
-
-      {/* Groups */}
-      <MenuItem
-        icon="account-group"
-        label={tGroups('profileMenu.label')}
-        onPress={() => router.push('/(tabs)/profile/groups' as never)}
-      />
-
-      {/* Notification Settings */}
-      <MenuItem
-        icon="bell-outline"
-        label={tNotifications('profileMenu.label')}
-        onPress={() => router.push('/(tabs)/profile/notification-settings' as never)}
-      />
-
-      {/* Appearance */}
-      <View style={[styles.appearanceSection, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.appearanceHeader}>
-          <MaterialCommunityIcons
-            name="brightness-6"
-            size={iconSize.md}
-            color={theme.colors.primary}
-          />
-          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-            {t('menu.appearance')}
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: theme.colors.background, paddingTop: insets.top },
+        ]}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
+            {t('title')}
           </Text>
         </View>
-        <SegmentedButtons
-          value={preference}
-          onValueChange={(value) => setPreference(value as ThemePreference)}
-          buttons={themeButtons}
-          style={styles.segmentedButtons}
-        />
-      </View>
 
-      {/* Distance Unit */}
-      <View style={[styles.appearanceSection, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.appearanceHeader}>
-          <MaterialCommunityIcons
-            name="map-marker-distance"
-            size={iconSize.md}
-            color={theme.colors.primary}
+        <DemoBanner />
+
+        {!user && !isDemoMode && (
+          <View style={[styles.guestCard, { backgroundColor: theme.colors.primaryContainer }]}>
+            <MaterialCommunityIcons
+              name="account-circle-outline"
+              size={48}
+              color={theme.colors.primary}
+            />
+            <Text
+              variant="titleMedium"
+              style={[styles.guestTitle, { color: theme.colors.onSurface }]}
+            >
+              {tAuth('guestProfile.title')}
+            </Text>
+            <Text
+              variant="bodyMedium"
+              style={[styles.guestDescription, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {tAuth('guestProfile.benefits')}
+            </Text>
+            <Button
+              mode="contained"
+              onPress={() => router.push('/(auth)/login' as never)}
+              style={styles.guestButton}
+            >
+              {tAuth('guestProfile.signIn')}
+            </Button>
+          </View>
+        )}
+
+        {(user || isDemoMode) && profile && (
+          <ProfileHeader
+            profile={profile}
+            onEditPress={() => router.push('/(tabs)/profile/edit-profile' as never)}
           />
-          <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-            {t('distanceUnit.title')}
-          </Text>
-        </View>
-        <SegmentedButtons
-          value={distanceUnit}
-          onValueChange={setDistanceUnit}
-          buttons={distanceUnitButtons}
-          style={styles.segmentedButtons}
+        )}
+
+        {/* Saved Locations */}
+        <MenuItem
+          icon="map-marker"
+          label={t('menu.savedLocations')}
+          onPress={() => router.push('/(tabs)/profile/locations' as never)}
         />
-      </View>
 
-      {/* Help & Support */}
-      <MenuItem
-        icon="help-circle-outline"
-        label={t('menu.helpSupport')}
-        onPress={() => router.push('/(tabs)/profile/support' as never)}
+        {/* Borrow Requests */}
+        <MenuItem
+          icon="swap-horizontal"
+          label={tBorrow('profileMenu.label')}
+          badge={incomingPendingCount}
+          onPress={() => router.push('/(tabs)/profile/borrow-requests' as never)}
+        />
+
+        {/* Groups */}
+        <MenuItem
+          icon="account-group"
+          label={tGroups('profileMenu.label')}
+          onPress={() => router.push('/(tabs)/profile/groups' as never)}
+        />
+
+        {/* Notification Settings */}
+        <MenuItem
+          icon="bell-outline"
+          label={tNotifications('profileMenu.label')}
+          onPress={() => router.push('/(tabs)/profile/notification-settings' as never)}
+        />
+
+        {/* Appearance */}
+        <View style={[styles.appearanceSection, { backgroundColor: theme.colors.surface }]}>
+          <View style={styles.appearanceHeader}>
+            <MaterialCommunityIcons
+              name="brightness-6"
+              size={iconSize.md}
+              color={theme.colors.primary}
+            />
+            <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+              {t('menu.appearance')}
+            </Text>
+          </View>
+          <SegmentedButtons
+            value={preference}
+            onValueChange={(value) => setPreference(value as ThemePreference)}
+            buttons={themeButtons}
+            style={styles.segmentedButtons}
+          />
+        </View>
+
+        {/* Distance Unit */}
+        <View style={[styles.appearanceSection, { backgroundColor: theme.colors.surface }]}>
+          <View style={styles.appearanceHeader}>
+            <MaterialCommunityIcons
+              name="map-marker-distance"
+              size={iconSize.md}
+              color={theme.colors.primary}
+            />
+            <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+              {t('distanceUnit.title')}
+            </Text>
+          </View>
+          <SegmentedButtons
+            value={distanceUnit}
+            onValueChange={setDistanceUnit}
+            buttons={distanceUnitButtons}
+            style={styles.segmentedButtons}
+          />
+        </View>
+
+        {/* Help & Support */}
+        <MenuItem
+          icon="help-circle-outline"
+          label={t('menu.helpSupport')}
+          onPress={() => router.push('/(tabs)/profile/support' as never)}
+        />
+
+        {/* About & Legal */}
+        <MenuItem
+          icon="information-outline"
+          label={t('menu.aboutLegal')}
+          onPress={() => router.push('/(tabs)/profile/about' as never)}
+        />
+
+        {/* Sign Out / Exit Demo */}
+        {isDemoMode && (
+          <Pressable
+            onPress={handleExitDemo}
+            style={[styles.signOutButton, { backgroundColor: theme.colors.surface }]}
+            accessibilityRole="button"
+          >
+            <MaterialCommunityIcons name="logout" size={iconSize.md} color={theme.colors.primary} />
+            <Text variant="bodyLarge" style={{ color: theme.colors.primary }}>
+              {tDemo('profile.exitDemo')}
+            </Text>
+          </Pressable>
+        )}
+        {user && !isDemoMode && (
+          <Pressable
+            onPress={handleSignOut}
+            style={[styles.signOutButton, { backgroundColor: theme.colors.surface }]}
+            accessibilityRole="button"
+          >
+            <MaterialCommunityIcons name="logout" size={iconSize.md} color={theme.colors.error} />
+            <Text variant="bodyLarge" style={{ color: theme.colors.error }}>
+              {t('menu.signOut')}
+            </Text>
+          </Pressable>
+        )}
+      </ScrollView>
+      <ConfirmDialog
+        visible={signOutConfirmVisible}
+        title={t('signOutConfirm.title')}
+        message={t('signOutConfirm.message')}
+        cancelLabel={t('signOutConfirm.cancel')}
+        confirmLabel={t('signOutConfirm.confirm')}
+        destructive
+        onDismiss={() => setSignOutConfirmVisible(false)}
+        onConfirm={handleConfirmSignOut}
       />
-
-      {/* About & Legal */}
-      <MenuItem
-        icon="information-outline"
-        label={t('menu.aboutLegal')}
-        onPress={() => router.push('/(tabs)/profile/about' as never)}
-      />
-
-      {/* Sign Out / Exit Demo */}
-      {isDemoMode && (
-        <Pressable
-          onPress={handleExitDemo}
-          style={[styles.signOutButton, { backgroundColor: theme.colors.surface }]}
-          accessibilityRole="button"
-        >
-          <MaterialCommunityIcons name="logout" size={iconSize.md} color={theme.colors.primary} />
-          <Text variant="bodyLarge" style={{ color: theme.colors.primary }}>
-            {tDemo('profile.exitDemo')}
-          </Text>
-        </Pressable>
-      )}
-      {user && !isDemoMode && (
-        <Pressable
-          onPress={handleSignOut}
-          style={[styles.signOutButton, { backgroundColor: theme.colors.surface }]}
-          accessibilityRole="button"
-        >
-          <MaterialCommunityIcons name="logout" size={iconSize.md} color={theme.colors.error} />
-          <Text variant="bodyLarge" style={{ color: theme.colors.error }}>
-            {t('menu.signOut')}
-          </Text>
-        </Pressable>
-      )}
-    </ScrollView>
-    <ConfirmDialog
-      visible={signOutConfirmVisible}
-      title={t('signOutConfirm.title')}
-      message={t('signOutConfirm.message')}
-      cancelLabel={t('signOutConfirm.cancel')}
-      confirmLabel={t('signOutConfirm.confirm')}
-      destructive
-      onDismiss={() => setSignOutConfirmVisible(false)}
-      onConfirm={handleConfirmSignOut}
-    />
     </>
   );
 }

@@ -1,0 +1,792 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhoneFrame from '../components/PhoneFrame.astro';
+import VideoCard from '../components/VideoCard.astro';
+
+const title = 'Bike Bin — your bike parts inventory';
+const description =
+  'Catalog parts, tools, and builds in one place. When you want to, list or find gear nearby and coordinate handoffs—with privacy-friendly locations and messaging. From bikers to bikers.';
+
+/**
+ * Unsplash — cycling / bicycle imagery only (no generic stock).
+ * @see https://unsplash.com/license
+ */
+const u = (photoId: string, w: number, h?: number) =>
+  `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=${w}${h != null ? `&h=${h}` : ''}&q=80`;
+
+const pics = {
+  hero: u('photo-1618762044398-ec1e7e048bbd', 800, 1280),
+  step1: u('photo-1532298229144-0ec0c57515c7', 960, 600),
+  step2: u('photo-1541625602330-2277a4c46182', 960, 600),
+  step3: u('photo-1511994298241-608e28f14fde', 960, 600),
+  wide: u('photo-1485965120184-e220f721d03e', 1800, 1100),
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Bike Bin</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a class="nav-cta" href="https://app.bikebin.app">Open app</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="hero-slant" aria-hidden="true"></div>
+      <div class="hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">From bikers to bikers</p>
+          <h1 id="hero-heading">
+            Know your bin. <span class="hl">Share when you want.</span>
+          </h1>
+          <p class="lead">
+            Keep your parts, tools, and builds organized—photos, condition, and status in one inventory. Listing,
+            nearby search, and groups are there when you need them; pickups stay area-level until you coordinate in-app.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://app.bikebin.app">Open web app</a>
+            <a class="btn btn-secondary" href="https://github.com/ttu/bike-bin">Source</a>
+          </div>
+          <ul class="hero-stats" aria-label="Highlights">
+            <li><strong>Inventory</strong><span>your parts &amp; builds</span></li>
+            <li><strong>Optional</strong><span>list, search nearby, groups</span></li>
+            <li><strong>Private</strong><span>area-level handoffs</span></li>
+          </ul>
+        </div>
+        <div class="hero-visual reveal reveal-delay-1">
+          <PhoneFrame
+            posterSrc={pics.hero}
+            imageAlt="Road bicycle against a wall—cycling stock photo behind an animated generic app mock-up."
+          />
+          <p class="hero-caption">
+            Cycling photo with a subtle pan plus a generic app-style animation — replace with real product UI when ready.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-band section-band--alt" aria-labelledby="story-heading">
+      <div class="section-inner split split--reverse">
+        <div class="split-copy reveal">
+          <p class="eyebrow">On the go</p>
+          <h2 id="story-heading">Your inventory comes first</h2>
+          <p class="section-lead muted">
+            The bin is home—search, groups, and messaging sit one layer out when you are ready to share or pick
+            something up. Same codebase on web, iOS, and Android.
+          </p>
+        </div>
+        <figure class="split-media reveal reveal-delay-1">
+          <img
+            src={pics.wide}
+            width={1800}
+            height={1100}
+            alt="Cyclist on a road bike on a country road—stock photo."
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption class="media-cap">Unsplash stock (cycling) — replace with your photography.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="section section-dark" aria-labelledby="how-heading">
+      <div class="section-dark-grid" aria-hidden="true"></div>
+      <div class="section-inner">
+        <div class="section-head reveal">
+          <p class="eyebrow eyebrow-dark">Still previews</p>
+          <h2 id="how-heading">Three beats: your bin, then the rest</h2>
+          <p class="section-lead section-lead-dark">
+            Cycling photography placeholders with a light pan animation—swap for app screen captures when you ship the
+            tour.
+          </p>
+        </div>
+        <div class="video-grid">
+          <div class="reveal reveal-delay-1">
+            <VideoCard
+              variant="dark"
+              step="01 — Your bin"
+              title="Track what you own"
+              body="Photos, condition, usage, and status—keep your workshop straight without a spreadsheet."
+              posterSrc={pics.step1}
+              imageAlt="Road bike build—cycling stock placeholder for inventory."
+            />
+          </div>
+          <div class="reveal reveal-delay-2">
+            <VideoCard
+              variant="dark"
+              step="02 — When you want"
+              title="List or find nearby"
+              body="Offer borrow, donation, or sale; search with distance and availability—only when you need it."
+              posterSrc={pics.step2}
+              imageAlt="Cyclist on the road—cycling stock placeholder for listing and search."
+            />
+          </div>
+          <div class="reveal reveal-delay-3">
+            <VideoCard
+              variant="dark"
+              step="03 — Hand off"
+              title="Coordinate clearly"
+              body="Item-linked threads and requests—pickup stays area-level until you align in chat."
+              posterSrc={pics.step3}
+              imageAlt="Cycling—stock placeholder for hand-off."
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section features-section section-band section-band--surface" aria-labelledby="features-heading">
+      <div class="section-inner">
+        <div class="section-head reveal">
+          <p class="eyebrow">Product map</p>
+          <h2 id="features-heading">Everything in one bin</h2>
+          <p class="section-lead">
+            Core workflow is yours to own—everything below layers on when you list or meet someone.
+          </p>
+        </div>
+        <div class="bento">
+          <article class="bento-card bento-wide reveal">
+            <h3>Personal inventory</h3>
+            <p>
+              The main job: know what you have—photos, condition, usage, and lifecycle status. Availability to borrow,
+              donate, or sell is optional on each item.
+            </p>
+          </article>
+          <article class="bento-card reveal reveal-delay-1">
+            <h3>Distance search</h3>
+            <p>When you list publicly, discovery is PostGIS-backed around you—not a flat catalog.</p>
+          </article>
+          <article class="bento-card reveal reveal-delay-2">
+            <h3>Groups</h3>
+            <p>Optional: scope visibility to clubs or crews instead of everyone.</p>
+          </article>
+          <article class="bento-card reveal reveal-delay-1">
+            <h3>Messaging</h3>
+            <p>Item-linked threads when you coordinate a handoff with someone else.</p>
+          </article>
+          <article class="bento-card reveal reveal-delay-2">
+            <h3>Ratings</h3>
+            <p>Lightweight feedback after handoffs when a transaction happens.</p>
+          </article>
+          <article class="bento-card reveal reveal-delay-3">
+            <h3>Locations</h3>
+            <p>Pickup areas without exposing full street addresses by default.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta section-band section-band--alt" aria-labelledby="cta-heading">
+      <div class="cta-inner reveal">
+        <p class="eyebrow eyebrow-cta">Ready</p>
+        <h2 id="cta-heading">Open the bin on the web</h2>
+        <p class="cta-lead">Same account as native when you sign in.</p>
+        <a class="btn btn-primary btn-lg" href="https://app.bikebin.app">app.bikebin.app</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p><strong>Bike Bin</strong> — iOS, Android, Web.</p>
+      <p class="footer-meta">
+        <a href="https://github.com/ttu/bike-bin">GitHub</a>
+        <span aria-hidden="true">·</span>
+        <span>Marketing · Astro</span>
+      </p>
+    </div>
+  </footer>
+
+</BaseLayout>
+
+<style>
+  /** Opacity only — avoid transform here; it fights .split-media rotate and breaks grid alignment. */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .reveal {
+    opacity: 0;
+    animation: fade-in 0.75s var(--ease-out) forwards;
+  }
+
+  .reveal-delay-1 {
+    animation-delay: 0.08s;
+  }
+  .reveal-delay-2 {
+    animation-delay: 0.16s;
+  }
+  .reveal-delay-3 {
+    animation-delay: 0.24s;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-ink);
+    color: #fff;
+    border-radius: 999px;
+    z-index: 100;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    left: 0.5rem;
+  }
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--color-line);
+    background: rgba(245, 240, 232, 0.82);
+    backdrop-filter: blur(16px);
+  }
+
+  .nav-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0.9rem var(--space-page);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .brand-mark {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.55rem;
+    background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-mid) 55%, var(--color-accent) 120%);
+    box-shadow: 0 12px 32px rgba(0, 104, 87, 0.35);
+  }
+
+  .brand-text {
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem 1.15rem;
+    font-size: 0.94rem;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .nav-links a:hover {
+    color: var(--color-ink);
+  }
+
+  .nav-cta {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fafaf9 !important;
+    border: 1px solid transparent;
+    font-weight: 600;
+  }
+
+  .nav-cta:hover {
+    background: var(--color-ink-soft);
+  }
+
+  .hero {
+    position: relative;
+    padding: clamp(2.25rem, 6vw, 4.5rem) var(--space-page) 2.5rem;
+    overflow: hidden;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  /** Alternating bands (paper ↔ paper-deep) so sections read as distinct blocks. */
+  .section-band--surface {
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .section-band--alt {
+    background: var(--color-paper-deep);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .hero-slant {
+    position: absolute;
+    top: -20%;
+    right: -15%;
+    width: min(70vw, 520px);
+    height: 120%;
+    background: linear-gradient(145deg, rgba(0, 104, 87, 0.09), rgba(234, 88, 12, 0.06));
+    transform: rotate(-8deg);
+    border-radius: 3rem;
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    position: relative;
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    gap: clamp(1.75rem, 5vw, 3.5rem);
+    align-items: center;
+  }
+
+  @media (max-width: 920px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-slant {
+      opacity: 0.5;
+    }
+  }
+
+  .hl {
+    color: var(--color-accent);
+    font-style: italic;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-brand-mid);
+  }
+
+  .eyebrow-dark {
+    color: #fdba74;
+  }
+
+  .eyebrow-cta {
+    color: var(--color-brand-mid);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5.5vw, 3.65rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+  }
+
+  h2 {
+    margin: 0 0 0.65rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.85rem, 3.5vw, 2.45rem);
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .lead {
+    margin: 0 0 1.85rem;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    color: var(--color-muted);
+    max-width: 44ch;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-bottom: 1.85rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.78rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.97rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition:
+      transform 0.2s var(--ease-out),
+      box-shadow 0.2s var(--ease-out),
+      background 0.2s var(--ease-out);
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-accent-bright), var(--color-accent));
+    color: #fffaf0;
+    box-shadow: 0 16px 44px rgba(194, 65, 12, 0.35);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 22px 55px rgba(194, 65, 12, 0.42);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.65);
+    color: var(--color-ink);
+    border-color: var(--color-line-strong);
+    backdrop-filter: blur(8px);
+  }
+
+  .btn-secondary:hover {
+    background: #fff;
+  }
+
+  .btn-lg {
+    padding: 0.95rem 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 520px;
+  }
+
+  .hero-stats li {
+    padding: 0.8rem 0.9rem;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-card);
+  }
+
+  .hero-stats strong {
+    display: block;
+    font-size: 0.92rem;
+    font-family: var(--font-display);
+  }
+
+  .hero-stats span {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+  }
+
+  .hero-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .hero-caption {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    text-align: center;
+    max-width: 260px;
+    line-height: 1.4;
+  }
+
+  .section {
+    padding: clamp(3rem, 8vw, 5.5rem) var(--space-page);
+  }
+
+  .section-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .section-head {
+    max-width: 560px;
+    margin-bottom: 2.25rem;
+  }
+
+  .section-lead {
+    margin: 0;
+    font-size: 1.06rem;
+    line-height: 1.65;
+    color: var(--color-muted);
+  }
+
+  .muted {
+    color: var(--color-muted) !important;
+  }
+
+  .section-dark {
+    position: relative;
+    color: #e7e5e4;
+    padding: clamp(3.5rem, 9vw, 6rem) var(--space-page);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .section-dark-grid {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 0%, rgba(45, 212, 191, 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 45% at 90% 20%, rgba(234, 88, 12, 0.1), transparent 50%),
+      linear-gradient(180deg, #0f172a 0%, #020617 100%);
+    z-index: 0;
+  }
+
+  .section-dark .section-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-dark h2 {
+    color: #fafaf9;
+  }
+
+  .section-lead-dark {
+    color: rgba(231, 229, 228, 0.88) !important;
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+
+  @media (max-width: 960px) {
+    .video-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: clamp(1.75rem, 4vw, 3rem);
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /**
+   * Wide only: image left / text right. grid-template-areas keeps one row, aligned tops.
+   * DOM order stays copy then figure for screen readers.
+   */
+  @media (min-width: 901px) {
+    .split--reverse {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      grid-template-rows: auto;
+      grid-template-areas: 'media copy';
+    }
+
+    .split--reverse .split-media {
+      grid-area: media;
+      align-self: start;
+    }
+
+    .split--reverse .split-copy {
+      grid-area: copy;
+      align-self: start;
+    }
+  }
+
+  .split-media {
+    margin: 0;
+    padding: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-soft);
+    background: #fff;
+    align-self: start;
+  }
+
+  .split-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .media-cap {
+    padding: 0.85rem 1rem;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    background: #faf7f2;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .section-band--alt .media-cap {
+    background: var(--color-paper);
+  }
+
+  .features-section {
+    padding-bottom: clamp(2rem, 5vw, 3rem);
+  }
+
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .bento-card {
+    grid-column: span 2;
+    padding: 1.35rem 1.4rem;
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(10px);
+    transition:
+      transform 0.3s var(--ease-out),
+      box-shadow 0.3s var(--ease-out);
+  }
+
+  .bento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .bento-card h3 {
+    margin: 0 0 0.45rem;
+    font-size: 1.08rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .bento-card p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+
+  .bento-wide {
+    grid-column: span 6;
+    background: linear-gradient(120deg, rgba(0, 104, 87, 0.1), rgba(234, 88, 12, 0.06));
+    border-color: rgba(0, 104, 87, 0.15);
+  }
+
+  @media (max-width: 900px) {
+    .bento {
+      grid-template-columns: 1fr;
+    }
+
+    .bento-card,
+    .bento-wide {
+      grid-column: span 1;
+    }
+  }
+
+  .cta {
+    padding: clamp(2rem, 6vw, 4rem) var(--space-page) 1rem;
+  }
+
+  .cta.section-band--alt {
+    padding-bottom: clamp(2.5rem, 7vw, 4rem);
+  }
+
+  .cta-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: clamp(2.25rem, 6vw, 3.25rem);
+    border-radius: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 240, 232, 0.95) 100%);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-inner::before {
+    content: '';
+    position: absolute;
+    inset: -40% -20% auto;
+    height: 80%;
+    background: radial-gradient(circle at 50% 0%, rgba(234, 88, 12, 0.12), transparent 55%);
+    pointer-events: none;
+  }
+
+  .cta-inner h2,
+  .cta-lead,
+  .btn {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-inner h2 {
+    margin: 0 0 0.35rem;
+  }
+
+  .cta-lead {
+    margin: 0 0 1.35rem;
+    color: var(--color-muted);
+    font-size: 1.05rem;
+  }
+
+  .footer {
+    padding: 2.25rem var(--space-page) 3rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .footer-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer a {
+    color: inherit;
+  }
+
+  .footer-meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+</style>

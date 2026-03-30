@@ -1,0 +1,310 @@
+---
+interface Props {
+  posterSrc: string;
+  imageAlt: string;
+}
+
+const { posterSrc, imageAlt } = Astro.props;
+---
+
+<div class="frame" data-phone-frame>
+  <div class="ring" aria-hidden="true"></div>
+  <div class="bezel">
+    <div class="notch" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="still">
+        <img src={posterSrc} alt={imageAlt} width={800} height={1280} loading="eager" decoding="async" />
+        <div class="app-ui" aria-hidden="true">
+          <div class="app-chrome">
+            <span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span>
+          </div>
+          <div class="app-header">
+            <span class="app-pill"></span>
+            <span class="app-title"></span>
+          </div>
+          <div class="app-scroll-wrap">
+            <div class="app-scroll">
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+            </div>
+          </div>
+          <div class="app-tab">
+            <span class="app-tab-dot"></span><span class="app-tab-dot app-tab-dot--on"></span><span class="app-tab-dot"></span>
+          </div>
+        </div>
+        <div class="shine" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .frame {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 300px);
+    margin-inline: auto;
+  }
+
+  .ring {
+    position: absolute;
+    inset: -12px;
+    border-radius: 2.75rem;
+    background: linear-gradient(135deg, rgba(234, 88, 12, 0.35), rgba(0, 104, 87, 0.25));
+    filter: blur(8px);
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .bezel {
+    position: relative;
+    border-radius: 2.25rem;
+    padding: 0.65rem;
+    background: linear-gradient(155deg, #292524 0%, #0c0a09 52%, #020617 100%);
+    box-shadow: var(--shadow-soft), 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+  }
+
+  .notch {
+    position: absolute;
+    top: 0.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32%;
+    height: 1.1rem;
+    background: #020617;
+    border-radius: 0 0 0.75rem 0.75rem;
+    z-index: 2;
+  }
+
+  .screen {
+    position: relative;
+    border-radius: 1.75rem;
+    overflow: hidden;
+    aspect-ratio: 10 / 19;
+    background: #0f172a;
+  }
+
+  .still {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .still img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.08);
+    animation: kb 14s ease-in-out infinite alternate;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .still img {
+      animation: none;
+      transform: scale(1.02);
+    }
+  }
+
+  @keyframes kb {
+    from {
+      transform: scale(1.06) translate(0, 0);
+    }
+    to {
+      transform: scale(1.12) translate(-1.5%, -1%);
+    }
+  }
+
+  .app-ui {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent 0%, transparent 38%, rgba(2, 6, 23, 0.72) 58%, rgba(2, 6, 23, 0.92) 100%);
+  }
+
+  .app-chrome {
+    position: absolute;
+    top: 0.45rem;
+    left: 0.55rem;
+    display: flex;
+    gap: 0.2rem;
+    opacity: 0.85;
+  }
+
+  .app-dot {
+    width: 0.28rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: rgba(250, 250, 249, 0.55);
+  }
+
+  .app-header {
+    position: absolute;
+    top: 18%;
+    left: 0.65rem;
+    right: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+  }
+
+  .app-pill {
+    width: 38%;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: rgba(250, 250, 249, 0.22);
+    animation: pill-pulse 3.2s ease-in-out infinite;
+  }
+
+  .app-title {
+    width: 62%;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: rgba(250, 250, 249, 0.35);
+  }
+
+  @keyframes pill-pulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      transform: scaleX(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scaleX(1.04);
+    }
+  }
+
+  .app-scroll-wrap {
+    position: relative;
+    height: 42%;
+    margin: 0 0.55rem 2.1rem;
+    overflow: hidden;
+    border-radius: 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
+  }
+
+  .app-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.5rem;
+    animation: app-scroll 10s linear infinite;
+  }
+
+  @keyframes app-scroll {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-scroll {
+      animation: none;
+    }
+
+    .app-pill {
+      animation: none;
+    }
+
+    .app-tab-dot--on {
+      animation: none;
+    }
+  }
+
+  .app-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .app-thumb {
+    flex: 0 0 1.65rem;
+    height: 1.65rem;
+    border-radius: 0.35rem;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-brand-mid) 45%, transparent),
+      color-mix(in srgb, var(--color-accent) 40%, transparent)
+    );
+    opacity: 0.9;
+  }
+
+  .app-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .app-lines span {
+    display: block;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: rgba(250, 250, 249, 0.22);
+  }
+
+  .app-lines span:last-child {
+    width: 72%;
+    opacity: 0.75;
+  }
+
+  .app-tab {
+    position: absolute;
+    bottom: 0.45rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .app-tab-dot {
+    width: 0.32rem;
+    height: 0.32rem;
+    border-radius: 999px;
+    background: rgba(250, 250, 249, 0.22);
+  }
+
+  .app-tab-dot--on {
+    width: 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-brand-mid) 88%, transparent);
+    animation: tab-glow 2.4s ease-in-out infinite;
+  }
+
+  @keyframes tab-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand-mid) 35%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 12px 2px color-mix(in srgb, var(--color-brand-mid) 45%, transparent);
+    }
+  }
+
+  .shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(125deg, rgba(255, 255, 255, 0.22) 0%, transparent 42%, transparent 100%);
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+    z-index: 2;
+  }
+</style>

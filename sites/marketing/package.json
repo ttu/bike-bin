@@ -1,0 +1,20 @@
+{
+  "name": "bike-bin-marketing-site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "astro check",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "astro": "^6.1.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.8",
+    "typescript": "^5.9.3"
+  }
+}

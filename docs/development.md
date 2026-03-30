@@ -52,6 +52,7 @@ npm run dev              # Supabase + Expo (default)
 npm run dev:web          # Expo web only (no automatic db:start — start DB separately if needed)
 npm run dev:android      # Expo Android
 npm run dev:ios          # Expo iOS
+npm run marketing:dev    # Astro — static marketing site (`sites/marketing/`)
 ```
 
 ## Validation and quality

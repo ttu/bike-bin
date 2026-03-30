@@ -104,6 +104,21 @@ jobs:
         env:
           NODE_ENV: production
 
+  marketing:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sites/marketing/package-lock.json
+      - run: npm ci
+        working-directory: sites/marketing
+      - run: npm run test && npm run build
+        working-directory: sites/marketing
+
   sonarcloud:
     runs-on: ubuntu-latest
     needs: [test]

@@ -2,17 +2,17 @@
 
 **From bikers to bikers.**
 
-A peer-to-peer bike parts exchange where riders can donate or sell spare parts locally, with privacy-friendly location sharing and easy pickup coordination.
+A **bike parts inventory** app first—track parts, tools, and builds with photos, condition, and status. **Also:** list for borrow, donation, or sale; discover nearby; use groups; and coordinate handoffs with privacy-friendly locations.
 
 ## What it does
 
-- **Inventory management** — track your bike parts, tools, and accessories with photos, condition, and usage
-- **Borrow, donate, or sell** — make items available to others with flexible availability types
-- **Local discovery** — search for what you need and find nearby offers within your chosen distance
-- **Communities** — share gear within groups (clubs, friends, workshop communities)
-- **Bike builds** — manage your bikes and track mounted components
-- **In-app messaging** — coordinate pickups through item-linked conversations
-- **Privacy-first** — only area-level location is shown; exact address shared only when both parties agree
+- **Inventory (primary)** — your parts, tools, and accessories with photos, condition, usage, and lifecycle status
+- **Bike builds** — named bikes and mounted components
+- **Borrow, donate, or sell (secondary)** — optional availability when you want to move or share gear
+- **Local discovery (secondary)** — search nearby listings within your chosen distance
+- **Groups (secondary)** — optional visibility scoped to clubs or crews
+- **In-app messaging (secondary)** — item-linked chat when coordinating with others
+- **Privacy-first** — area-level pickup context by default; exact address only when both parties agree
 
 ## Platforms
 

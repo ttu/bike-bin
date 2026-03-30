@@ -8,21 +8,19 @@
 
 **Tagline:** From bikers to bikers.
 
-**One-sentence pitch:** A peer-to-peer bike parts exchange where riders can donate or sell spare parts locally, with privacy-friendly location sharing and easy pickup coordination.
+**One-sentence pitch:** A **personal bike parts inventory** app—track what you own with photos, condition, and status. **Secondary:** list items for borrow, donation, or sale; discover nearby gear; use groups for visibility; coordinate with privacy-friendly locations and messaging.
 
-The application allows cyclists to manage their bike parts, tools, and equipment inventory.  
-Users can track items they own, including condition and usage, and optionally make items available for **borrowing, donation, or sale** within selected communities or groups. Listings show a **general area** (not an exact address) for pickup so interested people can arrange handoff safely.
+The primary use case is **own inventory**: cyclists catalog parts, tools, and equipment (and link items to bike builds). **Sharing and commerce are optional:** users may make items available for **borrowing, donation, or sale**, scope visibility to **groups** or the public, and use **search** to find nearby listings. When something moves between people, listings show a **general area** (not an exact address) for pickup so handoffs stay practical and safe.
 
 **Platforms:** iOS, Android, and Web — full feature parity across all three. The web version enables continuous deployment (features go live immediately on merge), while mobile releases go through App Store / Play Store review. See [technical-specs.md §1](technical-specs.md) for platform details.
 
-**Discovery angle:** Someone looking for a specific item (e.g. a tool, a handlebar) can **search for what they need** and the app shows **who nearby** is offering it — to **borrow**, **donate**, or **sell**. The user sets a **max distance** so results are only from their chosen radius (e.g. 5 km, 20 km). So: “Is someone lending a crank puller nearby?” or “Is anyone selling or donating a handlebar near me?” — one search, one distance setting, results for borrow + donate + sell.
+**Discovery angle (secondary):** When users want to acquire or move gear, someone looking for a specific item (e.g. a tool, a handlebar) can **search** and see **who nearby** is offering it — **borrow**, **donate**, or **sell**. The user sets a **max distance** (e.g. 5 km, 20 km). This complements the **primary** workflow of maintaining an accurate personal inventory.
 
 The goal is to:
 
-- Help cyclists keep track of their parts and tools
-- Encourage reuse and sharing of equipment
-- Enable small communities (e.g., local ride groups) to share gear
-- Connect people who need something with people who have it — borrow, donate, or buy locally, filtered by **max distance**
+- **Primary:** Help cyclists **keep track of their parts, tools, and builds** with trustworthy detail
+- **Secondary:** Encourage reuse when people **choose to list**—borrow, donate, or sell locally, filtered by **max distance**
+- **Secondary:** Let small communities (e.g. local ride groups) **optionally** scope visibility to shared gear
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The core feature of Bike Bin. Users manage their personal collection of bike parts, tools, accessories, consumables, and clothing. Each item has a category, subcategory, condition (non-consumables) or **amount remaining** (consumables via `remaining_fraction`), status (lifecycle state), availability types (borrow/donate/sell), visibility (private/groups/public), photos, and private tags. The inventory list hides terminal items (archived/sold/donated) by default with a toggle to reveal them.
+The core feature of Bike Bin—the **primary use case** is managing your own collection. Users manage their personal collection of bike parts, tools, accessories, consumables, and clothing. **Sharing, selling, and group visibility** are secondary: they layer on when users choose to list or scope items beyond private inventory. Each item has a category, subcategory, condition (non-consumables) or **amount remaining** (consumables via `remaining_fraction`), status (lifecycle state), availability types (borrow/donate/sell), visibility (private/groups/public), photos, and private tags. The inventory list hides terminal items (archived/sold/donated) by default with a toggle to reveal them.
 
 ## Data Model
 

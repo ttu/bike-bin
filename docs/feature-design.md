@@ -3,6 +3,8 @@
 > **Purpose:** Consolidated design decisions, resolved ambiguities, and screen-level UX flows that complement the functional and technical specs.
 > **Context:** See [functional-specs.md](functional-specs.md) for product scope, [technical-specs.md](technical-specs.md) for stack/patterns, [system-architecture.md](system-architecture.md) for system design.
 
+**Product positioning:** The **main use case** is **personal inventory**—knowing what you own, in what condition, and where it lives in your workflow. **Listing** items for borrow, donation, or sale, **searching** nearby, **groups** for visibility, and **messaging** for handoffs are **secondary** capabilities that build on that foundation.
+
 ---
 
 ## 1. Design Decisions (resolved during brainstorming)

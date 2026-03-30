@@ -56,7 +56,9 @@ export function ConfirmDialog({
         style={[styles.dialog, { backgroundColor: theme.colors.surface }]}
         testID={testID}
       >
-        <Dialog.Title style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Dialog.Title>
+        <Dialog.Title style={[styles.title, { color: theme.colors.onSurface }]}>
+          {title}
+        </Dialog.Title>
         <Dialog.Content style={styles.content}>
           <Text
             variant="bodyMedium"
@@ -67,11 +69,7 @@ export function ConfirmDialog({
         </Dialog.Content>
         <Dialog.Actions style={styles.actions}>
           {variant === 'confirm-cancel' ? (
-            <Button
-              onPress={onDismiss}
-              disabled={loading}
-              testID={`${testID}-cancel`}
-            >
+            <Button onPress={onDismiss} disabled={loading} testID={`${testID}-cancel`}>
               {resolvedCancel}
             </Button>
           ) : null}

@@ -17,6 +17,7 @@
 | Backend        | **Supabase**                                                        | Auth, API (PostgREST), realtime, storage.                                                                                                                      |
 | Data           | **Supabase (PostgreSQL + PostGIS)**                                 | Database, auth users, object storage for photos. PostGIS for geospatial queries.                                                                               |
 | Hosting        | **Supabase** + **Expo EAS** + **Vercel** (or Netlify)               | Backend on Supabase; native builds via EAS; web deployed to Vercel/Netlify (continuous deploy on merge).                                                       |
+| Marketing site | **Astro** (static)                                                  | **https://bikebin.app/** — static landing; source in `sites/marketing/`. Separate build from the Expo web app (see **Web**).                                   |
 | i18n           | **react-i18next** + **expo-localization**                           | i18n-ready from start; English default. Device locale detection via expo-localization.                                                                         |
 | Push           | **Expo Push Notifications**                                         | Native only (iOS/Android): token management via Expo's push service (APNs/FCM). Web: no push — in-app notifications only (shown on login / while app is open). |
 | Email          | **Resend** (or Postmark) via **Supabase Edge Functions**            | Transactional emails for notifications (new messages, borrow requests, etc.). Supabase built-in email for auth flows.                                          |
@@ -27,11 +28,12 @@
 
 ### Supported platforms
 
-| Platform    | Build / Deploy                                   | Release cadence                                                                            |
-| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| **Web**     | `expo export:web` → **Vercel** (or Netlify)      | **Continuous** — deployed on every merge to `main`. Instant availability, no store review. |
-| **iOS**     | **EAS Build** → **App Store** (via EAS Submit)   | Store review required (1–3 days). OTA updates for JS-only changes via EAS Update.          |
-| **Android** | **EAS Build** → **Google Play** (via EAS Submit) | Store review required (hours–days). OTA updates for JS-only changes via EAS Update.        |
+| Platform      | Build / Deploy                                                                 | Release cadence                                                                            |
+| ------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| **Web (app)** | `expo export --platform web` → **https://app.bikebin.app** (Vercel or Netlify) | **Continuous** — deployed on every merge to `main`. Instant availability, no store review. |
+| **Marketing** | Astro static site → **https://bikebin.app/** (`sites/marketing/`)              | Deployed from the same repo; CI runs `astro build` for the marketing package.              |
+| **iOS**       | **EAS Build** → **App Store** (via EAS Submit)                                 | Store review required (1–3 days). OTA updates for JS-only changes via EAS Update.          |
+| **Android**   | **EAS Build** → **Google Play** (via EAS Submit)                               | Store review required (hours–days). OTA updates for JS-only changes via EAS Update.        |
 
 **Web-first advantage:** The web version is continuously deployed, so new features are available immediately. Mobile store releases follow once stable. This means faster iteration cycles and user feedback.
 
