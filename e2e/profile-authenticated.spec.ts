@@ -130,7 +130,7 @@ test.describe('Borrow Requests', () => {
     await navigateToProfile(loggedInPage);
     await loggedInPage.getByText('Borrow Requests').click();
 
-    await expect(loggedInPage.getByText('Incoming')).toBeVisible({
+    await expect(loggedInPage.getByRole('tab', { name: /Incoming/ })).toBeVisible({
       timeout: 10000,
     });
   });

@@ -1,4 +1,4 @@
-import { test as base, expect as baseExpect } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { test, expect, BASE_URL, navigateToProfile } from './fixtures';
 
 base.describe('Authentication', () => {
@@ -44,12 +44,17 @@ base.describe('Authentication', () => {
     }) => {
       await navigateToProfile(page);
 
-      page.on('dialog', async (dialog) => {
-        baseExpect(dialog.message()).toContain('Are you sure you want to sign out?');
-        await dialog.accept();
-      });
+      // Click Sign Out — opens ConfirmDialog
+      await page
+        .getByRole('button', { name: /Sign Out/i })
+        .first()
+        .click();
 
-      await page.getByRole('button', { name: 'Sign Out' }).click();
+      // Confirm in dialog
+      await expect(page.getByText('Are you sure you want to sign out?')).toBeVisible({
+        timeout: 5000,
+      });
+      await page.getByTestId('confirm-dialog-confirm').click();
 
       await page.waitForURL(/\/login/, { timeout: 15000 });
       await expect(page).toHaveURL(/\/login/);
@@ -58,15 +63,21 @@ base.describe('Authentication', () => {
     test('stays on profile when sign out dialog is dismissed', async ({ loggedInPage: page }) => {
       await navigateToProfile(page);
 
-      page.on('dialog', async (dialog) => {
-        await dialog.dismiss();
-      });
+      // Click Sign Out — opens ConfirmDialog
+      await page
+        .getByRole('button', { name: /Sign Out/i })
+        .first()
+        .click();
 
-      await page.getByRole('button', { name: 'Sign Out' }).click();
+      // Dismiss by clicking Cancel
+      await expect(page.getByText('Are you sure you want to sign out?')).toBeVisible({
+        timeout: 5000,
+      });
+      await page.getByTestId('confirm-dialog-cancel').click();
 
       // Should still be on the profile page
       await page.waitForTimeout(500);
-      await expect(page.getByRole('button', { name: 'Sign Out' })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Sign Out/i }).first()).toBeVisible();
     });
   });
 
