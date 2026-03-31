@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { ConfirmDialog } from '@/shared/components';
+import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
@@ -30,15 +31,6 @@ import type { GroupId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 
 type ScreenMode = 'detail' | 'edit';
-
-type GroupConfirmConfig = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  cancelLabel?: string;
-  destructive?: boolean;
-  onConfirm: () => void;
-};
 
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -77,7 +69,7 @@ export default function GroupDetailScreen() {
   const [editIsPublic, setEditIsPublic] = useState(false);
   const [editNameError, setEditNameError] = useState('');
 
-  const [confirm, setConfirm] = useState<GroupConfirmConfig | null>(null);
+  const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
   // Current user's membership
   const currentMember = useMemo(
@@ -121,14 +113,14 @@ export default function GroupDetailScreen() {
   }, [groupId, editName, editDescription, editIsPublic, updateGroup, showSnackbarAlert, t]);
 
   const handleDeleteGroup = useCallback(() => {
-    setConfirm({
+    openConfirm({
       title: t('detail.deleteGroup'),
       message: t('detail.deleteConfirm'),
       cancelLabel: tCommon('actions.cancel'),
       confirmLabel: tCommon('actions.delete'),
       destructive: true,
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         void (async () => {
           try {
             await deleteGroup.mutateAsync(groupId);
@@ -143,7 +135,7 @@ export default function GroupDetailScreen() {
         })();
       },
     });
-  }, [groupId, deleteGroup, showSnackbarAlert, t, tCommon]);
+  }, [groupId, deleteGroup, showSnackbarAlert, t, tCommon, openConfirm, closeConfirm]);
 
   const handleLeaveGroup = useCallback(() => {
     if (!currentMember || !members) return;
@@ -157,14 +149,14 @@ export default function GroupDetailScreen() {
       return;
     }
 
-    setConfirm({
+    openConfirm({
       title: t('detail.leaveGroup'),
       message: t('detail.leaveConfirm'),
       cancelLabel: tCommon('actions.cancel'),
       confirmLabel: t('detail.leaveGroup'),
       destructive: true,
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         void (async () => {
           try {
             await leaveGroup.mutateAsync(groupId);
@@ -179,18 +171,28 @@ export default function GroupDetailScreen() {
         })();
       },
     });
-  }, [groupId, currentMember, members, leaveGroup, showSnackbarAlert, t, tCommon]);
+  }, [
+    groupId,
+    currentMember,
+    members,
+    leaveGroup,
+    showSnackbarAlert,
+    t,
+    tCommon,
+    openConfirm,
+    closeConfirm,
+  ]);
 
   const handlePromoteMember = useCallback(
     (member: GroupMemberWithProfile) => {
       const displayName = member.profile.displayName ?? 'this member';
-      setConfirm({
+      openConfirm({
         title: t('detail.promote'),
         message: t('detail.promoteConfirm', { name: displayName }),
         cancelLabel: tCommon('actions.cancel'),
         confirmLabel: t('detail.promote'),
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           void (async () => {
             try {
               await promoteMember.mutateAsync({
@@ -208,20 +210,20 @@ export default function GroupDetailScreen() {
         },
       });
     },
-    [groupId, promoteMember, showSnackbarAlert, t, tCommon],
+    [groupId, promoteMember, showSnackbarAlert, t, tCommon, openConfirm, closeConfirm],
   );
 
   const handleRemoveMember = useCallback(
     (member: GroupMemberWithProfile) => {
       const displayName = member.profile.displayName ?? 'this member';
-      setConfirm({
+      openConfirm({
         title: t('detail.remove'),
         message: t('detail.removeConfirm', { name: displayName }),
         cancelLabel: tCommon('actions.cancel'),
         confirmLabel: t('detail.remove'),
         destructive: true,
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           void (async () => {
             try {
               await removeMember.mutateAsync({
@@ -239,7 +241,7 @@ export default function GroupDetailScreen() {
         },
       });
     },
-    [groupId, removeMember, showSnackbarAlert, t, tCommon],
+    [groupId, removeMember, showSnackbarAlert, t, tCommon, openConfirm, closeConfirm],
   );
 
   if (!group) {
@@ -325,16 +327,7 @@ export default function GroupDetailScreen() {
             {t('edit.save')}
           </GradientButton>
         </ScrollView>
-        <ConfirmDialog
-          visible={confirm !== null}
-          title={confirm?.title ?? ''}
-          message={confirm?.message ?? ''}
-          confirmLabel={confirm?.confirmLabel ?? ''}
-          cancelLabel={confirm?.cancelLabel}
-          destructive={confirm?.destructive}
-          onDismiss={() => setConfirm(null)}
-          onConfirm={() => confirm?.onConfirm()}
-        />
+        <ConfirmDialog {...confirmDialogProps} />
       </View>
     );
   }
@@ -444,16 +437,7 @@ export default function GroupDetailScreen() {
           </View>
         )}
       </ScrollView>
-      <ConfirmDialog
-        visible={confirm !== null}
-        title={confirm?.title ?? ''}
-        message={confirm?.message ?? ''}
-        confirmLabel={confirm?.confirmLabel ?? ''}
-        cancelLabel={confirm?.cancelLabel}
-        destructive={confirm?.destructive}
-        onDismiss={() => setConfirm(null)}
-        onConfirm={() => confirm?.onConfirm()}
-      />
+      <ConfirmDialog {...confirmDialogProps} />
     </View>
   );
 }

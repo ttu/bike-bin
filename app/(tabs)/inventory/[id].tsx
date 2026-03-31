@@ -17,17 +17,9 @@ import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetail';
 import { RemoveFromInventoryDialog } from '@/features/inventory/components/RemoveFromInventoryDialog/RemoveFromInventoryDialog';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
-
-type ItemConfirmConfig = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  cancelLabel?: string;
-  destructive?: boolean;
-  onConfirm: () => void;
-};
 
 export default function ItemDetailScreen() {
   const theme = useTheme();
@@ -49,15 +41,11 @@ export default function ItemDetailScreen() {
     });
 
   const [removeInventoryOpen, setRemoveInventoryOpen] = useState(false);
-  const [confirm, setConfirm] = useState<ItemConfirmConfig | null>(null);
+  const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
   if (isLoading || !item) {
     return <LoadingScreen />;
   }
-
-  const openConfirm = (config: ItemConfirmConfig) => {
-    setConfirm(config);
-  };
 
   const handleMarkDonated = () => {
     openConfirm({
@@ -66,7 +54,7 @@ export default function ItemDetailScreen() {
       cancelLabel: t('confirm.donate.cancel'),
       confirmLabel: t('confirm.donate.confirm'),
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         markDonated.mutate({ itemId: item.id });
       },
     });
@@ -79,7 +67,7 @@ export default function ItemDetailScreen() {
       cancelLabel: t('confirm.sell.cancel'),
       confirmLabel: t('confirm.sell.confirm'),
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         markSold.mutate({ itemId: item.id });
       },
     });
@@ -92,7 +80,7 @@ export default function ItemDetailScreen() {
       cancelLabel: tInv('confirm.archive.cancel'),
       confirmLabel: tInv('confirm.archive.confirm'),
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived });
       },
     });
@@ -105,7 +93,7 @@ export default function ItemDetailScreen() {
       cancelLabel: tInv('confirm.unarchive.cancel'),
       confirmLabel: tInv('confirm.unarchive.confirm'),
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
       },
     });
@@ -119,7 +107,7 @@ export default function ItemDetailScreen() {
       confirmLabel: tInv('confirm.delete.confirm'),
       destructive: true,
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         void (async () => {
           await deleteItem.mutateAsync({ id: item.id, status: item.status });
           tabScopedBack('/(tabs)/inventory');
@@ -147,7 +135,7 @@ export default function ItemDetailScreen() {
       cancelLabel: tBorrow('confirm.markReturned.cancel'),
       confirmLabel: tBorrow('confirm.markReturned.confirm'),
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         run();
       },
     });
@@ -197,16 +185,7 @@ export default function ItemDetailScreen() {
             : undefined
         }
       />
-      <ConfirmDialog
-        visible={confirm !== null}
-        title={confirm?.title ?? ''}
-        message={confirm?.message ?? ''}
-        confirmLabel={confirm?.confirmLabel ?? ''}
-        cancelLabel={confirm?.cancelLabel}
-        destructive={confirm?.destructive}
-        onDismiss={() => setConfirm(null)}
-        onConfirm={() => confirm?.onConfirm()}
-      />
+      <ConfirmDialog {...confirmDialogProps} />
     </View>
   );
 }

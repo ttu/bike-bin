@@ -8,6 +8,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { ConfirmDialog } from '@/shared/components';
+import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useAuth } from '@/features/auth';
 import {
   BorrowRequestCard,
@@ -23,15 +24,6 @@ import { BorrowRequestStatus } from '@/shared/types';
 
 type Tab = 'incoming' | 'outgoing' | 'active';
 
-type BorrowConfirmConfig = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  cancelLabel?: string;
-  destructive?: boolean;
-  onConfirm: () => void;
-};
-
 export default function BorrowRequestsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('borrow');
@@ -40,7 +32,7 @@ export default function BorrowRequestsScreen() {
   const userId = (user?.id ?? '') as UserId;
 
   const [activeTab, setActiveTab] = useState<Tab>('incoming');
-  const [confirm, setConfirm] = useState<BorrowConfirmConfig | null>(null);
+  const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
   const { data: allRequests, isLoading, refetch } = useBorrowRequests();
   const acceptRequest = useAcceptBorrowRequest();
@@ -85,68 +77,68 @@ export default function BorrowRequestsScreen() {
 
   const handleAccept = useCallback(
     (request: BorrowRequestWithDetails) => {
-      setConfirm({
+      openConfirm({
         title: t('confirm.accept.title'),
         message: t('confirm.accept.message', { name: request.requesterName ?? '?' }),
         cancelLabel: t('confirm.accept.cancel'),
         confirmLabel: t('confirm.accept.confirm'),
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           acceptRequest.mutate({ requestId: request.id, itemId: request.itemId });
         },
       });
     },
-    [acceptRequest, t],
+    [acceptRequest, t, openConfirm, closeConfirm],
   );
 
   const handleDecline = useCallback(
     (request: BorrowRequestWithDetails) => {
-      setConfirm({
+      openConfirm({
         title: t('confirm.decline.title'),
         message: t('confirm.decline.message'),
         cancelLabel: t('confirm.decline.cancel'),
         confirmLabel: t('confirm.decline.confirm'),
         destructive: true,
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           declineRequest.mutate({ requestId: request.id, itemId: request.itemId });
         },
       });
     },
-    [declineRequest, t],
+    [declineRequest, t, openConfirm, closeConfirm],
   );
 
   const handleCancel = useCallback(
     (request: BorrowRequestWithDetails) => {
-      setConfirm({
+      openConfirm({
         title: t('confirm.cancel.title'),
         message: t('confirm.cancel.message', { itemName: request.itemName }),
         cancelLabel: t('confirm.cancel.cancel'),
         confirmLabel: t('confirm.cancel.confirm'),
         destructive: true,
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           cancelRequest.mutate({ requestId: request.id, itemId: request.itemId });
         },
       });
     },
-    [cancelRequest, t],
+    [cancelRequest, t, openConfirm, closeConfirm],
   );
 
   const handleMarkReturned = useCallback(
     (request: BorrowRequestWithDetails) => {
-      setConfirm({
+      openConfirm({
         title: t('confirm.markReturned.title'),
         message: t('confirm.markReturned.message'),
         cancelLabel: t('confirm.markReturned.cancel'),
         confirmLabel: t('confirm.markReturned.confirm'),
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           markReturned.mutate({ requestId: request.id, itemId: request.itemId });
         },
       });
     },
-    [markReturned, t],
+    [markReturned, t, openConfirm, closeConfirm],
   );
 
   const renderItem = useCallback(
@@ -258,16 +250,7 @@ export default function BorrowRequestsScreen() {
         />
       )}
 
-      <ConfirmDialog
-        visible={confirm !== null}
-        title={confirm?.title ?? ''}
-        message={confirm?.message ?? ''}
-        confirmLabel={confirm?.confirmLabel ?? ''}
-        cancelLabel={confirm?.cancelLabel}
-        destructive={confirm?.destructive}
-        onDismiss={() => setConfirm(null)}
-        onConfirm={() => confirm?.onConfirm()}
-      />
+      <ConfirmDialog {...confirmDialogProps} />
     </View>
   );
 }

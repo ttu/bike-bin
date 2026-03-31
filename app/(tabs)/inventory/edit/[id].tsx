@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Image, View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -18,6 +18,7 @@ import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { canDelete } from '@/features/inventory';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -27,15 +28,6 @@ function formatInventoryId(id: string): string {
   const short = id.slice(0, 8).toUpperCase();
   return `BB-${short.slice(0, 3)}-${short.slice(3, 4)}`;
 }
-
-type EditItemConfirmConfig = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  cancelLabel?: string;
-  destructive?: boolean;
-  onConfirm: () => void;
-};
 
 export default function EditItemScreen() {
   const theme = useTheme<AppTheme>();
@@ -50,7 +42,7 @@ export default function EditItemScreen() {
   const deleteItem = useDeleteItem();
   const { pickAndUpload, isUploading } = usePhotoUpload();
 
-  const [confirm, setConfirm] = useState<EditItemConfirmConfig | null>(null);
+  const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
   const handleSave = async (data: ItemFormData) => {
     await updateItem.mutateAsync({ ...data, id: itemId });
@@ -91,32 +83,32 @@ export default function EditItemScreen() {
         }
       };
 
-      setConfirm({
+      openConfirm({
         title: t('confirm.removePhoto.title'),
         message: t('confirm.removePhoto.message'),
         cancelLabel: t('confirm.removePhoto.cancel'),
         confirmLabel: t('confirm.removePhoto.confirm'),
         destructive: true,
         onConfirm: () => {
-          setConfirm(null);
+          closeConfirm();
           void doRemove();
         },
       });
     },
-    [photos, itemId, queryClient, t],
+    [photos, itemId, queryClient, t, openConfirm, closeConfirm],
   );
 
   const handleDelete = () => {
     if (!item || !canDelete(item)) return;
 
-    setConfirm({
+    openConfirm({
       title: t('confirm.delete.title'),
       message: t('confirm.delete.message'),
       cancelLabel: t('confirm.delete.cancel'),
       confirmLabel: t('confirm.delete.confirm'),
       destructive: true,
       onConfirm: () => {
-        setConfirm(null);
+        closeConfirm();
         void (async () => {
           await deleteItem.mutateAsync({ id: item.id, status: item.status });
           tabScopedBack('/(tabs)/inventory');
@@ -229,16 +221,7 @@ export default function EditItemScreen() {
         headerComponent={heroSection}
         photoSection={photoSection}
       />
-      <ConfirmDialog
-        visible={confirm !== null}
-        title={confirm?.title ?? ''}
-        message={confirm?.message ?? ''}
-        confirmLabel={confirm?.confirmLabel ?? ''}
-        cancelLabel={confirm?.cancelLabel}
-        destructive={confirm?.destructive}
-        onDismiss={() => setConfirm(null)}
-        onConfirm={() => confirm?.onConfirm()}
-      />
+      <ConfirmDialog {...confirmDialogProps} />
     </View>
   );
 }
