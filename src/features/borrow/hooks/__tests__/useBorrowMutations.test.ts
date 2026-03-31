@@ -11,6 +11,7 @@ const mockUpdate = jest.fn();
 const mockEq = jest.fn();
 const mockSelect = jest.fn();
 const mockSingle = jest.fn();
+const mockRpc = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -18,6 +19,7 @@ jest.mock('@/shared/api/supabase', () => ({
       insert: mockInsert,
       update: mockUpdate,
     })),
+    rpc: (...args: unknown[]) => mockRpc(...args),
   },
 }));
 
@@ -31,6 +33,14 @@ function setupChain(data: unknown = { id: 'req-1' }) {
   mockEq.mockReturnValue({ select: mockSelect, error: null, data: null });
   mockInsert.mockReturnValue({ select: mockSelect });
   mockUpdate.mockReturnValue({ eq: mockEq });
+}
+
+function setupRpc(data: unknown = { id: 'req-1' }) {
+  mockRpc.mockResolvedValue({ data, error: null });
+}
+
+function setupRpcError(error = { message: 'fail' }) {
+  mockRpc.mockResolvedValue({ data: null, error });
 }
 
 function setupChainError(error = { message: 'fail' }) {
@@ -69,8 +79,8 @@ describe('useCreateBorrowRequest', () => {
 });
 
 describe('useAcceptBorrowRequest', () => {
-  it('accepts a borrow request', async () => {
-    setupChain({ id: 'req-1', status: 'accepted' });
+  it('accepts a borrow request via RPC', async () => {
+    setupRpc({ id: 'req-1', status: 'accepted' });
     const { result } = renderHook(() => useAcceptBorrowRequest(), {
       wrapper: createQueryClientHookWrapper(),
     });
@@ -78,6 +88,22 @@ describe('useAcceptBorrowRequest', () => {
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockRpc).toHaveBeenCalledWith('transition_borrow_request', {
+      p_request_id: 'req-1',
+      p_new_request_status: 'accepted',
+      p_new_item_status: 'loaned',
+    });
+  });
+
+  it('propagates RPC errors', async () => {
+    setupRpcError();
+    const { result } = renderHook(() => useAcceptBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
   });
 });
 
@@ -95,8 +121,8 @@ describe('useCancelBorrowRequest', () => {
 });
 
 describe('useDeclineBorrowRequest', () => {
-  it('declines a borrow request', async () => {
-    setupChain({ id: 'req-1', status: 'rejected' });
+  it('declines a borrow request via RPC', async () => {
+    setupRpc({ id: 'req-1', status: 'rejected' });
     const { result } = renderHook(() => useDeclineBorrowRequest(), {
       wrapper: createQueryClientHookWrapper(),
     });
@@ -104,12 +130,17 @@ describe('useDeclineBorrowRequest', () => {
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockRpc).toHaveBeenCalledWith('transition_borrow_request', {
+      p_request_id: 'req-1',
+      p_new_request_status: 'rejected',
+      p_new_item_status: 'stored',
+    });
   });
 });
 
 describe('useMarkReturned', () => {
-  it('marks a borrow request as returned', async () => {
-    setupChain({ id: 'req-1', status: 'returned' });
+  it('marks a borrow request as returned via RPC', async () => {
+    setupRpc({ id: 'req-1', status: 'returned' });
     const { result } = renderHook(() => useMarkReturned(), {
       wrapper: createQueryClientHookWrapper(),
     });
@@ -117,5 +148,10 @@ describe('useMarkReturned', () => {
     result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockRpc).toHaveBeenCalledWith('transition_borrow_request', {
+      p_request_id: 'req-1',
+      p_new_request_status: 'returned',
+      p_new_item_status: 'stored',
+    });
   });
 });
