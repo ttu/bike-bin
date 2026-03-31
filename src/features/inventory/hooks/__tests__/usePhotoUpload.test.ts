@@ -84,7 +84,7 @@ describe('usePhotoUpload', () => {
     });
 
     expect(storagePath).toBeUndefined();
-    expect(result.current.error).toBe('Permission to access gallery was denied');
+    expect(result.current.error).toBeUndefined();
   });
 
   it('handles user cancellation', async () => {

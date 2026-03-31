@@ -55,6 +55,11 @@ import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 describe('useBikePhotoUpload', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default: getPhotoCount returns 0 photos, upload/insert succeed
+    mockSelect.mockReturnValue({ eq: mockSelectEq });
+    mockSelectEq.mockResolvedValue({ data: [] });
+    mockUpload.mockResolvedValue({ error: undefined });
+    mockInsert.mockResolvedValue({ error: undefined });
   });
 
   it('returns error when permission denied', async () => {
@@ -70,7 +75,7 @@ describe('useBikePhotoUpload', () => {
     });
 
     expect(returnValue).toBeUndefined();
-    expect(result.current.error).toBe('Permission to access gallery was denied');
+    expect(result.current.error).toBeUndefined();
   });
 
   it('returns undefined when user cancels picker', async () => {
@@ -157,7 +162,9 @@ describe('useBikePhotoUpload', () => {
       assets: [{ uri: 'file:///photo.jpg' }],
     });
     mockManipulate.mockResolvedValue({ uri: 'file:///compressed.jpg' });
-    mockUpload.mockResolvedValue({ error: new Error('Storage full') });
+    mockUpload.mockResolvedValue({
+      error: Object.assign(new Error('Storage full'), { message: 'Storage full' }),
+    });
 
     const { result } = renderHook(() => useBikePhotoUpload(), {
       wrapper: createQueryClientHookWrapper(),

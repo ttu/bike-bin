@@ -1,13 +1,11 @@
 import { useState, useCallback } from 'react';
-import * as ImagePicker from 'expo-image-picker';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/shared/api/supabase';
-import type { BikeId } from '@/shared/types';
 import { useAuth } from '@/features/auth';
+import { useImagePicker } from '@/shared/hooks/useImagePicker';
+import { uploadPhoto, getPhotoCount } from '@/shared/utils/uploadPhoto';
+import type { BikeId } from '@/shared/types';
 
 const MAX_PHOTOS = 5;
-const COMPRESS_QUALITY = 0.7;
 
 interface UseBikePhotoUploadReturn {
   pickAndUpload: (bikeId: BikeId) => Promise<string | undefined>;
@@ -20,73 +18,47 @@ export function useBikePhotoUpload(): UseBikePhotoUploadReturn {
   const [error, setError] = useState<string | undefined>();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { pickImage } = useImagePicker();
 
   const pickAndUpload = useCallback(
     async (bikeId: BikeId): Promise<string | undefined> => {
       setError(undefined);
 
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        setError('Permission to access gallery was denied');
-        return undefined;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (result.canceled || result.assets.length === 0) {
+      const picked = await pickImage();
+      if (!picked) {
         return undefined;
       }
 
       setIsUploading(true);
       try {
-        const asset = result.assets[0];
+        const storagePath = `bikes/${user!.id}/${bikeId}/${picked.fileName}`;
 
-        const compressed = await manipulateAsync(asset.uri, [{ resize: { width: 1200 } }], {
-          compress: COMPRESS_QUALITY,
-          format: SaveFormat.JPEG,
+        const count = await getPhotoCount({
+          table: 'bike_photos',
+          entityIdColumn: 'bike_id',
+          entityId: bikeId,
         });
-
-        const fileName = `${Date.now()}.jpg`;
-        const storagePath = `bikes/${user!.id}/${bikeId}/${fileName}`;
-
-        const response = await fetch(compressed.uri);
-        const blob = await response.blob();
-
-        const { error: uploadError } = await supabase.storage
-          .from('item-photos')
-          .upload(storagePath, blob, { contentType: 'image/jpeg' });
-
-        if (uploadError) throw uploadError;
-
-        const { data: existingPhotos } = await supabase
-          .from('bike_photos')
-          .select('id')
-          .eq('bike_id', bikeId);
-
-        const sortOrder = (existingPhotos?.length ?? 0) + 1;
+        const sortOrder = count + 1;
 
         if (sortOrder > MAX_PHOTOS) {
           setError(`Maximum ${MAX_PHOTOS} photos allowed`);
           return undefined;
         }
 
-        const { error: dbError } = await supabase.from('bike_photos').insert({
-          bike_id: bikeId,
-          storage_path: storagePath,
-          sort_order: sortOrder,
+        const result = await uploadPhoto({
+          bucket: 'item-photos',
+          storagePath,
+          localUri: picked.uri,
+          table: 'bike_photos',
+          entityIdColumn: 'bike_id',
+          entityId: bikeId,
+          sortOrder,
         });
-
-        if (dbError) throw dbError;
 
         queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
         queryClient.invalidateQueries({ queryKey: ['bikes'] });
 
-        return storagePath;
+        return result;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Upload failed');
         return undefined;
@@ -94,7 +66,7 @@ export function useBikePhotoUpload(): UseBikePhotoUploadReturn {
         setIsUploading(false);
       }
     },
-    [user, queryClient],
+    [user, queryClient, pickImage],
   );
 
   return { pickAndUpload, isUploading, error };
