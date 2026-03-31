@@ -99,7 +99,7 @@ export default function ListingDetailScreen() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={handleBack} />
         <Appbar.Content title="" />
         <Appbar.Action

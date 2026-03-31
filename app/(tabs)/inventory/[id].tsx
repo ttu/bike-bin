@@ -155,7 +155,11 @@ export default function ItemDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header elevated={false} style={{ backgroundColor: theme.colors.background }}>
+      <Appbar.Header
+        dark={theme.dark}
+        elevated={false}
+        style={{ backgroundColor: theme.colors.background }}
+      >
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
         <Appbar.Content title="" />
         <Appbar.Action

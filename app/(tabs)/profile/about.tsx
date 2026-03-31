@@ -17,7 +17,7 @@ export default function AboutScreen() {
       style={[styles.screen, { backgroundColor: theme.colors.background }]}
       edges={['bottom', 'left', 'right']}
     >
-      <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('about.title')} />
       </Appbar.Header>

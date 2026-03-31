@@ -54,7 +54,7 @@ export default function EditProfileScreen() {
       style={[styles.screen, { backgroundColor: theme.colors.background }]}
       edges={['bottom']}
     >
-      <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('editScreen.title')} />
       </Appbar.Header>

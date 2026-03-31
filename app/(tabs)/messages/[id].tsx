@@ -206,7 +206,7 @@ export default function ConversationDetailScreen() {
         keyboardVerticalOffset={0}
       >
         {/* Header */}
-        <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
           <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/messages')} />
           <Pressable
             style={styles.headerContent}
