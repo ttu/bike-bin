@@ -42,7 +42,11 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
         },
       ]}
       accessibilityRole="button"
-      accessibilityLabel={item.name}
+      accessibilityLabel={
+        item.quantity > 1
+          ? t('card.a11yNameWithQuantity', { name: item.name, count: item.quantity })
+          : item.name
+      }
     >
       <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
         {item.thumbnailStoragePath ? (
@@ -92,8 +96,20 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           </Text>
         )}
 
-        {!compact && (listAvailability.length > 0 || item.tags.length > 0) && (
+        {!compact && (listAvailability.length > 0 || item.tags.length > 0 || item.quantity > 1) && (
           <View style={styles.chips}>
+            {item.quantity > 1 && (
+              <View
+                style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
+              >
+                <Text
+                  variant="labelSmall"
+                  style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('card.quantityChip', { count: item.quantity })}
+                </Text>
+              </View>
+            )}
             {listAvailability.map((type) => (
               <View
                 key={type}

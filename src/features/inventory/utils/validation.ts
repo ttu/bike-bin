@@ -29,6 +29,8 @@ export interface ItemFormData {
   visibility?: Visibility;
   groupIds?: GroupId[];
   tags?: string[];
+  /** Count of identical units (minimum 1). */
+  quantity?: number;
 }
 
 export type ItemFormErrors = Partial<Record<keyof ItemFormData, string>>;
@@ -38,6 +40,14 @@ export function validateItem(data: ItemFormData): ItemFormErrors {
 
   if (!data.name || data.name.trim().length === 0) {
     errors.name = 'Name is required';
+  }
+
+  if (data.quantity === undefined) {
+    errors.quantity = 'Quantity is required';
+  } else if (!Number.isInteger(data.quantity) || data.quantity < 1) {
+    errors.quantity = 'Enter a whole number of at least 1';
+  } else if (data.quantity > 9999) {
+    errors.quantity = 'Quantity cannot exceed 9999';
   }
 
   if (!data.category) {

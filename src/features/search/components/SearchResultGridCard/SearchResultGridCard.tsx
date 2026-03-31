@@ -56,6 +56,9 @@ export function SearchResultGridCard({ item, onPress }: SearchResultGridCardProp
             {[
               <Text key="name" variant="titleSmall" numberOfLines={2} style={themed.onSurface}>
                 {item.name}
+                {item.quantity > 1
+                  ? ` ${t('result.quantitySuffix', { count: item.quantity })}`
+                  : ''}
               </Text>,
               <Text
                 key="condition"

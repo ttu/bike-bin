@@ -60,6 +60,8 @@ export interface Item {
   model: string | undefined;
   description: string | undefined;
   condition: ItemCondition;
+  /** Number of identical units in this row (minimum 1). */
+  quantity: number;
   status: ItemStatus;
   availabilityTypes: AvailabilityType[];
   price: number | undefined;

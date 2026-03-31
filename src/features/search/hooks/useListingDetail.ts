@@ -24,6 +24,7 @@ export function useListingDetail(id: string | undefined) {
         model: (row.model as string) ?? undefined,
         description: (row.description as string) ?? undefined,
         condition: row.condition as ItemCondition,
+        quantity: typeof row.quantity === 'number' && row.quantity >= 1 ? row.quantity : 1,
         availabilityTypes: (row.availability_types ?? []) as AvailabilityType[],
         price: (row.price as number) ?? undefined,
         deposit: (row.deposit as number) ?? undefined,

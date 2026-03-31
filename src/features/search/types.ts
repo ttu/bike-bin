@@ -37,6 +37,8 @@ export interface SearchResultItem {
   model: string | undefined;
   description: string | undefined;
   condition: ItemCondition;
+  /** Identical units available under this listing (minimum 1). */
+  quantity: number;
   availabilityTypes: AvailabilityType[];
   price: number | undefined;
   deposit: number | undefined;

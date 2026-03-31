@@ -151,11 +151,15 @@
     "ageLabel": "Age",
     "usageLabel": "Usage",
     "storageLabel": "Storage",
-    "subcategoryLabel": "Type"
+    "subcategoryLabel": "Type",
+    "quantityLabel": "Quantity",
+    "quantityValue": "{{count}}"
   },
   "form": {
     "nameLabel": "Name",
     "namePlaceholder": "e.g. Shimano 105 Cassette",
+    "quantityLabel": "Quantity",
+    "quantityPlaceholder": "1",
     "categoryLabel": "Category",
     "subcategoryLabel": "Type",
     "conditionLabel": "Condition",
@@ -223,6 +227,10 @@
     "primaryPhoto": "Primary photo",
     "setAsPrimary": "Tap to set as primary photo",
     "removePhoto": "Remove photo"
+  },
+  "card": {
+    "quantityChip": "×{{count}}",
+    "a11yNameWithQuantity": "{{name}}, {{count}} identical items"
   },
   "tagsLabel": "Tags",
   "tagsEmpty": "No tags",

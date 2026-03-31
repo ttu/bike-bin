@@ -18,6 +18,7 @@ const baseRow = {
   model: null,
   description: null,
   condition: ItemCondition.New,
+  quantity: 1,
   status: ItemStatus.Stored,
   availability_types: [AvailabilityType.Private],
   price: null,
@@ -91,5 +92,22 @@ describe('mapItemRow', () => {
       remaining_fraction: 0.25,
     });
     expect(item.remainingFraction).toBe(0.25);
+  });
+
+  it('maps quantity when set', () => {
+    const item = mapItemRow({
+      ...baseRow,
+      id: 'i6',
+      owner_id: 'u1',
+      quantity: 4,
+    });
+    expect(item.quantity).toBe(4);
+  });
+
+  it('defaults quantity to 1 when column is missing', () => {
+    const row = { ...baseRow, id: 'i7', owner_id: 'u1' };
+    delete (row as Record<string, unknown>).quantity;
+    const item = mapItemRow(row);
+    expect(item.quantity).toBe(1);
   });
 });

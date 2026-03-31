@@ -103,6 +103,7 @@ interface RpcRow {
   description: string | null;
   condition: ItemCondition;
   status: string;
+  quantity?: number | null;
   availability_types: AvailabilityType[];
   price: number | null;
   deposit: number | null;
@@ -175,6 +176,7 @@ function mapRow(
     model: row.model ?? undefined,
     description: row.description ?? undefined,
     condition: row.condition,
+    quantity: typeof row.quantity === 'number' && row.quantity >= 1 ? row.quantity : 1,
     availabilityTypes: row.availability_types ?? [],
     price: row.price ?? undefined,
     deposit: row.deposit ?? undefined,

@@ -111,6 +111,7 @@ export function useCreateItem() {
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility ?? 'private',
           tags: formData.tags ?? [],
+          quantity: formData.quantity ?? 1,
         })
         .select()
         .single();
@@ -165,6 +166,7 @@ export function useUpdateItem() {
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility,
           tags: formData.tags ?? [],
+          quantity: formData.quantity ?? 1,
         })
         .eq('id', id)
         .select()

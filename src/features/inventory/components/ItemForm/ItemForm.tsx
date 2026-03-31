@@ -88,6 +88,7 @@ export function ItemForm({
   const { data: existingItems } = useItems();
 
   const [name, setName] = useState(initialData?.name ?? '');
+  const [quantityStr, setQuantityStr] = useState(() => String(initialData?.quantity ?? 1));
   const [category, setCategory] = useState<ItemCategory | undefined>(
     initialData?.category ?? initialCategory,
   );
@@ -243,8 +244,11 @@ export function ItemForm({
         ? parseRemainingPercentInput(remainingPercentStr)
         : undefined;
 
+    const parsedQuantity = parseInt(quantityStr.trim(), 10);
+
     const formData: ItemFormData = {
       name,
+      quantity: Number.isNaN(parsedQuantity) ? undefined : parsedQuantity,
       category,
       subcategory: subcategory || undefined,
       condition: category === ItemCategory.Consumable ? ItemCondition.Good : condition,
@@ -273,6 +277,7 @@ export function ItemForm({
     }
   }, [
     name,
+    quantityStr,
     category,
     subcategory,
     condition,
@@ -317,6 +322,32 @@ export function ItemForm({
         {errors.name && (
           <HelperText type="error" visible>
             {errors.name}
+          </HelperText>
+        )}
+      </>
+    );
+  }
+
+  function renderQuantitySection() {
+    return (
+      <>
+        <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+          {t('form.quantityLabel')}
+        </Text>
+        <TextInput
+          mode="flat"
+          value={quantityStr}
+          onChangeText={setQuantityStr}
+          placeholder={t('form.quantityPlaceholder')}
+          keyboardType="number-pad"
+          error={!!errors.quantity}
+          style={softInputStyle}
+          underlineColor={underlineColor}
+          activeUnderlineColor={activeUnderlineColor}
+        />
+        {errors.quantity && (
+          <HelperText type="error" visible>
+            {errors.quantity}
           </HelperText>
         )}
       </>
@@ -1079,6 +1110,7 @@ export function ItemForm({
       {headerComponent}
       {photoSection}
       {renderNameSection()}
+      {renderQuantitySection()}
       {renderCategorySection()}
       {category && category !== ItemCategory.Consumable && renderConditionSection()}
       {category === ItemCategory.Consumable && renderRemainingFractionSection()}

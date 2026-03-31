@@ -88,6 +88,7 @@ export function createMockItemRow(overrides?: Record<string, unknown>): Record<s
       };
     })(),
     remaining_fraction: null,
+    quantity: 1,
     purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
@@ -129,6 +130,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
       };
     })(),
     remainingFraction: undefined,
+    quantity: 1,
     purchaseDate: faker.helpers.maybe(() => faker.date.past().toISOString()),
     pickupLocationId: faker.helpers.maybe(() => faker.string.uuid() as LocationId),
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
@@ -342,6 +344,7 @@ export function createMockSearchResultItem(
     model: '105 R7000',
     description: 'Good cassette for road bikes',
     condition: ItemCondition.Good,
+    quantity: 1,
     availabilityTypes: [AvailabilityType.Borrowable],
     price: undefined,
     deposit: undefined,

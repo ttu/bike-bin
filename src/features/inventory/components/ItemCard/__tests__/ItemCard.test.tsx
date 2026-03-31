@@ -73,6 +73,12 @@ describe('ItemCard', () => {
     expect(getByText('Sell')).toBeTruthy();
   });
 
+  it('shows quantity chip when quantity is greater than 1', () => {
+    const item = createMockItem({ ...baseItem, quantity: 3 });
+    const { getByText } = renderWithProviders(<ItemCard item={item} />);
+    expect(getByText('×3')).toBeTruthy();
+  });
+
   it('does not show Private availability chip (implicit default)', () => {
     const item = createMockItem({
       name: 'Solo',

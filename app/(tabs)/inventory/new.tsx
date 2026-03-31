@@ -55,6 +55,7 @@ export default function NewItemScreen() {
           category: data.category!,
           subcategory: data.subcategory,
           condition: data.condition!,
+          quantity: data.quantity ?? 1,
           status: ItemStatus.Stored,
           availabilityTypes: data.availabilityTypes,
           brand: data.brand,

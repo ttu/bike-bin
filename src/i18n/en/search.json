@@ -67,6 +67,9 @@
     "donatable": "Donate",
     "sellable": "Sell"
   },
+  "result": {
+    "quantitySuffix": "(×{{count}})"
+  },
   "listing": {
     "report": "Report",
     "ownerCard": {
@@ -77,7 +80,9 @@
     "detail": {
       "conditionLabel": "Condition",
       "ageLabel": "Age",
-      "usageLabel": "Usage"
+      "usageLabel": "Usage",
+      "quantityLabel": "Quantity",
+      "quantityValue": "{{count}}"
     },
     "actions": {
       "requestBorrow": "Request Borrow",

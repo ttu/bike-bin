@@ -159,6 +159,13 @@ export function ItemDetail({
               value={t(`condition.${item.condition}`)}
             />
           )}
+          {item.quantity > 1 && (
+            <DetailCard
+              icon="package-variant"
+              label={t('detail.quantityLabel')}
+              value={t('detail.quantityValue', { count: item.quantity })}
+            />
+          )}
           {item.age && (
             <DetailCard
               icon="calendar-month-outline"

@@ -38,6 +38,7 @@ describe('ItemForm', () => {
   it('renders required fields', () => {
     const { getByText } = renderWithProviders(<ItemForm {...defaultProps} />);
     expect(getByText('Name')).toBeTruthy();
+    expect(getByText('Quantity')).toBeTruthy();
     expect(getByText('Category')).toBeTruthy();
     fireEvent.press(getByText('Components'));
     expect(getByText('Condition')).toBeTruthy();
@@ -152,6 +153,7 @@ describe('ItemForm', () => {
       expect(onSave).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'My Cassette',
+          quantity: 1,
           category: ItemCategory.Component,
           condition: ItemCondition.Good,
           availabilityTypes: [AvailabilityType.Private],

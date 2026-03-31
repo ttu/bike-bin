@@ -19,6 +19,10 @@ export function mapItemRow(row: Record<string, unknown>): Item {
   const remainingFraction =
     rawRemaining === null || rawRemaining === undefined ? undefined : rawRemaining;
 
+  const rawQty = row.quantity as number | null | undefined;
+  const quantity =
+    rawQty === null || rawQty === undefined || Number.isNaN(rawQty) ? 1 : Math.max(1, rawQty);
+
   return {
     id: row.id as ItemId,
     ownerId: row.owner_id as UserId,
@@ -30,6 +34,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     model: (row.model as string) ?? undefined,
     description: (row.description as string) ?? undefined,
     condition: row.condition as ItemCondition,
+    quantity,
     status: row.status as ItemStatus,
     availabilityTypes: (row.availability_types as AvailabilityType[]) ?? [],
     price: (row.price as number) ?? undefined,

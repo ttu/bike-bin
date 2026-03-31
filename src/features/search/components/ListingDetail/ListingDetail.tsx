@@ -112,6 +112,13 @@ export function ListingDetail({
             label={t('listing.detail.conditionLabel')}
             value={t(`condition.${item.condition}`)}
           />
+          {item.quantity > 1 && (
+            <DetailCard
+              icon="package-variant"
+              label={t('listing.detail.quantityLabel')}
+              value={t('listing.detail.quantityValue', { count: item.quantity })}
+            />
+          )}
           {durationText && (
             <DetailCard
               icon="clock-outline"

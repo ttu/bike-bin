@@ -88,6 +88,7 @@ function createRpcRow(overrides?: Record<string, unknown>) {
     description: 'Good cassette',
     condition: ItemCondition.Good,
     status: 'stored',
+    quantity: 1,
     availability_types: [AvailabilityType.Borrowable],
     price: null,
     deposit: null,

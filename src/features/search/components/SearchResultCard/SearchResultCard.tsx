@@ -53,6 +53,7 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
         {/* Name + condition */}
         <Text variant="titleMedium" numberOfLines={1} style={[styles.name, themed.onSurface]}>
           {item.name}
+          {item.quantity > 1 ? ` ${t('result.quantitySuffix', { count: item.quantity })}` : ''}
         </Text>
 
         <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={1}>

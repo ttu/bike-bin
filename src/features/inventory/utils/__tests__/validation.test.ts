@@ -4,6 +4,7 @@ import { validateItem, type ItemFormData } from '../validation';
 function validFormData(overrides?: Partial<ItemFormData>): ItemFormData {
   return {
     name: 'Shimano Cassette',
+    quantity: 1,
     category: ItemCategory.Component,
     condition: ItemCondition.Good,
     availabilityTypes: [AvailabilityType.Borrowable],
@@ -15,6 +16,21 @@ describe('validateItem', () => {
   it('returns no errors for valid data', () => {
     const errors = validateItem(validFormData());
     expect(errors).toEqual({});
+  });
+
+  it('requires quantity', () => {
+    const errors = validateItem(validFormData({ quantity: undefined }));
+    expect(errors.quantity).toBeDefined();
+  });
+
+  it('rejects quantity below 1', () => {
+    const errors = validateItem(validFormData({ quantity: 0 }));
+    expect(errors.quantity).toBeDefined();
+  });
+
+  it('rejects quantity above 9999', () => {
+    const errors = validateItem(validFormData({ quantity: 10000 }));
+    expect(errors.quantity).toBeDefined();
   });
 
   it('requires name', () => {
