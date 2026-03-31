@@ -5,13 +5,14 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   useItem,
   useItemPhotos,
   useUpdateItem,
   useDeleteItem,
   usePhotoUpload,
+  useSwapItemPhotoOrder,
+  useRemoveItemPhoto,
 } from '@/features/inventory';
 import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
@@ -34,13 +35,14 @@ export default function EditItemScreen() {
   const { t } = useTranslation('inventory');
   const { id } = useLocalSearchParams<{ id: string }>();
   const itemId = id as ItemId;
-  const queryClient = useQueryClient();
 
   const { data: item, isLoading } = useItem(itemId);
   const { data: photos = [] } = useItemPhotos(itemId);
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
   const { pickAndUpload, isUploading } = usePhotoUpload();
+  const swapPhotoOrder = useSwapItemPhotoOrder();
+  const removePhoto = useRemoveItemPhoto();
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
@@ -54,34 +56,26 @@ export default function EditItemScreen() {
   }, [pickAndUpload, itemId]);
 
   const handleSetPrimary = useCallback(
-    async (photoId: string) => {
+    (photoId: string) => {
       const tapped = photos.find((p) => p.id === photoId);
       const current = photos[0];
       if (!tapped || !current || tapped.id === current.id) return;
 
-      const tappedOrder = tapped.sortOrder;
-      const currentOrder = current.sortOrder;
-
-      await supabase.from('item_photos').update({ sort_order: currentOrder }).eq('id', tapped.id);
-      await supabase.from('item_photos').update({ sort_order: tappedOrder }).eq('id', current.id);
-
-      queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
-      queryClient.invalidateQueries({ queryKey: ['items'] });
+      swapPhotoOrder.mutate({
+        itemId,
+        photoIdA: tapped.id,
+        sortOrderA: tapped.sortOrder,
+        photoIdB: current.id,
+        sortOrderB: current.sortOrder,
+      });
     },
-    [photos, itemId, queryClient],
+    [photos, itemId, swapPhotoOrder],
   );
 
   const handleRemovePhoto = useCallback(
     (photoId: string) => {
-      const doRemove = async () => {
-        const photo = photos.find((p) => p.id === photoId);
-        if (photo) {
-          await supabase.storage.from('item-photos').remove([photo.storagePath]);
-          await supabase.from('item_photos').delete().eq('id', photoId);
-          queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
-          queryClient.invalidateQueries({ queryKey: ['items'] });
-        }
-      };
+      const photo = photos.find((p) => p.id === photoId);
+      if (!photo) return;
 
       openConfirm({
         title: t('confirm.removePhoto.title'),
@@ -91,11 +85,15 @@ export default function EditItemScreen() {
         destructive: true,
         onConfirm: () => {
           closeConfirm();
-          void doRemove();
+          removePhoto.mutate({
+            itemId,
+            photoId,
+            storagePath: photo.storagePath,
+          });
         },
       });
     },
-    [photos, itemId, queryClient, t, openConfirm, closeConfirm],
+    [photos, itemId, removePhoto, t, openConfirm, closeConfirm],
   );
 
   const handleDelete = () => {

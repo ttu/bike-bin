@@ -11,6 +11,7 @@ export {
   useDeleteBike,
 } from './hooks/useBikes';
 export { useBikePhotoUpload } from './hooks/useBikePhotoUpload';
+export { useRemoveBikePhoto } from './hooks/useBikePhotoManagement';
 export { useMountedParts } from './hooks/useMountedParts';
 export { useAttachPart } from './hooks/useAttachPart';
 export { useDetachPart } from './hooks/useDetachPart';

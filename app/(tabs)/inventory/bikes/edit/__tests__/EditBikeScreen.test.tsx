@@ -56,6 +56,7 @@ jest.mock('@/features/bikes', () => ({
   useUpdateBike: () => ({ mutate: jest.fn(), isPending: false }),
   useDeleteBike: () => ({ mutate: mockDeleteMutate }),
   useBikePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
+  useRemoveBikePhoto: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 
 jest.mock('@/shared/api/supabase', () => ({

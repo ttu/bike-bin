@@ -11,11 +11,10 @@ import {
   useUpdateBike,
   useDeleteBike,
   useBikePhotoUpload,
+  useRemoveBikePhoto,
 } from '@/features/bikes';
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
-import { supabase } from '@/shared/api/supabase';
-import { useQueryClient } from '@tanstack/react-query';
 import { ConfirmDialog } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 
@@ -30,7 +29,7 @@ export default function EditBikeScreen() {
   const updateBike = useUpdateBike();
   const deleteBike = useDeleteBike();
   const { pickAndUpload, isUploading } = useBikePhotoUpload();
-  const queryClient = useQueryClient();
+  const removeBikePhoto = useRemoveBikePhoto();
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
@@ -54,15 +53,8 @@ export default function EditBikeScreen() {
 
   const handleRemovePhoto = useCallback(
     (photoId: string) => {
-      const doRemove = async () => {
-        const photo = photos.find((p) => p.id === photoId);
-        if (photo) {
-          await supabase.storage.from('item-photos').remove([photo.storagePath]);
-          await supabase.from('bike_photos').delete().eq('id', photoId);
-          queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
-          queryClient.invalidateQueries({ queryKey: ['bikes'] });
-        }
-      };
+      const photo = photos.find((p) => p.id === photoId);
+      if (!photo) return;
 
       openConfirm({
         title: t('confirm.removePhoto.title'),
@@ -72,11 +64,15 @@ export default function EditBikeScreen() {
         destructive: true,
         onConfirm: () => {
           closeConfirm();
-          void doRemove();
+          removeBikePhoto.mutate({
+            bikeId,
+            photoId,
+            storagePath: photo.storagePath,
+          });
         },
       });
     },
-    [photos, bikeId, queryClient, t, openConfirm, closeConfirm],
+    [photos, bikeId, removeBikePhoto, t, openConfirm, closeConfirm],
   );
 
   const handleDelete = useCallback(() => {

@@ -18,4 +18,5 @@ export {
   useDeleteItem,
 } from './hooks/useItems';
 export { usePhotoUpload } from './hooks/usePhotoUpload';
+export { useSwapItemPhotoOrder, useRemoveItemPhoto } from './hooks/useItemPhotoManagement';
 export { useUserTags } from './hooks/useUserTags';
