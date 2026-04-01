@@ -49,24 +49,6 @@ describe('useMarkDonated', () => {
     expect(mockEq).toHaveBeenCalledWith('id', 'item-1');
   });
 
-  it('accepts optional recipientId param', async () => {
-    mockUpdate.mockReturnValue({
-      eq: mockEq.mockResolvedValue({ error: null }),
-    });
-
-    const { result } = renderHook(() => useMarkDonated(), {
-      wrapper: createQueryClientHookWrapper(),
-    });
-
-    await result.current.mutateAsync({
-      itemId: 'item-1' as ItemId,
-      recipientId: 'recipient-456',
-    });
-
-    expect(mockUpdate).toHaveBeenCalledWith({ status: ItemStatus.Donated });
-    expect(mockEq).toHaveBeenCalledWith('id', 'item-1');
-  });
-
   it('throws when supabase returns an error', async () => {
     const supabaseError = { message: 'Not found', code: 'PGRST116' };
     mockUpdate.mockReturnValue({
@@ -152,7 +134,6 @@ describe('useMarkSold', () => {
 
     await result.current.mutateAsync({
       itemId: 'item-2' as ItemId,
-      buyerId: 'buyer-789',
     });
 
     expect(mockUpdate).toHaveBeenCalledWith({ status: ItemStatus.Sold });

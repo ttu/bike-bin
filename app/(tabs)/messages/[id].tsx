@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
 import { spacing } from '@/shared/theme';
 import { ItemStatus } from '@/shared/types';
-import type { ConversationId, ItemId, UserId } from '@/shared/types';
+import type { ConversationId, ItemId } from '@/shared/types';
 import {
   useConversation,
   useMessages,
@@ -32,9 +32,7 @@ import { ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 
-type ExchangeConfirm =
-  | { kind: 'donate'; itemId: ItemId; recipientId: UserId }
-  | { kind: 'sell'; itemId: ItemId; buyerId: UserId };
+type ExchangeConfirm = { kind: 'donate'; itemId: ItemId } | { kind: 'sell'; itemId: ItemId };
 
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -126,11 +124,10 @@ export default function ConversationDetailScreen() {
     const conv = conversation;
     if (!conv?.itemId) return;
     const itemId = conv.itemId as ItemId;
-    const recipientId = conv.otherParticipantId as UserId;
 
     // Defer confirm until after the Paper Menu modal finishes dismissing.
     setTimeout(() => {
-      setExchangeConfirm({ kind: 'donate', itemId, recipientId });
+      setExchangeConfirm({ kind: 'donate', itemId });
     }, 0);
   }, [conversation]);
 
@@ -139,10 +136,9 @@ export default function ConversationDetailScreen() {
     const conv = conversation;
     if (!conv?.itemId) return;
     const itemId = conv.itemId as ItemId;
-    const buyerId = conv.otherParticipantId as UserId;
 
     setTimeout(() => {
-      setExchangeConfirm({ kind: 'sell', itemId, buyerId });
+      setExchangeConfirm({ kind: 'sell', itemId });
     }, 0);
   }, [conversation]);
 
@@ -155,12 +151,10 @@ export default function ConversationDetailScreen() {
     if (exchangeConfirm.kind === 'donate') {
       markDonated.mutate({
         itemId: exchangeConfirm.itemId,
-        recipientId: exchangeConfirm.recipientId,
       });
     } else {
       markSold.mutate({
         itemId: exchangeConfirm.itemId,
-        buyerId: exchangeConfirm.buyerId,
       });
     }
     setExchangeConfirm(null);
