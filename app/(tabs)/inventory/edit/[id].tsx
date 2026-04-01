@@ -208,7 +208,6 @@ export default function EditItemScreen() {
       >
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
         <Appbar.Content title={t('editItem')} />
-        <Appbar.Action icon="dots-vertical" onPress={() => {}} />
       </Appbar.Header>
       <ItemForm
         initialData={initialData}

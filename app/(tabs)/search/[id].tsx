@@ -102,11 +102,6 @@ export default function ListingDetailScreen() {
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={handleBack} />
         <Appbar.Content title="" />
-        <Appbar.Action
-          icon="flag-outline"
-          onPress={() => {}}
-          accessibilityLabel={t('listing.report')}
-        />
       </Appbar.Header>
 
       <ListingDetail
