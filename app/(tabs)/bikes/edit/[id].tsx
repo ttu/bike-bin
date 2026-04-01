@@ -23,11 +23,6 @@ import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
-function formatBikeDisplayId(id: string): string {
-  const short = id.slice(0, 8).toUpperCase();
-  return `BB-${short.slice(0, 3)}-${short.slice(3, 4)}`;
-}
-
 export default function EditBikeScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
@@ -132,9 +127,6 @@ export default function EditBikeScreen() {
         )}
       </View>
       <View style={styles.heroInfo}>
-        <Text variant="labelSmall" style={[styles.bikeIdLabel, { color: theme.colors.primary }]}>
-          {t('bikeId', { id: formatBikeDisplayId(bike.id) })}
-        </Text>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface }}>
           {bike.name}
         </Text>
@@ -215,10 +207,6 @@ const styles = StyleSheet.create({
   heroInfo: {
     flex: 1,
     gap: spacing.xs,
-  },
-  bikeIdLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
   photoSection: {
     marginTop: spacing.md,

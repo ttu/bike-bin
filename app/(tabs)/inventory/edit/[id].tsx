@@ -25,11 +25,6 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 
-function formatInventoryId(id: string): string {
-  const short = id.slice(0, 8).toUpperCase();
-  return `BB-${short.slice(0, 3)}-${short.slice(3, 4)}`;
-}
-
 export default function EditItemScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -174,12 +169,6 @@ export default function EditItemScreen() {
         )}
       </View>
       <View style={styles.heroInfo}>
-        <Text
-          variant="labelSmall"
-          style={[styles.inventoryIdLabel, { color: theme.colors.primary }]}
-        >
-          {t('inventoryId', { id: formatInventoryId(item.id) })}
-        </Text>
         <Text variant="headlineSmall" style={{ color: theme.colors.onSurface }}>
           {item.name}
         </Text>
@@ -251,10 +240,6 @@ const styles = StyleSheet.create({
   heroInfo: {
     flex: 1,
     gap: spacing.xs,
-  },
-  inventoryIdLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
   photoSection: {
     marginTop: spacing.md,

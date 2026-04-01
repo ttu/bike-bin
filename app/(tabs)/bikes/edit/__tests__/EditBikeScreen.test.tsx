@@ -1,4 +1,4 @@
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { BikeType } from '@/shared/types';
@@ -88,6 +88,12 @@ jest.mock('@tanstack/react-query', () => {
 describe('EditBikeScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('does not show bike id label in the hero header', () => {
+    renderWithProviders(<EditBikeScreen />);
+
+    expect(screen.queryByText(/Bike ID:/)).toBeNull();
   });
 
   it('shows confirmation before deleting bike', () => {

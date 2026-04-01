@@ -106,7 +106,6 @@
   "editItem": "Edit item",
   "deleteItem": "Delete item",
   "removeFromInventory": "Remove from inventory",
-  "inventoryId": "Inventory ID: {{id}}",
   "deleteConfirm": "Are you sure you want to delete this item?",
   "confirm": {
     "delete": {

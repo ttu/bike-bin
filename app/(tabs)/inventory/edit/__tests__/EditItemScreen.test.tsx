@@ -92,6 +92,12 @@ describe('EditItemScreen', () => {
     jest.clearAllMocks();
   });
 
+  it('does not show inventory id label in the hero header', () => {
+    renderWithProviders(<EditItemScreen />);
+
+    expect(screen.queryByText(/Inventory ID:/)).toBeNull();
+  });
+
   it('displays existing tags when editing an item', () => {
     renderWithProviders(<EditItemScreen />);
 
