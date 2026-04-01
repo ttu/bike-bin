@@ -22,10 +22,25 @@ test.describe('Accept borrow request', () => {
 
     // ConfirmDialog appears — click the confirm "Accept" button
     await expect(loggedInPage.getByText('Accept request?')).toBeVisible({ timeout: 5000 });
+
+    // Start listening for the RPC response before clicking confirm
+    const acceptResponse = loggedInPage.waitForResponse(
+      (resp) =>
+        resp.url().includes('/rest/v1/rpc/transition_borrow_request') &&
+        resp.request().method() === 'POST',
+      { timeout: 10000 },
+    );
+
     await loggedInPage
       .getByRole('button', { name: /^Accept$/i })
       .last()
       .click();
+
+    // Wait for the mutation to complete
+    await acceptResponse;
+
+    // Wait for the query cache to refresh — incoming count should drop to 0
+    await expect(loggedInPage.getByText('Incoming (1)')).toBeHidden({ timeout: 10000 });
 
     // Request should move to active tab — switch to Active
     await loggedInPage.getByRole('tab', { name: /Active/ }).click();

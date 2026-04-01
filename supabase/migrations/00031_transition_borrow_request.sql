@@ -11,7 +11,7 @@ DECLARE
 BEGIN
   -- Update the borrow request status
   UPDATE borrow_requests
-  SET status = p_new_request_status, updated_at = NOW()
+  SET status = p_new_request_status::borrow_request_status, updated_at = NOW()
   WHERE id = p_request_id
   RETURNING * INTO v_request;
 
@@ -21,7 +21,7 @@ BEGIN
 
   -- Update the associated item status
   UPDATE items
-  SET status = p_new_item_status
+  SET status = p_new_item_status::item_status
   WHERE id = v_request.item_id;
 
   RETURN to_jsonb(v_request);

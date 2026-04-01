@@ -55,9 +55,11 @@ test.describe('Mark as Returned', () => {
     await expect(loggedInPage.getByText('Mark as returned?')).toBeVisible({ timeout: 5000 });
     await loggedInPage.getByRole('button', { name: /^Mark Returned$/i }).click();
 
-    // Wait for PATCH to complete
+    // Wait for RPC mutation to complete
     await loggedInPage.waitForResponse(
-      (resp) => resp.url().includes('/rest/v1/items') && resp.request().method() === 'PATCH',
+      (resp) =>
+        resp.url().includes('/rest/v1/rpc/transition_borrow_request') &&
+        resp.request().method() === 'POST',
       { timeout: 10000 },
     );
 

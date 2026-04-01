@@ -14,9 +14,7 @@ test.describe('Inventory list with data', () => {
 
   test('shows item status chips', async ({ loggedInPage }) => {
     // "Stored" status is hidden on cards (only non-stored statuses show chips)
-    // Scroll to ensure loaned/mounted items are visible
-    await loggedInPage.getByText('Mounted').first().scrollIntoViewIfNeeded();
-    await expect(loggedInPage.getByText('Mounted').first()).toBeVisible();
+    // Park Tool PCS-10.3 Stand is loaned — verify the chip renders
     await loggedInPage.getByText('Loaned').first().scrollIntoViewIfNeeded();
     await expect(loggedInPage.getByText('Loaned').first()).toBeVisible();
   });

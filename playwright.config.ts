@@ -3,6 +3,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   timeout: 30000,
+  workers: 1,
+  globalSetup: './e2e/global-setup.ts',
   use: {
     baseURL: 'http://localhost:8081',
   },
