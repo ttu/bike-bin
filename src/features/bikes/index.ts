@@ -1,6 +1,8 @@
 // Types
 export type { BikeFormData } from './types';
 
+export { DEFAULT_BIKE_BRANDS } from './constants';
+
 // Hooks
 export {
   useBikes,

@@ -143,7 +143,9 @@ test.describe('Edit bike', () => {
     // Navigate to bikes list and verify updated brand
     const tablist = loggedInPage.getByRole('tablist');
     await tablist.getByRole('tab', { name: /^Bikes$/i }).click();
-    await expect(loggedInPage.getByText('Santa Cruz Updated')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Santa Cruz Updated', { exact: true })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 

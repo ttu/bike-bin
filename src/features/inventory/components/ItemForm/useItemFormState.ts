@@ -13,6 +13,7 @@ import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useItems } from '../../hooks/useItems';
 import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
 import { useDistanceUnit } from '@/features/profile';
+import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 
 import type { ItemFormState } from './types';
 
@@ -38,9 +39,15 @@ export function useItemFormState({
   const [subcategory, setSubcategory] = useState(initialData?.subcategory ?? '');
   const [condition, setCondition] = useState<ItemCondition | undefined>(initialData?.condition);
   const [brand, setBrand] = useState(initialData?.brand ?? '');
-  const [brandMenuVisible, setBrandMenuVisible] = useState(false);
-  const [brandSearch, setBrandSearch] = useState('');
   const [model, setModel] = useState(initialData?.model ?? '');
+  const {
+    brandMenuVisible,
+    filteredBrands,
+    handleBrandSelect,
+    handleBrandInputChange,
+    handleBrandFocus,
+    handleBrandBlur,
+  } = useBrandAutocomplete({ brand, setBrand, brands: DEFAULT_BRANDS });
 
   // ── Availability ─────────────────────────────────────────────
   const [availabilityTypes, setAvailabilityTypes] = useState<AvailabilityType[]>(() => {
@@ -92,12 +99,6 @@ export function useItemFormState({
     return [...new Set(locations)].sort();
   }, [existingItems]);
 
-  const filteredBrands = useMemo(() => {
-    const search = brandSearch.toLowerCase();
-    if (!search) return [...DEFAULT_BRANDS];
-    return DEFAULT_BRANDS.filter((b) => b.toLowerCase().includes(search));
-  }, [brandSearch]);
-
   const currentSubcategories = useMemo(() => {
     if (!category) return [];
     return SUBCATEGORIES[category] ?? [];
@@ -138,22 +139,6 @@ export function useItemFormState({
       setUsageKm('');
     } else {
       setRemainingPercentStr('');
-    }
-  }, []);
-
-  const handleBrandSelect = useCallback((selectedBrand: string) => {
-    setBrand(selectedBrand);
-    setBrandSearch('');
-    setBrandMenuVisible(false);
-  }, []);
-
-  const handleBrandInputChange = useCallback((text: string) => {
-    setBrand(text);
-    setBrandSearch(text);
-    if (text.length > 0) {
-      setBrandMenuVisible(true);
-    } else {
-      setBrandMenuVisible(false);
     }
   }, []);
 
@@ -268,7 +253,8 @@ export function useItemFormState({
     setCondition,
     brand,
     brandMenuVisible,
-    setBrandMenuVisible,
+    handleBrandFocus,
+    handleBrandBlur,
     filteredBrands,
     model,
     setModel,

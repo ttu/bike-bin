@@ -148,8 +148,9 @@ export const SUBCATEGORY_ICONS: Record<string, string> = {
 };
 
 /**
- * Default brand suggestions for bike parts.
- * Users can also input custom brands not in this list.
+ * Default brand suggestions for inventory items (parts, accessories, consumables).
+ * Complete-bike suggestions: `DEFAULT_BIKE_BRANDS` in `@/features/bikes/constants`.
+ * Users can always enter a brand that is not in the list.
  */
 export const DEFAULT_BRANDS = [
   'Shimano',

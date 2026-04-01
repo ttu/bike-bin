@@ -1,4 +1,6 @@
 export { AnimatedPressable } from './AnimatedPressable/AnimatedPressable';
+export { BrandAutocompleteInput } from './BrandAutocompleteInput';
+export type { BrandAutocompleteInputProps } from './BrandAutocompleteInput';
 export { DetailCard, detailCardStyles } from './DetailCard';
 export { EmptyState } from './EmptyState';
 export { GradientButton } from './GradientButton';

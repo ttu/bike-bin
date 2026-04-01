@@ -69,6 +69,26 @@ describe('BikeForm', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  it('selects a suggested brand from the autocomplete list', async () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
+
+    fireEvent.changeText(getByPlaceholderText('e.g. My Road Bike'), 'My Bike');
+    fireEvent.press(getByText('Road'));
+    fireEvent.changeText(getByPlaceholderText('e.g. Canyon'), 'Tre');
+    expect(getByText('Trek')).toBeTruthy();
+    fireEvent.press(getByText('Trek'));
+
+    fireEvent.press(getByText('Save Bike'));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          brand: 'Trek',
+        }),
+      );
+    });
+  });
+
   it('calls onSave with form data when valid', async () => {
     const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
 

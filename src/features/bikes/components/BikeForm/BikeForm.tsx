@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
+import { BrandAutocompleteInput } from '@/shared/components/BrandAutocompleteInput';
+import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { useTranslation } from 'react-i18next';
 import { BikeType, ItemCondition } from '@/shared/types';
 import type { BikeId, BikePhoto } from '@/shared/types';
@@ -9,6 +11,7 @@ import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPi
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
+import { DEFAULT_BIKE_BRANDS } from '../../constants';
 
 const BIKE_TYPES = [
   BikeType.Road,
@@ -75,6 +78,14 @@ export function BikeForm({
 
   const [name, setName] = useState(initialData?.name ?? '');
   const [brand, setBrand] = useState(initialData?.brand ?? '');
+  const {
+    brandMenuVisible,
+    filteredBrands,
+    handleBrandSelect,
+    handleBrandInputChange,
+    handleBrandFocus,
+    handleBrandBlur,
+  } = useBrandAutocomplete({ brand, setBrand, brands: DEFAULT_BIKE_BRANDS });
   const [model, setModel] = useState(initialData?.model ?? '');
   const [bikeType, setBikeType] = useState<BikeType | undefined>(initialData?.type);
   const [year, setYear] = useState(initialData?.year?.toString() ?? '');
@@ -144,6 +155,7 @@ export function BikeForm({
     <ScrollView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
     >
       {/* Name */}
       <Text variant="labelLarge" style={styles.label}>
@@ -195,16 +207,18 @@ export function BikeForm({
         </HelperText>
       )}
 
-      {/* Brand */}
-      <Text variant="labelLarge" style={styles.label}>
-        {t('form.brandLabel')}
-      </Text>
-      <TextInput
-        mode="flat"
-        value={brand}
-        onChangeText={setBrand}
+      <BrandAutocompleteInput
+        label={t('form.brandLabel')}
+        labelStyle={styles.label}
         placeholder={t('form.brandPlaceholder')}
-        style={softInputStyle}
+        value={brand}
+        filteredBrands={filteredBrands}
+        menuVisible={brandMenuVisible}
+        onChangeText={handleBrandInputChange}
+        onSelectBrand={handleBrandSelect}
+        onFocus={handleBrandFocus}
+        onBlur={handleBrandBlur}
+        softInputStyle={softInputStyle}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
