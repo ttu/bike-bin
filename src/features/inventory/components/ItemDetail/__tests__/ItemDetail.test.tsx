@@ -31,7 +31,7 @@ describe('ItemDetail', () => {
     availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
     price: 45.0,
     age: '2 years',
-    usageKm: 3000,
+    usage: 3000,
     usageUnit: 'km',
     storageLocation: 'Garage shelf',
     description: 'Good condition cassette',
@@ -79,7 +79,7 @@ describe('ItemDetail', () => {
       subcategory: 'chain_lube',
       condition: ItemCondition.Good,
       remainingFraction: 0.4,
-      usageKm: undefined,
+      usage: undefined,
       usageUnit: undefined,
     });
     const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);

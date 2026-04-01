@@ -130,8 +130,8 @@ export function ItemForm({
         setAge={state.setAge}
         ageMenuVisible={state.ageMenuVisible}
         setAgeMenuVisible={state.setAgeMenuVisible}
-        usageKm={state.usageKm}
-        setUsageKm={state.setUsageKm}
+        usage={state.usage}
+        setUsage={state.setUsage}
         distanceUnit={state.distanceUnit}
         storageLocation={state.storageLocation}
         setStorageLocation={state.setStorageLocation}

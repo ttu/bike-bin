@@ -173,11 +173,11 @@ export function ItemDetail({
               value={t(`form.ageOption.${item.age}`, { defaultValue: item.age })}
             />
           )}
-          {item.usageKm !== undefined && (
+          {item.usage !== undefined && (
             <DetailCard
               icon="road-variant"
               label={t('detail.usageLabel')}
-              value={`${item.usageKm} ${distanceUnit}`}
+              value={`${item.usage} ${distanceUnit}`}
             />
           )}
           {item.storageLocation && (

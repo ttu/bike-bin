@@ -123,11 +123,11 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     storageLocation: faker.helpers.maybe(() => faker.location.city()),
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
     ...(() => {
-      const usageKm = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 }));
+      const usage = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 }));
       return {
-        usageKm,
+        usage,
         usageUnit:
-          usageKm !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : undefined,
+          usage !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : undefined,
       };
     })(),
     remainingFraction: undefined,

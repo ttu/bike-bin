@@ -44,7 +44,7 @@ describe('mapItemRow', () => {
       usage_unit: 'km',
     });
 
-    expect(item.usageKm).toBeUndefined();
+    expect(item.usage).toBeUndefined();
     expect(item.usageUnit).toBeUndefined();
   });
 
@@ -57,11 +57,11 @@ describe('mapItemRow', () => {
       usage_unit: 'mi',
     });
 
-    expect(item.usageKm).toBe(1200);
+    expect(item.usage).toBe(1200);
     expect(item.usageUnit).toBe('mi');
   });
 
-  it('keeps usageKm 0 as a real value', () => {
+  it('keeps usage 0 as a real value', () => {
     const item = mapItemRow({
       ...baseRow,
       id: 'i3',
@@ -70,7 +70,7 @@ describe('mapItemRow', () => {
       usage_unit: 'km',
     });
 
-    expect(item.usageKm).toBe(0);
+    expect(item.usage).toBe(0);
     expect(item.usageUnit).toBe('km');
   });
 

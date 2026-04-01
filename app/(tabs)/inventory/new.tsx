@@ -67,7 +67,7 @@ export default function NewItemScreen() {
           borrowDuration: (data.borrowDuration as BorrowDuration) || undefined,
           storageLocation: data.storageLocation,
           age: data.age,
-          usageKm: data.usageKm,
+          usage: data.usage,
           usageUnit: (data.usageUnit as DistanceUnit) || undefined,
           remainingFraction: data.remainingFraction,
           purchaseDate: data.purchaseDate,

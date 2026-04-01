@@ -17,8 +17,8 @@ interface OptionalSectionProps extends InputStyling {
   ageMenuVisible: ItemFormState['ageMenuVisible'];
   setAgeMenuVisible: ItemFormState['setAgeMenuVisible'];
   // Usage
-  usageKm: ItemFormState['usageKm'];
-  setUsageKm: ItemFormState['setUsageKm'];
+  usage: ItemFormState['usage'];
+  setUsage: ItemFormState['setUsage'];
   distanceUnit: ItemFormState['distanceUnit'];
   // Storage
   storageLocation: ItemFormState['storageLocation'];
@@ -50,8 +50,8 @@ export function OptionalSection({
   setAge,
   ageMenuVisible,
   setAgeMenuVisible,
-  usageKm,
-  setUsageKm,
+  usage,
+  setUsage,
   distanceUnit,
   storageLocation,
   setStorageLocation,
@@ -100,8 +100,8 @@ export function OptionalSection({
           />
           {(category === ItemCategory.Component || category === ItemCategory.Accessory) && (
             <UsageField
-              usageKm={usageKm}
-              setUsageKm={setUsageKm}
+              usage={usage}
+              setUsage={setUsage}
               distanceUnit={distanceUnit}
               softInputStyle={softInputStyle}
               underlineColor={underlineColor}
@@ -213,14 +213,14 @@ function AgeField({
 }
 
 interface UsageFieldProps extends InputStyling {
-  usageKm: string;
-  setUsageKm: (v: string) => void;
+  usage: string;
+  setUsage: (v: string) => void;
   distanceUnit: string;
 }
 
 function UsageField({
-  usageKm,
-  setUsageKm,
+  usage,
+  setUsage,
   distanceUnit,
   softInputStyle,
   underlineColor,
@@ -237,8 +237,8 @@ function UsageField({
       <View style={styles.usageRow}>
         <TextInput
           mode="flat"
-          value={usageKm}
-          onChangeText={setUsageKm}
+          value={usage}
+          onChangeText={setUsage}
           placeholder={t('form.usagePlaceholder')}
           keyboardType="numeric"
           style={[softInputStyle, styles.usageInput]}

@@ -80,8 +80,8 @@ export interface ItemFormState {
   setAge: (v: string) => void;
   ageMenuVisible: boolean;
   setAgeMenuVisible: (v: boolean) => void;
-  usageKm: string;
-  setUsageKm: (v: string) => void;
+  usage: string;
+  setUsage: (v: string) => void;
   distanceUnit: string;
   storageLocation: string;
   setStorageLocation: (v: string) => void;

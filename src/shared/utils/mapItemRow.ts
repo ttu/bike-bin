@@ -12,10 +12,10 @@ import type {
 
 /** Transforms a Supabase row into the Item domain model. */
 export function mapItemRow(row: Record<string, unknown>): Item {
-  const rawUsageKm = row.usage_km as number | null | undefined;
-  const usageKm = rawUsageKm === null || rawUsageKm === undefined ? undefined : rawUsageKm;
+  const rawUsage = row.usage_km as number | null | undefined;
+  const usage = rawUsage === null || rawUsage === undefined ? undefined : rawUsage;
   const usageUnit =
-    usageKm !== undefined ? ((row.usage_unit as DistanceUnit | null) ?? undefined) : undefined;
+    usage !== undefined ? ((row.usage_unit as DistanceUnit | null) ?? undefined) : undefined;
 
   const rawRemaining = row.remaining_fraction as number | null | undefined;
   const remainingFraction =
@@ -44,7 +44,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     borrowDuration: (row.borrow_duration as BorrowDuration) ?? undefined,
     storageLocation: (row.storage_location as string) ?? undefined,
     age: (row.age as string) ?? undefined,
-    usageKm,
+    usage,
     usageUnit,
     remainingFraction,
     purchaseDate: (row.purchase_date as string) ?? undefined,

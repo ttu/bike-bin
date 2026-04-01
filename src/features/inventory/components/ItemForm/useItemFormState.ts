@@ -73,7 +73,7 @@ export function useItemFormState({
   const [storageMenuVisible, setStorageMenuVisible] = useState(false);
   const [age, setAge] = useState(initialData?.age ?? '');
   const [ageMenuVisible, setAgeMenuVisible] = useState(false);
-  const [usageKm, setUsageKm] = useState(initialData?.usageKm?.toString() ?? '');
+  const [usage, setUsage] = useState(initialData?.usage?.toString() ?? '');
   const [remainingPercentStr, setRemainingPercentStr] = useState(() =>
     formatRemainingPercentField(initialData?.remainingFraction),
   );
@@ -136,7 +136,7 @@ export function useItemFormState({
     setCategory(cat);
     setSubcategory('');
     if (cat === ItemCategory.Consumable) {
-      setUsageKm('');
+      setUsage('');
     } else {
       setRemainingPercentStr('');
     }
@@ -199,8 +199,8 @@ export function useItemFormState({
       borrowDuration: isBorrowable && borrowDuration ? borrowDuration : undefined,
       storageLocation: storageLocation || undefined,
       age: age || undefined,
-      usageKm: usageKm ? parseInt(usageKm, 10) : undefined,
-      usageUnit: usageKm ? distanceUnit : undefined,
+      usage: usage ? parseInt(usage, 10) : undefined,
+      usageUnit: usage ? distanceUnit : undefined,
       remainingFraction: parsedRemaining,
       visibility,
       groupIds: visibility === Visibility.Groups ? groupIds : undefined,
@@ -228,7 +228,7 @@ export function useItemFormState({
     borrowDuration,
     storageLocation,
     age,
-    usageKm,
+    usage,
     remainingPercentStr,
     distanceUnit,
     visibility,
@@ -284,8 +284,8 @@ export function useItemFormState({
     setAge,
     ageMenuVisible,
     setAgeMenuVisible,
-    usageKm,
-    setUsageKm,
+    usage,
+    setUsage,
     distanceUnit,
     storageLocation,
     setStorageLocation,
