@@ -75,8 +75,7 @@ test.describe('Edit bike', () => {
 
     // Navigate to bikes list and verify updated brand
     const tablist = loggedInPage.getByRole('tablist');
-    await tablist.getByRole('tab', { name: /Inventory/ }).click();
-    await loggedInPage.getByText(/Bikes\s*→/).click();
+    await tablist.getByRole('tab', { name: /^Bikes$/i }).click();
     await expect(loggedInPage.getByText('Santa Cruz Updated')).toBeVisible({ timeout: 10000 });
   });
 });

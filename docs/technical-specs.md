@@ -10,7 +10,7 @@
 | Layer          | Choice                                                              | Notes                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | **Expo** + **React Native** + **React Native Web** + **TypeScript** | iOS, Android, and Web — single codebase. Expo for tooling, OTA, and native builds.                                                                             |
-| Navigation     | **Expo Router**                                                     | File-based routing. 4-tab layout (Inventory, Search, Messages, Profile).                                                                                       |
+| Navigation     | **Expo Router**                                                     | File-based routing. 5-tab layout (Inventory, Bikes, Search, Messages, Profile).                                                                                |
 | Server state   | **TanStack Query** (React Query)                                    | Caching, stale-while-revalidate, offline persistence, retry.                                                                                                   |
 | Client state   | **React Context API**                                               | Auth session, UI state, filters. Not for server data.                                                                                                          |
 | Offline        | **AsyncStorage** + TanStack Query persister                         | Cache persistence + offline write queue. NetInfo for connectivity detection.                                                                                   |
@@ -63,7 +63,7 @@ _(Guidance adapted from [emergency-supply-tracker](https://github.com/ttu/emerge
 
 - **Feature slice architecture:** Code organized by feature under `src/features/` (inventory, bikes, borrow, exchange, groups, messaging, search, notifications, ratings, locations, profile, auth, onboarding). See [system-architecture.md](system-architecture.md) for directory layout and public API pattern.
 - **Shared code:** `src/shared/` for components, hooks, types, utils, Supabase API layer, and TanStack Query config. Cross-feature logic in shared; feature-specific in the slice.
-- **Navigation:** **Expo Router** (file-based routing) under `app/`. 4-tab layout: Inventory, Search, Messages, Profile. See [system-architecture.md](system-architecture.md) §3.1 for screen tree.
+- **Navigation:** **Expo Router** (file-based routing) under `app/`. 5-tab layout: Inventory, Bikes, Search, Messages, Profile. See [system-architecture.md](system-architecture.md) §3.1 for screen tree.
 
 ### State management
 
@@ -218,7 +218,7 @@ The web version uses a **max-width container** centered on screen — the app fe
 
 **Navigation:**
 
-- **Bottom tab bar:** 4 tabs (Inventory, Search, Messages, Profile). Teal active icon + label; `onSurfaceVariant` for inactive. Subtle top border, minimal elevation.
+- **Bottom tab bar:** 5 tabs (Inventory, Bikes, Search, Messages, Profile). Teal active icon + label; `onSurfaceVariant` for inactive. Subtle shadow, minimal elevation.
 - **Screen headers:** Paper `Appbar.Header` — left-aligned title, clean background (`surface`), optional right actions.
 - **Back navigation:** Arrow icon in header for sub-screens. No hamburger menu.
 

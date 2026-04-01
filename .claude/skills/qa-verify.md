@@ -164,7 +164,7 @@ You MUST follow this procedure exactly. Zero tolerance — every issue found mus
 **Repeat up to 2 times or until clean:**
 
 1. Log back in via dev login button
-2. **Navigation consistency** — Rapidly switch between all 4 tabs
+2. **Navigation consistency** — Rapidly switch between all bottom tabs (Inventory, Bikes, Search, Messages, Profile)
    - Verify no blank screens, no loading spinners that never resolve
    - Verify tab bar highlights the active tab correctly
 3. **Back navigation** — Enter a detail screen, use back button, verify return to correct list

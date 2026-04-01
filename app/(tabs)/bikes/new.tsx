@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import type { Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useCreateBike } from '@/features/bikes';
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
@@ -16,7 +17,7 @@ export default function NewBikeScreen() {
     (data: BikeFormData) => {
       createBike.mutate(data, {
         onSuccess: () => {
-          tabScopedBack('/(tabs)/inventory/bikes');
+          tabScopedBack('/(tabs)/bikes' as Href);
         },
       });
     },
@@ -30,7 +31,7 @@ export default function NewBikeScreen() {
         elevated={false}
         style={{ backgroundColor: theme.colors.background }}
       >
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory/bikes')} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/bikes' as Href)} />
         <Appbar.Content title={t('addBike')} />
       </Appbar.Header>
       <BikeForm onSave={handleSave} isSubmitting={createBike.isPending} />

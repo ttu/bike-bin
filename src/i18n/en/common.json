@@ -4,6 +4,7 @@
   },
   "tabs": {
     "inventory": "Inventory",
+    "bikes": "Bikes",
     "search": "Search",
     "messages": "Messages",
     "profile": "Profile"

@@ -3,7 +3,7 @@ import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { BikeType } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
-import EditBikeScreen from '../../edit/[id]';
+import EditBikeScreen from '../[id]';
 
 const mockRouterNavigate = jest.fn();
 

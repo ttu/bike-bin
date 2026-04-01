@@ -120,7 +120,7 @@ export default function InventoryScreen() {
         <Button
           mode="text"
           compact
-          onPress={() => router.push('/(tabs)/inventory/bikes' as never)}
+          onPress={() => router.push('/(tabs)/bikes' as never)}
           accessibilityRole="link"
           accessibilityLabel={t('bikesLink')}
           style={styles.bikesLinkButton}

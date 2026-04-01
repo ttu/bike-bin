@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, router, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import type { BikeId } from '@/shared/types';
@@ -39,7 +39,7 @@ export default function EditBikeScreen() {
         { id: bikeId, ...data },
         {
           onSuccess: () => {
-            tabScopedBack('/(tabs)/inventory/bikes');
+            tabScopedBack('/(tabs)/bikes' as Href);
           },
         },
       );
@@ -86,7 +86,7 @@ export default function EditBikeScreen() {
         closeConfirm();
         deleteBike.mutate(bikeId, {
           onSuccess: () => {
-            router.navigate('/(tabs)/inventory/bikes' as never);
+            router.navigate('/(tabs)/bikes' as Href);
           },
         });
       },
@@ -102,7 +102,7 @@ export default function EditBikeScreen() {
         elevated={false}
         style={{ backgroundColor: theme.colors.background }}
       >
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory/bikes')} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/bikes' as Href)} />
         <Appbar.Content title={t('editBike')} />
       </Appbar.Header>
       <BikeForm

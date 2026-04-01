@@ -70,14 +70,14 @@ src/features/bikes/
 
 ## Screens & Navigation
 
-| Route                                  | Screen      | Purpose                           |
-| -------------------------------------- | ----------- | --------------------------------- |
-| `(tabs)/inventory/bikes/index.tsx`     | Bike List   | Grid of user's bikes              |
-| `(tabs)/inventory/bikes/[id].tsx`      | Bike Detail | Photos, specs, mounted parts list |
-| `(tabs)/inventory/bikes/new.tsx`       | New Bike    | Bike creation form                |
-| `(tabs)/inventory/bikes/edit/[id].tsx` | Edit Bike   | Bike edit form                    |
+| Route                        | Screen      | Purpose                           |
+| ---------------------------- | ----------- | --------------------------------- |
+| `(tabs)/bikes/index.tsx`     | Bike List   | Grid of user's bikes (own tab)    |
+| `(tabs)/bikes/[id].tsx`      | Bike Detail | Photos, specs, mounted parts list |
+| `(tabs)/bikes/new.tsx`       | New Bike    | Bike creation form                |
+| `(tabs)/bikes/edit/[id].tsx` | Edit Bike   | Bike edit form                    |
 
-Bikes are nested under the inventory tab navigation.
+Bikes are a **dedicated bottom tab** (`(tabs)/bikes/`). The inventory list still exposes a **Bikes →** shortcut that navigates to the same Bikes tab.
 
 ## Key Flows
 

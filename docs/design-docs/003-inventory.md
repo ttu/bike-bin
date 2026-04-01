@@ -129,6 +129,8 @@ src/features/inventory/
 | `(tabs)/inventory/edit/[id].tsx`     | Edit Item      | Item edit form                                          |
 | `(tabs)/inventory/notifications.tsx` | Notifications  | Notification list (in inventory tab)                    |
 
+The inventory list header includes a **Bikes →** control that opens the **Bikes** tab (`(tabs)/bikes`) for quick access to bike management.
+
 ## Key Flows
 
 ### Adding an Item

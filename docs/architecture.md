@@ -71,7 +71,7 @@ High-level structure:
 - Root `app/_layout.tsx` — provider stack: SafeAreaProvider → QueryClientProvider → ThemePreferenceProvider → PaperProvider → DemoModeProvider → AuthProvider. Font loading (Manrope), Sentry init, and i18n config also happen here.
 - `app/(auth)/` — unauthenticated routes (e.g. login).
 - `app/(onboarding)/` — guided setup.
-- `app/(tabs)/` — main **four-tab** shell: **Inventory**, **Search**, **Messages**, **Profile** (each with its own stack/layout).
+- `app/(tabs)/` — main **five-tab** shell: **Inventory**, **Bikes**, **Search**, **Messages**, **Profile** (each with its own stack/layout).
 
 File names map to URLs; dynamic segments use `[id]` (or similar) as in Expo Router conventions.
 

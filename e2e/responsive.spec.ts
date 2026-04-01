@@ -63,6 +63,7 @@ test.describe('Mobile viewport (375x812)', () => {
     await expect(tabBar).toBeVisible({ timeout: 10000 });
 
     await expect(loggedInPage.getByRole('tab', { name: /inventory/i })).toBeVisible();
+    await expect(loggedInPage.getByRole('tab', { name: /^bikes$/i })).toBeVisible();
     await expect(loggedInPage.getByRole('tab', { name: /search/i })).toBeVisible();
     await expect(loggedInPage.getByRole('tab', { name: /messages/i })).toBeVisible();
     await expect(loggedInPage.getByRole('tab', { name: /profile/i })).toBeVisible();
@@ -131,6 +132,7 @@ test.describe('Tablet viewport (768x1024)', () => {
     await expect(tabBar).toBeVisible({ timeout: 10000 });
 
     await expect(loggedInPage.getByRole('tab', { name: /inventory/i })).toBeVisible();
+    await expect(loggedInPage.getByRole('tab', { name: /^bikes$/i })).toBeVisible();
     await expect(loggedInPage.getByRole('tab', { name: /search/i })).toBeVisible();
     await expect(loggedInPage.getByRole('tab', { name: /messages/i })).toBeVisible();
     await expect(loggedInPage.getByRole('tab', { name: /profile/i })).toBeVisible();

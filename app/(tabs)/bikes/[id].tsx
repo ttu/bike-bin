@@ -1,7 +1,7 @@
 import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, router, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { BikeId, Bike } from '@/shared/types';
 import type { TFunction } from 'i18next';
@@ -38,11 +38,11 @@ export default function BikeDetailScreen() {
         elevated={false}
         style={{ backgroundColor: theme.colors.background }}
       >
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory/bikes')} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/bikes' as Href)} />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="pencil"
-          onPress={() => router.push(`/(tabs)/inventory/bikes/edit/${bike.id}` as never)}
+          onPress={() => router.push(`/(tabs)/bikes/edit/${bike.id}` as never)}
         />
       </Appbar.Header>
       <ScrollView

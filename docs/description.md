@@ -23,6 +23,10 @@ Bike Bin is primarily a **personal inventory** app for bike parts, tools, and bu
 
 iOS, Android, and Web — one codebase (Expo + React Native), aiming for feature parity. Web can be deployed continuously; mobile goes through store review.
 
+## Navigation (main app)
+
+Signed-in and browse-in users use a **bottom tab bar** with five areas: **Inventory**, **Bikes**, **Search**, **Messages**, and **Profile**. Details and screen trees: [functional-specs.md](functional-specs.md) §2.4, [feature-design.md](feature-design.md) §2.2–2.3.
+
 ## Core capabilities
 
 | Area                        | What users get                                                                                                                                                                                                                                                                                             |

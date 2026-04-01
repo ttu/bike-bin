@@ -48,7 +48,7 @@ The app follows a **layered architecture** with **feature slice organization** a
 - **Client state:** React Context API for UI/session state (auth, active filters, etc.).
 - **Offline layer:** TanStack Query's built-in cache persistence (via AsyncStorage) + offline write queue in AsyncStorage for mutations that fail while offline. Synced when connection returns.
 - **UI layer:** React Native components organized by feature slices.
-- **Navigation:** Expo Router (file-based routing) with a 4-tab layout.
+- **Navigation:** Expo Router (file-based routing) with a 5-tab layout.
 - **Feature slices:** Self-contained features with components, hooks, utils, and state.
 
 ---
@@ -103,15 +103,19 @@ src/
     ├── (onboarding)/         # Guided setup screens
     │   ├── profile.tsx
     │   └── location.tsx
-    └── (tabs)/               # Main 4-tab layout
+    └── (tabs)/               # Main 5-tab layout
         ├── _layout.tsx       # Tab bar configuration
         ├── inventory/        # Inventory tab screens
         │   ├── index.tsx     # Item list (home)
         │   ├── [id].tsx      # Item detail
         │   ├── new.tsx       # Add item
-        │   └── bikes/
-        │       ├── index.tsx
-        │       └── [id].tsx
+        │   ├── edit/[id].tsx # Edit item
+        │   └── notifications.tsx
+        ├── bikes/            # Bikes tab screens
+        │   ├── index.tsx     # Bike list
+        │   ├── new.tsx       # Add bike
+        │   ├── [id].tsx      # Bike detail
+        │   └── edit/[id].tsx # Edit bike
         ├── search/           # Search tab screens
         │   ├── index.tsx     # Search & discovery
         │   └── [id].tsx      # Listing detail (other user's item)

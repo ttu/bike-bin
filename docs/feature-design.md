@@ -124,7 +124,7 @@ App Launch
     │                      ▼      ▼
     │               ┌──────────────────┐
     ├─ Has session ►│   Main App       │
-    │               │   (4-tab layout)  │
+    │               │   (5-tab layout)  │
     ├─ Browse only ►│   (limited)      │
                     └──────────────────┘
 ```
@@ -133,7 +133,8 @@ App Launch
 
 | Tab           | Icon                     | Purpose                                      |
 | ------------- | ------------------------ | -------------------------------------------- |
-| **Inventory** | Home                     | User's own items and bikes                   |
+| **Inventory** | Home                     | User's own items (parts, tools, clothing)    |
+| **Bikes**     | Bicycle                  | User's bikes, photos, mounted parts          |
 | **Search**    | Search                   | Discover nearby items — borrow, donate, sell |
 | **Messages**  | Chat (with unread badge) | Item-linked conversations                    |
 | **Profile**   | Person                   | Settings, groups, locations, help            |
@@ -148,12 +149,18 @@ Item List (home)
   ├─► Item Detail [id]
   │     ├─► Edit Item (includes delete)
   │     └─► Photo Gallery (fullscreen)
-  └─► Bikes
-        ├─► Bike List
-        ├─► Add Bike
-        └─► Bike Detail [id]
-              ├─► Edit Bike
-              └─► Mounted Parts (attach/detach)
+  ├─► Notifications (bell)
+  └─► "Bikes →" shortcut → opens Bikes tab
+```
+
+#### Bikes Tab
+
+```
+Bike List
+  ├─► Add Bike
+  └─► Bike Detail [id]
+        ├─► Edit Bike
+        └─► Mounted Parts (attach/detach)
 ```
 
 #### Search Tab
@@ -211,6 +218,7 @@ My Profile & Settings
 
 | From                    | Action          | To                                             |
 | ----------------------- | --------------- | ---------------------------------------------- |
+| Inventory list          | "Bikes →" link  | Bikes tab → bike list                          |
 | Search → Listing Detail | "Contact"       | Messages tab → Conversation                    |
 | Search → Listing Detail | Owner name      | Profile tab → User Profile                     |
 | Messages → Conversation | Item card tap   | Item/Listing Detail                            |

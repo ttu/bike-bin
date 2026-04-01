@@ -124,6 +124,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="bikes"
+        options={{
+          title: t('tabs.bikes'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bicycle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="search"
         options={{
           title: t('tabs.search'),

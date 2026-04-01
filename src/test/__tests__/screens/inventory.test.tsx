@@ -76,7 +76,7 @@ describe('InventoryScreen', () => {
   it('navigates to bikes list when bikes link is pressed', () => {
     renderWithProviders(<InventoryScreen />);
     fireEvent.press(screen.getByText('Bikes →'));
-    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/bikes');
+    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/bikes');
   });
 
   it('renders the search bar', () => {

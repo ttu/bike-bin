@@ -18,7 +18,7 @@ Each phase produces a visible, runnable app. Phases are sequential — each buil
 
 | Phase | What it builds                              | Runnable result                              |
 | ----- | ------------------------------------------- | -------------------------------------------- |
-| 1     | Project scaffold + theme + navigation shell | App with 4 tabs, themed, i18n-ready          |
+| 1     | Project scaffold + theme + navigation shell | App with 5-tab shell, themed, i18n-ready     |
 | 2     | Supabase setup + shared types + API layer   | Database schema, types, Supabase client      |
 | 3     | Auth + onboarding                           | Sign in with Google/Apple, guided setup      |
 | 4     | Inventory (items)                           | Add/edit/delete items, photo upload, status  |
@@ -39,7 +39,7 @@ Each phase produces a visible, runnable app. Phases are sequential — each buil
 
 ### Phase 1: Project Scaffold + Theme + Navigation Shell
 
-**Goal:** Runnable Expo app with 4-tab navigation, MD3 theme (light + dark), i18n framework, and dev tooling.
+**Goal:** Runnable Expo app with bottom tab navigation, MD3 theme (light + dark), i18n framework, and dev tooling.
 
 #### Task 1.1: Initialize Expo project
 
@@ -183,13 +183,14 @@ Configure react-i18next with `expo-localization` for device locale detection. En
 git commit -m "feat: add i18n framework with English translations"
 ```
 
-#### Task 1.4: Navigation shell (4-tab layout)
+#### Task 1.4: Navigation shell (5-tab layout)
 
 **Files:**
 
 - Create: `app/_layout.tsx` (root layout — providers)
 - Create: `app/(tabs)/_layout.tsx` (tab bar config)
 - Create: `app/(tabs)/inventory/index.tsx` (placeholder)
+- Create: `app/(tabs)/bikes/index.tsx` (placeholder or full bikes stack)
 - Create: `app/(tabs)/search/index.tsx` (placeholder)
 - Create: `app/(tabs)/messages/index.tsx` (placeholder)
 - Create: `app/(tabs)/profile/index.tsx` (placeholder)
@@ -200,7 +201,7 @@ git commit -m "feat: add i18n framework with English translations"
 
 - [x] **Step 2: Create tab layout**
 
-`app/(tabs)/_layout.tsx` configures 4 tabs using Expo Router `<Tabs>`: Inventory (home icon), Search (search icon), Messages (chat icon), Profile (person icon). Teal active icon, `onSurfaceVariant` inactive. Use `MaterialCommunityIcons` from `@expo/vector-icons`.
+`app/(tabs)/_layout.tsx` configures 5 tabs using Expo Router `<Tabs>`: Inventory (home), Bikes (bicycle), Search (magnify), Messages (chat), Profile (account). Teal active icon, `onSurfaceVariant` inactive. Use `MaterialCommunityIcons` from `@expo/vector-icons`.
 
 - [x] **Step 3: Create placeholder screens**
 
@@ -208,7 +209,7 @@ Each tab gets a placeholder screen with the tab name as a heading, using Paper `
 
 - [x] **Step 4: Write integration test for tab navigation**
 
-Test that all 4 tabs render and are navigable. Use `renderWithProviders` wrapper (create `src/test/utils.tsx` with providers).
+Test that all 5 tabs render and are navigable. Use `renderWithProviders` wrapper (create `src/test/utils.tsx` with providers).
 
 - [x] **Step 5: Verify app runs**
 
@@ -216,12 +217,12 @@ Test that all 4 tabs render and are navigable. Use `renderWithProviders` wrapper
 npx expo start --web
 ```
 
-Visual check: 4 tabs visible, active tab highlighted teal, theme applied, light/dark mode works.
+Visual check: 5 tabs visible, active tab highlighted teal, theme applied, light/dark mode works.
 
 - [x] **Step 6: Commit**
 
 ```bash
-git commit -m "feat: add 4-tab navigation shell with themed layout"
+git commit -m "feat: add 5-tab navigation shell with themed layout"
 ```
 
 #### Task 1.5: CI pipeline (GitHub Actions)
@@ -1365,8 +1366,10 @@ git commit -m "test: add Maestro E2E tests for messaging and borrow"
 - Create: `src/features/bikes/components/BikeForm/BikeForm.tsx`
 - Create: `src/features/bikes/components/MountedParts/MountedParts.tsx`
 - Create: `src/features/bikes/index.ts`
-- Create: `app/(tabs)/inventory/bikes/index.tsx`
-- Create: `app/(tabs)/inventory/bikes/[id].tsx`
+- Create: `app/(tabs)/bikes/index.tsx`
+- Create: `app/(tabs)/bikes/[id].tsx`
+- Create: `app/(tabs)/bikes/new.tsx`
+- Create: `app/(tabs)/bikes/edit/[id].tsx`
 - Create: `src/i18n/en/bikes.json`
 - Test: `src/features/bikes/hooks/__tests__/useAttachPart.test.ts`
 - Test: `src/features/bikes/components/__tests__/MountedParts.test.tsx`
