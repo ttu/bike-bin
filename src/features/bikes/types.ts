@@ -1,4 +1,4 @@
-import type { BikeType } from '@/shared/types';
+import type { BikeType, ItemCondition } from '@/shared/types';
 
 export interface BikeFormData {
   name: string;
@@ -6,4 +6,8 @@ export interface BikeFormData {
   model?: string;
   type?: BikeType;
   year?: number;
+  distanceKm?: number;
+  usageHours?: number;
+  condition: ItemCondition;
+  notes?: string;
 }

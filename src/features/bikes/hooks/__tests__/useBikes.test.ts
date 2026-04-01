@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-native';
 import { createMockBike } from '@/test/factories';
 import type { BikeId } from '@/shared/types';
-import { BikeType } from '@/shared/types';
+import { BikeType, ItemCondition } from '@/shared/types';
 
 // Supabase mock chains
 const mockSelect = jest.fn();
@@ -295,10 +295,15 @@ describe('useCreateBike', () => {
       model: 'Grail',
       type: BikeType.Road,
       year: 2024,
+      condition: ItemCondition.Good,
     });
 
     expect(mockInsert).toHaveBeenCalledWith(
-      expect.objectContaining({ owner_id: 'user-123', name: 'My Gravel Bike' }),
+      expect.objectContaining({
+        owner_id: 'user-123',
+        name: 'My Gravel Bike',
+        condition: ItemCondition.Good,
+      }),
     );
     expect(created.name).toBe(bike.name);
   });
@@ -315,7 +320,11 @@ describe('useCreateBike', () => {
     });
 
     await expect(
-      result.current.mutateAsync({ name: 'Fail Bike', type: BikeType.MTB }),
+      result.current.mutateAsync({
+        name: 'Fail Bike',
+        type: BikeType.MTB,
+        condition: ItemCondition.Good,
+      }),
     ).rejects.toThrow('Insert failed');
   });
 });
@@ -355,6 +364,7 @@ describe('useUpdateBike', () => {
       id: bike.id,
       name: 'Updated Bike',
       type: BikeType.Road,
+      condition: ItemCondition.Good,
     });
 
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ name: 'Updated Bike' }));
@@ -378,7 +388,12 @@ describe('useUpdateBike', () => {
     });
 
     await expect(
-      result.current.mutateAsync({ id: bikeId, name: 'X', type: BikeType.MTB }),
+      result.current.mutateAsync({
+        id: bikeId,
+        name: 'X',
+        type: BikeType.MTB,
+        condition: ItemCondition.Good,
+      }),
     ).rejects.toThrow('Update failed');
   });
 });

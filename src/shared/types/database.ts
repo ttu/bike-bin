@@ -63,35 +63,47 @@ export type Database = {
       bikes: {
         Row: {
           brand: string | null;
+          condition: Database['public']['Enums']['item_condition'];
           created_at: string;
+          distance_km: number | null;
           id: string;
           model: string | null;
           name: string;
+          notes: string | null;
           owner_id: string;
           type: Database['public']['Enums']['bike_type'];
           updated_at: string;
+          usage_hours: number | null;
           year: number | null;
         };
         Insert: {
           brand?: string | null;
+          condition?: Database['public']['Enums']['item_condition'];
           created_at?: string;
+          distance_km?: number | null;
           id?: string;
           model?: string | null;
           name: string;
+          notes?: string | null;
           owner_id: string;
           type?: Database['public']['Enums']['bike_type'];
           updated_at?: string;
+          usage_hours?: number | null;
           year?: number | null;
         };
         Update: {
           brand?: string | null;
+          condition?: Database['public']['Enums']['item_condition'];
           created_at?: string;
+          distance_km?: number | null;
           id?: string;
           model?: string | null;
           name?: string;
+          notes?: string | null;
           owner_id?: string;
           type?: Database['public']['Enums']['bike_type'];
           updated_at?: string;
+          usage_hours?: number | null;
           year?: number | null;
         };
         Relationships: [

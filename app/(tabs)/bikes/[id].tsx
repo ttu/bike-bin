@@ -8,6 +8,7 @@ import type { TFunction } from 'i18next';
 import type { AppTheme } from '@/shared/theme';
 import { useBike, useBikePhotos } from '@/features/bikes';
 import { MountedParts } from '@/features/bikes/components/MountedParts/MountedParts';
+import { formatBikeMetric } from '@/features/bikes/utils/formatBikeDetail';
 import { PhotoGallery } from '@/shared/components';
 import { spacing, borderRadius } from '@/shared/theme';
 
@@ -118,7 +119,46 @@ function BikeDetails({
             </Text>
           </View>
         )}
+        <View style={styles.infoRow}>
+          <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('detail.condition')}
+          </Text>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+            {t(`condition.${bike.condition}`)}
+          </Text>
+        </View>
+        {bike.distanceKm != null && (
+          <View style={styles.infoRow}>
+            <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              {t('detail.distance')}
+            </Text>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+              {t('detail.distanceKm', { value: formatBikeMetric(bike.distanceKm) })}
+            </Text>
+          </View>
+        )}
+        {bike.usageHours != null && (
+          <View style={styles.infoRow}>
+            <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              {t('detail.usageHours')}
+            </Text>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+              {t('detail.hoursValue', { value: formatBikeMetric(bike.usageHours) })}
+            </Text>
+          </View>
+        )}
       </View>
+
+      {bike.notes ? (
+        <View style={[styles.notesCard, { backgroundColor: theme.colors.surface }]}>
+          <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            {t('detail.notes')}
+          </Text>
+          <Text variant="bodyMedium" style={[styles.notesBody, { color: theme.colors.onSurface }]}>
+            {bike.notes}
+          </Text>
+        </View>
+      ) : null}
 
       {/* Mounted parts */}
       <MountedParts bikeId={bikeId} />
@@ -161,5 +201,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  notesCard: {
+    marginHorizontal: spacing.base,
+    marginTop: spacing.md,
+    padding: spacing.base,
+    borderRadius: borderRadius.md,
+    gap: spacing.sm,
+  },
+  notesBody: {
+    marginTop: spacing.xs,
   },
 });

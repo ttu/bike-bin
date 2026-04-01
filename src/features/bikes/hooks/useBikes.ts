@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { BikeId } from '@/shared/types';
+import { ItemCondition } from '@/shared/types';
 import { fetchBikeThumbnailPaths } from '@/shared/utils/fetchBikeThumbnailPaths';
 import type { BikeFormData } from '../types';
 import { mapBikeRow } from '../utils/mapBikeRow';
@@ -76,6 +77,10 @@ export function useCreateBike() {
           model: formData.model,
           type: formData.type,
           year: formData.year,
+          distance_km: formData.distanceKm,
+          usage_hours: formData.usageHours,
+          condition: formData.condition ?? ItemCondition.Good,
+          notes: formData.notes?.trim() || null,
         })
         .select()
         .single();
@@ -102,6 +107,10 @@ export function useUpdateBike() {
           model: formData.model,
           type: formData.type,
           year: formData.year,
+          distance_km: formData.distanceKm,
+          usage_hours: formData.usageHours,
+          condition: formData.condition ?? ItemCondition.Good,
+          notes: formData.notes?.trim() || null,
         })
         .eq('id', id)
         .select()

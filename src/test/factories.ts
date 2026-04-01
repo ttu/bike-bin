@@ -151,6 +151,14 @@ export function createMockBike(overrides?: Partial<Bike>): Bike {
     model: faker.commerce.product(),
     type: faker.helpers.arrayElement(Object.values(BikeType)),
     year: faker.helpers.maybe(() => faker.number.int({ min: 2000, max: 2026 })),
+    distanceKm: faker.helpers.maybe(() =>
+      faker.number.float({ min: 0, max: 15_000, fractionDigits: 1 }),
+    ),
+    usageHours: faker.helpers.maybe(() =>
+      faker.number.float({ min: 0, max: 500, fractionDigits: 1 }),
+    ),
+    condition: faker.helpers.arrayElement(Object.values(ItemCondition)),
+    notes: faker.helpers.maybe(() => faker.lorem.sentence()),
     thumbnailStoragePath: undefined,
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),

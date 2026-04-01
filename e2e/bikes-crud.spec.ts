@@ -1,13 +1,8 @@
-import { test, expect } from './fixtures';
+import { test, expect, navigateToBikes } from './fixtures';
 
 // ---------------------------------------------------------------------------
 // Bike CRUD — add, edit, delete, mount/unmount parts
 // ---------------------------------------------------------------------------
-
-async function navigateToBikes(page: import('@playwright/test').Page) {
-  await page.getByText(/Bikes\s*→/).click();
-  await expect(page.getByText('My Bikes')).toBeVisible({ timeout: 10000 });
-}
 
 async function waitForBikeDetail(page: import('@playwright/test').Page) {
   await page.waitForURL(/\/bikes\/[a-zA-Z0-9-]+/, { timeout: 10000 });
@@ -15,6 +10,27 @@ async function waitForBikeDetail(page: import('@playwright/test').Page) {
 }
 
 test.describe('Add bike', () => {
+  test('shows validation when distance is not a number', async ({ loggedInPage }) => {
+    await navigateToBikes(loggedInPage);
+
+    await loggedInPage.getByRole('button', { name: /add bike/i }).click();
+    await expect(loggedInPage.getByText('Add Bike')).toBeVisible({ timeout: 10000 });
+
+    await loggedInPage.getByPlaceholder('e.g. My Road Bike').fill('E2E Invalid Distance');
+    const gravelChip = loggedInPage.getByText('Gravel', { exact: true }).last();
+    await gravelChip.scrollIntoViewIfNeeded();
+    await gravelChip.click();
+
+    await loggedInPage.getByPlaceholder('e.g. 3200').fill('not-a-number');
+    const saveButton = loggedInPage.getByRole('button', { name: /save bike/i });
+    await saveButton.scrollIntoViewIfNeeded();
+    await saveButton.click();
+
+    await expect(loggedInPage.getByText('Enter a valid distance in kilometers')).toBeVisible({
+      timeout: 5000,
+    });
+  });
+
   test('creates a new bike with required fields', async ({ loggedInPage }) => {
     await navigateToBikes(loggedInPage);
 
@@ -40,6 +56,57 @@ test.describe('Add bike', () => {
 
     // Should return to bike list with new bike visible
     await expect(loggedInPage.getByText('E2E Test Bike')).toBeVisible({ timeout: 10000 });
+  });
+
+  test('creates bike with distance, hours, condition, notes and shows them on detail', async ({
+    loggedInPage,
+  }) => {
+    await navigateToBikes(loggedInPage);
+
+    await loggedInPage.getByRole('button', { name: /add bike/i }).click();
+    await expect(loggedInPage.getByText('Add Bike')).toBeVisible({ timeout: 10000 });
+
+    await loggedInPage.getByPlaceholder('e.g. My Road Bike').fill('E2E Usage Bike');
+
+    const touringChip = loggedInPage.getByText('Touring', { exact: true }).last();
+    await touringChip.scrollIntoViewIfNeeded();
+    await touringChip.click();
+
+    await loggedInPage.getByPlaceholder('e.g. 3200').fill('1250');
+    await loggedInPage.getByPlaceholder('e.g. 120').fill('42.5');
+
+    const wornChip = loggedInPage.getByText('Worn', { exact: true }).last();
+    await wornChip.scrollIntoViewIfNeeded();
+    await wornChip.click();
+
+    await loggedInPage
+      .getByPlaceholder('Service history, setup notes, etc.')
+      .fill('E2E fork service at 40h');
+
+    const saveButton = loggedInPage.getByRole('button', { name: /save bike/i });
+    await saveButton.scrollIntoViewIfNeeded();
+    await Promise.all([
+      loggedInPage.waitForResponse(
+        (resp) => resp.url().includes('/rest/v1/bikes') && resp.request().method() === 'POST',
+        { timeout: 15000 },
+      ),
+      saveButton.click(),
+    ]);
+
+    await expect(loggedInPage.getByText('E2E Usage Bike')).toBeVisible({ timeout: 15000 });
+    await loggedInPage.getByText('E2E Usage Bike').click();
+    await waitForBikeDetail(loggedInPage);
+
+    await expect(loggedInPage.getByText('Condition', { exact: true })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(loggedInPage.getByText('Worn', { exact: true })).toBeVisible();
+
+    await expect(loggedInPage.getByText(/(1250|1,250|1\.250)(\s|\.0)*km/i)).toBeVisible();
+    await expect(loggedInPage.getByText(/42[.,]5\s*h/i)).toBeVisible();
+
+    await expect(loggedInPage.getByText('Notes', { exact: true })).toBeVisible();
+    await expect(loggedInPage.getByText('E2E fork service at 40h')).toBeVisible();
   });
 });
 

@@ -108,13 +108,17 @@ test.describe('Bikes', () => {
     await expect(loggedInPage.getByText('Santa Cruz Hightower')).toBeVisible();
   });
 
-  test('bike detail shows type', async ({ loggedInPage }) => {
+  test('bike detail shows type and condition', async ({ loggedInPage }) => {
     await loggedInPage.getByText(/Bikes\s*→/).click();
     await expect(loggedInPage.getByText('Santa Cruz Hightower')).toBeVisible({ timeout: 10000 });
     await loggedInPage.getByText('Santa Cruz Hightower').click();
 
-    // Wait for bike detail to load — verify detail-only label
+    // Wait for bike detail to load — verify detail-only labels (seed bikes default to Good condition)
     await expect(loggedInPage.getByText('Model', { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Condition', { exact: true })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(loggedInPage.getByText('Good', { exact: true })).toBeVisible();
   });
 });
 

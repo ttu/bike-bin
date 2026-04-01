@@ -3,7 +3,7 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
-import { BikeType } from '@/shared/types';
+import { BikeType, ItemCondition } from '@/shared/types';
 import type { BikeId, BikePhoto } from '@/shared/types';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -17,6 +17,13 @@ const BIKE_TYPES = [
   BikeType.City,
   BikeType.Touring,
   BikeType.Other,
+];
+
+const ITEM_CONDITIONS = [
+  ItemCondition.New,
+  ItemCondition.Good,
+  ItemCondition.Worn,
+  ItemCondition.Broken,
 ];
 
 interface BikeFormProps {
@@ -34,6 +41,16 @@ interface BikeFormProps {
 interface BikeFormErrors {
   name?: string;
   type?: string;
+  distanceKm?: string;
+  usageHours?: string;
+}
+
+function optionalNumberFromInput(raw: string): { value: number | undefined; invalid: boolean } {
+  const t = raw.trim();
+  if (!t) return { value: undefined, invalid: false };
+  const n = parseFloat(t.replace(',', '.'));
+  if (!Number.isFinite(n) || n < 0) return { value: undefined, invalid: true };
+  return { value: n, invalid: false };
 }
 
 export function BikeForm({
@@ -61,6 +78,16 @@ export function BikeForm({
   const [model, setModel] = useState(initialData?.model ?? '');
   const [bikeType, setBikeType] = useState<BikeType | undefined>(initialData?.type);
   const [year, setYear] = useState(initialData?.year?.toString() ?? '');
+  const [distanceKmStr, setDistanceKmStr] = useState(
+    initialData?.distanceKm != null ? String(initialData.distanceKm) : '',
+  );
+  const [usageHoursStr, setUsageHoursStr] = useState(
+    initialData?.usageHours != null ? String(initialData.usageHours) : '',
+  );
+  const [bikeCondition, setBikeCondition] = useState<ItemCondition>(
+    initialData?.condition ?? ItemCondition.Good,
+  );
+  const [notes, setNotes] = useState(initialData?.notes ?? '');
   const [errors, setErrors] = useState<BikeFormErrors>({});
 
   const handleSubmit = useCallback(() => {
@@ -71,18 +98,47 @@ export function BikeForm({
     if (!bikeType) {
       validationErrors.type = t('form.typeRequired');
     }
+
+    const distanceParsed = optionalNumberFromInput(distanceKmStr);
+    if (distanceParsed.invalid) {
+      validationErrors.distanceKm = t('form.distanceInvalid');
+    }
+
+    const hoursParsed = optionalNumberFromInput(usageHoursStr);
+    if (hoursParsed.invalid) {
+      validationErrors.usageHours = t('form.hoursInvalid');
+    }
+
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length === 0) {
-      onSave({
-        name: name.trim(),
-        brand: brand.trim() || undefined,
-        model: model.trim() || undefined,
-        type: bikeType,
-        year: year ? parseInt(year, 10) : undefined,
-      });
+    if (Object.keys(validationErrors).length > 0) {
+      return;
     }
-  }, [name, brand, model, bikeType, year, t, onSave]);
+
+    onSave({
+      name: name.trim(),
+      brand: brand.trim() || undefined,
+      model: model.trim() || undefined,
+      type: bikeType,
+      year: year.trim() ? parseInt(year.trim(), 10) : undefined,
+      distanceKm: distanceParsed.value,
+      usageHours: hoursParsed.value,
+      condition: bikeCondition,
+      notes: notes.trim() || undefined,
+    });
+  }, [
+    name,
+    brand,
+    model,
+    bikeType,
+    year,
+    distanceKmStr,
+    usageHoursStr,
+    bikeCondition,
+    notes,
+    t,
+    onSave,
+  ]);
 
   return (
     <ScrollView
@@ -182,6 +238,89 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
+      {/* Distance (km) */}
+      <Text variant="labelLarge" style={styles.label}>
+        {t('form.distanceLabel')}
+      </Text>
+      <TextInput
+        mode="flat"
+        value={distanceKmStr}
+        onChangeText={setDistanceKmStr}
+        placeholder={t('form.distancePlaceholder')}
+        keyboardType="decimal-pad"
+        error={!!errors.distanceKm}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
+      {errors.distanceKm && (
+        <HelperText type="error" visible>
+          {errors.distanceKm}
+        </HelperText>
+      )}
+
+      {/* Usage hours */}
+      <Text variant="labelLarge" style={styles.label}>
+        {t('form.hoursLabel')}
+      </Text>
+      <TextInput
+        mode="flat"
+        value={usageHoursStr}
+        onChangeText={setUsageHoursStr}
+        placeholder={t('form.hoursPlaceholder')}
+        keyboardType="decimal-pad"
+        error={!!errors.usageHours}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
+      {errors.usageHours && (
+        <HelperText type="error" visible>
+          {errors.usageHours}
+        </HelperText>
+      )}
+
+      {/* Condition */}
+      <Text variant="labelLarge" style={styles.label}>
+        {t('form.conditionLabel')}
+      </Text>
+      <View style={styles.chipRow}>
+        {ITEM_CONDITIONS.map((c) => (
+          <Chip
+            key={c}
+            selected={bikeCondition === c}
+            onPress={() => setBikeCondition(c)}
+            showSelectedCheck={false}
+            textStyle={bikeCondition === c ? { color: theme.colors.onPrimary } : undefined}
+            style={[
+              styles.chip,
+              {
+                backgroundColor:
+                  bikeCondition === c ? theme.colors.primary : theme.colors.secondaryContainer,
+              },
+            ]}
+          >
+            {t(`condition.${c}`)}
+          </Chip>
+        ))}
+      </View>
+
+      {/* Notes */}
+      <Text variant="labelLarge" style={styles.label}>
+        {t('form.notesLabel')}
+      </Text>
+      <TextInput
+        mode="flat"
+        value={notes}
+        onChangeText={setNotes}
+        placeholder={t('form.notesPlaceholder')}
+        multiline
+        numberOfLines={4}
+        style={[softInputStyle, styles.notesInput]}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
+
       {/* Photos (edit mode only) */}
       {photos && onAddPhoto && (
         <View style={styles.photoSection}>
@@ -238,6 +377,10 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: borderRadius.full,
+  },
+  notesInput: {
+    minHeight: 96,
+    paddingTop: spacing.sm,
   },
   photoSection: {
     marginTop: spacing.base,

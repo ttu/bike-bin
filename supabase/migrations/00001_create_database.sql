@@ -68,9 +68,18 @@ CREATE TABLE bikes (
   model text,
   type bike_type NOT NULL DEFAULT 'other',
   year integer,
+  distance_km numeric,
+  usage_hours numeric,
+  condition item_condition NOT NULL DEFAULT 'good',
+  notes text,
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL
 );
+
+COMMENT ON COLUMN bikes.distance_km IS 'Total distance ridden (kilometers), optional';
+COMMENT ON COLUMN bikes.usage_hours IS 'Total usage hours (e.g. e-bike / suspension service tracking), optional';
+COMMENT ON COLUMN bikes.condition IS 'Overall bike condition (same enum as items)';
+COMMENT ON COLUMN bikes.notes IS 'Free-form owner notes';
 
 CREATE INDEX idx_bikes_owner ON bikes(owner_id);
 

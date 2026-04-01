@@ -118,6 +118,7 @@ export default function TabLayout() {
         name="inventory"
         options={{
           title: t('tabs.inventory'),
+          tabBarAccessibilityLabel: t('tabs.inventory'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
@@ -127,6 +128,7 @@ export default function TabLayout() {
         name="bikes"
         options={{
           title: t('tabs.bikes'),
+          tabBarAccessibilityLabel: t('tabs.bikes'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bicycle" size={size} color={color} />
           ),
@@ -136,6 +138,7 @@ export default function TabLayout() {
         name="search"
         options={{
           title: t('tabs.search'),
+          tabBarAccessibilityLabel: t('tabs.search'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="magnify" size={size} color={color} />
           ),
@@ -145,6 +148,7 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: t('tabs.messages'),
+          tabBarAccessibilityLabel: t('tabs.messages'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="chat" size={size} color={color} />
           ),
@@ -160,6 +164,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: t('tabs.profile'),
+          tabBarAccessibilityLabel: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="account" size={size} color={color} />
           ),

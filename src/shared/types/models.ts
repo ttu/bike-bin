@@ -106,6 +106,13 @@ export interface Bike {
   model: string | undefined;
   type: BikeType;
   year: number | undefined;
+  /** Total distance ridden (km), if tracked */
+  distanceKm: number | undefined;
+  /** Total usage hours, if tracked (e.g. service intervals) */
+  usageHours: number | undefined;
+  /** Overall bike condition (same scale as items) */
+  condition: ItemCondition;
+  notes: string | undefined;
   thumbnailStoragePath: string | undefined;
   createdAt: string;
   updatedAt: string;

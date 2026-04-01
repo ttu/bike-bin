@@ -38,7 +38,7 @@ Ordered photos for an item; `storage_path` points at Supabase Storage.
 
 ### `bikes` → `Bike`
 
-User-owned bikes: name, brand, model, `type` enum, optional year. TS model also has `thumbnailStoragePath` (resolved client-side, like items).
+User-owned bikes: name, brand, model, `type` enum, optional year, optional **`distance_km`** and **`usage_hours`** (numeric), **`condition`** (`item_condition`, same enum as items; default `good`), optional **`notes`** (free text). TS model also has `thumbnailStoragePath` (resolved client-side, like items).
 
 ### `bike_photos` → `BikePhoto`
 

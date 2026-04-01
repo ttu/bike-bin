@@ -73,6 +73,7 @@ describe('createMockBike', () => {
     expect(bike).toHaveProperty('ownerId');
     expect(bike).toHaveProperty('name');
     expect(bike).toHaveProperty('type');
+    expect(bike).toHaveProperty('condition');
     expect(bike).toHaveProperty('createdAt');
     expect(bike).toHaveProperty('updatedAt');
   });

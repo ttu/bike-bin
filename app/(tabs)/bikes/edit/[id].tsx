@@ -112,6 +112,10 @@ export default function EditBikeScreen() {
           model: bike.model ?? undefined,
           type: bike.type,
           year: bike.year ?? undefined,
+          distanceKm: bike.distanceKm,
+          usageHours: bike.usageHours,
+          condition: bike.condition,
+          notes: bike.notes,
         }}
         bikeId={bikeId}
         photos={photos}

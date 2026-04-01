@@ -8,17 +8,21 @@ Users can register their bikes and track which parts (items) are mounted on each
 
 ### bikes table
 
-| Column     | Type                 | Description                             |
-| ---------- | -------------------- | --------------------------------------- |
-| id         | uuid (PK)            | BikeId branded type                     |
-| owner_id   | uuid (FK → profiles) | Bike owner                              |
-| name       | text                 | Bike name                               |
-| brand      | text                 | Manufacturer                            |
-| model      | text                 | Model name                              |
-| type       | bike_type enum       | road, gravel, mtb, city, touring, other |
-| year       | integer              | Year of manufacture                     |
-| created_at | timestamptz          | Creation timestamp                      |
-| updated_at | timestamptz          | Last update timestamp                   |
+| Column      | Type                 | Description                                                 |
+| ----------- | -------------------- | ----------------------------------------------------------- |
+| id          | uuid (PK)            | BikeId branded type                                         |
+| owner_id    | uuid (FK → profiles) | Bike owner                                                  |
+| name        | text                 | Bike name                                                   |
+| brand       | text                 | Manufacturer                                                |
+| model       | text                 | Model name                                                  |
+| type        | bike_type enum       | road, gravel, mtb, city, touring, other                     |
+| year        | integer              | Year of manufacture                                         |
+| distance_km | numeric              | Optional total distance ridden (km)                         |
+| usage_hours | numeric              | Optional usage hours (e.g. service tracking)                |
+| condition   | item_condition       | Overall bike condition (new/good/worn/broken; default good) |
+| notes       | text                 | Optional owner notes                                        |
+| created_at  | timestamptz          | Creation timestamp                                          |
+| updated_at  | timestamptz          | Last update timestamp                                       |
 
 ### bike_photos table
 

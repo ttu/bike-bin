@@ -1,6 +1,7 @@
 import { renderWithProviders } from '@/test/utils';
 import { BikeCard } from '../BikeCard';
 import type { Bike, BikeId, UserId } from '@/shared/types';
+import { ItemCondition } from '@/shared/types';
 import { fireEvent } from '@testing-library/react-native';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -22,6 +23,10 @@ function createBike(overrides?: Partial<Bike>): Bike {
     model: undefined,
     type: 'gravel',
     year: undefined,
+    distanceKm: undefined,
+    usageHours: undefined,
+    condition: ItemCondition.Good,
+    notes: undefined,
     thumbnailStoragePath: undefined,
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-02T00:00:00Z',

@@ -35,10 +35,10 @@ export { expect, BASE_URL };
 
 export async function navigateToTab(
   page: Page,
-  tabName: 'Inventory' | 'Search' | 'Messages' | 'Profile',
+  tabName: 'Inventory' | 'Bikes' | 'Search' | 'Messages' | 'Profile',
 ) {
   const tablist = page.getByRole('tablist');
-  await tablist.getByRole('tab', { name: new RegExp(tabName) }).click();
+  await tablist.getByRole('tab', { name: new RegExp(tabName, 'i') }).click();
   const urlSegment = tabName.toLowerCase();
   await page.waitForURL(new RegExp(`\\/${urlSegment}`));
 }
@@ -57,4 +57,9 @@ export async function navigateToMessages(page: Page) {
 
 export async function navigateToProfile(page: Page) {
   await navigateToTab(page, 'Profile');
+}
+
+export async function navigateToBikes(page: Page) {
+  await navigateToTab(page, 'Bikes');
+  await expect(page.getByText('My Bikes')).toBeVisible({ timeout: 10000 });
 }

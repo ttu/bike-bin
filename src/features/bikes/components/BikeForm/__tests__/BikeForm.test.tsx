@@ -1,6 +1,6 @@
 import { renderWithProviders } from '@/test/utils';
 import { fireEvent, waitFor } from '@testing-library/react-native';
-import { BikeType } from '@/shared/types';
+import { BikeType, ItemCondition } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -29,6 +29,10 @@ describe('BikeForm', () => {
     expect(getByText('Brand')).toBeTruthy();
     expect(getByText('Model')).toBeTruthy();
     expect(getByText('Year')).toBeTruthy();
+    expect(getByText('Distance (km)')).toBeTruthy();
+    expect(getByText('Usage hours')).toBeTruthy();
+    expect(getByText('Condition')).toBeTruthy();
+    expect(getByText('Notes')).toBeTruthy();
   });
 
   it('renders bike type chips', () => {
@@ -51,6 +55,20 @@ describe('BikeForm', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  it('shows error for invalid distance', async () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
+
+    fireEvent.changeText(getByPlaceholderText('e.g. My Road Bike'), 'X');
+    fireEvent.press(getByText('Gravel'));
+    fireEvent.changeText(getByPlaceholderText('e.g. 3200'), 'not-a-number');
+    fireEvent.press(getByText('Save Bike'));
+
+    await waitFor(() => {
+      expect(getByText('Enter a valid distance in kilometers')).toBeTruthy();
+    });
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
   it('calls onSave with form data when valid', async () => {
     const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
 
@@ -59,6 +77,10 @@ describe('BikeForm', () => {
     fireEvent.changeText(getByPlaceholderText('e.g. Canyon'), 'Canyon');
     fireEvent.changeText(getByPlaceholderText('e.g. Endurace CF 7'), 'Grail');
     fireEvent.changeText(getByPlaceholderText('e.g. 2024'), '2024');
+    fireEvent.changeText(getByPlaceholderText('e.g. 3200'), '1500');
+    fireEvent.changeText(getByPlaceholderText('e.g. 120'), '50');
+    fireEvent.press(getByText('Worn'));
+    fireEvent.changeText(getByPlaceholderText('Service history, setup notes, etc.'), 'Tubeless');
 
     fireEvent.press(getByText('Save Bike'));
 
@@ -69,6 +91,10 @@ describe('BikeForm', () => {
         model: 'Grail',
         type: BikeType.Gravel,
         year: 2024,
+        distanceKm: 1500,
+        usageHours: 50,
+        condition: ItemCondition.Worn,
+        notes: 'Tubeless',
       });
     });
   });
@@ -80,6 +106,10 @@ describe('BikeForm', () => {
       model: 'Endurace',
       type: BikeType.Road,
       year: 2023,
+      distanceKm: 2000,
+      usageHours: 15.5,
+      condition: ItemCondition.New,
+      notes: 'Stock tires',
     };
     const { getByDisplayValue } = renderWithProviders(
       <BikeForm {...defaultProps} initialData={initialData} />,
@@ -88,6 +118,9 @@ describe('BikeForm', () => {
     expect(getByDisplayValue('Canyon')).toBeTruthy();
     expect(getByDisplayValue('Endurace')).toBeTruthy();
     expect(getByDisplayValue('2023')).toBeTruthy();
+    expect(getByDisplayValue('2000')).toBeTruthy();
+    expect(getByDisplayValue('15.5')).toBeTruthy();
+    expect(getByDisplayValue('Stock tires')).toBeTruthy();
   });
 
   it('shows delete button when onDelete provided', () => {
