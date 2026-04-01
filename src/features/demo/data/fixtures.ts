@@ -149,7 +149,7 @@ export const DEMO_ITEMS: Item[] = [
     availabilityTypes: [AvailabilityType.Borrowable],
     price: undefined,
     deposit: 20,
-    borrowDuration: '14 days',
+    borrowDuration: '2_weeks',
     storageLocation: undefined,
     age: '1_to_2_years',
     usageKm: 3200,

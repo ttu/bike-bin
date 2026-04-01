@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import type { UserId } from '@/shared/types';
+import type { DistanceUnit } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { useProfile } from './useProfile';
 
@@ -17,7 +18,7 @@ export function useDistanceUnit() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (unit: string) => {
+    mutationFn: async (unit: DistanceUnit) => {
       const { error } = await supabase
         .from('profiles')
         .update({ distance_unit: unit })
@@ -31,7 +32,7 @@ export function useDistanceUnit() {
   });
 
   const setDistanceUnit = useCallback(
-    (unit: string) => {
+    (unit: DistanceUnit) => {
       mutation.mutate(unit);
     },
     [mutation],

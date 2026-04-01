@@ -83,3 +83,19 @@ export const TransactionType = {
   Sell: 'sell',
 } as const;
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
+
+export const DistanceUnit = {
+  Km: 'km',
+  Mi: 'mi',
+} as const;
+export type DistanceUnit = (typeof DistanceUnit)[keyof typeof DistanceUnit];
+
+export const DURATION_OPTIONS = [
+  '1_day',
+  '2_3_days',
+  '1_week',
+  '2_weeks',
+  '1_month',
+  'flexible',
+] as const;
+export type BorrowDuration = (typeof DURATION_OPTIONS)[number];

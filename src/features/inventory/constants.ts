@@ -236,24 +236,5 @@ export const AGE_OPTIONS = [
   'over_10_years',
 ] as const;
 
-/**
- * Predefined borrow duration options for selector.
- * Values are i18n keys under `form.durationOption.<key>`.
- */
-export const DURATION_OPTIONS = [
-  '1_day',
-  '2_3_days',
-  '1_week',
-  '2_weeks',
-  '1_month',
-  'flexible',
-] as const;
-
-/**
- * Distance unit options.
- */
-export const DistanceUnit = {
-  Km: 'km',
-  Mi: 'mi',
-} as const;
-export type DistanceUnit = (typeof DistanceUnit)[keyof typeof DistanceUnit];
+// DURATION_OPTIONS and DistanceUnit moved to @/shared/types/enums.ts
+export { DURATION_OPTIONS, DistanceUnit } from '@/shared/types';

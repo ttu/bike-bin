@@ -64,8 +64,8 @@ export default function ProfileScreen() {
   ];
 
   const distanceUnitButtons = [
-    { value: 'km', label: t('distanceUnit.km') },
-    { value: 'mi', label: t('distanceUnit.mi') },
+    { value: 'km' as const, label: t('distanceUnit.km') },
+    { value: 'mi' as const, label: t('distanceUnit.mi') },
   ];
 
   return (

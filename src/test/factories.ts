@@ -38,6 +38,7 @@ import {
   BikeType,
   TransactionType,
   GroupRole,
+  DURATION_OPTIONS,
 } from '@/shared/types';
 import type { SearchResultItem } from '@/features/search/types';
 import type { ConversationListItem } from '@/features/messaging/types';
@@ -118,7 +119,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     }),
     price: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 500, fractionDigits: 2 })),
     deposit: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 100, fractionDigits: 2 })),
-    borrowDuration: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`),
+    borrowDuration: faker.helpers.maybe(() => faker.helpers.arrayElement([...DURATION_OPTIONS])),
     storageLocation: faker.helpers.maybe(() => faker.location.city()),
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
     ...(() => {

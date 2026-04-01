@@ -25,13 +25,15 @@ import {
   BikeType,
   TransactionType,
   NotificationType,
+  DistanceUnit,
+  BorrowDuration,
 } from './enums';
 
 export interface UserProfile {
   id: UserId;
   displayName: string | undefined;
   avatarUrl: string | undefined;
-  distanceUnit: string;
+  distanceUnit: DistanceUnit;
   ratingAvg: number;
   ratingCount: number;
   createdAt: string;
@@ -66,11 +68,11 @@ export interface Item {
   availabilityTypes: AvailabilityType[];
   price: number | undefined;
   deposit: number | undefined;
-  borrowDuration: string | undefined;
+  borrowDuration: BorrowDuration | undefined;
   storageLocation: string | undefined;
   age: string | undefined;
   usageKm: number | undefined;
-  usageUnit: string | undefined;
+  usageUnit: DistanceUnit | undefined;
   /** Consumables only: approximate fraction left (0–1). */
   remainingFraction: number | undefined;
   purchaseDate: string | undefined;

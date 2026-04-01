@@ -6,6 +6,8 @@ import type {
   ItemStatus,
   AvailabilityType,
   Visibility,
+  DistanceUnit,
+  BorrowDuration,
 } from '@/shared/types';
 
 /** Transforms a Supabase row into the Item domain model. */
@@ -13,7 +15,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
   const rawUsageKm = row.usage_km as number | null | undefined;
   const usageKm = rawUsageKm === null || rawUsageKm === undefined ? undefined : rawUsageKm;
   const usageUnit =
-    usageKm !== undefined ? ((row.usage_unit as string | null) ?? undefined) : undefined;
+    usageKm !== undefined ? ((row.usage_unit as DistanceUnit | null) ?? undefined) : undefined;
 
   const rawRemaining = row.remaining_fraction as number | null | undefined;
   const remainingFraction =
@@ -39,7 +41,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     availabilityTypes: (row.availability_types as AvailabilityType[]) ?? [],
     price: (row.price as number) ?? undefined,
     deposit: (row.deposit as number) ?? undefined,
-    borrowDuration: (row.borrow_duration as string) ?? undefined,
+    borrowDuration: (row.borrow_duration as BorrowDuration) ?? undefined,
     storageLocation: (row.storage_location as string) ?? undefined,
     age: (row.age as string) ?? undefined,
     usageKm,
