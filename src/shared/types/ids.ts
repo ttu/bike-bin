@@ -15,3 +15,6 @@ export type ItemPhotoId = Brand<string, 'ItemPhotoId'>;
 export type BikePhotoId = Brand<string, 'BikePhotoId'>;
 export type ReportId = Brand<string, 'ReportId'>;
 export type SupportRequestId = Brand<string, 'SupportRequestId'>;
+
+/** Sentinel ID for offline/guest items before server sync. */
+export const LOCAL_USER_ID = 'local' as UserId;

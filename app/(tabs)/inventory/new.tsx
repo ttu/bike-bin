@@ -15,7 +15,8 @@ import { useStagedPhotos } from '@/features/inventory/hooks/useStagedPhotos';
 import { ItemCategory, ItemStatus, Visibility } from '@/shared/types';
 import type { BorrowDuration, DistanceUnit } from '@/shared/types';
 import { spacing } from '@/shared/theme';
-import type { ItemId, UserId } from '@/shared/types';
+import type { ItemId } from '@/shared/types';
+import { LOCAL_USER_ID } from '@/shared/types';
 
 export default function NewItemScreen() {
   const theme = useTheme();
@@ -49,8 +50,8 @@ export default function NewItemScreen() {
         }
       } else {
         await addItem({
-          id: Date.now().toString() as ItemId,
-          ownerId: 'local' as UserId,
+          id: crypto.randomUUID() as ItemId,
+          ownerId: LOCAL_USER_ID,
           bikeId: undefined,
           name: data.name,
           category: data.category!,
