@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+ios/
+android/
+coverage/
+test-results/
+*.tsbuildinfo
+
+# Expo
+.expo/
+
+# Git and IDE
+.git/
+.github/
+.worktrees/
+.DS_Store
+
+# Environment
+.env.local
+
+# Supabase temp
+supabase/.branches/
+supabase/.temp/
+
+# Claude / Superpowers
+.claude/
+.superpowers/
+AGENTS.md
+AGENTS.local.md
+code-smell-detector-report.md
+code-smell-detector-summary.md
+
+# Playwright
+.playwright-mcp/
+playwright.config.ts
+e2e/
+
+# Docs and misc
+docs/
+README.md
+package.json.new
