@@ -129,8 +129,8 @@ test.describe('Edit bike', () => {
     await brandInput.press('Backspace');
     await brandInput.pressSequentially('Santa Cruz Updated');
 
-    // Save
-    const saveButton = loggedInPage.getByRole('button', { name: /save bike/i });
+    // Save (edit screen uses the same primary action pattern as inventory update)
+    const saveButton = loggedInPage.getByRole('button', { name: /update bike/i });
     await saveButton.scrollIntoViewIfNeeded();
     await saveButton.click();
 

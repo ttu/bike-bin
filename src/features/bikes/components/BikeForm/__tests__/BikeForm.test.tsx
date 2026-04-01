@@ -151,6 +151,14 @@ describe('BikeForm', () => {
     expect(onDelete).toHaveBeenCalled();
   });
 
+  it('uses update label in edit mode', () => {
+    const { getByText, queryByText } = renderWithProviders(
+      <BikeForm {...defaultProps} isEditMode />,
+    );
+    expect(getByText('Update Bike')).toBeTruthy();
+    expect(queryByText('Save Bike')).toBeNull();
+  });
+
   it('does not show delete button without onDelete', () => {
     const { queryByText } = renderWithProviders(<BikeForm {...defaultProps} />);
     expect(queryByText('Delete Bike')).toBeNull();

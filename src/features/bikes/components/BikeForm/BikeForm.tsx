@@ -1,13 +1,12 @@
-import { useState, useCallback } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { useState, useCallback, type ReactNode } from 'react';
+import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { BrandAutocompleteInput } from '@/shared/components/BrandAutocompleteInput';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { useTranslation } from 'react-i18next';
 import { BikeType, ItemCondition } from '@/shared/types';
-import type { BikeId, BikePhoto } from '@/shared/types';
-import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
@@ -29,16 +28,21 @@ const ITEM_CONDITIONS = [
   ItemCondition.Broken,
 ];
 
+const CONDITION_ICONS: Record<string, string> = {
+  new: 'shield-check',
+  good: 'emoticon-happy-outline',
+  worn: 'history',
+  broken: 'close-circle-outline',
+};
+
 interface BikeFormProps {
   initialData?: BikeFormData;
-  bikeId?: BikeId;
-  photos?: BikePhoto[];
-  onAddPhoto?: () => void;
-  onRemovePhoto?: (photoId: string) => void;
-  isUploadingPhoto?: boolean;
+  headerComponent?: ReactNode;
+  photoSection?: ReactNode;
   onSave: (data: BikeFormData) => void;
   onDelete?: () => void;
   isSubmitting: boolean;
+  isEditMode?: boolean;
 }
 
 interface BikeFormErrors {
@@ -58,13 +62,12 @@ function optionalNumberFromInput(raw: string): { value: number | undefined; inva
 
 export function BikeForm({
   initialData,
-  photos,
-  onAddPhoto,
-  onRemovePhoto,
-  isUploadingPhoto,
+  headerComponent,
+  photoSection,
   onSave,
   onDelete,
   isSubmitting,
+  isEditMode = false,
 }: BikeFormProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
@@ -157,8 +160,10 @@ export function BikeForm({
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      {/* Name */}
-      <Text variant="labelLarge" style={styles.label}>
+      {headerComponent}
+      {photoSection}
+
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.nameLabel')}
       </Text>
       <TextInput
@@ -177,29 +182,30 @@ export function BikeForm({
         </HelperText>
       )}
 
-      {/* Type */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.typeLabel')}
       </Text>
       <View style={styles.chipRow}>
-        {BIKE_TYPES.map((type) => (
-          <Chip
-            key={type}
-            selected={bikeType === type}
-            onPress={() => setBikeType(type)}
-            showSelectedCheck={false}
-            textStyle={bikeType === type ? { color: theme.colors.onPrimary } : undefined}
-            style={[
-              styles.chip,
-              {
-                backgroundColor:
-                  bikeType === type ? theme.colors.primary : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t(`bikeType.${type}`)}
-          </Chip>
-        ))}
+        {BIKE_TYPES.map((type) => {
+          const active = bikeType === type;
+          return (
+            <Chip
+              key={type}
+              selected={active}
+              onPress={() => setBikeType(type)}
+              showSelectedCheck={false}
+              textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: active ? theme.colors.primary : theme.colors.secondaryContainer,
+                },
+              ]}
+            >
+              {t(`bikeType.${type}`)}
+            </Chip>
+          );
+        })}
       </View>
       {errors.type && (
         <HelperText type="error" visible>
@@ -207,9 +213,61 @@ export function BikeForm({
         </HelperText>
       )}
 
+      <View style={styles.conditionHeader}>
+        <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+          {t('form.conditionLabel')}
+        </Text>
+        {bikeCondition && (
+          <Text
+            variant="labelMedium"
+            style={[styles.conditionValue, { color: theme.colors.primary }]}
+          >
+            {t(`condition.${bikeCondition}`)}
+          </Text>
+        )}
+      </View>
+      <View style={styles.conditionRow}>
+        {ITEM_CONDITIONS.map((cond) => {
+          const active = bikeCondition === cond;
+          return (
+            <Pressable
+              key={cond}
+              onPress={() => setBikeCondition(cond)}
+              style={[
+                styles.conditionButton,
+                {
+                  backgroundColor: active
+                    ? theme.colors.primary + '14'
+                    : theme.customColors.surfaceContainerLow,
+                  borderColor: active ? theme.colors.primary : theme.colors.outlineVariant,
+                  borderWidth: active ? 2 : 1,
+                },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name={(CONDITION_ICONS[cond] ?? 'shield-check') as never}
+                size={28}
+                color={active ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              />
+              <Text
+                variant="labelSmall"
+                style={{
+                  color: active ? theme.colors.primary : theme.colors.onSurfaceVariant,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                  marginTop: spacing.xs,
+                }}
+              >
+                {t(`condition.${cond}`)}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
       <BrandAutocompleteInput
         label={t('form.brandLabel')}
-        labelStyle={styles.label}
+        labelStyle={[styles.label, styles.sectionLabel]}
         placeholder={t('form.brandPlaceholder')}
         value={brand}
         filteredBrands={filteredBrands}
@@ -223,8 +281,7 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
-      {/* Model */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.modelLabel')}
       </Text>
       <TextInput
@@ -237,8 +294,7 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
-      {/* Year */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.yearLabel')}
       </Text>
       <TextInput
@@ -252,8 +308,7 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
-      {/* Distance (km) */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.distanceLabel')}
       </Text>
       <TextInput
@@ -273,8 +328,7 @@ export function BikeForm({
         </HelperText>
       )}
 
-      {/* Usage hours */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.hoursLabel')}
       </Text>
       <TextInput
@@ -294,33 +348,7 @@ export function BikeForm({
         </HelperText>
       )}
 
-      {/* Condition */}
-      <Text variant="labelLarge" style={styles.label}>
-        {t('form.conditionLabel')}
-      </Text>
-      <View style={styles.chipRow}>
-        {ITEM_CONDITIONS.map((c) => (
-          <Chip
-            key={c}
-            selected={bikeCondition === c}
-            onPress={() => setBikeCondition(c)}
-            showSelectedCheck={false}
-            textStyle={bikeCondition === c ? { color: theme.colors.onPrimary } : undefined}
-            style={[
-              styles.chip,
-              {
-                backgroundColor:
-                  bikeCondition === c ? theme.colors.primary : theme.colors.secondaryContainer,
-              },
-            ]}
-          >
-            {t(`condition.${c}`)}
-          </Chip>
-        ))}
-      </View>
-
-      {/* Notes */}
-      <Text variant="labelLarge" style={styles.label}>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.notesLabel')}
       </Text>
       <TextInput
@@ -335,32 +363,19 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
-      {/* Photos (edit mode only) */}
-      {photos && onAddPhoto && (
-        <View style={styles.photoSection}>
-          <PhotoPicker
-            photos={photos}
-            onAdd={onAddPhoto}
-            onRemove={onRemovePhoto}
-            isUploading={isUploadingPhoto ?? false}
-          />
-        </View>
-      )}
-
-      {/* Save */}
       <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
         disabled={isSubmitting}
+        icon={isEditMode ? 'check-circle-outline' : undefined}
         style={styles.saveButton}
       >
-        {t('form.save')}
+        {isEditMode ? t('form.updateBike') : t('form.save')}
       </GradientButton>
 
-      {/* Delete (edit mode) */}
       {onDelete && (
         <Button
-          mode="outlined"
+          mode="text"
           onPress={onDelete}
           textColor={theme.colors.error}
           style={styles.deleteButton}
@@ -381,8 +396,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['2xl'],
   },
   label: {
-    marginTop: spacing.base,
-    marginBottom: spacing.xs,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  sectionLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   chipRow: {
     flexDirection: 'row',
@@ -392,18 +411,36 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: borderRadius.full,
   },
+  conditionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  conditionValue: {
+    letterSpacing: 0.5,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    textTransform: 'uppercase',
+  },
+  conditionRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  conditionButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+  },
   notesInput: {
     minHeight: 96,
     paddingTop: spacing.sm,
   },
-  photoSection: {
-    marginTop: spacing.base,
-  },
   saveButton: {
-    marginTop: spacing.lg,
+    marginTop: spacing.xl,
   },
   deleteButton: {
     marginTop: spacing.md,
-    borderColor: 'transparent',
   },
 });

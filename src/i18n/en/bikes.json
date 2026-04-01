@@ -2,6 +2,7 @@
   "title": "My Bikes",
   "addBike": "Add Bike",
   "editBike": "Edit Bike",
+  "bikeId": "Bike ID: {{id}}",
   "noBikes": "No bikes yet",
   "noBikesDescription": "Add your first bike to start tracking mounted parts.",
   "bikeType": {
@@ -38,6 +39,7 @@
     "notesLabel": "Notes",
     "notesPlaceholder": "Service history, setup notes, etc.",
     "save": "Save Bike",
+    "updateBike": "Update Bike",
     "delete": "Delete Bike",
     "nameRequired": "Bike name is required",
     "typeRequired": "Bike type is required"
