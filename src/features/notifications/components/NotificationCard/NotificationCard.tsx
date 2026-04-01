@@ -7,6 +7,7 @@ import { spacing, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { Notification } from '@/shared/types';
 import { NotificationType } from '@/shared/types';
+import { formatRelativeTime } from '@/shared/utils/formatRelativeTime';
 
 /** Map notification type to an icon name. */
 function getNotificationIcon(type: NotificationType): string {
@@ -28,24 +29,6 @@ function getNotificationIcon(type: NotificationType): string {
   }
 }
 
-/** Format a timestamp into a relative time string. */
-function formatTimeAgo(
-  createdAt: string,
-  t: (key: string, options?: Record<string, unknown>) => string,
-): string {
-  const now = Date.now();
-  const then = new Date(createdAt).getTime();
-  const diffMs = now - then;
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMinutes < 1) return t('timeAgo.justNow');
-  if (diffHours < 1) return t('timeAgo.minutesAgo', { count: diffMinutes });
-  if (diffDays < 1) return t('timeAgo.hoursAgo', { count: diffHours });
-  return t('timeAgo.daysAgo', { count: diffDays });
-}
-
 interface NotificationCardProps {
   notification: Notification;
   onPress?: (notification: Notification) => void;
@@ -60,7 +43,7 @@ export function NotificationCard({ notification, onPress }: NotificationCardProp
   const typeLabel = t(`types.${notification.type}`, {
     defaultValue: t('types.default'),
   });
-  const timeAgo = formatTimeAgo(notification.createdAt, t);
+  const timeAgo = formatRelativeTime(notification.createdAt, t);
 
   return (
     <Pressable

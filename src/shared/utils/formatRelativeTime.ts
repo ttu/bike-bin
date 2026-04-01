@@ -1,9 +1,14 @@
+type Translator = (key: string, options?: Record<string, unknown>) => string;
+
 /**
- * Format an ISO date string as a compact relative time string.
+ * Format an ISO date string as a relative time string.
  *
- * @param compact - If true, uses short form ("5m", "2h"). If false, uses long form ("5m ago", "2h ago").
+ * When a `t` function is provided, returns i18n keys (timeAgo.justNow, etc.).
+ * Otherwise returns English strings in compact ("5m") or long ("5m ago") form.
  */
-export function formatRelativeTime(isoString: string, compact = false): string {
+export function formatRelativeTime(isoString: string, compact?: boolean): string;
+export function formatRelativeTime(isoString: string, t: Translator): string;
+export function formatRelativeTime(isoString: string, compactOrT?: boolean | Translator): string {
   const now = Date.now();
   const then = new Date(isoString).getTime();
   const diffMs = now - then;
@@ -11,6 +16,15 @@ export function formatRelativeTime(isoString: string, compact = false): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
+  if (typeof compactOrT === 'function') {
+    const t = compactOrT;
+    if (diffMinutes < 1) return t('timeAgo.justNow');
+    if (diffHours < 1) return t('timeAgo.minutesAgo', { count: diffMinutes });
+    if (diffDays < 1) return t('timeAgo.hoursAgo', { count: diffHours });
+    return t('timeAgo.daysAgo', { count: diffDays });
+  }
+
+  const compact = compactOrT ?? false;
   const suffix = compact ? '' : ' ago';
 
   if (diffMinutes < 1) return compact ? 'now' : 'just now';
