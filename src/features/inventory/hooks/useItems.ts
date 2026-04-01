@@ -39,11 +39,10 @@ export function useItems() {
       const items = (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
 
       const thumbMap = await fetchThumbnailPaths(items.map((i) => i.id));
-      for (const item of items) {
-        item.thumbnailStoragePath = thumbMap.get(item.id);
-      }
-
-      return items;
+      return items.map((item) => ({
+        ...item,
+        thumbnailStoragePath: thumbMap.get(item.id),
+      }));
     },
     enabled: !!user,
   });

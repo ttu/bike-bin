@@ -22,10 +22,10 @@ export function useBikes() {
       if (error) throw error;
       const bikes = (data ?? []).map((row) => mapBikeRow(row as Record<string, unknown>));
       const thumbMap = await fetchBikeThumbnailPaths(bikes.map((b) => b.id));
-      for (const bike of bikes) {
-        bike.thumbnailStoragePath = thumbMap.get(bike.id);
-      }
-      return bikes;
+      return bikes.map((bike) => ({
+        ...bike,
+        thumbnailStoragePath: thumbMap.get(bike.id),
+      }));
     },
     enabled: !!user,
   });
