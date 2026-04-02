@@ -44,51 +44,69 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
 
       const rows = (data ?? []) as RpcRow[];
 
-      // Fetch owner profiles for unique owner IDs
       const ownerIds = [...new Set(rows.map((r) => r.owner_id))];
-      const ownerMap = await fetchOwnerProfiles(ownerIds);
-
-      // Fetch area names for unique pickup location IDs
       const locationIds = [...new Set(rows.map((r) => r.pickup_location_id).filter(Boolean))];
-      const locationMap = await fetchLocationAreaNames(locationIds as string[]);
 
-      // Fetch thumbnail paths for all result items
-      const thumbMap = await fetchThumbnailPaths(rows.map((r) => r.id));
+      const [ownerMap, locationMap, thumbMap] = await Promise.all([
+        fetchOwnerProfiles(ownerIds),
+        fetchLocationAreaNames(locationIds as string[]),
+        fetchThumbnailPaths(rows.map((r) => r.id)),
+      ]);
 
-      let results = rows.map((row) => mapRow(row, ownerMap, locationMap, thumbMap));
-
-      // Client-side filters for multi-value category/condition and offer type
-      if (filters.categories.length > 1) {
-        results = results.filter((r) => filters.categories.includes(r.category));
-      }
-      if (filters.conditions.length > 1) {
-        results = results.filter((r) => filters.conditions.includes(r.condition));
-      }
-      if (filters.offerTypes.length > 0) {
-        results = results.filter((r) =>
-          r.availabilityTypes.some((a) => filters.offerTypes.includes(a)),
-        );
-      }
-      if (filters.priceMin !== undefined) {
-        results = results.filter((r) => r.price !== undefined && r.price >= filters.priceMin!);
-      }
-      if (filters.priceMax !== undefined) {
-        results = results.filter((r) => r.price !== undefined && r.price <= filters.priceMax!);
-      }
-
-      // Client-side sorting
-      if (filters.sortBy === 'newest') {
-        results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      } else if (filters.sortBy === 'recently_available') {
-        results.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-      }
-      // 'distance' is the default sort from the RPC
-
-      return results;
+      const results = rows.map((row) => mapRow(row, ownerMap, locationMap, thumbMap));
+      const filtered = applyClientFilters(results, filters);
+      return sortResults(filtered, filters.sortBy);
     },
     enabled: enabled && isAuthenticated && filters.query.length > 0,
     staleTime: 60_000, // 1 minute
   });
+}
+
+// ── Client-side filtering & sorting ─────────────────────────────────
+
+function applyClientFilters(
+  results: SearchResultItem[],
+  filters: SearchFilters,
+): SearchResultItem[] {
+  let filtered = results;
+
+  if (filters.categories.length > 1) {
+    filtered = filtered.filter((r) => filters.categories.includes(r.category));
+  }
+  if (filters.conditions.length > 1) {
+    filtered = filtered.filter((r) => filters.conditions.includes(r.condition));
+  }
+  if (filters.offerTypes.length > 0) {
+    filtered = filtered.filter((r) =>
+      r.availabilityTypes.some((a) => filters.offerTypes.includes(a)),
+    );
+  }
+  if (filters.priceMin !== undefined) {
+    filtered = filtered.filter((r) => r.price !== undefined && r.price >= filters.priceMin!);
+  }
+  if (filters.priceMax !== undefined) {
+    filtered = filtered.filter((r) => r.price !== undefined && r.price <= filters.priceMax!);
+  }
+
+  return filtered;
+}
+
+function sortResults(
+  results: SearchResultItem[],
+  sortBy: SearchFilters['sortBy'],
+): SearchResultItem[] {
+  if (sortBy === 'newest') {
+    return [...results].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  }
+  if (sortBy === 'recently_available') {
+    return [...results].sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  }
+  // 'distance' is the default sort from the RPC
+  return results;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
