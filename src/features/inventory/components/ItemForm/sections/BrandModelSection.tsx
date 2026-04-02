@@ -9,6 +9,7 @@ interface BrandModelSectionProps extends InputStyling {
   brandMenuVisible: ItemFormState['brandMenuVisible'];
   handleBrandFocus: ItemFormState['handleBrandFocus'];
   handleBrandBlur: ItemFormState['handleBrandBlur'];
+  cancelBrandBlurTimeout: ItemFormState['cancelBrandBlurTimeout'];
   filteredBrands: ItemFormState['filteredBrands'];
   model: ItemFormState['model'];
   setModel: ItemFormState['setModel'];
@@ -21,6 +22,7 @@ export function BrandModelSection({
   brandMenuVisible,
   handleBrandFocus,
   handleBrandBlur,
+  cancelBrandBlurTimeout,
   filteredBrands,
   model,
   setModel,
@@ -45,6 +47,7 @@ export function BrandModelSection({
         onSelectBrand={handleBrandSelect}
         onFocus={handleBrandFocus}
         onBlur={handleBrandBlur}
+        onSuggestionPressIn={cancelBrandBlurTimeout}
         softInputStyle={softInputStyle}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}

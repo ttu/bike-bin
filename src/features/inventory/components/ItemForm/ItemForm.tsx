@@ -89,6 +89,7 @@ export function ItemForm({
         brandMenuVisible={state.brandMenuVisible}
         handleBrandFocus={state.handleBrandFocus}
         handleBrandBlur={state.handleBrandBlur}
+        cancelBrandBlurTimeout={state.cancelBrandBlurTimeout}
         filteredBrands={state.filteredBrands}
         model={state.model}
         setModel={state.setModel}

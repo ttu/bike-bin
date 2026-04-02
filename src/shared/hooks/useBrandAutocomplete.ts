@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 
 export interface UseBrandAutocompleteParams {
   brand: string;
@@ -9,6 +9,16 @@ export interface UseBrandAutocompleteParams {
 
 export function useBrandAutocomplete({ brand, setBrand, brands }: UseBrandAutocompleteParams) {
   const [brandMenuVisible, setBrandMenuVisible] = useState(false);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelBlurTimeout = useCallback(() => {
+    if (blurTimeoutRef.current !== null) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => cancelBlurTimeout(), [cancelBlurTimeout]);
 
   const filteredBrands = useMemo(() => {
     const search = brand.toLowerCase();
@@ -41,8 +51,12 @@ export function useBrandAutocomplete({ brand, setBrand, brands }: UseBrandAutoco
   }, [brand]);
 
   const handleBrandBlur = useCallback(() => {
-    setTimeout(() => setBrandMenuVisible(false), 200);
-  }, []);
+    cancelBlurTimeout();
+    blurTimeoutRef.current = setTimeout(() => {
+      blurTimeoutRef.current = null;
+      setBrandMenuVisible(false);
+    }, 200);
+  }, [cancelBlurTimeout]);
 
   return {
     brandMenuVisible,
@@ -51,5 +65,6 @@ export function useBrandAutocomplete({ brand, setBrand, brands }: UseBrandAutoco
     handleBrandInputChange,
     handleBrandFocus,
     handleBrandBlur,
+    cancelBlurTimeout,
   };
 }

@@ -40,6 +40,7 @@ export interface ItemFormState {
   brandMenuVisible: boolean;
   handleBrandFocus: () => void;
   handleBrandBlur: () => void;
+  cancelBrandBlurTimeout: () => void;
   filteredBrands: string[];
   model: string;
   setModel: (v: string) => void;

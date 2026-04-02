@@ -88,6 +88,7 @@ export function BikeForm({
     handleBrandInputChange,
     handleBrandFocus,
     handleBrandBlur,
+    cancelBlurTimeout: cancelBrandBlurTimeout,
   } = useBrandAutocomplete({ brand, setBrand, brands: DEFAULT_BIKE_BRANDS });
   const [model, setModel] = useState(initialData?.model ?? '');
   const [bikeType, setBikeType] = useState<BikeType | undefined>(initialData?.type);
@@ -276,6 +277,7 @@ export function BikeForm({
         onSelectBrand={handleBrandSelect}
         onFocus={handleBrandFocus}
         onBlur={handleBrandBlur}
+        onSuggestionPressIn={cancelBrandBlurTimeout}
         softInputStyle={softInputStyle}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}

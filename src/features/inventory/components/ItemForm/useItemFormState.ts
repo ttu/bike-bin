@@ -49,6 +49,7 @@ export function useItemFormState({
     handleBrandInputChange,
     handleBrandFocus,
     handleBrandBlur,
+    cancelBlurTimeout: cancelBrandBlurTimeout,
   } = useBrandAutocomplete({ brand, setBrand, brands: DEFAULT_BRANDS });
 
   // ── Availability ─────────────────────────────────────────────
@@ -258,6 +259,7 @@ export function useItemFormState({
     brandMenuVisible,
     handleBrandFocus,
     handleBrandBlur,
+    cancelBrandBlurTimeout,
     filteredBrands,
     model,
     setModel,

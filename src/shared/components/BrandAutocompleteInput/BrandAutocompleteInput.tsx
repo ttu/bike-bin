@@ -21,6 +21,7 @@ export interface BrandAutocompleteInputProps {
   onSelectBrand: (brand: string) => void;
   onFocus: () => void;
   onBlur: () => void;
+  onSuggestionPressIn?: () => void;
   softInputStyle: StyleProp<TextStyle>;
   underlineColor: string;
   activeUnderlineColor: string;
@@ -37,6 +38,7 @@ export function BrandAutocompleteInput({
   onSelectBrand,
   onFocus,
   onBlur,
+  onSuggestionPressIn,
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
@@ -75,6 +77,7 @@ export function BrandAutocompleteInput({
               {filteredBrands.slice(0, 8).map((b) => (
                 <Pressable
                   key={b}
+                  onPressIn={onSuggestionPressIn}
                   onPress={() => onSelectBrand(b)}
                   style={({ pressed }) => [
                     styles.suggestionItem,

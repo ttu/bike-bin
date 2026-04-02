@@ -1,3 +1,4 @@
+import { useRef, useCallback, useEffect } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, Menu, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
@@ -273,6 +274,16 @@ function StorageField({
 }: StorageFieldProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelBlurTimeout = useCallback(() => {
+    if (blurTimeoutRef.current !== null) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => cancelBlurTimeout(), [cancelBlurTimeout]);
 
   return (
     <>
@@ -291,7 +302,11 @@ function StorageField({
             if (existingStorageLocations.length > 0) setStorageMenuVisible(true);
           }}
           onBlur={() => {
-            setTimeout(() => setStorageMenuVisible(false), 200);
+            cancelBlurTimeout();
+            blurTimeoutRef.current = setTimeout(() => {
+              blurTimeoutRef.current = null;
+              setStorageMenuVisible(false);
+            }, 200);
           }}
           placeholder={t('form.storagePlaceholder')}
           style={softInputStyle}
@@ -318,6 +333,7 @@ function StorageField({
                 .map((loc) => (
                   <Pressable
                     key={loc}
+                    onPressIn={cancelBlurTimeout}
                     onPress={() => {
                       setStorageLocation(loc);
                       setStorageMenuVisible(false);
@@ -464,6 +480,7 @@ function TagsField({
               {filteredTagSuggestions.map((suggestion) => (
                 <Pressable
                   key={suggestion}
+                  onPressIn={clearTagBlurCommitTimeout}
                   onPress={() => handleAddTag(suggestion)}
                   style={({ pressed }) => [
                     styles.suggestionItem,
