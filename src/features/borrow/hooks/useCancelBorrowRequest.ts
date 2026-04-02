@@ -17,7 +17,6 @@ export function useCancelBorrowRequest() {
     mutationFn: async ({ requestId, itemId }: CancelBorrowRequestParams) => {
       if (!user) throw new Error('Must be authenticated');
 
-      // Update request status to Cancelled
       const { data: request, error: reqError } = await supabase
         .from('borrow_requests')
         .update({ status: 'cancelled', updated_at: new Date().toISOString() })
@@ -27,7 +26,6 @@ export function useCancelBorrowRequest() {
 
       if (reqError) throw reqError;
 
-      // Restore item status to Stored
       const { error: itemError } = await supabase
         .from('items')
         .update({ status: 'stored' })

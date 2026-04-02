@@ -30,7 +30,6 @@ export function useCreateBorrowRequest() {
 
       if (reqError) throw reqError;
 
-      // Update item status to Reserved
       const { error: itemError } = await supabase
         .from('items')
         .update({ status: 'reserved' })
