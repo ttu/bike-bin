@@ -168,8 +168,8 @@ describe('useSearchItems', () => {
       lat: 52.52,
       lng: 13.405,
       max_distance_meters: 25000,
-      p_category: undefined,
-      p_condition: undefined,
+      p_categories: undefined,
+      p_conditions: undefined,
       p_limit: 50,
       p_offset: 0,
     });
@@ -179,13 +179,13 @@ describe('useSearchItems', () => {
     expect(result.current.data![0].distanceMeters).toBe(1500);
   });
 
-  it('passes single category filter to RPC', async () => {
+  it('passes category array filter to RPC', async () => {
     mockRpc.mockResolvedValue({ data: [], error: null });
 
     const filters: SearchFilters = {
       ...DEFAULT_SEARCH_FILTERS,
       query: 'chain',
-      categories: [ItemCategory.Component],
+      categories: [ItemCategory.Component, ItemCategory.Tool],
     };
 
     const { result } = renderHook(() => useSearchItems({ filters }), {
@@ -198,7 +198,7 @@ describe('useSearchItems', () => {
 
     expect(mockRpc).toHaveBeenCalledWith(
       'search_nearby_items',
-      expect.objectContaining({ p_category: 'component' }),
+      expect.objectContaining({ p_categories: ['component', 'tool'] }),
     );
   });
 

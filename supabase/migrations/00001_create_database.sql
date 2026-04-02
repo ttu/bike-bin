@@ -1199,8 +1199,8 @@ CREATE OR REPLACE FUNCTION search_nearby_items(
   lat float DEFAULT NULL,
   lng float DEFAULT NULL,
   max_distance_meters int DEFAULT 10000,
-  p_category item_category DEFAULT NULL,
-  p_condition item_condition DEFAULT NULL,
+  p_categories item_category[] DEFAULT NULL,
+  p_conditions item_condition[] DEFAULT NULL,
   p_status item_status DEFAULT NULL,
   p_limit int DEFAULT 50,
   p_offset int DEFAULT 0
@@ -1287,8 +1287,8 @@ BEGIN
       OR i.model ILIKE '%' || query || '%'
       OR i.description ILIKE '%' || query || '%'
     )
-    AND (p_category IS NULL OR i.category = p_category)
-    AND (p_condition IS NULL OR i.condition = p_condition)
+    AND (p_categories IS NULL OR i.category = ANY(p_categories))
+    AND (p_conditions IS NULL OR i.condition = ANY(p_conditions))
     AND (p_status IS NULL OR i.status = p_status)
     AND (
       lat IS NULL OR lng IS NULL
@@ -1315,9 +1315,9 @@ END;
 $$;
 
 -- Restrict search to authenticated users only
-REVOKE ALL ON FUNCTION public.search_nearby_items(text, float, float, int, item_category, item_condition, item_status, int, int) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.search_nearby_items(text, float, float, int, item_category, item_condition, item_status, int, int) FROM anon;
-GRANT EXECUTE ON FUNCTION public.search_nearby_items(text, float, float, int, item_category, item_condition, item_status, int, int) TO authenticated;
+REVOKE ALL ON FUNCTION public.search_nearby_items(text, float, float, int, item_category[], item_condition[], item_status, int, int) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.search_nearby_items(text, float, float, int, item_category[], item_condition[], item_status, int, int) FROM anon;
+GRANT EXECUTE ON FUNCTION public.search_nearby_items(text, float, float, int, item_category[], item_condition[], item_status, int, int) TO authenticated;
 
 -- ============================================================
 -- TRIGGERS

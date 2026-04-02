@@ -1298,8 +1298,8 @@ export type Database = {
           lat?: number;
           lng?: number;
           max_distance_meters?: number;
-          p_category?: Database['public']['Enums']['item_category'];
-          p_condition?: Database['public']['Enums']['item_condition'];
+          p_categories?: Database['public']['Enums']['item_category'][];
+          p_conditions?: Database['public']['Enums']['item_condition'][];
           p_limit?: number;
           p_offset?: number;
           p_status?: Database['public']['Enums']['item_status'];

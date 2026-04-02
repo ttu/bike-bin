@@ -34,8 +34,8 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
         lat: lat ?? undefined,
         lng: lng ?? undefined,
         max_distance_meters: maxDistanceMeters,
-        p_category: filters.categories.length === 1 ? filters.categories[0] : undefined,
-        p_condition: filters.conditions.length === 1 ? filters.conditions[0] : undefined,
+        p_categories: filters.categories.length > 0 ? filters.categories : undefined,
+        p_conditions: filters.conditions.length > 0 ? filters.conditions : undefined,
         p_limit: 50,
         p_offset: 0,
       });
@@ -70,12 +70,6 @@ function applyClientFilters(
 ): SearchResultItem[] {
   let filtered = results;
 
-  if (filters.categories.length > 1) {
-    filtered = filtered.filter((r) => filters.categories.includes(r.category));
-  }
-  if (filters.conditions.length > 1) {
-    filtered = filtered.filter((r) => filters.conditions.includes(r.condition));
-  }
   if (filters.offerTypes.length > 0) {
     filtered = filtered.filter((r) =>
       r.availabilityTypes.some((a) => filters.offerTypes.includes(a)),
