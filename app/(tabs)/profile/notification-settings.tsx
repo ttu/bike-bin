@@ -1,11 +1,9 @@
 import { useCallback } from 'react';
-import { View, ScrollView, StyleSheet, Platform, Pressable } from 'react-native';
-import { Text, Switch, useTheme } from 'react-native-paper';
+import { View, ScrollView, StyleSheet, Platform } from 'react-native';
+import { Appbar, Text, Switch, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import { useNotificationPreferences } from '@/features/notifications';
 import type { NotificationPreferences } from '@/features/notifications';
 
@@ -17,8 +15,6 @@ const CATEGORIES: CategoryKey[] = ['messages', 'borrowActivity', 'reminders'];
 export default function NotificationSettingsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('notifications');
-  const insets = useSafeAreaInsets();
-
   const { preferences, isLoading, updatePreferences } = useNotificationPreferences();
 
   const handleToggle = useCallback(
@@ -36,27 +32,11 @@ export default function NotificationSettingsScreen() {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
-      <View style={styles.header}>
-        <Pressable onPress={() => tabScopedBack('/(tabs)/profile')} accessibilityRole="button">
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={iconSize.md}
-            color={theme.colors.onBackground}
-          />
-        </Pressable>
-        <Text
-          variant="headlineMedium"
-          style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-        >
-          {t('settings.title')}
-        </Text>
-      </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.Content title={t('settings.title')} />
+      </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text
@@ -121,16 +101,6 @@ export default function NotificationSettingsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
-  },
-  headerTitle: {
     flex: 1,
   },
   content: {

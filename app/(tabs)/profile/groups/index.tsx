@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable, ScrollView } from 'react-native';
 import {
+  Appbar,
   Text,
   FAB,
   Chip,
@@ -14,7 +15,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
@@ -29,8 +29,6 @@ export default function GroupsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('groups');
   const { showSnackbarAlert } = useSnackbarAlerts();
-  const insets = useSafeAreaInsets();
-
   const [mode, setMode] = useState<ScreenMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -104,27 +102,11 @@ export default function GroupsScreen() {
   // Create form
   if (mode === 'create') {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View style={styles.header}>
-          <Pressable onPress={handleBack} accessibilityRole="button">
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={iconSize.md}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
-          <Text
-            variant="headlineMedium"
-            style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-          >
-            {t('create.title')}
-          </Text>
-        </View>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+          <Appbar.BackAction onPress={handleBack} />
+          <Appbar.Content title={t('create.title')} />
+        </Appbar.Header>
 
         <ScrollView contentContainerStyle={styles.formContent}>
           <Text variant="labelLarge" style={styles.label}>
@@ -182,27 +164,16 @@ export default function GroupsScreen() {
   // Search mode
   if (mode === 'search') {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View style={styles.header}>
-          <Pressable onPress={handleBack} accessibilityRole="button">
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={iconSize.md}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+          <Appbar.BackAction onPress={handleBack} />
           <Searchbar
             placeholder={t('search.placeholder')}
             value={searchQuery}
             onChangeText={setSearchQuery}
             style={styles.searchBar}
           />
-        </View>
+        </Appbar.Header>
 
         {searchQuery.length >= 2 && !isSearching && (searchResults ?? []).length === 0 ? (
           <EmptyState
@@ -230,34 +201,12 @@ export default function GroupsScreen() {
 
   // List mode (default)
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
-      <View style={styles.header}>
-        <Pressable onPress={() => tabScopedBack('/(tabs)/profile')} accessibilityRole="button">
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={iconSize.md}
-            color={theme.colors.onBackground}
-          />
-        </Pressable>
-        <Text
-          variant="headlineMedium"
-          style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-        >
-          {t('title')}
-        </Text>
-        <Pressable onPress={handleSearchMode} accessibilityRole="button">
-          <MaterialCommunityIcons
-            name="magnify"
-            size={iconSize.md}
-            color={theme.colors.onBackground}
-          />
-        </Pressable>
-      </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.Content title={t('title')} />
+        <Appbar.Action icon="magnify" onPress={handleSearchMode} />
+      </Appbar.Header>
 
       {!isLoading && (groups ?? []).length === 0 ? (
         <EmptyState
@@ -403,16 +352,6 @@ function SearchResultCard({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
-  },
-  headerTitle: {
     flex: 1,
   },
   list: {

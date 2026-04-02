@@ -1,6 +1,15 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { Text, Button, Chip, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
+import {
+  Appbar,
+  Text,
+  Button,
+  Chip,
+  TextInput,
+  Switch,
+  HelperText,
+  useTheme,
+} from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { ConfirmDialog } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
@@ -8,7 +17,6 @@ import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -39,7 +47,6 @@ export default function GroupDetailScreen() {
   const { t } = useTranslation('groups');
   const { t: tCommon } = useTranslation('common');
   const { showSnackbarAlert } = useSnackbarAlerts();
-  const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
   const softInputStyle = {
@@ -251,27 +258,11 @@ export default function GroupDetailScreen() {
   // Edit mode
   if (mode === 'edit') {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View style={styles.header}>
-          <Pressable onPress={handleEditCancel} accessibilityRole="button">
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={iconSize.md}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
-          <Text
-            variant="headlineMedium"
-            style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-          >
-            {t('edit.title')}
-          </Text>
-        </View>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+          <Appbar.BackAction onPress={handleEditCancel} />
+          <Appbar.Content title={t('edit.title')} />
+        </Appbar.Header>
 
         <ScrollView contentContainerStyle={styles.formContent}>
           <Text variant="labelLarge" style={styles.label}>
@@ -334,40 +325,12 @@ export default function GroupDetailScreen() {
 
   // Detail mode
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => tabScopedBack('/(tabs)/profile/groups')}
-          accessibilityRole="button"
-        >
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={iconSize.md}
-            color={theme.colors.onBackground}
-          />
-        </Pressable>
-        <Text
-          variant="headlineMedium"
-          style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-          numberOfLines={1}
-        >
-          {group.name}
-        </Text>
-        {isAdmin && (
-          <Pressable onPress={handleEditPress} accessibilityRole="button">
-            <MaterialCommunityIcons
-              name="pencil"
-              size={iconSize.md}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
-        )}
-      </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile/groups')} />
+        <Appbar.Content title={group.name} />
+        {isAdmin && <Appbar.Action icon="pencil" onPress={handleEditPress} />}
+      </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.detailContent}>
         {/* Group info */}
@@ -502,16 +465,6 @@ function MemberRow({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
-  },
-  headerTitle: {
     flex: 1,
   },
   detailContent: {

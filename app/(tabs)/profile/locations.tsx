@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Text, FAB, useTheme } from 'react-native-paper';
+import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { SavedLocation } from '@/shared/types';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
@@ -27,8 +26,6 @@ export default function SavedLocationsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('locations');
   const { showSnackbarAlert } = useSnackbarAlerts();
-  const insets = useSafeAreaInsets();
-
   const [mode, setMode] = useState<ScreenMode>('list');
   const [editingLocation, setEditingLocation] = useState<SavedLocation | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<SavedLocation | null>(null);
@@ -134,27 +131,11 @@ export default function SavedLocationsScreen() {
   // Show form when adding or editing
   if (mode === 'add') {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View style={styles.header}>
-          <Pressable onPress={handleCancel} accessibilityRole="button">
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={iconSize.md}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
-          <Text
-            variant="headlineMedium"
-            style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-          >
-            {t('addLocation')}
-          </Text>
-        </View>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+          <Appbar.BackAction onPress={handleCancel} />
+          <Appbar.Content title={t('addLocation')} />
+        </Appbar.Header>
         <LocationForm
           onSave={handleSaveNew}
           onCancel={handleCancel}
@@ -166,27 +147,11 @@ export default function SavedLocationsScreen() {
 
   if (mode === 'edit' && editingLocation) {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: theme.colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View style={styles.header}>
-          <Pressable onPress={handleCancel} accessibilityRole="button">
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={iconSize.md}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
-          <Text
-            variant="headlineMedium"
-            style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-          >
-            {t('editLocation')}
-          </Text>
-        </View>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+          <Appbar.BackAction onPress={handleCancel} />
+          <Appbar.Content title={t('editLocation')} />
+        </Appbar.Header>
         <LocationForm
           initialData={{
             postcode: editingLocation.postcode ?? '',
@@ -203,27 +168,11 @@ export default function SavedLocationsScreen() {
 
   // List mode
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
-      <View style={styles.header}>
-        <Pressable onPress={() => tabScopedBack('/(tabs)/profile')} accessibilityRole="button">
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={iconSize.md}
-            color={theme.colors.onBackground}
-          />
-        </Pressable>
-        <Text
-          variant="headlineMedium"
-          style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-        >
-          {t('title')}
-        </Text>
-      </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.Content title={t('title')} />
+      </Appbar.Header>
 
       {!isLoading && (locations ?? []).length === 0 ? (
         <EmptyState
@@ -286,16 +235,6 @@ export default function SavedLocationsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
-  },
-  headerTitle: {
     flex: 1,
   },
   list: {

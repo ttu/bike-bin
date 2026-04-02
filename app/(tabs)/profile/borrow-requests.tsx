@@ -1,11 +1,9 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Appbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { ConfirmDialog } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
@@ -27,7 +25,7 @@ type Tab = 'incoming' | 'outgoing' | 'active';
 export default function BorrowRequestsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('borrow');
-  const insets = useSafeAreaInsets();
+
   const { user } = useAuth();
   const userId = (user?.id ?? '') as UserId;
 
@@ -180,28 +178,11 @@ export default function BorrowRequestsScreen() {
   ).length;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => tabScopedBack('/(tabs)/profile')} accessibilityRole="button">
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={iconSize.md}
-            color={theme.colors.onBackground}
-          />
-        </Pressable>
-        <Text
-          variant="headlineMedium"
-          style={[styles.headerTitle, { color: theme.colors.onBackground }]}
-        >
-          {t('title')}
-        </Text>
-      </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.Content title={t('title')} />
+      </Appbar.Header>
 
       {/* Tab bar */}
       <View style={[styles.tabBar, { borderBottomColor: theme.colors.outlineVariant }]}>
@@ -257,16 +238,6 @@ export default function BorrowRequestsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
-  },
-  headerTitle: {
     flex: 1,
   },
   tabBar: {
