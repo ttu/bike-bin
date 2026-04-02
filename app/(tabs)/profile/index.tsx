@@ -106,7 +106,7 @@ export default function ProfileScreen() {
             </Text>
             <Button
               mode="contained"
-              onPress={() => router.push('/(auth)/login' as never)}
+              onPress={() => router.push('/(auth)/login')}
               style={styles.guestButton}
             >
               {tAuth('guestProfile.signIn')}
@@ -117,7 +117,7 @@ export default function ProfileScreen() {
         {(user || isDemoMode) && profile && (
           <ProfileHeader
             profile={profile}
-            onEditPress={() => router.push('/(tabs)/profile/edit-profile' as never)}
+            onEditPress={() => router.push('/(tabs)/profile/edit-profile')}
           />
         )}
 
@@ -125,7 +125,7 @@ export default function ProfileScreen() {
         <MenuItem
           icon="map-marker"
           label={t('menu.savedLocations')}
-          onPress={() => router.push('/(tabs)/profile/locations' as never)}
+          onPress={() => router.push('/(tabs)/profile/locations')}
         />
 
         {/* Borrow Requests */}
@@ -133,21 +133,21 @@ export default function ProfileScreen() {
           icon="swap-horizontal"
           label={tBorrow('profileMenu.label')}
           badge={incomingPendingCount}
-          onPress={() => router.push('/(tabs)/profile/borrow-requests' as never)}
+          onPress={() => router.push('/(tabs)/profile/borrow-requests')}
         />
 
         {/* Groups */}
         <MenuItem
           icon="account-group"
           label={tGroups('profileMenu.label')}
-          onPress={() => router.push('/(tabs)/profile/groups' as never)}
+          onPress={() => router.push('/(tabs)/profile/groups')}
         />
 
         {/* Notification Settings */}
         <MenuItem
           icon="bell-outline"
           label={tNotifications('profileMenu.label')}
-          onPress={() => router.push('/(tabs)/profile/notification-settings' as never)}
+          onPress={() => router.push('/(tabs)/profile/notification-settings')}
         />
 
         {/* Appearance */}
@@ -194,14 +194,14 @@ export default function ProfileScreen() {
         <MenuItem
           icon="help-circle-outline"
           label={t('menu.helpSupport')}
-          onPress={() => router.push('/(tabs)/profile/support' as never)}
+          onPress={() => router.push('/(tabs)/profile/support')}
         />
 
         {/* About & Legal */}
         <MenuItem
           icon="information-outline"
           label={t('menu.aboutLegal')}
-          onPress={() => router.push('/(tabs)/profile/about' as never)}
+          onPress={() => router.push('/(tabs)/profile/about')}
         />
 
         {/* Sign Out / Exit Demo */}

@@ -17,11 +17,11 @@ export default function BikesScreen() {
   const { data: bikes = [], isLoading } = useBikes();
 
   const handleBikePress = useCallback((bike: Bike) => {
-    router.push(`/(tabs)/bikes/${bike.id}` as never);
+    router.push(`/(tabs)/bikes/${bike.id}`);
   }, []);
 
   const handleAddPress = useCallback(() => {
-    router.push('/(tabs)/bikes/new' as never);
+    router.push('/(tabs)/bikes/new');
   }, []);
 
   const renderItem = useCallback(

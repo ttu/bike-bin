@@ -38,16 +38,16 @@ export default function NotificationsScreen() {
       switch (type) {
         case 'new_message':
           if (data.conversationId) {
-            router.push(`/(tabs)/messages/${data.conversationId}` as never);
+            router.push(`/(tabs)/messages/${data.conversationId}`);
           }
           break;
         case 'borrow_request_received':
         case 'borrow_request_accepted':
         case 'borrow_request_declined':
-          router.push('/(tabs)/profile/borrow-requests' as never);
+          router.push('/(tabs)/profile/borrow-requests');
           break;
         case 'return_reminder':
-          router.push('/(tabs)/profile/borrow-requests' as never);
+          router.push('/(tabs)/profile/borrow-requests');
           break;
         default:
           break;

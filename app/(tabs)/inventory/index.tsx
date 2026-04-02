@@ -72,14 +72,14 @@ export default function InventoryScreen() {
   const hasTerminalItems = terminalCount > 0;
 
   const handleItemPress = useCallback((item: Item) => {
-    router.push(`/(tabs)/inventory/${item.id}` as never);
+    router.push(`/(tabs)/inventory/${item.id}`);
   }, []);
 
   const handleAddPress = useCallback(() => {
     if (selectedCategory) {
-      router.push(`/(tabs)/inventory/new?category=${selectedCategory}` as never);
+      router.push(`/(tabs)/inventory/new?category=${selectedCategory}`);
     } else {
-      router.push('/(tabs)/inventory/new' as never);
+      router.push('/(tabs)/inventory/new');
     }
   }, [selectedCategory]);
 
@@ -120,7 +120,7 @@ export default function InventoryScreen() {
         <Button
           mode="text"
           compact
-          onPress={() => router.push('/(tabs)/bikes' as never)}
+          onPress={() => router.push('/(tabs)/bikes')}
           accessibilityRole="link"
           accessibilityLabel={t('bikesLink')}
           style={styles.bikesLinkButton}

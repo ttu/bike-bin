@@ -152,7 +152,7 @@ export default function ItemDetailScreen() {
         <Appbar.Content title="" />
         <Appbar.Action
           icon="pencil"
-          onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}` as never)}
+          onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}`)}
         />
       </Appbar.Header>
       <ItemDetail

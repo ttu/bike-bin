@@ -96,7 +96,7 @@ export default function GroupsScreen() {
   );
 
   const handleGroupPress = useCallback((group: GroupWithRole) => {
-    router.push(`/(tabs)/profile/groups/${group.id}` as never);
+    router.push(`/(tabs)/profile/groups/${group.id}`);
   }, []);
 
   // Create form

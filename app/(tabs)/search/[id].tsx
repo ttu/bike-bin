@@ -87,7 +87,7 @@ export default function ListingDetailScreen() {
               { itemId: item.id },
               {
                 onSuccess: () => {
-                  router.push('/(tabs)/profile/borrow-requests' as never);
+                  router.push('/(tabs)/profile/borrow-requests');
                 },
               },
             );

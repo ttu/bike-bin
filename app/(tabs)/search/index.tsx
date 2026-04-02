@@ -129,7 +129,7 @@ function SearchScreenContent() {
           title={t('authRequired.title')}
           description={t('authRequired.description')}
           ctaLabel={t('authRequired.signIn')}
-          onCtaPress={() => router.push('/(auth)/login' as never)}
+          onCtaPress={() => router.push('/(auth)/login')}
         />
       )}
 
