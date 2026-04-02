@@ -16,7 +16,8 @@
    - Branch naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`, `refactor/<slug>`
 2. **Create a worktree** in `.worktrees/`: `git worktree add .worktrees/<slug> <branch-name>`
 3. **Work entirely within the worktree** — all file edits, tests, etc. happen inside `.worktrees/<slug>/`
-4. Run `npm install` in the worktree if needed
+4. **Copy env files from the primary clone** into the worktree root — `.env.local` is gitignored (and `.env` if you use it), so a new worktree has no `EXPO_PUBLIC_*` values until you copy or symlink. From `.worktrees/<slug>/`: `cp ../../.env.local .env.local` (and `cp ../../.env .env` if present), or `ln -sf ../../.env.local .env.local` to share the primary clone’s file.
+5. **Run `npm install`** in the worktree — required every time; each checkout has its own `node_modules` (Expo/Metro will not resolve `expo-router/entry` etc. without it).
 
 ### Finishing a Feature
 
@@ -32,6 +33,7 @@
 - **Single commit per feature** — always squash before merging to main
 - **Never work directly on main** — always use a worktree
 - The worktree directory name should match the branch slug (e.g., branch `feat/dark-mode` → `.worktrees/dark-mode/`)
+- **Bootstrap checklist** — after `git worktree add`, always copy/link env from the primary clone **and** run `npm install` before running the app or tests in that worktree
 
 ---
 
