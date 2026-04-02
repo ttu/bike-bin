@@ -299,7 +299,12 @@ function StorageField({
           activeUnderlineColor={activeUnderlineColor}
         />
         {storageMenuVisible && existingStorageLocations.length > 0 && (
-          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
+          <View
+            style={[
+              styles.suggestionsContainer,
+              { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
+            ]}
+          >
             <ScrollView
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled"
@@ -445,7 +450,12 @@ function TagsField({
           returnKeyType="done"
         />
         {tagSuggestionsVisible && filteredTagSuggestions.length > 0 && (
-          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
+          <View
+            style={[
+              styles.suggestionsContainer,
+              { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
+            ]}
+          >
             <ScrollView
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled"

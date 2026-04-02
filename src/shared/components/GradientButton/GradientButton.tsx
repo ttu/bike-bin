@@ -40,6 +40,7 @@ export function GradientButton({
       style={({ pressed }) => [
         styles.wrapper,
         !isDisabled && styles.shadow,
+        !isDisabled && { shadowColor: theme.colors.onSurface },
         pressed && !isDisabled && styles.pressed,
         style,
       ]}
@@ -98,7 +99,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   shadow: {
-    shadowColor: '#181c20',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,

@@ -3,7 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing, iconSize, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { Notification } from '@/shared/types';
 import { NotificationType } from '@/shared/types';
@@ -125,13 +125,13 @@ const styles = StyleSheet.create({
     padding: spacing.base,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     gap: spacing.md,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: iconSize.lg + spacing.sm,
+    height: iconSize.lg + spacing.sm,
+    borderRadius: borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   unreadDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: spacing.sm + 2,
+    height: spacing.sm + 2,
+    borderRadius: borderRadius.full,
   },
 });
