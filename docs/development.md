@@ -7,7 +7,7 @@
 
 ## Prerequisites
 
-- **Node.js** (v20 matches CI; v18+ generally works) and **npm**
+- **Node.js** v22 (matches GitHub Actions CI) and **npm**
 - **Supabase CLI** — [Install](https://supabase.com/docs/guides/cli) (e.g. `brew install supabase/tap/supabase` on macOS)
 - **Docker Desktop** — required for local Supabase (Postgres, Auth, Storage, etc.)
 
