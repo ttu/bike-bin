@@ -33,7 +33,7 @@ jest.mock('@/features/auth', () => ({
   }),
 }));
 
-jest.mock('@/features/auth/hooks/useLocalInventory', () => ({
+jest.mock('@/features/inventory/hooks/useLocalInventory', () => ({
   useLocalInventory: () => ({
     items: [],
     addItem: jest.fn(),

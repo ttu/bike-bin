@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { useLocalInventory } from '../hooks/useLocalInventory';
+import { useLocalInventory } from '../useLocalInventory';
 import { createMockItem } from '@/test/factories';
 
 // In-memory mock for AsyncStorage

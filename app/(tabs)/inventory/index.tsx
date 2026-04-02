@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Item, ItemCategory } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { SyncBanner } from '@/features/auth/components/SyncBanner/SyncBanner';
-import { useLocalInventory } from '@/features/auth/hooks/useLocalInventory';
+import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory';
 import { useItems, useUserTags } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
