@@ -9,9 +9,10 @@
 
 | Script                  | What it runs                                                    |
 | ----------------------- | --------------------------------------------------------------- |
-| `npm test`              | Jest — unit and integration tests                               |
-| `npm run test:watch`    | Jest in watch mode                                              |
-| `npm run test:coverage` | Jest with coverage report                                       |
+| `npm test`              | Same as `test:unit` (forwards extra args to Jest)               |
+| `npm run test:unit`     | Jest — unit and integration tests (RLS suite excluded)          |
+| `npm run test:watch`    | Jest in watch mode (unit + integration)                         |
+| `npm run test:coverage` | Jest with coverage report (unit + integration)                  |
 | `npm run test:rls`      | Jest — RLS integration tests against local Supabase (131 tests) |
 | `npm run test:e2e`      | Playwright (`npx playwright test`) — specs under `e2e/`         |
 

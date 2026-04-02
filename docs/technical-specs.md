@@ -550,7 +550,7 @@ type: short description
 - `npm run lint` / `npm run lint:fix` — ESLint.
 - `npm run format` / `npm run format:check` — Prettier.
 - `npm run validate:i18n` — Check for missing/unused translation keys. Run in CI lint job.
-- `npm run test` / `npm run test:watch` / `npm run test:coverage` — Jest unit + integration tests.
+- `npm run test` / `npm run test:unit` / `npm run test:watch` / `npm run test:coverage` — Jest unit + integration tests (RLS suite is `npm run test:rls` only).
 - `npm run test:e2e` — Maestro E2E tests.
 - `npm run test:a11y` — Accessibility tests.
 - `npm run test:mutation` — StrykerJS mutation testing (local only).

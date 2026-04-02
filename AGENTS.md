@@ -80,9 +80,11 @@ npm run lint                   # ESLint
 npm run lint:fix               # ESLint fix
 npm run format                 # Prettier write
 npm run format:check           # Prettier check
-npm run test                   # Jest unit + integration
-npm run test:watch             # Jest watch
-npm run test:coverage          # Jest coverage
+npm run test                   # Same as test:unit (forwards extra Jest args)
+npm run test:unit              # Jest unit + integration (excludes RLS; see jest.config.js)
+npm run test:watch             # Jest watch (unit + integration)
+npm run test:coverage          # Jest coverage (unit + integration)
+npm run test:rls               # RLS integration tests (needs local Supabase)
 npm run test:e2e               # Playwright E2E
 npm run test:a11y              # Accessibility tests
 npm run test:mutation          # StrykerJS mutation (local only)
