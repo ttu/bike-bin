@@ -35,53 +35,55 @@ export interface ItemFormData {
 
 export type ItemFormErrors = Partial<Record<keyof ItemFormData, string>>;
 
-export function validateItem(data: ItemFormData): ItemFormErrors {
+type Translator = (key: string) => string;
+
+export function validateItem(data: ItemFormData, t: Translator): ItemFormErrors {
   const errors: ItemFormErrors = {};
 
   if (!data.name || data.name.trim().length === 0) {
-    errors.name = 'Name is required';
+    errors.name = t('validation.nameRequired');
   }
 
   if (data.quantity === undefined) {
-    errors.quantity = 'Quantity is required';
+    errors.quantity = t('validation.quantityRequired');
   } else if (!Number.isInteger(data.quantity) || data.quantity < 1) {
-    errors.quantity = 'Enter a whole number of at least 1';
+    errors.quantity = t('validation.quantityMin');
   } else if (data.quantity > 9999) {
-    errors.quantity = 'Quantity cannot exceed 9999';
+    errors.quantity = t('validation.quantityMax');
   }
 
   if (!data.category) {
-    errors.category = 'Category is required';
+    errors.category = t('validation.categoryRequired');
   }
 
   const isConsumable = data.category === ItemCategoryEnum.Consumable;
 
   if (!isConsumable && !data.condition) {
-    errors.condition = 'Condition is required';
+    errors.condition = t('validation.conditionRequired');
   }
 
   if (isConsumable) {
     if (data.remainingFraction === undefined) {
-      errors.remainingFraction = 'Amount remaining is required';
+      errors.remainingFraction = t('validation.remainingRequired');
     } else if (data.remainingFraction < 0 || data.remainingFraction > 1) {
-      errors.remainingFraction = 'Enter a whole percent from 0 to 100';
+      errors.remainingFraction = t('validation.remainingRange');
     }
   }
 
   const isSellable = data.availabilityTypes.includes(AvailabilityTypeEnum.Sellable);
   if (isSellable && (data.price === undefined || data.price === null)) {
-    errors.price = 'Price is required for sellable items';
+    errors.price = t('validation.priceRequired');
   } else if (data.price !== undefined && data.price < 0) {
-    errors.price = 'Price must be positive';
+    errors.price = t('validation.pricePositive');
   }
 
   if (data.deposit !== undefined && data.deposit < 0) {
-    errors.deposit = 'Deposit must be positive';
+    errors.deposit = t('validation.depositPositive');
   }
 
   // Groups visibility requires at least one group selected
   if (data.visibility === VisibilityEnum.Groups && (!data.groupIds || data.groupIds.length === 0)) {
-    errors.groupIds = 'Select at least one group';
+    errors.groupIds = t('validation.groupRequired');
   }
 
   return errors;

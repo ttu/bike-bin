@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 
@@ -28,6 +29,7 @@ export function useItemFormState({
   initialCategory,
   onSave,
 }: UseItemFormStateParams): ItemFormState {
+  const { t } = useTranslation('inventory');
   const { data: existingItems } = useItems();
 
   // ── Core fields ──────────────────────────────────────────────
@@ -207,7 +209,7 @@ export function useItemFormState({
       tags: tagsToSubmit,
     };
 
-    const validationErrors = validateItem(formData);
+    const validationErrors = validateItem(formData, t);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
@@ -239,6 +241,7 @@ export function useItemFormState({
     isSellable,
     isBorrowable,
     onSave,
+    t,
   ]);
 
   return {

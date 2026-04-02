@@ -1,6 +1,8 @@
 import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { validateItem, type ItemFormData } from '../validation';
 
+const t = (key: string) => key;
+
 function validFormData(overrides?: Partial<ItemFormData>): ItemFormData {
   return {
     name: 'Shimano Cassette',
@@ -14,42 +16,42 @@ function validFormData(overrides?: Partial<ItemFormData>): ItemFormData {
 
 describe('validateItem', () => {
   it('returns no errors for valid data', () => {
-    const errors = validateItem(validFormData());
+    const errors = validateItem(validFormData(), t);
     expect(errors).toEqual({});
   });
 
   it('requires quantity', () => {
-    const errors = validateItem(validFormData({ quantity: undefined }));
+    const errors = validateItem(validFormData({ quantity: undefined }), t);
     expect(errors.quantity).toBeDefined();
   });
 
   it('rejects quantity below 1', () => {
-    const errors = validateItem(validFormData({ quantity: 0 }));
+    const errors = validateItem(validFormData({ quantity: 0 }), t);
     expect(errors.quantity).toBeDefined();
   });
 
   it('rejects quantity above 9999', () => {
-    const errors = validateItem(validFormData({ quantity: 10000 }));
+    const errors = validateItem(validFormData({ quantity: 10000 }), t);
     expect(errors.quantity).toBeDefined();
   });
 
   it('requires name', () => {
-    const errors = validateItem(validFormData({ name: '' }));
+    const errors = validateItem(validFormData({ name: '' }), t);
     expect(errors.name).toBeDefined();
   });
 
   it('requires name to not be only whitespace', () => {
-    const errors = validateItem(validFormData({ name: '   ' }));
+    const errors = validateItem(validFormData({ name: '   ' }), t);
     expect(errors.name).toBeDefined();
   });
 
   it('requires category', () => {
-    const errors = validateItem(validFormData({ category: undefined }));
+    const errors = validateItem(validFormData({ category: undefined }), t);
     expect(errors.category).toBeDefined();
   });
 
   it('requires condition for non-consumables', () => {
-    const errors = validateItem(validFormData({ condition: undefined }));
+    const errors = validateItem(validFormData({ condition: undefined }), t);
     expect(errors.condition).toBeDefined();
   });
 
@@ -60,6 +62,7 @@ describe('validateItem', () => {
         condition: undefined,
         remainingFraction: 0.5,
       }),
+      t,
     );
     expect(errors.condition).toBeUndefined();
   });
@@ -71,6 +74,7 @@ describe('validateItem', () => {
         condition: undefined,
         remainingFraction: undefined,
       }),
+      t,
     );
     expect(errors.remainingFraction).toBeDefined();
   });
@@ -81,6 +85,7 @@ describe('validateItem', () => {
         category: ItemCategory.Consumable,
         remainingFraction: 1.5,
       }),
+      t,
     );
     expect(errors.remainingFraction).toBeDefined();
   });
@@ -91,6 +96,7 @@ describe('validateItem', () => {
         availabilityTypes: [AvailabilityType.Sellable],
         price: undefined,
       }),
+      t,
     );
     expect(errors.price).toBeDefined();
   });
@@ -101,6 +107,7 @@ describe('validateItem', () => {
         availabilityTypes: [AvailabilityType.Borrowable],
         price: undefined,
       }),
+      t,
     );
     expect(errors.price).toBeUndefined();
   });
@@ -111,6 +118,7 @@ describe('validateItem', () => {
         availabilityTypes: [AvailabilityType.Sellable],
         price: -5,
       }),
+      t,
     );
     expect(errors.price).toBeDefined();
   });
@@ -121,6 +129,7 @@ describe('validateItem', () => {
         availabilityTypes: [AvailabilityType.Sellable],
         price: 25.5,
       }),
+      t,
     );
     expect(errors.price).toBeUndefined();
   });
@@ -130,6 +139,7 @@ describe('validateItem', () => {
       validFormData({
         deposit: -10,
       }),
+      t,
     );
     expect(errors.deposit).toBeDefined();
   });
@@ -141,6 +151,7 @@ describe('validateItem', () => {
         category: undefined,
         condition: undefined,
       }),
+      t,
     );
     expect(Object.keys(errors).length).toBeGreaterThanOrEqual(3);
   });

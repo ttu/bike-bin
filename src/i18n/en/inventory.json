@@ -235,5 +235,19 @@
   "tagsEmpty": "No tags",
   "filters": {
     "showInactive": "Show inactive ({{count}})"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "quantityRequired": "Quantity is required",
+    "quantityMin": "Enter a whole number of at least 1",
+    "quantityMax": "Quantity cannot exceed 9999",
+    "categoryRequired": "Category is required",
+    "conditionRequired": "Condition is required",
+    "remainingRequired": "Amount remaining is required",
+    "remainingRange": "Enter a whole percent from 0 to 100",
+    "priceRequired": "Price is required for sellable items",
+    "pricePositive": "Price must be positive",
+    "depositPositive": "Deposit must be positive",
+    "groupRequired": "Select at least one group"
   }
 }
