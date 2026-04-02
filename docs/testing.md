@@ -7,14 +7,17 @@
 
 ## Commands (from `package.json`)
 
-| Script                  | What it runs                                                    |
-| ----------------------- | --------------------------------------------------------------- |
-| `npm test`              | Same as `test:unit` (forwards extra args to Jest)               |
-| `npm run test:unit`     | Jest — unit and integration tests (RLS suite excluded)          |
-| `npm run test:watch`    | Jest in watch mode (unit + integration)                         |
-| `npm run test:coverage` | Jest with coverage report (unit + integration)                  |
-| `npm run test:rls`      | Jest — RLS integration tests against local Supabase (131 tests) |
-| `npm run test:e2e`      | Playwright (`npx playwright test`) — specs under `e2e/`         |
+| Script                      | What it runs                                                                                                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`                  | Same as `test:unit` (forwards extra args to Jest)                                                                                                                         |
+| `npm run test:unit`         | Jest — unit and integration tests (RLS suite excluded)                                                                                                                    |
+| `npm run test:watch`        | Jest in watch mode (unit + integration)                                                                                                                                   |
+| `npm run test:coverage`     | Jest with coverage report (unit + integration)                                                                                                                            |
+| `npm run test:rls`          | Jest — RLS integration tests against local Supabase (131 tests)                                                                                                           |
+| `npm run test:e2e`          | Playwright (`npx playwright test`) — specs under `e2e/`                                                                                                                   |
+| `npm run test:rls:isolated` | RLS suite via disposable worktree + fresh local Supabase (see below)                                                                                                      |
+| `npm run test:e2e:isolated` | E2E in worktree; **8091** + `PLAYWRIGHT_ISOLATED=1`, `env … npm run test:e2e`, Expo **`--localhost`**, 120s webServer boot (works with Expo stopped in the primary clone) |
+| `npm run test:db:isolated`  | RLS then E2E in one worktree                                                                                                                                              |
 
 **Local gate before commit:** `npm run validate` runs `format:check`, `lint`, `type-check`, and `npm test` (see [code-quality.md](code-quality.md)).
 
@@ -69,6 +72,8 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 
 **Run:** `npm run test:rls` (requires `npm run db:start` first).
 
+**Isolated run (recommended when your main clone already uses local Supabase):** `npm run test:rls:isolated` creates a throwaway git worktree under `.worktrees/`, copies `.env.local` from the repo root (or `.env` → `.env.local` in the worktree), then **finds the first free API port** (Kong/PostgREST URL port) such that the **whole Supabase local host layout** is free when shifted by `(apiPort − 54321)`: shadow DB `54320`, API `54321`, Postgres `54322`, Studio `54323`, Inbucket/Mailpit `54324`, analytics `54327`, pooler `54329`, edge inspector `8083` (see `scripts/patch-supabase-ports.mjs` and `supabase/config.toml`). That avoids collisions with a second stack that still holds `54324` / `54327` / `8083`. Start the scan with **`BIKE_BIN_ISOLATED_API_PORT`** (default `55421`), or legacy **`BIKE_BIN_ISOLATED_PORT_BASE`** as the **shadow** port (`api = base + 1`). The script increments `api` until every derived port is free. It patches `supabase/config.toml`, runs `npm ci`, **`supabase start`** (migrations + `seed.sql` on the new volume — no separate `db reset`), then **`scripts/merge-supabase-status-into-env-local.mjs`** (`API_URL`, `DB_URL`, keys into `.env.local` + shell exports). RLS tests still use the fixed local JWTs in `src/test/rls/setup.ts`. Same pattern for E2E: `npm run test:e2e:isolated`, or both: `npm run test:db:isolated`. Scripts: `scripts/run-isolated-db-tests.sh`, `scripts/patch-supabase-ports.mjs`, `scripts/merge-supabase-status-into-env-local.mjs` (`--dry-run` prints the worktree path and chosen ports).
+
 **Config:** `jest.rls.config.js` — separate from the main Jest config, 30s timeout per test.
 
 **Location:** `src/test/__tests__/rls/` — one file per domain:
@@ -95,7 +100,7 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 
 ## E2E
 
-**Playwright (web):** Specs live under `e2e/` (TypeScript). `npm run test:e2e` runs `npx playwright test`. Requires browser install per Playwright docs.
+**Playwright (web):** Specs live under `e2e/` (TypeScript). `npm run test:e2e` runs `npx playwright test`. The bundled Expo web server uses **port 8090** by default (`e2e/playwright-web-env.ts`); `playwright.config.ts` sets **`RCT_METRO_PORT`** so Metro does not fall back to **8081** (which would clash with `npm run dev`). Override with **`PLAYWRIGHT_WEB_PORT`** or **`PLAYWRIGHT_BASE_URL`**. Isolated E2E defaults to **8091** and **`PLAYWRIGHT_ISOLATED=1`** (`BIKE_BIN_ISOLATED_PLAYWRIGHT_PORT` to change the port). Requires browser install per Playwright docs. `e2e/global-setup.ts` re-seeds Postgres via `psql`; it uses **`BIKE_BIN_TEST_PG_URL`** from the environment, or reads that key from **`.env.local`**. Default DB URL is `postgresql://postgres:postgres@127.0.0.1:54322/postgres`. After changing local auth redirect URLs in `supabase/config.toml`, restart Supabase (`db:stop` / `db:start` or `db reset`). For a DB isolated from your dev Supabase, use `npm run test:e2e:isolated`.
 
 **Maestro (mobile):** CI installs Maestro for mobile-flow testing. The CI `e2e` job runs `npm run test:e2e` (Playwright) after installing Maestro — both toolchains are available in the pipeline. See `.github/workflows/ci.yml` for the canonical setup.
 
@@ -117,11 +122,14 @@ If a script is referenced in CI but not in `package.json`, add the script locall
 
 ## Related files
 
-| File                    | Role                                  |
-| ----------------------- | ------------------------------------- |
-| `jest.config.js`        | Jest behavior and coverage            |
-| `jest.rls.config.js`    | Jest config for RLS integration tests |
-| `codecov.yml`           | Coverage gates for patches            |
-| `src/test/setup.ts`     | Global test setup                     |
-| `src/test/rls/setup.ts` | RLS test user creation and cleanup    |
-| `e2e/`                  | Playwright E2E specs                  |
+| File                                               | Role                                                                                                           |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `jest.config.js`                                   | Jest behavior and coverage                                                                                     |
+| `jest.rls.config.js`                               | Jest config for RLS integration tests                                                                          |
+| `codecov.yml`                                      | Coverage gates for patches                                                                                     |
+| `src/test/setup.ts`                                | Global test setup                                                                                              |
+| `src/test/rls/setup.ts`                            | RLS test user creation and cleanup                                                                             |
+| `scripts/run-isolated-db-tests.sh`                 | Disposable worktree + dynamic-port Supabase for RLS/E2E                                                        |
+| `scripts/patch-supabase-ports.mjs`                 | Rewrites api/db/studio/shadow ports in `config.toml`                                                           |
+| `scripts/merge-supabase-status-into-env-local.mjs` | After `supabase start`, writes `EXPO_PUBLIC_SUPABASE_URL` + anon/publishable key from `supabase status -o env` |
+| `e2e/`                                             | Playwright E2E specs                                                                                           |

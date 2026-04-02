@@ -15,10 +15,33 @@ enabled = true
 port = 54323
 api_url = "http://127.0.0.1"
 
+# Host ports for Mailpit and analytics (isolated test runs patch these with api/db/studio).
+[inbucket]
+enabled = true
+port = 54324
+
+[analytics]
+enabled = true
+port = 54327
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+inspector_port = 8083
+
 [auth]
 enabled = true
 site_url = "http://127.0.0.1:8081"
-additional_redirect_urls = ["https://127.0.0.1:8081"]
+# Playwright: 8090 normal E2E; 8091 isolated worktree E2E (see run-isolated-db-tests.sh).
+additional_redirect_urls = [
+  "https://127.0.0.1:8081",
+  "http://127.0.0.1:8081",
+  "http://localhost:8081",
+  "http://127.0.0.1:8090",
+  "http://localhost:8090",
+  "http://127.0.0.1:8091",
+  "http://localhost:8091",
+]
 jwt_expiry = 3600
 enable_signup = true
 

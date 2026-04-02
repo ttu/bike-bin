@@ -1,14 +1,12 @@
 /**
  * Inventory E2E tests: verifies inventory flows for unauthenticated users.
  * Run with: npm run test:e2e
- * Requires dev server running on localhost:8081
+ * Playwright web server: default localhost:8090 (see e2e/playwright-web-env.ts).
  */
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8081';
-
 async function navigateToInventory(page: import('@playwright/test').Page) {
-  await page.goto(BASE_URL);
+  await page.goto('/');
   await page.waitForURL(/\/login/);
   await page.getByRole('button', { name: /Browse without signing in/ }).click();
   await page.waitForURL(/\/inventory/);

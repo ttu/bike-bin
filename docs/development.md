@@ -43,6 +43,10 @@ npm run dev              # Starts local Supabase, then Expo dev server
 | Database (Postgres) | 54322 |
 | Studio (UI)         | 54323 |
 
+**Expo web:** Default Metro port is **8081**. Playwright E2E uses **8090** by default (`e2e/playwright-web-env.ts` + `RCT_METRO_PORT` in `playwright.config.ts`) so `npm run test:e2e` does not bind 8081 while `npm run dev` is running.
+
+If you see **`EADDRINUSE :::8081`**, another Metro/Expo process is already listening (often a leftover dev server or a second terminal). Find it with `lsof -nP -iTCP:8081 -sTCP:LISTEN` and stop that process, or restart your machine’s stuck node.
+
 Open **http://127.0.0.1:54323** for Supabase Studio after the stack is running.
 
 ## Dev server variants
@@ -92,5 +96,5 @@ Set these in an `.env` file at the project root or via your shell. Expo loads `E
 ## Common issues
 
 - **Docker not running** — `db:start` fails until Docker is up.
-- **Port conflicts** — Free 54321–54323 or run `npm run db:stop` before switching projects.
+- **Port conflicts** — Free default Supabase host ports (API **54321**, DB **54322**, Studio **54323**, Mailpit **54324**, analytics **54327**, pooler **54329**, edge inspector **8083**, etc.) or run `npm run db:stop`. For a **second** local stack without stopping the first, use `npm run test:rls:isolated` / `test:e2e:isolated`; the script shifts that full layout by a free `api` port (`BIKE_BIN_ISOLATED_API_PORT`, default `55421`; or shadow via `BIKE_BIN_ISOLATED_PORT_BASE`). See [testing.md](testing.md).
 - **Signup disabled** — Local auth may require `enable_signup` in `supabase/config.toml`; see `db:enable-signup` / `dev:fresh` scripts.

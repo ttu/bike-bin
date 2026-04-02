@@ -1,7 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Local Supabase defaults — these tests ONLY run against local Supabase
-const SUPABASE_URL = 'http://127.0.0.1:54321';
+// Local Supabase — isolated runs set BIKE_BIN_TEST_SUPABASE_URL (see scripts/run-isolated-db-tests.sh)
+const SUPABASE_URL = process.env.BIKE_BIN_TEST_SUPABASE_URL ?? 'http://127.0.0.1:54321';
 // These are the default local dev keys from `supabase start`, safe to hardcode
 const ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';

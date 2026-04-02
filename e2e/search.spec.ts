@@ -1,14 +1,12 @@
 /**
  * Search E2E tests: guest users see a sign-in prompt (search RPC is authenticated-only).
  * Run with: npm run test:e2e
- * Requires dev server running on localhost:8081
+ * Playwright web server: default localhost:8090 (see e2e/playwright-web-env.ts).
  */
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8081';
-
 async function navigateToSearch(page: import('@playwright/test').Page) {
-  await page.goto(BASE_URL);
+  await page.goto('/');
   await page.waitForURL(/\/login/);
   await page.getByRole('button', { name: /Browse without signing in/ }).click();
   await page.waitForURL(/\/inventory/);
@@ -42,7 +40,7 @@ test.describe('Search screen (guest)', () => {
 
 test.describe('Search tab navigation', () => {
   test('search tab is accessible from bottom navigation', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
     await page.getByRole('button', { name: /Browse without signing in/ }).click();
     await page.waitForURL(/\/inventory/);

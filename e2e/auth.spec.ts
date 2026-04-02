@@ -1,10 +1,10 @@
 import { test as base } from '@playwright/test';
-import { test, expect, BASE_URL, navigateToProfile } from './fixtures';
+import { test, expect, navigateToProfile } from './fixtures';
 
 base.describe('Authentication', () => {
   base.describe('Dev Login', () => {
     base('logs in via Dev Login and redirects to inventory', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await expect(page.getByText('Bike Bin')).toBeVisible();
       await expect(page.getByText('From bikers to bikers')).toBeVisible();
 
@@ -15,7 +15,7 @@ base.describe('Authentication', () => {
     });
 
     base('logs in as another test user via Other test users', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await page.waitForURL(/\/login/);
 
       await page.getByRole('button', { name: /Other test users/ }).click();
@@ -28,7 +28,7 @@ base.describe('Authentication', () => {
 
   base.describe('Login screen elements', () => {
     base('displays all expected login screen elements', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
 
       await expect(page.getByText('Bike Bin')).toBeVisible();
       await expect(page.getByText('From bikers to bikers')).toBeVisible();
@@ -85,7 +85,7 @@ base.describe('Authentication', () => {
     test('remains logged in when navigating directly to inventory', async ({
       loggedInPage: page,
     }) => {
-      await page.goto(BASE_URL + '/inventory');
+      await page.goto('/inventory');
 
       // Verify we are still on inventory and not redirected to login
       await expect(page).toHaveURL(/\/inventory/);

@@ -1,7 +1,7 @@
 /**
  * Messaging E2E tests: verifies messaging UI flows.
  * Run with: npm run test:e2e
- * Requires dev server running on localhost:8081
+ * Playwright web server: default localhost:8090 (see e2e/playwright-web-env.ts).
  *
  * Tests cover:
  * - Messages tab accessibility and empty state
@@ -10,10 +10,8 @@
  */
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8081';
-
 async function browseWithoutSignIn(page: import('@playwright/test').Page) {
-  await page.goto(BASE_URL);
+  await page.goto('/');
   await page.waitForURL(/\/login/);
   await page.getByRole('button', { name: /Browse without signing in/ }).click();
   await page.waitForURL(/\/inventory/);
@@ -71,7 +69,7 @@ test.describe('Conversation detail structure', () => {
     await browseWithoutSignIn(page);
 
     // Navigate directly to a non-existent conversation
-    await page.goto(`${BASE_URL}/messages/non-existent-id`);
+    await page.goto('/messages/non-existent-id');
 
     // Should show some UI (loading screen or error) — not a blank page
     // The page should at minimum have some rendered content

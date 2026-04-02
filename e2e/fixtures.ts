@@ -7,14 +7,12 @@
  */
 import { test as base, expect, type Page } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8081';
-
 /**
  * Custom fixture that provides a page already logged in as the main test user.
  */
 export const test = base.extend<{ loggedInPage: Page }>({
   loggedInPage: async ({ page }, use) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
 
     // Click "Dev Login" button to sign in as main test user
@@ -27,7 +25,7 @@ export const test = base.extend<{ loggedInPage: Page }>({
   },
 });
 
-export { expect, BASE_URL };
+export { expect };
 
 // ---------------------------------------------------------------------------
 // Navigation helpers

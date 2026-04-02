@@ -1,15 +1,13 @@
 /**
  * Smoke test: verifies the app loads and renders the basic UI structure.
  * Run with: npm run test:e2e
- * Requires dev server running on localhost:8081
+ * Playwright starts Expo web on port 8090 by default (see e2e/playwright-web-env.ts).
  */
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8081';
-
 test.describe('App smoke test', () => {
   test('page title is Bike Bin', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await expect(page).toHaveTitle('Bike Bin');
   });
 
@@ -17,7 +15,7 @@ test.describe('App smoke test', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
 
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/(login|inventory)/);
 
     expect(errors).toHaveLength(0);
@@ -26,13 +24,13 @@ test.describe('App smoke test', () => {
 
 test.describe('Unauthenticated flow', () => {
   test('root redirects to login', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
     expect(page.url()).toContain('/login');
   });
 
   test('login screen shows app title and tagline', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
 
     await expect(page.getByText('Bike Bin')).toBeVisible();
@@ -40,7 +38,7 @@ test.describe('Unauthenticated flow', () => {
   });
 
   test('login screen shows sign-in buttons', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
 
     await expect(page.getByRole('button', { name: /Continue with Apple/ })).toBeVisible();
@@ -48,7 +46,7 @@ test.describe('Unauthenticated flow', () => {
   });
 
   test('browse without signing in navigates to inventory', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
 
     await page.getByRole('button', { name: /Browse without signing in/ }).click();
@@ -58,7 +56,7 @@ test.describe('Unauthenticated flow', () => {
   });
 
   test('inventory tab shows 5 tabs after browse-in', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
     await page.waitForURL(/\/login/);
 
     await page.getByRole('button', { name: /Browse without signing in/ }).click();
