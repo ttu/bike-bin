@@ -1,20 +1,13 @@
 import { renderWithProviders } from '@/test/utils';
 import { fireEvent } from '@testing-library/react-native';
 import { FilterSheet } from '../FilterSheet';
-import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import type { ItemCategory, AvailabilityType } from '@/shared/types';
+import { DEFAULT_SEARCH_FILTERS } from '../../../types';
 
 function createDefaultProps() {
   return {
-    categories: [] as ItemCategory[],
-    onCategoriesChange: jest.fn(),
-    conditions: [] as ItemCondition[],
-    onConditionsChange: jest.fn(),
-    offerTypes: [] as AvailabilityType[],
-    onOfferTypesChange: jest.fn(),
-    priceMin: undefined,
-    priceMax: undefined,
-    onPriceMinChange: jest.fn(),
-    onPriceMaxChange: jest.fn(),
+    filters: { ...DEFAULT_SEARCH_FILTERS },
+    onFiltersChange: jest.fn(),
     onReset: jest.fn(),
     onApply: jest.fn(),
   };
@@ -56,30 +49,30 @@ describe('FilterSheet', () => {
     expect(getByText('Sell')).toBeTruthy();
   });
 
-  it('calls onCategoriesChange when category chip pressed', () => {
+  it('calls onFiltersChange when category chip pressed', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
     fireEvent.press(getByText('Component'));
-    expect(props.onCategoriesChange).toHaveBeenCalledWith(['component']);
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ categories: ['component'] });
   });
 
-  it('calls onConditionsChange when condition chip pressed', () => {
+  it('calls onFiltersChange when condition chip pressed', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
     fireEvent.press(getByText('New'));
-    expect(props.onConditionsChange).toHaveBeenCalledWith(['new']);
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ conditions: ['new'] });
   });
 
-  it('calls onOfferTypesChange when offer type chip pressed', () => {
+  it('calls onFiltersChange when offer type chip pressed', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
     fireEvent.press(getByText('Borrow'));
-    expect(props.onOfferTypesChange).toHaveBeenCalledWith(['borrowable']);
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ offerTypes: ['borrowable'] });
   });
 
   it('shows price range when sellable is in offerTypes', () => {
     const props = createDefaultProps();
-    props.offerTypes = ['sellable'] as AvailabilityType[];
+    props.filters.offerTypes = ['sellable'] as AvailabilityType[];
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
     expect(getByText('Price range')).toBeTruthy();
     expect(getByText('Min')).toBeTruthy();
@@ -88,7 +81,7 @@ describe('FilterSheet', () => {
 
   it('hides price range when sellable is not in offerTypes', () => {
     const props = createDefaultProps();
-    props.offerTypes = ['borrowable'] as AvailabilityType[];
+    props.filters.offerTypes = ['borrowable'] as AvailabilityType[];
     const { queryByText } = renderWithProviders(<FilterSheet {...props} />);
     expect(queryByText('Price range')).toBeNull();
   });
@@ -109,9 +102,9 @@ describe('FilterSheet', () => {
 
   it('removes category when already selected', () => {
     const props = createDefaultProps();
-    props.categories = ['component'] as ItemCategory[];
+    props.filters.categories = ['component'] as ItemCategory[];
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
     fireEvent.press(getByText('Component'));
-    expect(props.onCategoriesChange).toHaveBeenCalledWith([]);
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ categories: [] });
   });
 });

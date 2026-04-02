@@ -308,16 +308,8 @@ function SearchScreenContent() {
               ]}
             >
               <FilterSheet
-                categories={filters.categories}
-                onCategoriesChange={(categories) => updateFilters({ categories })}
-                conditions={filters.conditions}
-                onConditionsChange={(conditions) => updateFilters({ conditions })}
-                offerTypes={filters.offerTypes}
-                onOfferTypesChange={(offerTypes) => updateFilters({ offerTypes })}
-                priceMin={filters.priceMin}
-                priceMax={filters.priceMax}
-                onPriceMinChange={(priceMin) => updateFilters({ priceMin })}
-                onPriceMaxChange={(priceMax) => updateFilters({ priceMax })}
+                filters={filters}
+                onFiltersChange={updateFilters}
                 onReset={resetFilters}
                 onApply={() => setFilterVisible(false)}
               />

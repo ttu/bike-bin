@@ -6,18 +6,11 @@ import { useTranslation } from 'react-i18next';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import type { SearchFilters } from '../../types';
 
 interface FilterSheetProps {
-  categories: ItemCategory[];
-  onCategoriesChange: (categories: ItemCategory[]) => void;
-  conditions: ItemCondition[];
-  onConditionsChange: (conditions: ItemCondition[]) => void;
-  offerTypes: AvailabilityType[];
-  onOfferTypesChange: (types: AvailabilityType[]) => void;
-  priceMin?: number;
-  priceMax?: number;
-  onPriceMinChange: (value: number | undefined) => void;
-  onPriceMaxChange: (value: number | undefined) => void;
+  filters: SearchFilters;
+  onFiltersChange: (partial: Partial<SearchFilters>) => void;
   onReset: () => void;
   onApply: () => void;
 }
@@ -35,33 +28,17 @@ const OFFER_TYPE_OPTIONS: AvailabilityType[] = [
   'sellable',
 ] as AvailabilityType[];
 
-export function FilterSheet({
-  categories,
-  onCategoriesChange,
-  conditions,
-  onConditionsChange,
-  offerTypes,
-  onOfferTypesChange,
-  priceMin,
-  priceMax,
-  onPriceMinChange,
-  onPriceMaxChange,
-  onReset,
-  onApply,
-}: FilterSheetProps) {
+export function FilterSheet({ filters, onFiltersChange, onReset, onApply }: FilterSheetProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
 
-  const toggleChip = <T extends string>(list: T[], item: T, setter: (items: T[]) => void) => {
-    if (list.includes(item)) {
-      setter(list.filter((i) => i !== item));
-    } else {
-      setter([...list, item]);
-    }
+  const toggleChip = <T extends string>(list: T[], item: T, key: keyof SearchFilters) => {
+    const next = list.includes(item) ? list.filter((i) => i !== item) : [...list, item];
+    onFiltersChange({ [key]: next });
   };
 
-  const showPriceRange = offerTypes.includes('sellable' as AvailabilityType);
+  const showPriceRange = filters.offerTypes.includes('sellable' as AvailabilityType);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -82,12 +59,12 @@ export function FilterSheet({
         </Text>
         <View style={styles.chipRow}>
           {CATEGORY_OPTIONS.map((cat) => {
-            const active = categories.includes(cat);
+            const active = filters.categories.includes(cat);
             return (
               <Chip
                 key={cat}
                 selected={active}
-                onPress={() => toggleChip(categories, cat, onCategoriesChange)}
+                onPress={() => toggleChip(filters.categories, cat, 'categories')}
                 showSelectedCheck={false}
                 textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                 style={[
@@ -115,12 +92,12 @@ export function FilterSheet({
         </Text>
         <View style={styles.chipRow}>
           {CONDITION_OPTIONS.map((cond) => {
-            const active = conditions.includes(cond);
+            const active = filters.conditions.includes(cond);
             return (
               <Chip
                 key={cond}
                 selected={active}
-                onPress={() => toggleChip(conditions, cond, onConditionsChange)}
+                onPress={() => toggleChip(filters.conditions, cond, 'conditions')}
                 showSelectedCheck={false}
                 textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                 style={[
@@ -148,12 +125,12 @@ export function FilterSheet({
         </Text>
         <View style={styles.chipRow}>
           {OFFER_TYPE_OPTIONS.map((offer) => {
-            const active = offerTypes.includes(offer);
+            const active = filters.offerTypes.includes(offer);
             return (
               <Chip
                 key={offer}
                 selected={active}
-                onPress={() => toggleChip(offerTypes, offer, onOfferTypesChange)}
+                onPress={() => toggleChip(filters.offerTypes, offer, 'offerTypes')}
                 showSelectedCheck={false}
                 textStyle={active ? { color: theme.colors.onPrimary } : undefined}
                 style={[
@@ -186,13 +163,13 @@ export function FilterSheet({
                 {t('filter.priceMin')}
               </Text>
               <RNTextInput
-                value={priceMin !== undefined ? String(priceMin) : ''}
+                value={filters.priceMin !== undefined ? String(filters.priceMin) : ''}
                 onChangeText={(text) => {
                   const num = parseFloat(text);
-                  onPriceMinChange(isNaN(num) ? undefined : num);
+                  onFiltersChange({ priceMin: isNaN(num) ? undefined : num });
                 }}
                 keyboardType="numeric"
-                placeholder="\u2014"
+                placeholder={'\u2014'}
                 style={themed.priceInputText}
               />
             </View>
@@ -204,13 +181,13 @@ export function FilterSheet({
                 {t('filter.priceMax')}
               </Text>
               <RNTextInput
-                value={priceMax !== undefined ? String(priceMax) : ''}
+                value={filters.priceMax !== undefined ? String(filters.priceMax) : ''}
                 onChangeText={(text) => {
                   const num = parseFloat(text);
-                  onPriceMaxChange(isNaN(num) ? undefined : num);
+                  onFiltersChange({ priceMax: isNaN(num) ? undefined : num });
                 }}
                 keyboardType="numeric"
-                placeholder="\u2014"
+                placeholder={'\u2014'}
                 style={themed.priceInputText}
               />
             </View>
