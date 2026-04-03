@@ -9,8 +9,10 @@ const mockRouterReplace = jest.fn();
 const mockDismiss = jest.fn();
 const mockCanDismiss = jest.fn();
 
+const mockSearchParams: { id: string; fromBike?: string | string[] } = { id: 'item-123' };
+
 jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ id: 'item-123' }),
+  useLocalSearchParams: () => mockSearchParams,
   router: {
     replace: (...args: unknown[]) => mockRouterReplace(...args),
     push: jest.fn(),
@@ -99,6 +101,18 @@ jest.mock('@/features/borrow', () => ({
 describe('ItemDetailScreen back navigation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSearchParams.id = 'item-123';
+    delete mockSearchParams.fromBike;
+  });
+
+  it('replaces to bike detail when opened from mounted parts (fromBike param)', () => {
+    mockSearchParams.fromBike = 'bike-from-mounted';
+    const { getByRole } = renderWithProviders(<ItemDetailScreen />);
+
+    fireEvent.press(getByRole('button', { name: 'Back' }));
+
+    expect(mockRouterReplace).toHaveBeenCalledWith('/(tabs)/bikes/bike-from-mounted');
+    expect(mockDismiss).not.toHaveBeenCalled();
   });
 
   it('calls router.dismiss(1) when tab stack can dismiss', () => {

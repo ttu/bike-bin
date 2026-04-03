@@ -4,6 +4,14 @@ import { createMockItem, createMockBike } from '@/test/factories';
 import { ItemStatus } from '@/shared/types';
 import { MountedParts } from '../MountedParts';
 
+const mockRouterPush = jest.fn();
+
+jest.mock('expo-router', () => ({
+  router: {
+    push: (...args: unknown[]) => mockRouterPush(...args),
+  },
+}));
+
 // Mock supabase
 const mockSelect = jest.fn();
 const mockUpdate = jest.fn();
@@ -94,6 +102,26 @@ describe('MountedParts', () => {
     const attachButtons = getAllByText('Attach Part');
     fireEvent.press(attachButtons[0]);
     expect(getByText('Select Part to Attach')).toBeTruthy();
+  });
+
+  it('navigates to inventory item detail when a mounted part row is pressed', async () => {
+    mockSelect.mockImplementation(() => ({
+      eq: mockEq.mockImplementation(() => ({
+        order: mockOrder.mockResolvedValue({ data: [mountedPart], error: null }),
+        single: mockSingle.mockResolvedValue({ data: mountedPart, error: null }),
+        select: mockSelect,
+      })),
+      order: mockOrder.mockResolvedValue({ data: [storedPart, mountedPart], error: null }),
+    }));
+
+    const { findByLabelText } = renderWithProviders(<MountedParts bikeId={bikeId} />);
+
+    const viewPartControl = await findByLabelText(`View ${mountedPart.name}`);
+    fireEvent.press(viewPartControl);
+
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      `/(tabs)/inventory/${mountedPart.id}?fromBike=${encodeURIComponent(bikeId)}`,
+    );
   });
 
   it('opens detach confirmation when detach button pressed', async () => {

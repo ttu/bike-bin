@@ -118,8 +118,8 @@ test.describe('Edit bike', () => {
     await loggedInPage.getByText('Santa Cruz Hightower').click();
     await waitForBikeDetail(loggedInPage);
 
-    // Click edit (pencil icon — second button after Back, same as inventory)
-    await loggedInPage.getByRole('button').nth(1).click();
+    // Edit action must be targeted explicitly — other buttons (mounted parts, etc.) share the page.
+    await loggedInPage.getByRole('button', { name: /^Edit$/i }).click();
     await loggedInPage.waitForURL(/\/edit\//, { timeout: 10000 });
     await expect(loggedInPage.getByText('Edit Bike')).toBeVisible({ timeout: 10000 });
 
@@ -143,7 +143,8 @@ test.describe('Edit bike', () => {
     // Navigate to bikes list and verify updated brand
     const tablist = loggedInPage.getByRole('tablist');
     await tablist.getByRole('tab', { name: /^Bikes$/i }).click();
-    await expect(loggedInPage.getByText('Santa Cruz Updated', { exact: true })).toBeVisible({
+    // BikeCard shows "Brand · Year"; avoid /Santa Cruz Updated/ (matches detail + list).
+    await expect(loggedInPage.getByText('Santa Cruz Updated · 2024', { exact: true })).toBeVisible({
       timeout: 10000,
     });
   });
@@ -173,8 +174,7 @@ test.describe('Delete bike', () => {
     await loggedInPage.getByText('Bike To Delete').click();
     await waitForBikeDetail(loggedInPage);
 
-    // Open edit screen (pencil button — second button after Back)
-    await loggedInPage.getByRole('button').nth(1).click();
+    await loggedInPage.getByRole('button', { name: /^Edit$/i }).click();
     await loggedInPage.waitForURL(/\/edit\//, { timeout: 10000 });
     await expect(loggedInPage.getByText('Edit Bike')).toBeVisible({ timeout: 10000 });
 
@@ -206,6 +206,34 @@ test.describe('Delete bike', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Mount item to bike', () => {
+  test('opens mounted part in item detail and back returns to bike', async ({ loggedInPage }) => {
+    await navigateToBikes(loggedInPage);
+
+    await loggedInPage.getByText('Santa Cruz Hightower').click();
+    await waitForBikeDetail(loggedInPage);
+
+    await loggedInPage.keyboard.press('End');
+    await loggedInPage.waitForTimeout(500);
+
+    await expect(loggedInPage.getByText('Mounted Parts')).toBeVisible({ timeout: 10000 });
+
+    await loggedInPage.getByRole('button', { name: /View Fox 36 Float Fork/i }).click();
+    await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+
+    await expect(loggedInPage.getByText('Condition', { exact: true })).toBeVisible({
+      timeout: 10000,
+    });
+
+    await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
+    await loggedInPage.waitForURL(/\/bikes\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+
+    await expect(loggedInPage.getByText('Mounted Parts')).toBeVisible({ timeout: 10000 });
+    // Detail title is the second match: list screen can leave a hidden card in the DOM (web).
+    const bikeTitle = loggedInPage.getByText('Santa Cruz Hightower').nth(1);
+    await bikeTitle.scrollIntoViewIfNeeded();
+    await expect(bikeTitle).toBeVisible({ timeout: 10000 });
+  });
+
   test('attaches a stored item to a bike', async ({ loggedInPage }) => {
     await navigateToBikes(loggedInPage);
 

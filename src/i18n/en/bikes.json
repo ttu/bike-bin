@@ -73,6 +73,7 @@
     "noParts": "No parts mounted",
     "noPartsDescription": "Attach parts from your inventory to this bike.",
     "attachPart": "Attach Part",
+    "viewPart": "View {{name}}",
     "detach": "Detach",
     "confirmDetach": "Detach \"{{name}}\" from this bike?",
     "confirmDetachAction": "Detach",

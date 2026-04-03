@@ -41,7 +41,11 @@ export default function BikeDetailScreen() {
       >
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/bikes' as Href)} />
         <Appbar.Content title="" />
-        <Appbar.Action icon="pencil" onPress={() => router.push(`/(tabs)/bikes/edit/${bike.id}`)} />
+        <Appbar.Action
+          icon="pencil"
+          accessibilityLabel={t('detail.edit')}
+          onPress={() => router.push(`/(tabs)/bikes/edit/${bike.id}`)}
+        />
       </Appbar.Header>
       <ScrollView
         style={styles.scroll}

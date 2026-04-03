@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import {
@@ -26,7 +26,15 @@ export default function ItemDetailScreen() {
   const { t } = useTranslation('exchange');
   const { t: tInv } = useTranslation('inventory');
   const { t: tBorrow } = useTranslation('borrow');
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string; fromBike?: string | string[] }>();
+  const { id } = params;
+  const fromBikeRaw = params.fromBike;
+  const fromBikeId =
+    typeof fromBikeRaw === 'string'
+      ? fromBikeRaw
+      : Array.isArray(fromBikeRaw)
+        ? fromBikeRaw[0]
+        : undefined;
 
   const { data: item, isLoading } = useItem(id as ItemId);
   const { data: photos } = useItemPhotos(id as ItemId);
@@ -139,6 +147,14 @@ export default function ItemDetailScreen() {
     });
   };
 
+  const handleHeaderBack = () => {
+    if (fromBikeId) {
+      router.replace(`/(tabs)/bikes/${fromBikeId}` as Href);
+      return;
+    }
+    tabScopedBack('/(tabs)/inventory');
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header
@@ -146,7 +162,7 @@ export default function ItemDetailScreen() {
         elevated={false}
         style={{ backgroundColor: theme.colors.background }}
       >
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/inventory')} />
+        <Appbar.BackAction onPress={handleHeaderBack} />
         <Appbar.Content title="" />
         <Appbar.Action
           icon="pencil"

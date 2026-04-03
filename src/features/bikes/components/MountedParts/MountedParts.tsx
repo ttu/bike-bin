@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { Text, Button, IconButton, Dialog, Portal, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { router } from 'expo-router';
 import type { Item, BikeId } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -51,7 +52,14 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
   const renderMountedItem = useCallback(
     ({ item }: { item: Item }) => (
       <View style={[styles.partRow, themed.surfaceBg]}>
-        <View style={styles.partInfo}>
+        <Pressable
+          style={styles.partInfo}
+          onPress={() =>
+            router.push(`/(tabs)/inventory/${item.id}?fromBike=${encodeURIComponent(bikeId)}`)
+          }
+          accessibilityRole="button"
+          accessibilityLabel={t('detail.viewPart', { name: item.name })}
+        >
           <Text variant="bodyLarge" style={themed.onSurface}>
             {item.name}
           </Text>
@@ -61,7 +69,7 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
               {item.model ? ` ${item.model}` : ''}
             </Text>
           )}
-        </View>
+        </Pressable>
         <IconButton
           icon="close-circle-outline"
           onPress={() => setDetachTarget(item)}
@@ -69,7 +77,7 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
         />
       </View>
     ),
-    [themed, t],
+    [themed, t, bikeId],
   );
 
   const renderPickerItem = useCallback(
