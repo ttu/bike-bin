@@ -55,7 +55,7 @@ export function useListingDetail(id: string | undefined) {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []).map((row) => mapItemPhotoRow(row as Record<string, unknown>));
+      return (data ?? []).map((row) => mapItemPhotoRow(row));
     },
     enabled: !!id,
   });

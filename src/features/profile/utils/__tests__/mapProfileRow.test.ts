@@ -1,13 +1,17 @@
+import type { ProfileRow } from '@/shared/types';
 import { mapProfileRow } from '../mapProfileRow';
 
 describe('mapProfileRow', () => {
   it('maps all fields', () => {
-    const row = {
+    const row: ProfileRow = {
       id: 'user-1',
       display_name: 'BikeGuy',
       avatar_url: 'https://example.com/avatar.jpg',
+      distance_unit: 'km',
       rating_avg: 4.5,
       rating_count: 12,
+      notification_preferences: null,
+      push_token: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-02T00:00:00Z',
     };
@@ -24,10 +28,15 @@ describe('mapProfileRow', () => {
   });
 
   it('handles optional displayName and avatarUrl', () => {
-    const row = {
+    const row: ProfileRow = {
       id: 'user-2',
+      display_name: null,
+      avatar_url: null,
+      distance_unit: 'km',
       rating_avg: 0,
       rating_count: 0,
+      notification_preferences: null,
+      push_token: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
     };

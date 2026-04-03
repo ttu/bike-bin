@@ -23,7 +23,7 @@ export function useNotifications() {
 
       if (error) throw error;
 
-      return (data ?? []).map((row) => mapNotificationRow(row as Record<string, unknown>));
+      return (data ?? []).map((row) => mapNotificationRow(row));
     },
     enabled: !!user,
   });

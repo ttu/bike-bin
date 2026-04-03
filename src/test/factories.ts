@@ -40,6 +40,7 @@ import {
   GroupRole,
   DURATION_OPTIONS,
 } from '@/shared/types';
+import type { ItemRow } from '@/shared/types';
 import type { SearchResultItem } from '@/features/search/types';
 import type { ConversationListItem } from '@/features/messaging/types';
 
@@ -58,7 +59,7 @@ export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
 }
 
 /** Creates a snake_case DB row matching what Supabase returns for items. */
-export function createMockItemRow(overrides?: Record<string, unknown>): Record<string, unknown> {
+export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
   return {
     id: faker.string.uuid(),
     owner_id: faker.string.uuid(),
@@ -75,24 +76,28 @@ export function createMockItemRow(overrides?: Record<string, unknown>): Record<s
       min: 1,
       max: 2,
     }),
-    price: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 500, fractionDigits: 2 })),
-    deposit: faker.helpers.maybe(() => faker.number.float({ min: 1, max: 100, fractionDigits: 2 })),
-    borrow_duration: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`),
-    storage_location: faker.helpers.maybe(() => faker.location.city()),
-    age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
+    price:
+      faker.helpers.maybe(() => faker.number.float({ min: 1, max: 500, fractionDigits: 2 })) ??
+      null,
+    deposit:
+      faker.helpers.maybe(() => faker.number.float({ min: 1, max: 100, fractionDigits: 2 })) ??
+      null,
+    borrow_duration:
+      faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`) ?? null,
+    storage_location: faker.helpers.maybe(() => faker.location.city()) ?? null,
+    age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`) ?? null,
     ...(() => {
-      const usage_km = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 }));
+      const usage_km = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })) ?? null;
       return {
         usage_km,
-        usage_unit:
-          usage_km !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
+        usage_unit: usage_km !== null ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
       };
     })(),
     remaining_fraction: null,
     quantity: 1,
-    purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString().slice(0, 10)),
-    mounted_date: faker.helpers.maybe(() => faker.date.past().toISOString().slice(0, 10)),
-    pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()),
+    purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString().slice(0, 10)) ?? null,
+    mounted_date: faker.helpers.maybe(() => faker.date.past().toISOString().slice(0, 10)) ?? null,
+    pickup_location_id: faker.helpers.maybe(() => faker.string.uuid()) ?? null,
     visibility: faker.helpers.arrayElement(Object.values(Visibility)),
     tags: [],
     created_at: faker.date.past().toISOString(),

@@ -33,7 +33,7 @@ export function useMessages(conversationId: ConversationId | undefined) {
 
       if (error) throw error;
 
-      return (data ?? []).map((msg) => mapMessageRow(msg as Record<string, unknown>, userId!));
+      return (data ?? []).map((msg) => mapMessageRow(msg, userId!));
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => {

@@ -21,7 +21,7 @@ export function useBikes() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      const bikes = (data ?? []).map((row) => mapBikeRow(row as Record<string, unknown>));
+      const bikes = (data ?? []).map((row) => mapBikeRow(row));
       const thumbMap = await fetchBikeThumbnailPaths(bikes.map((b) => b.id));
       return bikes.map((bike) => ({
         ...bike,
@@ -39,7 +39,7 @@ export function useBike(id: BikeId) {
       const { data, error } = await supabase.from('bikes').select('*').eq('id', id).single();
 
       if (error) throw error;
-      return mapBikeRow(data as Record<string, unknown>);
+      return mapBikeRow(data);
     },
     enabled: !!id,
   });
@@ -56,7 +56,7 @@ export function useBikePhotos(bikeId: BikeId) {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []).map((row) => mapBikePhotoRow(row as Record<string, unknown>));
+      return (data ?? []).map((row) => mapBikePhotoRow(row));
     },
     enabled: !!bikeId,
   });
@@ -86,7 +86,7 @@ export function useCreateBike() {
         .single();
 
       if (error) throw error;
-      return mapBikeRow(data as Record<string, unknown>);
+      return mapBikeRow(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
@@ -117,7 +117,7 @@ export function useUpdateBike() {
         .single();
 
       if (error) throw error;
-      return mapBikeRow(data as Record<string, unknown>);
+      return mapBikeRow(data);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });

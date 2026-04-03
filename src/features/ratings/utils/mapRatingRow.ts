@@ -1,10 +1,10 @@
 import type { Rating } from '@/shared/types';
-import type { RatingId, UserId, ItemId } from '@/shared/types';
+import type { RatingId, UserId, ItemId, RatingRow } from '@/shared/types';
 import type { TransactionType } from '@/shared/types';
 import type { RatingWithReviewer } from '../types';
 
 /** Transforms a Supabase row into the Rating domain model. */
-export function mapRatingRow(row: Record<string, unknown>): Rating {
+export function mapRatingRow(row: RatingRow): Rating {
   return {
     id: row.id as RatingId,
     fromUserId: row.from_user_id as UserId,
@@ -19,14 +19,17 @@ export function mapRatingRow(row: Record<string, unknown>): Rating {
   };
 }
 
+type RatingRowWithProfile = RatingRow & {
+  profiles?: { display_name?: string; avatar_url?: string } | null;
+};
+
 /** Transforms a Supabase row (with joined profiles) into RatingWithReviewer. */
-export function mapRatingWithReviewerRow(row: Record<string, unknown>): RatingWithReviewer {
-  const profile = row.profiles as { display_name?: string; avatar_url?: string } | undefined;
+export function mapRatingWithReviewerRow(row: RatingRowWithProfile): RatingWithReviewer {
   return {
     ...mapRatingRow(row),
     reviewer: {
-      displayName: profile?.display_name,
-      avatarUrl: profile?.avatar_url,
+      displayName: row.profiles?.display_name,
+      avatarUrl: row.profiles?.avatar_url,
     },
   };
 }

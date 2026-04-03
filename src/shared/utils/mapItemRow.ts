@@ -1,5 +1,6 @@
 import type { Item, ItemPhoto } from '@/shared/types';
 import type { ItemId, BikeId, UserId, LocationId, ItemPhotoId } from '@/shared/types';
+import type { ItemRow, ItemPhotoRow } from '@/shared/types';
 import type {
   ItemCategory,
   ItemCondition,
@@ -11,7 +12,7 @@ import type {
 } from '@/shared/types';
 
 /** Transforms a Supabase row into the Item domain model. */
-export function mapItemRow(row: Record<string, unknown>): Item {
+export function mapItemRow(row: ItemRow): Item {
   const rawUsage = row.usage_km as number | null | undefined;
   const usage = rawUsage === null || rawUsage === undefined ? undefined : rawUsage;
   const usageUnit =
@@ -59,7 +60,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
 }
 
 /** Transforms a Supabase row into the ItemPhoto domain model. */
-export function mapItemPhotoRow(row: Record<string, unknown>): ItemPhoto {
+export function mapItemPhotoRow(row: ItemPhotoRow): ItemPhoto {
   return {
     id: row.id as ItemPhotoId,
     itemId: row.item_id as ItemId,

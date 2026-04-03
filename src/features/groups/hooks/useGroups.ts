@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { GroupMember } from '@/shared/types';
-import type { GroupId } from '@/shared/types';
+import type { GroupId, GroupRow } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 import type { GroupFormData } from '../types';
 import { mapGroupRow } from '../utils/mapGroupRow';
@@ -25,9 +25,7 @@ export function useGroups() {
       if (error) throw error;
 
       return (data ?? []).map((row) => ({
-        ...mapGroupRow(
-          (Array.isArray(row.groups) ? row.groups[0] : row.groups) as Record<string, unknown>,
-        ),
+        ...mapGroupRow((Array.isArray(row.groups) ? row.groups[0] : row.groups) as GroupRow),
         memberRole: row.role as string as GroupMember['role'],
         joinedAt: row.joined_at as string,
       }));
@@ -46,7 +44,7 @@ export function useGroup(id: GroupId) {
       const { data, error } = await supabase.from('groups').select('*').eq('id', id).single();
 
       if (error) throw error;
-      return mapGroupRow(data as Record<string, unknown>);
+      return mapGroupRow(data);
     },
     enabled: !!id,
   });
@@ -83,7 +81,7 @@ export function useCreateGroup() {
 
       if (memberError) throw memberError;
 
-      return mapGroupRow(group as Record<string, unknown>);
+      return mapGroupRow(group);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
@@ -111,7 +109,7 @@ export function useUpdateGroup() {
         .single();
 
       if (error) throw error;
-      return mapGroupRow(data as Record<string, unknown>);
+      return mapGroupRow(data);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });

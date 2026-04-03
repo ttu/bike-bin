@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-native';
-import type { GroupId, ItemId, Item } from '@/shared/types';
+import type { GroupId, ItemId, Item, ItemRow, ItemPhotoRow } from '@/shared/types';
 import {
   AvailabilityType,
   ItemCategory,
@@ -31,12 +31,12 @@ jest.mock('@/shared/utils/fetchThumbnailPaths', () => ({
 }));
 
 jest.mock('@/shared/utils/mapItemRow', () => ({
-  mapItemRow: jest.fn((row: Record<string, unknown>) => ({
+  mapItemRow: jest.fn((row: ItemRow) => ({
     id: row.id,
     name: row.name,
-    age: row.age != null ? (row.age as string) : undefined,
+    age: row.age != null ? row.age : undefined,
   })),
-  mapItemPhotoRow: jest.fn((row: Record<string, unknown>) => ({
+  mapItemPhotoRow: jest.fn((row: ItemPhotoRow) => ({
     id: row.id,
     storagePath: row.storage_path,
   })),

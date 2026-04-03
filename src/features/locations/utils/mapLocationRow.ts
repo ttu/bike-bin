@@ -1,8 +1,8 @@
 import type { SavedLocation } from '@/shared/types';
-import type { LocationId } from '@/shared/types';
+import type { LocationId, SavedLocationRow } from '@/shared/types';
 
 /** Transforms a Supabase row into the SavedLocation model. */
-export function mapLocationRow(row: Record<string, unknown>): SavedLocation {
+export function mapLocationRow(row: SavedLocationRow): SavedLocation {
   const coords = row.coordinates as { latitude: number; longitude: number } | null;
   return {
     id: row.id as LocationId,

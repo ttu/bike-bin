@@ -14,7 +14,7 @@ export function useMountedParts(bikeId: BikeId) {
         .order('name', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
+      return (data ?? []).map((row) => mapItemRow(row));
     },
     enabled: !!bikeId,
   });

@@ -1,5 +1,6 @@
 import type { Bike } from '@/shared/types';
 import type { BikeId, UserId } from '@/shared/types';
+import type { BikeRow } from '@/shared/types';
 import type { BikeType, ItemCondition } from '@/shared/types';
 import { ItemCondition as ItemConditionValues } from '@/shared/types';
 
@@ -16,7 +17,7 @@ function mapItemCondition(value: unknown): ItemCondition {
 }
 
 /** Transforms a Supabase row into the Bike domain model. */
-export function mapBikeRow(row: Record<string, unknown>): Bike {
+export function mapBikeRow(row: BikeRow): Bike {
   return {
     id: row.id as BikeId,
     ownerId: row.owner_id as UserId,

@@ -1,8 +1,9 @@
+import type { GroupRow, GroupMemberRow } from '@/shared/types';
 import { mapGroupRow, mapGroupMemberRow } from '../mapGroupRow';
 
 describe('mapGroupRow', () => {
   it('maps all fields', () => {
-    const row = {
+    const row: GroupRow = {
       id: 'group-1',
       name: 'MTB Club',
       description: 'Mountain biking group',
@@ -19,9 +20,10 @@ describe('mapGroupRow', () => {
   });
 
   it('handles optional description as undefined', () => {
-    const row = {
+    const row: GroupRow = {
       id: 'group-2',
       name: 'Road Riders',
+      description: null,
       is_public: false,
       created_at: '2026-01-01T00:00:00Z',
     };
@@ -31,7 +33,7 @@ describe('mapGroupRow', () => {
 
 describe('mapGroupMemberRow', () => {
   it('maps all fields', () => {
-    const row = {
+    const row: GroupMemberRow = {
       group_id: 'group-1',
       user_id: 'user-1',
       role: 'admin',

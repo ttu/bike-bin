@@ -36,7 +36,7 @@ export function useItems() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      const items = (data ?? []).map((row) => mapItemRow(row as Record<string, unknown>));
+      const items = (data ?? []).map((row) => mapItemRow(row));
 
       const thumbMap = await fetchThumbnailPaths(items.map((i) => i.id));
       return items.map((item) => ({
@@ -55,7 +55,7 @@ export function useItem(id: ItemId) {
       const { data, error } = await supabase.from('items').select('*').eq('id', id).single();
 
       if (error) throw error;
-      return mapItemRow(data as Record<string, unknown>);
+      return mapItemRow(data);
     },
     enabled: !!id,
   });
@@ -72,7 +72,7 @@ export function useItemPhotos(itemId: ItemId) {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      return (data ?? []).map((row) => mapItemPhotoRow(row as Record<string, unknown>));
+      return (data ?? []).map((row) => mapItemPhotoRow(row));
     },
     enabled: !!itemId,
   });
@@ -118,7 +118,7 @@ export function useCreateItem() {
 
       if (error) throw error;
 
-      const item = mapItemRow(data as Record<string, unknown>);
+      const item = mapItemRow(data);
 
       // Sync item_groups for group visibility
       if (formData.visibility === Visibility.Groups) {
@@ -175,7 +175,7 @@ export function useUpdateItem() {
 
       if (error) throw error;
 
-      const item = mapItemRow(data as Record<string, unknown>);
+      const item = mapItemRow(data);
 
       // Sync item_groups: clear old entries and insert new ones if visibility is groups
       await syncItemGroups(
@@ -210,7 +210,7 @@ export function useUpdateItemStatus() {
         .single();
 
       if (error) throw error;
-      return mapItemRow(data as Record<string, unknown>);
+      return mapItemRow(data);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['items'] });

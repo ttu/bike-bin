@@ -19,7 +19,7 @@ export function useUserRatings(userId: UserId) {
 
       if (error) throw error;
 
-      return (data ?? []).map((row) => mapRatingWithReviewerRow(row as Record<string, unknown>));
+      return (data ?? []).map((row) => mapRatingWithReviewerRow(row));
     },
     enabled: !!userId,
   });

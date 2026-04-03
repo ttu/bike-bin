@@ -6,8 +6,9 @@ import {
   AvailabilityType,
   Visibility,
 } from '@/shared/types';
+import type { ItemRow } from '@/shared/types';
 
-const baseRow = {
+const baseRow: ItemRow = {
   id: 'item-1',
   owner_id: 'owner-1',
   bike_id: null,
@@ -26,6 +27,9 @@ const baseRow = {
   borrow_duration: null,
   storage_location: null,
   age: null,
+  usage_km: null,
+  usage_unit: null,
+  remaining_fraction: null,
   purchase_date: null,
   mounted_date: null,
   pickup_location_id: null,

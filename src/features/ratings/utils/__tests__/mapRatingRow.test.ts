@@ -1,8 +1,9 @@
+import type { RatingRow } from '@/shared/types';
 import { mapRatingRow, mapRatingWithReviewerRow } from '../mapRatingRow';
 
 describe('mapRatingRow', () => {
   it('maps all fields', () => {
-    const row = {
+    const row: RatingRow = {
       id: 'rating-1',
       from_user_id: 'user-A',
       to_user_id: 'user-B',
@@ -29,12 +30,15 @@ describe('mapRatingRow', () => {
   });
 
   it('handles optional fields', () => {
-    const row = {
+    const row: RatingRow = {
       id: 'rating-2',
       from_user_id: 'user-A',
       to_user_id: 'user-B',
+      item_id: null,
       transaction_type: 'donate',
       score: 5,
+      text: null,
+      editable_until: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
     };
@@ -51,8 +55,11 @@ describe('mapRatingWithReviewerRow', () => {
       id: 'rating-1',
       from_user_id: 'user-A',
       to_user_id: 'user-B',
-      transaction_type: 'borrow',
+      item_id: null,
+      transaction_type: 'borrow' as const,
       score: 4,
+      text: null,
+      editable_until: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
       profiles: { display_name: 'Alice', avatar_url: 'https://example.com/a.jpg' },
@@ -69,8 +76,11 @@ describe('mapRatingWithReviewerRow', () => {
       id: 'rating-2',
       from_user_id: 'user-A',
       to_user_id: 'user-B',
-      transaction_type: 'sell',
+      item_id: null,
+      transaction_type: 'sell' as const,
       score: 3,
+      text: null,
+      editable_until: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
     };

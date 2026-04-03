@@ -1,7 +1,7 @@
 import type { BikePhoto } from '@/shared/types';
-import type { BikeId, BikePhotoId } from '@/shared/types';
+import type { BikeId, BikePhotoId, BikePhotoRow } from '@/shared/types';
 
-export function mapBikePhotoRow(row: Record<string, unknown>): BikePhoto {
+export function mapBikePhotoRow(row: BikePhotoRow): BikePhoto {
   return {
     id: row.id as BikePhotoId,
     bikeId: row.bike_id as BikeId,

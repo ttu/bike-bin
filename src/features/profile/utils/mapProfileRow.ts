@@ -1,9 +1,9 @@
 import type { UserProfile } from '@/shared/types';
-import type { UserId } from '@/shared/types';
+import type { UserId, ProfileRow } from '@/shared/types';
 import type { DistanceUnit } from '@/shared/types';
 
 /** Transforms a Supabase row into the UserProfile domain model. */
-export function mapProfileRow(row: Record<string, unknown>): UserProfile {
+export function mapProfileRow(row: ProfileRow): UserProfile {
   return {
     id: row.id as UserId,
     displayName: (row.display_name as string) ?? undefined,

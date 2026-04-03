@@ -1,9 +1,10 @@
 import type { Group, GroupMember } from '@/shared/types';
 import type { GroupId, UserId } from '@/shared/types';
+import type { GroupRow, GroupMemberRow } from '@/shared/types';
 import type { GroupRole } from '@/shared/types';
 
 /** Transforms a Supabase row into the Group domain model. */
-export function mapGroupRow(row: Record<string, unknown>): Group {
+export function mapGroupRow(row: GroupRow): Group {
   return {
     id: row.id as GroupId,
     name: row.name as string,
@@ -14,7 +15,7 @@ export function mapGroupRow(row: Record<string, unknown>): Group {
 }
 
 /** Transforms a Supabase row into the GroupMember domain model. */
-export function mapGroupMemberRow(row: Record<string, unknown>): GroupMember {
+export function mapGroupMemberRow(row: GroupMemberRow): GroupMember {
   return {
     groupId: row.group_id as GroupId,
     userId: row.user_id as UserId,

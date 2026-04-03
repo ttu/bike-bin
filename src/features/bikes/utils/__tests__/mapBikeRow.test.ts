@@ -1,8 +1,9 @@
 import { ItemCondition } from '@/shared/types';
+import type { BikeRow } from '@/shared/types';
 import { mapBikeRow } from '../mapBikeRow';
 
 describe('mapBikeRow', () => {
-  const fullRow = {
+  const fullRow: BikeRow = {
     id: 'bike-1',
     owner_id: 'user-1',
     name: 'My Gravel Bike',
@@ -38,11 +39,18 @@ describe('mapBikeRow', () => {
   });
 
   it('handles optional fields as undefined', () => {
-    const minimalRow = {
+    const minimalRow: BikeRow = {
       id: 'bike-2',
       owner_id: 'user-1',
       name: 'Unnamed',
       type: 'road',
+      condition: 'good',
+      brand: null,
+      model: null,
+      year: null,
+      distance_km: null,
+      usage_hours: null,
+      notes: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
     };
@@ -61,14 +69,19 @@ describe('mapBikeRow', () => {
       id: 'bike-3',
       owner_id: 'user-1',
       name: 'X',
-      type: 'mtb',
+      type: 'mtb' as const,
       distance_km: '99.25',
       usage_hours: '10',
-      condition: 'good',
+      condition: 'good' as const,
+      brand: null,
+      model: null,
+      year: null,
+      notes: null,
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
     };
-    const result = mapBikeRow(row);
+    // PostgREST can return numeric strings; the mapper handles this via parseFloat
+    const result = mapBikeRow(row as unknown as BikeRow);
     expect(result.distanceKm).toBe(99.25);
     expect(result.usageHours).toBe(10);
     expect(result.condition).toBe(ItemCondition.Good);

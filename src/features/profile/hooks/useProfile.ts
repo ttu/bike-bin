@@ -18,7 +18,7 @@ export function useProfile(userId: UserId | undefined) {
 
       if (error) throw error;
 
-      return mapProfileRow(data as Record<string, unknown>);
+      return mapProfileRow(data);
     },
     enabled: !!userId,
   });

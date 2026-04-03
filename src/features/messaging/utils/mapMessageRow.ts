@@ -1,11 +1,8 @@
-import type { MessageId, ConversationId, UserId } from '@/shared/types';
+import type { MessageId, ConversationId, UserId, MessageRow } from '@/shared/types';
 import type { MessageWithSender } from '../types';
 
 /** Transforms a Supabase message row into the MessageWithSender domain model. */
-export function mapMessageRow(
-  row: Record<string, unknown>,
-  currentUserId: string,
-): MessageWithSender {
+export function mapMessageRow(row: MessageRow, currentUserId: string): MessageWithSender {
   return {
     id: row.id as MessageId,
     conversationId: row.conversation_id as ConversationId,
