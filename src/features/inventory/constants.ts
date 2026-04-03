@@ -222,6 +222,12 @@ export const DEFAULT_BRANDS = [
   'Loctite',
 ] as const;
 
+/** Thumbnail size for inventory list rows and gallery tiles (keep in sync). */
+export const ITEM_INVENTORY_THUMBNAIL = {
+  width: 80,
+  height: 60,
+} as const;
+
 /**
  * Predefined age options for selector.
  * Values are i18n keys under `form.ageOption.<key>`.

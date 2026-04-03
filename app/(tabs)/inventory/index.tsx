@@ -1,6 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, ScrollView, StyleSheet, RefreshControl } from 'react-native';
-import { Text, FAB, Chip, Searchbar, Button, useTheme } from 'react-native-paper';
+import {
+  View,
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  RefreshControl,
+  useWindowDimensions,
+} from 'react-native';
+import { Text, FAB, Chip, Searchbar, Button, SegmentedButtons, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,11 +17,15 @@ import { SyncBanner } from '@/features/auth/components/SyncBanner/SyncBanner';
 import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory';
 import { useItems, useUserTags } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
+import { ItemGalleryTile } from '@/features/inventory/components/ItemGalleryTile/ItemGalleryTile';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { isTerminalStatus } from '@/features/inventory/utils/status';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { DemoBanner } from '@/features/demo';
 import { spacing } from '@/shared/theme';
+import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
+
+type InventoryViewMode = 'list' | 'gallery';
 
 function matchesSearch(item: Item, query: string): boolean {
   const q = query.toLowerCase();
@@ -29,12 +40,14 @@ export default function InventoryScreen() {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
   const { isAuthenticated } = useAuth();
 
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
+  const [viewMode, setViewMode] = useState<InventoryViewMode>('list');
   const { data: userTags } = useUserTags();
 
   const activeTags = useMemo(
@@ -71,6 +84,14 @@ export default function InventoryScreen() {
   );
   const hasTerminalItems = terminalCount > 0;
 
+  const galleryColumnCount = useMemo(() => {
+    const horizontalPadding = spacing.base * 2;
+    const gap = spacing.xs;
+    const cellStride = ITEM_INVENTORY_THUMBNAIL.width + gap;
+    const columns = Math.floor((windowWidth - horizontalPadding) / cellStride);
+    return Math.max(2, Math.min(12, columns));
+  }, [windowWidth]);
+
   const handleItemPress = useCallback((item: Item) => {
     router.push(`/(tabs)/inventory/${item.id}`);
   }, []);
@@ -90,8 +111,35 @@ export default function InventoryScreen() {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }: { item: Item }) => <ItemCard item={item} onPress={handleItemPress} />,
-    [handleItemPress],
+    ({ item }: { item: Item }) =>
+      viewMode === 'gallery' ? (
+        <View style={styles.galleryCell}>
+          <ItemGalleryTile item={item} onPress={handleItemPress} />
+        </View>
+      ) : (
+        <ItemCard item={item} onPress={handleItemPress} />
+      ),
+    [handleItemPress, viewMode],
+  );
+
+  const viewModeButtons = useMemo(
+    () => [
+      {
+        value: 'list' as const,
+        icon: 'view-list',
+        accessibilityLabel: t('viewMode.listA11y'),
+        labelStyle: styles.viewModeSegmentHiddenLabel,
+        style: styles.viewModeSegment,
+      },
+      {
+        value: 'gallery' as const,
+        icon: 'view-grid',
+        accessibilityLabel: t('viewMode.galleryA11y'),
+        labelStyle: styles.viewModeSegmentHiddenLabel,
+        style: styles.viewModeSegment,
+      },
+    ],
+    [t],
   );
 
   const searchPlaceholder =
@@ -198,6 +246,18 @@ export default function InventoryScreen() {
         </View>
       )}
 
+      {!isLoading && filteredItems.length > 0 && (
+        <View style={styles.viewModeRow}>
+          <SegmentedButtons
+            value={viewMode}
+            onValueChange={(value) => setViewMode(value as InventoryViewMode)}
+            buttons={viewModeButtons}
+            density="high"
+            style={styles.viewModeSegments}
+          />
+        </View>
+      )}
+
       {!isLoading && filteredItems.length === 0 ? (
         <EmptyState
           icon="package-variant"
@@ -208,10 +268,14 @@ export default function InventoryScreen() {
         />
       ) : (
         <FlatList
+          key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
           style={styles.listContainer}
           data={filteredItems}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
+          numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
+          columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
+          extraData={viewMode}
           refreshControl={
             isAuthenticated ? (
               <RefreshControl refreshing={isLoading} onRefresh={refetch} />
@@ -303,6 +367,35 @@ const styles = StyleSheet.create({
   terminalChipRow: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
+  },
+  viewModeRow: {
+    paddingHorizontal: spacing.base,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+  },
+  viewModeSegments: {
+    alignSelf: 'center',
+  },
+  viewModeSegment: {
+    minWidth: 52,
+    maxHeight: 36,
+  },
+  viewModeSegmentHiddenLabel: {
+    fontSize: 0,
+    lineHeight: 0,
+    margin: 0,
+    padding: 0,
+    height: 0,
+    opacity: 0,
+  },
+  galleryRow: {
+    paddingHorizontal: spacing.base,
+    gap: spacing.xs,
+  },
+  galleryCell: {
+    flex: 1,
+    alignItems: 'center',
+    paddingBottom: spacing.xs,
   },
   fab: {
     position: 'absolute',

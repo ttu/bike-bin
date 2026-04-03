@@ -53,7 +53,8 @@ test.describe('Inventory list with data', () => {
     await loggedInPage.getByRole('button', { name: 'Components' }).click();
     await expect(loggedInPage.getByText('Muc-Off Chain Lube')).toBeHidden();
 
-    await loggedInPage.getByRole('button', { name: 'All' }).click();
+    // Substring match would incorrectly include "Gallery view" (…gALLery…).
+    await loggedInPage.getByRole('button', { name: 'All', exact: true }).click();
 
     await expect(loggedInPage.getByText('Muc-Off Chain Lube')).toBeVisible();
     await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand')).toBeVisible();

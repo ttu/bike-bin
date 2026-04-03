@@ -4,12 +4,13 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Item } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
-import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { getStatusColor } from '../../utils/status';
+import { ITEM_INVENTORY_THUMBNAIL } from '../../constants';
 import { availabilityTypesForList } from '../../utils/availabilityList';
+import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 
 interface ItemCardProps {
   item: Item;
@@ -30,6 +31,7 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
         : theme.colors.outline;
 
   const listAvailability = availabilityTypesForList(item.availabilityTypes);
+  const thumbnailUri = getItemThumbnailPublicUrl(item.thumbnailStoragePath);
 
   return (
     <AnimatedPressable
@@ -48,16 +50,18 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
           : item.name
       }
     >
-      <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
-        {item.thumbnailStoragePath ? (
-          <Image
-            source={{
-              uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
-                .publicUrl,
-            }}
-            style={styles.thumbnailImage}
-            resizeMode="cover"
-          />
+      <View
+        style={[
+          styles.thumbnail,
+          {
+            width: ITEM_INVENTORY_THUMBNAIL.width,
+            height: ITEM_INVENTORY_THUMBNAIL.height,
+            backgroundColor: theme.colors.surfaceVariant,
+          },
+        ]}
+      >
+        {thumbnailUri ? (
+          <Image source={{ uri: thumbnailUri }} style={styles.thumbnailImage} resizeMode="cover" />
         ) : (
           <MaterialCommunityIcons
             name="image-outline"
@@ -156,8 +160,6 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   thumbnail: {
-    width: 80,
-    height: 60,
     borderRadius: borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',

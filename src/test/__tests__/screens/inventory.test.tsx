@@ -1,6 +1,9 @@
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
+import { createMockItem } from '@/test/factories';
+import type { Item } from '@/shared/types';
+import { ItemCategory, ItemStatus } from '@/shared/types';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 
 const mockRouterPush = jest.fn();
@@ -19,6 +22,13 @@ jest.mock('@/shared/api/supabase', () => ({
         }),
       }),
     })),
+    storage: {
+      from: () => ({
+        getPublicUrl: (path: string) => ({
+          data: { publicUrl: `https://test.supabase.co/storage/item-photos/${path}` },
+        }),
+      }),
+    },
   },
 }));
 
@@ -38,15 +48,17 @@ jest.mock('@/features/inventory', () => ({
   useItems: () => ({ data: [], isLoading: false, refetch: jest.fn() }),
 }));
 
+const mockLocalInventory = {
+  items: [] as Item[],
+  addItem: jest.fn(),
+  removeItem: jest.fn(),
+  updateItem: jest.fn(),
+  clearAll: jest.fn(),
+  isLoading: false,
+};
+
 jest.mock('@/features/inventory/hooks/useLocalInventory', () => ({
-  useLocalInventory: () => ({
-    items: [],
-    addItem: jest.fn(),
-    removeItem: jest.fn(),
-    updateItem: jest.fn(),
-    clearAll: jest.fn(),
-    isLoading: false,
-  }),
+  useLocalInventory: () => mockLocalInventory,
 }));
 
 jest.mock('@/features/auth/components/SyncBanner/SyncBanner', () => ({
@@ -71,6 +83,7 @@ jest.mock('react-native-safe-area-context', () => ({
 describe('InventoryScreen', () => {
   beforeEach(() => {
     mockRouterPush.mockClear();
+    mockLocalInventory.items = [];
   });
 
   it('navigates to bikes list when bikes link is pressed', () => {
@@ -100,6 +113,23 @@ describe('InventoryScreen', () => {
   it('hides FAB when showing empty state', () => {
     renderWithProviders(<InventoryScreen />);
     expect(screen.queryByLabelText('Add item')).toBeNull();
+  });
+
+  it('gallery view hides list-only category line and shows items via image tiles only', () => {
+    mockLocalInventory.items = [
+      createMockItem({
+        name: 'Helix Bolt',
+        category: ItemCategory.Component,
+        subcategory: 'drivetrain',
+        status: ItemStatus.Stored,
+      }),
+    ];
+    renderWithProviders(<InventoryScreen />);
+    expect(screen.getByText(/Components · Drivetrain/)).toBeTruthy();
+    fireEvent.press(screen.getByLabelText('Gallery view'));
+    expect(screen.queryByText(/Components · Drivetrain/)).toBeNull();
+    expect(screen.queryByText('Helix Bolt')).toBeNull();
+    expect(screen.getByLabelText('Helix Bolt')).toBeTruthy();
   });
 
   it('removes stale tag filters when tags are deleted', async () => {

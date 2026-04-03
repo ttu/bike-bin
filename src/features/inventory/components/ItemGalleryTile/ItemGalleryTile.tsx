@@ -1,0 +1,79 @@
+import { View, StyleSheet, Image } from 'react-native';
+import { useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
+import type { Item } from '@/shared/types';
+import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
+import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
+import { ITEM_INVENTORY_THUMBNAIL } from '../../constants';
+import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
+
+interface ItemGalleryTileProps {
+  item: Item;
+  onPress?: (item: Item) => void;
+}
+
+export function ItemGalleryTile({ item, onPress }: ItemGalleryTileProps) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation('inventory');
+  const thumbnailUri = getItemThumbnailPublicUrl(item.thumbnailStoragePath);
+
+  return (
+    <AnimatedPressable
+      onPress={() => onPress?.(item)}
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.customColors.surfaceContainerLowest,
+          shadowColor: theme.colors.onSurface,
+        },
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={
+        item.quantity > 1
+          ? t('card.a11yNameWithQuantity', { name: item.name, count: item.quantity })
+          : item.name
+      }
+    >
+      <View
+        style={[
+          styles.thumbnailWrap,
+          {
+            width: ITEM_INVENTORY_THUMBNAIL.width,
+            height: ITEM_INVENTORY_THUMBNAIL.height,
+            backgroundColor: theme.colors.surfaceVariant,
+          },
+        ]}
+      >
+        {thumbnailUri ? (
+          <Image source={{ uri: thumbnailUri }} style={styles.thumbnailImage} resizeMode="cover" />
+        ) : (
+          <MaterialCommunityIcons
+            name="image-outline"
+            size={iconSize.lg}
+            color={theme.colors.onSurfaceVariant}
+          />
+        )}
+      </View>
+    </AnimatedPressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: borderRadius.sm,
+    padding: spacing.xs,
+  },
+  thumbnailWrap: {
+    alignSelf: 'center',
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: '100%',
+  },
+});
