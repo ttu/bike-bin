@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LoadingScreen, ReportDialog } from '@/shared/components';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import type { ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
@@ -127,7 +128,7 @@ export default function PublicUserProfileScreen() {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           {profile.avatarUrl ? (
-            <Avatar.Image size={80} source={{ uri: profile.avatarUrl }} />
+            <CachedAvatarImage uri={profile.avatarUrl} size={80} />
           ) : (
             <Avatar.Icon
               size={80}

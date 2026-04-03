@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize } from '@/shared/theme';
@@ -34,7 +35,7 @@ export function ProfileHeader({ profile, onEditPress }: ProfileHeaderProps) {
     <View style={styles.container}>
       <View style={styles.row}>
         {profile.avatarUrl ? (
-          <Avatar.Image size={64} source={{ uri: profile.avatarUrl }} />
+          <CachedAvatarImage uri={profile.avatarUrl} size={64} />
         ) : (
           <Avatar.Icon size={64} icon="account" style={themed.avatarBg} />
         )}

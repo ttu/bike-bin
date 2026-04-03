@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Chip, Button, Avatar, useTheme } from 'react-native-paper';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { GradientButton } from '@/shared/components/GradientButton';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -135,11 +136,7 @@ export function ListingDetail({
           style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}
         >
           {item.ownerAvatarUrl ? (
-            <Avatar.Image
-              testID="owner-avatar-image"
-              size={40}
-              source={{ uri: item.ownerAvatarUrl }}
-            />
+            <CachedAvatarImage testID="owner-avatar-image" uri={item.ownerAvatarUrl} size={40} />
           ) : (
             <Avatar.Icon
               testID="owner-avatar-icon"

@@ -2,6 +2,15 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { PhotoPicker } from '../PhotoPicker';
 
+const mockExpoImage = jest.fn();
+
+jest.mock('expo-image', () => ({
+  Image: (props: Record<string, unknown>) => {
+    mockExpoImage(props);
+    return null;
+  },
+}));
+
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     storage: {
@@ -22,16 +31,23 @@ const mockPhotos = [
 ];
 
 describe('PhotoPicker', () => {
-  it('renders photo images from storage URLs', () => {
-    const { UNSAFE_queryAllByType } = renderWithProviders(
-      <PhotoPicker photos={mockPhotos} onAdd={jest.fn()} isUploading={false} />,
-    );
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Image } = require('react-native');
-    const images = UNSAFE_queryAllByType(Image);
-    expect(images).toHaveLength(2);
-    expect(images[0].props.source.uri).toContain('photo1.jpg');
-    expect(images[1].props.source.uri).toContain('photo2.jpg');
+  beforeEach(() => {
+    mockExpoImage.mockClear();
+  });
+
+  it('renders photo images from storage URLs with disk cache', () => {
+    renderWithProviders(<PhotoPicker photos={mockPhotos} onAdd={jest.fn()} isUploading={false} />);
+    expect(mockExpoImage).toHaveBeenCalledTimes(2);
+    const first = mockExpoImage.mock.calls[0][0] as {
+      source: { uri: string; cacheKey: string };
+      cachePolicy: string;
+    };
+    const second = mockExpoImage.mock.calls[1][0] as typeof first;
+    expect(first.source.uri).toContain('photo1.jpg');
+    expect(first.source.cacheKey).toBe('bikes/bike1/photo1.jpg');
+    expect(first.cachePolicy).toBe('memory-disk');
+    expect(second.source.uri).toContain('photo2.jpg');
+    expect(second.source.cacheKey).toBe('bikes/bike1/photo2.jpg');
   });
 
   it('shows primary badge on first photo', () => {

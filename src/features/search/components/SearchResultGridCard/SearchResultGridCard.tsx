@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { formatDistance } from '@/shared/utils';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
+import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import type { SearchResultItem } from '../../types';
 
 const COLUMN_GAP = spacing.sm;
@@ -36,13 +37,13 @@ export function SearchResultGridCard({ item, onPress }: SearchResultGridCardProp
         {[
           <View key="image" style={[styles.imageContainer, themed.surfaceVariantBg]}>
             {item.thumbnailStoragePath ? (
-              <Image
-                source={{
-                  uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath)
-                    .data.publicUrl,
-                }}
+              <CachedListThumbnail
+                uri={
+                  supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
+                    .publicUrl
+                }
+                cacheKey={item.thumbnailStoragePath}
                 style={styles.image}
-                resizeMode="cover"
               />
             ) : (
               <MaterialCommunityIcons

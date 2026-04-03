@@ -3,6 +3,15 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { PhotoGallery } from '../PhotoGallery';
 
+const mockExpoImage = jest.fn();
+
+jest.mock('expo-image', () => ({
+  Image: (props: Record<string, unknown>) => {
+    mockExpoImage(props);
+    return null;
+  },
+}));
+
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     storage: {
@@ -20,6 +29,10 @@ const threePhotos = [
 ];
 
 describe('PhotoGallery', () => {
+  beforeEach(() => {
+    mockExpoImage.mockClear();
+  });
+
   it('renders placeholder when photos is empty', () => {
     const { getByText } = renderWithProviders(<PhotoGallery photos={[]} />);
     expect(getByText('No photos')).toBeTruthy();
@@ -37,6 +50,23 @@ describe('PhotoGallery', () => {
     ];
     const { toJSON } = renderWithProviders(<PhotoGallery photos={photos} />);
     expect(toJSON()).toBeTruthy();
+  });
+
+  it('uses expo-image memory-disk cache and storage path as cacheKey', () => {
+    const photos = [{ id: 'p1', storagePath: 'items/photo1.jpg' }];
+    renderWithProviders(<PhotoGallery photos={photos} />);
+    expect(mockExpoImage).toHaveBeenCalled();
+    const props = mockExpoImage.mock.calls[0][0] as {
+      source: { uri: string; cacheKey: string };
+      cachePolicy: string;
+      recyclingKey: string;
+      contentFit: string;
+    };
+    expect(props.source.uri).toContain('items/photo1.jpg');
+    expect(props.source.cacheKey).toBe('items/photo1.jpg');
+    expect(props.cachePolicy).toBe('memory-disk');
+    expect(props.recyclingKey).toBe('items/photo1.jpg');
+    expect(props.contentFit).toBe('cover');
   });
 
   it('renders dot indicators when multiple photos', () => {

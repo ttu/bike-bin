@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -56,7 +57,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
       {/* Avatar */}
       <View style={styles.avatarContainer}>
         {conversation.otherParticipantAvatarUrl ? (
-          <Avatar.Image size={44} source={{ uri: conversation.otherParticipantAvatarUrl }} />
+          <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={44} />
         ) : (
           <Avatar.Icon
             size={44}

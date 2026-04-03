@@ -1,6 +1,8 @@
 export { AnimatedPressable } from './AnimatedPressable/AnimatedPressable';
 export { CachedListThumbnail } from './CachedListThumbnail';
 export type { CachedListThumbnailProps } from './CachedListThumbnail';
+export { CachedAvatarImage } from './CachedAvatarImage';
+export type { CachedAvatarImageProps } from './CachedAvatarImage';
 export { BrandAutocompleteInput } from './BrandAutocompleteInput';
 export type { BrandAutocompleteInputProps } from './BrandAutocompleteInput';
 export { DetailCard, detailCardStyles } from './DetailCard';

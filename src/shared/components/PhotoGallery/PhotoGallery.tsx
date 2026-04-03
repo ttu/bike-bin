@@ -8,6 +8,7 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 /** Minimal photo shape needed for gallery display. */
@@ -18,6 +19,8 @@ interface GalleryPhoto {
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+
+const AnimatedCachedGalleryImage = Animated.createAnimatedComponent(Image);
 
 const MAX_GALLERY_WIDTH = 500;
 const ASPECT_RATIO = 0.75; // 4:3
@@ -62,10 +65,13 @@ function ParallaxPhoto({
         { width: galleryWidth, height: galleryHeight },
       ]}
     >
-      <Animated.Image
-        source={{ uri: data.publicUrl }}
+      <AnimatedCachedGalleryImage
+        accessible={false}
+        source={{ uri: data.publicUrl, cacheKey: photo.storagePath }}
         style={[styles.photo, { transform: [{ translateX }] }]}
-        resizeMode="cover"
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        recyclingKey={photo.storagePath}
       />
     </View>
   );

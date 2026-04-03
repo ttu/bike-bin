@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Image, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,7 @@ import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { canDelete } from '@/features/inventory';
-import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -119,6 +119,7 @@ export default function EditItemScreen() {
         ? supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
             .publicUrl
         : undefined;
+  const thumbnailCacheKey = photos.length > 0 ? photos[0].storagePath : item.thumbnailStoragePath;
 
   const initialData: ItemFormData = {
     name: item.name,
@@ -158,7 +159,11 @@ export default function EditItemScreen() {
         ]}
       >
         {thumbnailUri ? (
-          <Image source={{ uri: thumbnailUri }} style={styles.heroImage} />
+          <CachedListThumbnail
+            uri={thumbnailUri}
+            cacheKey={thumbnailCacheKey ?? thumbnailUri}
+            style={styles.heroImage}
+          />
         ) : (
           <MaterialCommunityIcons
             name="image-outline"

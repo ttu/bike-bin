@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Image, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useLocalSearchParams, router, type Href } from 'expo-router';
@@ -17,7 +17,7 @@ import {
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
-import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -121,7 +121,11 @@ export default function EditBikeScreen() {
         ]}
       >
         {thumbnailUri ? (
-          <Image source={{ uri: thumbnailUri }} style={styles.heroImage} />
+          <CachedListThumbnail
+            uri={thumbnailUri}
+            cacheKey={photos[0].storagePath}
+            style={styles.heroImage}
+          />
         ) : (
           <MaterialCommunityIcons name="bicycle" size={64} color={theme.colors.onSurfaceVariant} />
         )}

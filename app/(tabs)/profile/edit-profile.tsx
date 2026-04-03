@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, TextInput, Button, Avatar, Appbar, useTheme } from 'react-native-paper';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
@@ -62,7 +63,7 @@ export default function EditProfileScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.avatarSection}>
           {profile?.avatarUrl ? (
-            <Avatar.Image size={96} source={{ uri: profile.avatarUrl }} />
+            <CachedAvatarImage uri={profile.avatarUrl} size={96} />
           ) : (
             <Avatar.Icon
               size={96}

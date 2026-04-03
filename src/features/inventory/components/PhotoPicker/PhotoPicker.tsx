@@ -1,16 +1,34 @@
-import { View, Image, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, type ImageStyle, type StyleProp } from 'react-native';
+import { Image } from 'expo-image';
 import { Text, ActivityIndicator, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/shared/api/supabase';
+import { spacing, borderRadius, iconSize } from '@/shared/theme';
+
 export interface PickerPhoto {
   id: string;
   storagePath: string;
   localUri?: string;
 }
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
 
 const MAX_PHOTOS = 5;
+
+function PickerPhotoImage({ photo, style }: { photo: PickerPhoto; style: StyleProp<ImageStyle> }) {
+  const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
+  const uri = photo.localUri ?? data.publicUrl;
+  const cacheKey = photo.localUri ?? photo.storagePath;
+  return (
+    <Image
+      accessible={false}
+      source={{ uri, cacheKey }}
+      style={style}
+      contentFit="cover"
+      cachePolicy="memory-disk"
+      recyclingKey={cacheKey}
+    />
+  );
+}
 
 interface PhotoPickerProps {
   photos: PickerPhoto[];
@@ -44,15 +62,7 @@ export function PhotoPicker({
             accessibilityLabel={index === 0 ? t('photos.primaryPhoto') : t('photos.setAsPrimary')}
           >
             <View style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}>
-              <Image
-                source={{
-                  uri:
-                    photo.localUri ??
-                    supabase.storage.from('item-photos').getPublicUrl(photo.storagePath).data
-                      .publicUrl,
-                }}
-                style={styles.photoImage}
-              />
+              <PickerPhotoImage photo={photo} style={styles.photoImage} />
               {index === 0 && (
                 <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primary }]}>
                   <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>

@@ -1,6 +1,7 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Button, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -87,7 +88,7 @@ export function BorrowRequestCard({
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             {personAvatarUrl ? (
-              <Avatar.Image size={40} source={{ uri: personAvatarUrl }} />
+              <CachedAvatarImage uri={personAvatarUrl} size={40} />
             ) : (
               <Avatar.Icon
                 size={40}

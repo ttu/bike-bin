@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { formatDistance } from '@/shared/utils';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
+import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import type { SearchResultItem } from '../../types';
 
 interface SearchResultCardProps {
@@ -32,13 +33,13 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
     >
       <View style={[styles.thumbnail, themed.surfaceVariantBg]}>
         {item.thumbnailStoragePath ? (
-          <Image
-            source={{
-              uri: supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
-                .publicUrl,
-            }}
+          <CachedListThumbnail
+            uri={
+              supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
+                .publicUrl
+            }
+            cacheKey={item.thumbnailStoragePath}
             style={styles.thumbnailImage}
-            resizeMode="cover"
           />
         ) : (
           <MaterialCommunityIcons

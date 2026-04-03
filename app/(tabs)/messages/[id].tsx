@@ -29,6 +29,7 @@ import { useItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 
@@ -212,7 +213,7 @@ export default function ConversationDetailScreen() {
             testID="conversation-header-profile"
           >
             {conversation?.otherParticipantAvatarUrl ? (
-              <Avatar.Image size={32} source={{ uri: conversation.otherParticipantAvatarUrl }} />
+              <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={32} />
             ) : (
               <Avatar.Icon
                 size={32}
