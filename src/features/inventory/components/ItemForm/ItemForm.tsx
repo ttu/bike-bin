@@ -127,6 +127,11 @@ export function ItemForm({
         showOptional={state.showOptional}
         setShowOptional={state.setShowOptional}
         category={state.category}
+        purchaseDate={state.purchaseDate}
+        setPurchaseDate={state.setPurchaseDate}
+        mountedDate={state.mountedDate}
+        setMountedDate={state.setMountedDate}
+        errors={state.errors}
         age={state.age}
         setAge={state.setAge}
         ageMenuVisible={state.ageMenuVisible}

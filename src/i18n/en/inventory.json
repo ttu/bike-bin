@@ -211,7 +211,9 @@
       "1_month": "1 month",
       "flexible": "Flexible"
     },
-    "purchaseDateLabel": "Purchase date",
+    "boughtDateLabel": "Bought date",
+    "mountedDateLabel": "Mounted date",
+    "datePlaceholder": "YYYY-MM-DD",
     "storageLabel": "Storage location",
     "storagePlaceholder": "e.g. Garage shelf",
     "descriptionLabel": "Description",
@@ -248,6 +250,7 @@
     "priceRequired": "Price is required for sellable items",
     "pricePositive": "Price must be positive",
     "depositPositive": "Deposit must be positive",
-    "groupRequired": "Select at least one group"
+    "groupRequired": "Select at least one group",
+    "dateInvalid": "Use a valid date (YYYY-MM-DD)"
   }
 }

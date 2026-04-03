@@ -48,6 +48,7 @@ export function mapItemRow(row: Record<string, unknown>): Item {
     usageUnit,
     remainingFraction,
     purchaseDate: (row.purchase_date as string) ?? undefined,
+    mountedDate: (row.mounted_date as string) ?? undefined,
     pickupLocationId: (row.pickup_location_id as LocationId) ?? undefined,
     visibility: row.visibility as Visibility,
     createdAt: row.created_at as string,

@@ -27,6 +27,7 @@ const baseRow = {
   storage_location: null,
   age: null,
   purchase_date: null,
+  mounted_date: null,
   pickup_location_id: null,
   visibility: Visibility.Private,
   tags: [],
@@ -109,5 +110,28 @@ describe('mapItemRow', () => {
     delete (row as Record<string, unknown>).quantity;
     const item = mapItemRow(row);
     expect(item.quantity).toBe(1);
+  });
+
+  it('maps purchase_date and mounted_date when set', () => {
+    const item = mapItemRow({
+      ...baseRow,
+      id: 'i8',
+      owner_id: 'u1',
+      purchase_date: '2023-06-01',
+      mounted_date: '2024-01-20',
+    });
+
+    expect(item.purchaseDate).toBe('2023-06-01');
+    expect(item.mountedDate).toBe('2024-01-20');
+  });
+
+  it('treats mounted_date null as unset', () => {
+    const item = mapItemRow({
+      ...baseRow,
+      id: 'i9',
+      owner_id: 'u1',
+      mounted_date: null,
+    });
+    expect(item.mountedDate).toBeUndefined();
   });
 });

@@ -104,6 +104,7 @@ CREATE TABLE items (
   usage_km integer,
   usage_unit text,
   purchase_date date,
+  mounted_date date,
   pickup_location_id uuid REFERENCES saved_locations(id) ON DELETE SET NULL,
   bike_id uuid REFERENCES bikes(id) ON DELETE SET NULL,
   visibility item_visibility NOT NULL DEFAULT 'private',
@@ -126,6 +127,7 @@ CREATE TABLE items (
 COMMENT ON COLUMN items.visibility IS 'Default private; items are not listed until the owner sets visibility (see docs/datamodel.md).';
 
 COMMENT ON COLUMN items.remaining_fraction IS 'For consumables: fraction remaining (0–1). NULL for other categories or unspecified.';
+COMMENT ON COLUMN items.mounted_date IS 'Optional date the part was mounted on a bike; independent of lifecycle status.';
 COMMENT ON COLUMN items.quantity IS 'Count of identical units represented by this row; minimum 1.';
 
 CREATE INDEX idx_items_owner ON items(owner_id);

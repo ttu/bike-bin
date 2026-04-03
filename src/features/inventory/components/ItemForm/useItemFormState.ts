@@ -71,6 +71,16 @@ export function useItemFormState({
   const [groupIds, setGroupIds] = useState<GroupId[]>(initialData?.groupIds ?? []);
 
   // ── Optional fields ──────────────────────────────────────────
+  const [purchaseDate, setPurchaseDate] = useState(() => {
+    const raw = initialData?.purchaseDate;
+    if (!raw) return '';
+    return raw.length >= 10 ? raw.slice(0, 10) : raw;
+  });
+  const [mountedDate, setMountedDate] = useState(() => {
+    const raw = initialData?.mountedDate;
+    if (!raw) return '';
+    return raw.length >= 10 ? raw.slice(0, 10) : raw;
+  });
   const [description, setDescription] = useState(initialData?.description ?? '');
   const [storageLocation, setStorageLocation] = useState(initialData?.storageLocation ?? '');
   const [storageMenuVisible, setStorageMenuVisible] = useState(false);
@@ -205,6 +215,8 @@ export function useItemFormState({
       usage: usage ? parseInt(usage, 10) : undefined,
       usageUnit: usage ? distanceUnit : undefined,
       remainingFraction: parsedRemaining,
+      purchaseDate: purchaseDate.trim() || undefined,
+      mountedDate: mountedDate.trim() || undefined,
       visibility,
       groupIds: visibility === Visibility.Groups ? groupIds : undefined,
       tags: tagsToSubmit,
@@ -234,6 +246,8 @@ export function useItemFormState({
     usage,
     remainingPercentStr,
     distanceUnit,
+    purchaseDate,
+    mountedDate,
     visibility,
     groupIds,
     tags,
@@ -285,6 +299,10 @@ export function useItemFormState({
     currentSubcategories,
     remainingPercentStr,
     setRemainingPercentStr,
+    purchaseDate,
+    setPurchaseDate,
+    mountedDate,
+    setMountedDate,
     age,
     setAge,
     ageMenuVisible,

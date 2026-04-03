@@ -25,6 +25,7 @@ export interface ItemFormData {
   /** Consumables: fraction remaining 0–1 */
   remainingFraction?: number;
   purchaseDate?: string;
+  mountedDate?: string;
   pickupLocationId?: LocationId;
   visibility?: Visibility;
   groupIds?: GroupId[];
@@ -36,6 +37,22 @@ export interface ItemFormData {
 export type ItemFormErrors = Partial<Record<keyof ItemFormData, string>>;
 
 type Translator = (key: string) => string;
+
+const ISO_CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** True if value is undefined, blank, or a valid YYYY-MM-DD calendar date. */
+function isValidOptionalCalendarDate(value: string | undefined): boolean {
+  if (value === undefined) return true;
+  const s = value.trim();
+  if (s === '') return true;
+  if (!ISO_CALENDAR_DATE.test(s)) return false;
+  const [ys, ms, ds] = s.split('-');
+  const y = Number(ys);
+  const m = Number(ms);
+  const d = Number(ds);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
 
 export function validateItem(data: ItemFormData, t: Translator): ItemFormErrors {
   const errors: ItemFormErrors = {};
@@ -84,6 +101,13 @@ export function validateItem(data: ItemFormData, t: Translator): ItemFormErrors 
   // Groups visibility requires at least one group selected
   if (data.visibility === VisibilityEnum.Groups && (!data.groupIds || data.groupIds.length === 0)) {
     errors.groupIds = t('validation.groupRequired');
+  }
+
+  if (!isValidOptionalCalendarDate(data.purchaseDate)) {
+    errors.purchaseDate = t('validation.dateInvalid');
+  }
+  if (!isValidOptionalCalendarDate(data.mountedDate)) {
+    errors.mountedDate = t('validation.dateInvalid');
   }
 
   return errors;

@@ -76,6 +76,8 @@ export interface Item {
   /** Consumables only: approximate fraction left (0–1). */
   remainingFraction: number | undefined;
   purchaseDate: string | undefined;
+  /** Optional calendar date the part was mounted (not the same as status). */
+  mountedDate: string | undefined;
   pickupLocationId: LocationId | undefined;
   visibility: Visibility;
   createdAt: string;

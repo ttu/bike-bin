@@ -163,6 +163,32 @@ describe('ItemForm', () => {
     });
   });
 
+  it('submits optional bought and mounted dates from More details', async () => {
+    const { getByText, getByPlaceholderText, getAllByPlaceholderText } = renderWithProviders(
+      <ItemForm {...defaultProps} />,
+    );
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Dated part');
+    fireEvent.press(getByText('Components'));
+    fireEvent.press(getByText('Good'));
+    fireEvent.press(getByText('More details'));
+
+    const dateFields = getAllByPlaceholderText('YYYY-MM-DD');
+    fireEvent.changeText(dateFields[0], '2024-01-10');
+    fireEvent.changeText(dateFields[1], '2024-06-01');
+
+    fireEvent.press(getByText('Save'));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          purchaseDate: '2024-01-10',
+          mountedDate: '2024-06-01',
+        }),
+      );
+    });
+  });
+
   it('pre-fills form data in edit mode', () => {
     const initialData = {
       name: 'Existing Item',

@@ -60,6 +60,13 @@ function daysAgo(days: number): string {
   return d.toISOString();
 }
 
+/** YYYY-MM-DD for optional item date fields (matches DB `date` type). */
+function calendarDaysAgo(days: number): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - days);
+  return d.toISOString().slice(0, 10);
+}
+
 function hoursAgo(hours: number): string {
   const d = new Date();
   d.setHours(d.getHours() - hours);
@@ -156,6 +163,7 @@ export const DEMO_ITEMS: Item[] = [
     usageUnit: 'km',
     remainingFraction: undefined,
     purchaseDate: daysAgo(365),
+    mountedDate: calendarDaysAgo(90),
     pickupLocationId: DEMO_LOCATION_1,
     visibility: Visibility.All,
     createdAt: daysAgo(120),
@@ -186,6 +194,7 @@ export const DEMO_ITEMS: Item[] = [
     usageUnit: 'km',
     remainingFraction: undefined,
     purchaseDate: daysAgo(180),
+    mountedDate: undefined,
     pickupLocationId: DEMO_LOCATION_1,
     visibility: Visibility.All,
     createdAt: daysAgo(60),
@@ -216,6 +225,7 @@ export const DEMO_ITEMS: Item[] = [
     usageUnit: undefined,
     remainingFraction: undefined,
     purchaseDate: daysAgo(730),
+    mountedDate: undefined,
     pickupLocationId: DEMO_LOCATION_1,
     visibility: Visibility.All,
     createdAt: daysAgo(90),
@@ -246,6 +256,7 @@ export const DEMO_ITEMS: Item[] = [
     usageUnit: undefined,
     remainingFraction: undefined,
     purchaseDate: daysAgo(365),
+    mountedDate: undefined,
     pickupLocationId: DEMO_LOCATION_2,
     visibility: Visibility.All,
     createdAt: daysAgo(45),
@@ -276,6 +287,7 @@ export const DEMO_ITEMS: Item[] = [
     usageUnit: 'km',
     remainingFraction: undefined,
     purchaseDate: daysAgo(1095),
+    mountedDate: undefined,
     pickupLocationId: DEMO_LOCATION_1,
     visibility: Visibility.All,
     createdAt: daysAgo(30),
@@ -307,6 +319,7 @@ export const DEMO_ITEMS: Item[] = [
     usageUnit: 'km',
     remainingFraction: undefined,
     purchaseDate: daysAgo(14),
+    mountedDate: undefined,
     pickupLocationId: DEMO_LOCATION_1,
     visibility: Visibility.All,
     createdAt: daysAgo(10),

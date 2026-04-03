@@ -155,4 +155,34 @@ describe('validateItem', () => {
     );
     expect(Object.keys(errors).length).toBeGreaterThanOrEqual(3);
   });
+
+  it('accepts empty optional bought date (purchaseDate)', () => {
+    const errors = validateItem(validFormData({ purchaseDate: undefined }), t);
+    expect(errors.purchaseDate).toBeUndefined();
+  });
+
+  it('accepts valid ISO bought date', () => {
+    const errors = validateItem(validFormData({ purchaseDate: '2024-03-15' }), t);
+    expect(errors.purchaseDate).toBeUndefined();
+  });
+
+  it('rejects invalid bought date format', () => {
+    const errors = validateItem(validFormData({ purchaseDate: '15/03/2024' }), t);
+    expect(errors.purchaseDate).toBe('validation.dateInvalid');
+  });
+
+  it('accepts empty optional mounted date', () => {
+    const errors = validateItem(validFormData({ mountedDate: undefined }), t);
+    expect(errors.mountedDate).toBeUndefined();
+  });
+
+  it('accepts valid ISO mounted date', () => {
+    const errors = validateItem(validFormData({ mountedDate: '2025-01-01' }), t);
+    expect(errors.mountedDate).toBeUndefined();
+  });
+
+  it('rejects impossible calendar date', () => {
+    const errors = validateItem(validFormData({ mountedDate: '2024-02-30' }), t);
+    expect(errors.mountedDate).toBe('validation.dateInvalid');
+  });
 });

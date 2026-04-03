@@ -30,7 +30,8 @@ The core feature of Bike Bin—the **primary use case** is managing your own col
 | age                | text                        | Predefined age range key                                                                |
 | usage_km           | numeric                     | Usage in kilometers                                                                     |
 | usage_unit         | text                        | Unit for usage                                                                          |
-| purchase_date      | date                        | Purchase date                                                                           |
+| purchase_date      | date                        | Optional bought/purchase date (YYYY-MM-DD)                                              |
+| mounted_date       | date                        | Optional date mounted on a bike (independent of `status`)                               |
 | pickup_location_id | uuid (FK → saved_locations) | Pickup location                                                                         |
 | bike_id            | uuid (FK → bikes)           | Bike this part is mounted on                                                            |
 | tags               | text[]                      | Private user tags (max 20)                                                              |

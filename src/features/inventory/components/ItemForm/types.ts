@@ -77,6 +77,10 @@ export interface ItemFormState {
   // (setCondition already listed above)
 
   // Optional fields
+  purchaseDate: string;
+  setPurchaseDate: (v: string) => void;
+  mountedDate: string;
+  setMountedDate: (v: string) => void;
   age: string;
   setAge: (v: string) => void;
   ageMenuVisible: boolean;

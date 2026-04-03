@@ -72,6 +72,7 @@ export default function NewItemScreen() {
           usageUnit: (data.usageUnit as DistanceUnit) || undefined,
           remainingFraction: data.remainingFraction,
           purchaseDate: data.purchaseDate,
+          mountedDate: data.mountedDate,
           pickupLocationId: data.pickupLocationId,
           visibility: data.visibility ?? Visibility.Private,
           createdAt: new Date().toISOString(),

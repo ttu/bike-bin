@@ -408,6 +408,7 @@ export type Database = {
           description: string | null;
           id: string;
           model: string | null;
+          mounted_date: string | null;
           name: string;
           owner_id: string;
           pickup_location_id: string | null;
@@ -437,6 +438,7 @@ export type Database = {
           description?: string | null;
           id?: string;
           model?: string | null;
+          mounted_date?: string | null;
           name: string;
           owner_id: string;
           pickup_location_id?: string | null;
@@ -466,6 +468,7 @@ export type Database = {
           description?: string | null;
           id?: string;
           model?: string | null;
+          mounted_date?: string | null;
           name?: string;
           owner_id?: string;
           pickup_location_id?: string | null;

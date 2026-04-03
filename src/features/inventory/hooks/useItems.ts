@@ -107,6 +107,7 @@ export function useCreateItem() {
           remaining_fraction:
             formData.category === ItemCategory.Consumable ? formData.remainingFraction : null,
           purchase_date: formData.purchaseDate,
+          mounted_date: formData.mountedDate,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility ?? 'private',
           tags: formData.tags ?? [],
@@ -161,7 +162,8 @@ export function useUpdateItem() {
             formData.category === ItemCategory.Consumable
               ? (formData.remainingFraction ?? null)
               : null,
-          purchase_date: formData.purchaseDate,
+          purchase_date: formData.purchaseDate ?? null,
+          mounted_date: formData.mountedDate ?? null,
           pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility,
           tags: formData.tags ?? [],

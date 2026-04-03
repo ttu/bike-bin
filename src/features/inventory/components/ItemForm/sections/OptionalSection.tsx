@@ -1,17 +1,23 @@
 import { useRef, useCallback, useEffect } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
-import { Text, TextInput, Chip, Button, Menu, useTheme } from 'react-native-paper';
+import { Text, TextInput, Chip, Button, Menu, HelperText, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { ItemCategory } from '@/shared/types';
 import { useTranslation } from 'react-i18next';
 import { AGE_OPTIONS } from '../../../constants';
 import type { InputStyling, ItemFormState } from '../types';
+import type { ItemFormErrors } from '../../../utils/validation';
 import { styles } from '../styles';
 
 interface OptionalSectionProps extends InputStyling {
   showOptional: ItemFormState['showOptional'];
   setShowOptional: ItemFormState['setShowOptional'];
   category: ItemFormState['category'];
+  purchaseDate: ItemFormState['purchaseDate'];
+  setPurchaseDate: ItemFormState['setPurchaseDate'];
+  mountedDate: ItemFormState['mountedDate'];
+  setMountedDate: ItemFormState['setMountedDate'];
+  errors: ItemFormErrors;
   // Age
   age: ItemFormState['age'];
   setAge: ItemFormState['setAge'];
@@ -47,6 +53,11 @@ export function OptionalSection({
   showOptional,
   setShowOptional,
   category,
+  purchaseDate,
+  setPurchaseDate,
+  mountedDate,
+  setMountedDate,
+  errors,
   age,
   setAge,
   ageMenuVisible,
@@ -90,6 +101,17 @@ export function OptionalSection({
 
       {showOptional && (
         <View style={styles.optionalSection}>
+          <OptionalDateFields
+            purchaseDate={purchaseDate}
+            setPurchaseDate={setPurchaseDate}
+            mountedDate={mountedDate}
+            setMountedDate={setMountedDate}
+            purchaseDateError={errors.purchaseDate}
+            mountedDateError={errors.mountedDate}
+            softInputStyle={softInputStyle}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
+          />
           <AgeField
             age={age}
             setAge={setAge}
@@ -148,6 +170,77 @@ export function OptionalSection({
 }
 
 // ── Sub-fields (private to this module) ────────────────────────
+
+interface OptionalDateFieldsProps extends InputStyling {
+  purchaseDate: string;
+  setPurchaseDate: (v: string) => void;
+  mountedDate: string;
+  setMountedDate: (v: string) => void;
+  purchaseDateError: string | undefined;
+  mountedDateError: string | undefined;
+}
+
+function OptionalDateFields({
+  purchaseDate,
+  setPurchaseDate,
+  mountedDate,
+  setMountedDate,
+  purchaseDateError,
+  mountedDateError,
+  softInputStyle,
+  underlineColor,
+  activeUnderlineColor,
+}: OptionalDateFieldsProps) {
+  const { t } = useTranslation('inventory');
+
+  return (
+    <>
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+        {t('form.boughtDateLabel')}
+      </Text>
+      <TextInput
+        mode="flat"
+        value={purchaseDate}
+        onChangeText={setPurchaseDate}
+        placeholder={t('form.datePlaceholder')}
+        keyboardType="numbers-and-punctuation"
+        autoCapitalize="none"
+        autoCorrect={false}
+        error={!!purchaseDateError}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
+      {purchaseDateError ? (
+        <HelperText type="error" visible>
+          {purchaseDateError}
+        </HelperText>
+      ) : null}
+
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+        {t('form.mountedDateLabel')}
+      </Text>
+      <TextInput
+        mode="flat"
+        value={mountedDate}
+        onChangeText={setMountedDate}
+        placeholder={t('form.datePlaceholder')}
+        keyboardType="numbers-and-punctuation"
+        autoCapitalize="none"
+        autoCorrect={false}
+        error={!!mountedDateError}
+        style={softInputStyle}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
+      {mountedDateError ? (
+        <HelperText type="error" visible>
+          {mountedDateError}
+        </HelperText>
+      ) : null}
+    </>
+  );
+}
 
 interface AgeFieldProps extends InputStyling {
   age: string;

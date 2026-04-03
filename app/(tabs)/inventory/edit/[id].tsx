@@ -138,6 +138,7 @@ export default function EditItemScreen() {
     usage: item.usage,
     remainingFraction: item.remainingFraction,
     purchaseDate: item.purchaseDate,
+    mountedDate: item.mountedDate,
     pickupLocationId: item.pickupLocationId,
     visibility: item.visibility,
     tags: item.tags,
