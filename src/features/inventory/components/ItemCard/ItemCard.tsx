@@ -1,4 +1,4 @@
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { ItemStatus } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
+import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import { getStatusColor } from '../../utils/status';
 import { ITEM_INVENTORY_THUMBNAIL } from '../../constants';
 import { availabilityTypesForList } from '../../utils/availabilityList';
@@ -61,7 +62,11 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
         ]}
       >
         {thumbnailUri ? (
-          <Image source={{ uri: thumbnailUri }} style={styles.thumbnailImage} resizeMode="cover" />
+          <CachedListThumbnail
+            uri={thumbnailUri}
+            cacheKey={item.thumbnailStoragePath}
+            style={styles.thumbnailImage}
+          />
         ) : (
           <MaterialCommunityIcons
             name="image-outline"

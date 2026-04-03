@@ -1,8 +1,9 @@
-import { View, StyleSheet, Pressable, Image } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Bike } from '@/shared/types';
+import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -25,13 +26,13 @@ export function BikeCard({ bike, onPress }: BikeCardProps) {
     >
       <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
         {bike.thumbnailStoragePath ? (
-          <Image
-            source={{
-              uri: supabase.storage.from('item-photos').getPublicUrl(bike.thumbnailStoragePath).data
-                .publicUrl,
-            }}
+          <CachedListThumbnail
+            uri={
+              supabase.storage.from('item-photos').getPublicUrl(bike.thumbnailStoragePath).data
+                .publicUrl
+            }
+            cacheKey={bike.thumbnailStoragePath}
             style={styles.thumbnailImage}
-            resizeMode="cover"
           />
         ) : (
           <MaterialCommunityIcons

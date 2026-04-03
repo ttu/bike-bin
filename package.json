@@ -67,7 +67,9 @@
     "expo": "~55.0.11",
     "expo-blur": "~55.0.12",
     "expo-constants": "~55.0.11",
+    "expo-file-system": "~55.0.14",
     "expo-font": "~55.0.6",
+    "expo-image": "~55.0.8",
     "expo-image-manipulator": "~55.0.13",
     "expo-image-picker": "~55.0.16",
     "expo-linear-gradient": "~55.0.11",
@@ -85,8 +87,7 @@
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-web": "^0.21.0",
-    "expo-file-system": "~55.0.14"
+    "react-native-web": "^0.21.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",

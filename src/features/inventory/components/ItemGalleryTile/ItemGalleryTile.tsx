@@ -1,4 +1,4 @@
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import type { Item } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
+import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import { ITEM_INVENTORY_THUMBNAIL } from '../../constants';
 import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 
@@ -47,7 +48,11 @@ export function ItemGalleryTile({ item, onPress }: ItemGalleryTileProps) {
         ]}
       >
         {thumbnailUri ? (
-          <Image source={{ uri: thumbnailUri }} style={styles.thumbnailImage} resizeMode="cover" />
+          <CachedListThumbnail
+            uri={thumbnailUri}
+            cacheKey={item.thumbnailStoragePath}
+            style={styles.thumbnailImage}
+          />
         ) : (
           <MaterialCommunityIcons
             name="image-outline"
