@@ -77,6 +77,21 @@ export const NotificationType = {
 } as const;
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 
+export const SubscriptionPlan = {
+  Free: 'free',
+  Paid: 'paid',
+} as const;
+export type SubscriptionPlan = (typeof SubscriptionPlan)[keyof typeof SubscriptionPlan];
+
+export const SubscriptionStatus = {
+  Trialing: 'trialing',
+  Active: 'active',
+  PastDue: 'past_due',
+  Canceled: 'canceled',
+  Expired: 'expired',
+} as const;
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
+
 export const TransactionType = {
   Borrow: 'borrow',
   Donate: 'donate',

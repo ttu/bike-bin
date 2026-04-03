@@ -8,6 +8,7 @@ let itemId: string;
 let borrowRequestId: string;
 let ratingId: string;
 let notificationId: string;
+let subscriptionId: string;
 let reportId: string;
 let supportRequestId: string;
 
@@ -64,6 +65,19 @@ beforeAll(async () => {
   if (notifError) throw new Error(`Failed to seed notification: ${notifError.message}`);
   notificationId = notifData.id;
 
+  const { data: subData, error: subError } = await adminClient
+    .from('subscriptions')
+    .insert({
+      user_id: userA.id,
+      plan: 'paid',
+      status: 'active',
+      current_period_end: new Date(Date.now() + 86_400_000).toISOString(),
+    })
+    .select('id')
+    .single();
+  if (subError) throw new Error(`Failed to seed subscription: ${subError.message}`);
+  subscriptionId = subData.id;
+
   // Create a report from userA about userC
   const { data: reportData, error: reportError } = await adminClient
     .from('reports')
@@ -90,6 +104,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await adminClient.from('ratings').delete().eq('id', ratingId);
+  await adminClient.from('subscriptions').delete().eq('id', subscriptionId);
   await adminClient.from('notifications').delete().eq('id', notificationId);
   await adminClient.from('reports').delete().eq('id', reportId);
   await adminClient.from('support_requests').delete().eq('id', supportRequestId);
@@ -353,6 +368,55 @@ describe('notifications — DELETE', () => {
       .select('id')
       .eq('id', notificationId);
     expect(stillExists).toHaveLength(1);
+  });
+});
+
+// ============================================================
+// subscriptions — SELECT / writes
+// ============================================================
+
+describe('subscriptions — SELECT', () => {
+  it('user can read own subscriptions', async () => {
+    const { data, error } = await userA.client
+      .from('subscriptions')
+      .select('*')
+      .eq('id', subscriptionId);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+    expect(data?.[0].plan).toBe('paid');
+  });
+
+  it('other user cannot read subscriptions', async () => {
+    const { data, error } = await userB.client
+      .from('subscriptions')
+      .select('*')
+      .eq('id', subscriptionId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+});
+
+describe('subscriptions — INSERT / UPDATE / DELETE', () => {
+  it('user CANNOT insert subscriptions', async () => {
+    const { error } = await userA.client.from('subscriptions').insert({
+      user_id: userA.id,
+      plan: 'free',
+      status: 'active',
+    });
+    expect(error).toBeTruthy();
+  });
+
+  it('user CANNOT update own subscriptions', async () => {
+    const { error } = await userA.client
+      .from('subscriptions')
+      .update({ status: 'canceled' })
+      .eq('id', subscriptionId);
+    expect(error).toBeTruthy();
+  });
+
+  it('user CANNOT delete own subscriptions', async () => {
+    const { error } = await userA.client.from('subscriptions').delete().eq('id', subscriptionId);
+    expect(error).toBeTruthy();
   });
 });
 

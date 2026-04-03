@@ -49,6 +49,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 | **ratings**         | Public (read)                                                     | Authenticated, after completed transaction | Not allowed (ratings are immutable)                                                                           | Not allowed                                |
 | **item_photos**     | Same as parent item                                               | Item owner                                 | Item owner                                                                                                    | Item owner                                 |
 | **notifications**   | Own notifications only                                            | System only (Edge Functions / triggers)    | Own (mark as read)                                                                                            | Own                                        |
+| **subscriptions**   | Own subscription rows only                                        | Not via PostgREST (service role / SQL)     | Not via PostgREST (service role / SQL)                                                                        | Not via PostgREST (service role / SQL)     |
 
 ### 2.2 Role-based access (groups)
 
@@ -60,7 +61,7 @@ RLS is enabled on **all tables**. No table is accessible without an explicit pol
 ### 2.3 API-level enforcement
 
 - All data access goes through Supabase PostgREST, which enforces RLS automatically.
-- Edge Functions use the **service role key** (bypasses RLS) only for system operations (notifications, geocoding). Service role key is never exposed to the client.
+- Edge Functions use the **service role key** (bypasses RLS) only for system operations (notifications, geocoding, **subscription writes** from payment webhooks or automation). Service role key is never exposed to the client.
 - No custom REST endpoints bypass RLS.
 
 ---

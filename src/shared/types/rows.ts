@@ -12,3 +12,4 @@ export type SavedLocationRow = Database['public']['Tables']['saved_locations']['
 export type MessageRow = Database['public']['Tables']['messages']['Row'];
 export type RatingRow = Database['public']['Tables']['ratings']['Row'];
 export type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+export type SubscriptionRow = Database['public']['Tables']['subscriptions']['Row'];

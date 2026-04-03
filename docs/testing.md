@@ -84,7 +84,7 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 | `borrowing.rls.test.ts`      | Borrow requests — SELECT/INSERT; UPDATE state machine (trigger) |
 | `messaging.rls.test.ts`      | Conversations, messages — participant vs. non-participant       |
 | `groups.rls.test.ts`         | Groups, memberships, group items — member vs. outsider          |
-| `community.rls.test.ts`      | Profiles, ratings, notifications, locations                     |
+| `community.rls.test.ts`      | Profiles, ratings, notifications, subscriptions, locations      |
 | `ownership.rls.test.ts`      | Cross-cutting ownership policies (bikes, parts)                 |
 | `infrastructure.rls.test.ts` | System tables (geocode_cache, etc.) — no user access            |
 

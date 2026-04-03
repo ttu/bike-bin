@@ -25,6 +25,14 @@ CREATE TYPE transaction_type AS ENUM ('borrow', 'donate', 'sell');
 CREATE TYPE support_status AS ENUM ('open', 'closed');
 CREATE TYPE report_target_type AS ENUM ('item', 'user');
 CREATE TYPE report_status AS ENUM ('open', 'reviewed', 'closed');
+CREATE TYPE subscription_plan AS ENUM ('free', 'paid');
+CREATE TYPE subscription_status AS ENUM (
+  'trialing',
+  'active',
+  'past_due',
+  'canceled',
+  'expired'
+);
 
 -- ============================================================
 -- TABLES
@@ -43,6 +51,42 @@ CREATE TABLE profiles (
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL
 );
+
+-- Subscriptions (entitlements; insert/update/delete via service_role or SQL — not end users)
+CREATE TABLE subscriptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  plan subscription_plan NOT NULL,
+  status subscription_status NOT NULL DEFAULT 'active',
+  current_period_start timestamptz,
+  current_period_end timestamptz,
+  cancel_at_period_end boolean NOT NULL DEFAULT false,
+  canceled_at timestamptz,
+  provider text,
+  provider_subscription_id text,
+  provider_customer_id text,
+  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE subscriptions IS 'Per-user subscription rows (current and historical); clients may SELECT own rows only; writes are service_role, Edge Functions, or SQL.';
+COMMENT ON COLUMN subscriptions.current_period_end IS 'End of current paid/access period when applicable; used with status for entitlement checks.';
+
+CREATE INDEX idx_subscriptions_user ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_provider_sub
+  ON subscriptions (provider, provider_subscription_id)
+  WHERE provider_subscription_id IS NOT NULL;
+
+CREATE UNIQUE INDEX idx_subscriptions_one_entitled_per_user
+  ON subscriptions (user_id)
+  WHERE status = ANY (
+    ARRAY[
+      'trialing'::subscription_status,
+      'active'::subscription_status,
+      'past_due'::subscription_status
+    ]
+  );
 
 -- Saved locations
 CREATE TABLE saved_locations (
@@ -331,6 +375,7 @@ ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE geocode_cache ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
@@ -870,6 +915,16 @@ CREATE POLICY "notifications_update_own"
 CREATE POLICY "notifications_delete_own"
   ON notifications FOR DELETE
   USING (auth.uid() = user_id);
+
+-- ============================================================
+-- RLS POLICIES: subscriptions
+-- ============================================================
+
+CREATE POLICY "subscriptions_select_own"
+  ON subscriptions FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- No INSERT/UPDATE/DELETE policies: service_role / dashboard SQL only
 
 -- ============================================================
 -- RLS POLICIES: support_requests

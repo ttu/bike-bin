@@ -332,7 +332,7 @@ Core entities (detailed attributes TBD during implementation):
 - Distance queries use `ST_DWithin(location, user_location, max_distance_meters)` for radius-based search.
 - Geocode postcodes via **Nominatim** (server-side, cached) or let users pin on a map.
 
-**Schema documentation:** Maintain a **data schema** doc (e.g. `docs/datamodel.md`) that describes TypeScript types and Supabase tables. **Source of truth:** `src/shared/types/` and Supabase migrations. Use branded types for IDs (e.g. `ItemId`, `UserId`) for type safety. _(Pattern from [emergency-supply-tracker DATA_SCHEMA](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/DATA_SCHEMA.md).)_
+**Schema documentation:** Maintain a **data schema** doc (e.g. `docs/datamodel.md`) that describes TypeScript types and Supabase tables. **Source of truth:** `src/shared/types/` and Supabase migrations. Use branded types for IDs (e.g. `ItemId`, `UserId`, `SubscriptionId`) for type safety. **Subscriptions** live in the `subscriptions` table (plan, status, period end, optional provider ids); see `docs/datamodel.md` and `docs/security.md` for RLS. _(Pattern from [emergency-supply-tracker DATA_SCHEMA](https://github.com/ttu/emergency-supply-tracker/blob/main/docs/DATA_SCHEMA.md).)_
 
 ---
 

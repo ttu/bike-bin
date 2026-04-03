@@ -8,7 +8,7 @@
 
 ## ID types (branded)
 
-The app uses branded string types for IDs (e.g. `UserId`, `ItemId`, `BikeId`, `GroupId`, `ConversationId`, `MessageId`, `LocationId`, `BorrowRequestId`, `RatingId`, `NotificationId`, `ItemPhotoId`, `BikePhotoId`, `ReportId`, `SupportRequestId`) to avoid mixing IDs across tables.
+The app uses branded string types for IDs (e.g. `UserId`, `ItemId`, `BikeId`, `GroupId`, `ConversationId`, `MessageId`, `LocationId`, `BorrowRequestId`, `RatingId`, `NotificationId`, `ItemPhotoId`, `BikePhotoId`, `ReportId`, `SupportRequestId`, `SubscriptionId`) to avoid mixing IDs across tables.
 
 ---
 
@@ -17,6 +17,10 @@ The app uses branded string types for IDs (e.g. `UserId`, `ItemId`, `BikeId`, `G
 ### `profiles` → `UserProfile`
 
 Extends Supabase Auth users (`auth.users`). Public app profile: `display_name`, `avatar_url`, rating aggregates, notification preferences, optional `push_token`, `distance_unit` (see migrations for full column set). Primary key `id` = `auth.users.id`.
+
+### `subscriptions` → subscription row
+
+Per-user subscription and billing-related state: `plan` (`subscription_plan`), `status` (`subscription_status`), optional billing period bounds (`current_period_start`, `current_period_end`), cancel flags, optional `provider` / `provider_subscription_id` / `provider_customer_id`, `metadata` jsonb. Multiple rows per user over time are allowed; at most one row per user may be in an entitled status (`trialing`, `active`, `past_due`) — enforced by a partial unique index. **RLS:** users may **SELECT** only their own rows; **INSERT/UPDATE/DELETE** are not granted via PostgREST policies (service role, Edge Functions, or SQL in the dashboard). Treat **no entitled row** as free-tier behavior in app logic.
 
 ### `saved_locations` → `SavedLocation`
 
@@ -99,6 +103,8 @@ Defined in migrations (with later `ALTER TYPE ... ADD VALUE` updates):
 | `support_status`        | `open`, `closed`                                                         |
 | `report_target_type`    | `item`, `user`                                                           |
 | `report_status`         | `open`, `reviewed`, `closed`                                             |
+| `subscription_plan`     | `free`, `paid`                                                           |
+| `subscription_status`   | `trialing`, `active`, `past_due`, `canceled`, `expired`                  |
 
 TypeScript const-object enums in `src/shared/types/enums.ts` align with these. A few TS-only constructs exist that are **not** PG enums (stored as `text` / `text[]` in the DB):
 
@@ -121,7 +127,7 @@ Migrations may define **SECURITY DEFINER** functions (e.g. tag autocomplete, sea
 
 ## RLS
 
-All user-facing tables use **Row Level Security**. Policy definitions live in migration files (e.g. `00004_rls_policies.sql` and later fixes). **Items:** extra policy + trigger for owner **loaned/reserved → stored** and borrow-lock edits (`00029_items_owner_return_from_loan.sql`). **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger (`00030_borrow_requests_update_trigger.sql`) — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
+All user-facing tables use **Row Level Security**. Policy definitions live in **`supabase/migrations/00001_create_database.sql`** (consolidated schema). **subscriptions:** authenticated users may **SELECT** only rows where `user_id = auth.uid()`; **INSERT/UPDATE/DELETE** are not exposed to the anon/authenticated PostgREST roles — use the **service role** (Edge Functions, webhooks) or SQL in the Supabase dashboard. **Items:** policies + triggers for owner updates, including borrow-lock rules. **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
 
 ---
 

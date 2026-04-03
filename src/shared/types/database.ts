@@ -820,6 +820,72 @@ export type Database = {
           },
         ];
       };
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean;
+          canceled_at: string | null;
+          created_at: string;
+          current_period_end: string | null;
+          current_period_start: string | null;
+          id: string;
+          metadata: Json;
+          plan: Database['public']['Enums']['subscription_plan'];
+          provider: string | null;
+          provider_customer_id: string | null;
+          provider_subscription_id: string | null;
+          status: Database['public']['Enums']['subscription_status'];
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          cancel_at_period_end?: boolean;
+          canceled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          metadata?: Json;
+          plan: Database['public']['Enums']['subscription_plan'];
+          provider?: string | null;
+          provider_customer_id?: string | null;
+          provider_subscription_id?: string | null;
+          status?: Database['public']['Enums']['subscription_status'];
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          cancel_at_period_end?: boolean;
+          canceled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          metadata?: Json;
+          plan?: Database['public']['Enums']['subscription_plan'];
+          provider?: string | null;
+          provider_customer_id?: string | null;
+          provider_subscription_id?: string | null;
+          status?: Database['public']['Enums']['subscription_status'];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       spatial_ref_sys: {
         Row: {
           auth_name: string | null;
@@ -1937,6 +2003,8 @@ export type Database = {
       item_visibility: 'private' | 'groups' | 'all';
       report_status: 'open' | 'reviewed' | 'closed';
       report_target_type: 'item' | 'user';
+      subscription_plan: 'free' | 'paid';
+      subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
       support_status: 'open' | 'closed';
       transaction_type: 'borrow' | 'donate' | 'sell';
     };
@@ -2084,6 +2152,8 @@ export const Constants = {
       item_visibility: ['private', 'groups', 'all'],
       report_status: ['open', 'reviewed', 'closed'],
       report_target_type: ['item', 'user'],
+      subscription_plan: ['free', 'paid'],
+      subscription_status: ['trialing', 'active', 'past_due', 'canceled', 'expired'],
       support_status: ['open', 'closed'],
       transaction_type: ['borrow', 'donate', 'sell'],
     },

@@ -88,7 +88,7 @@ File names map to URLs; dynamic segments use `[id]` (or similar) as in Expo Rout
 
 ## Types and IDs
 
-Shared TypeScript models and **branded ID types** (e.g. `ItemId`, `UserId`) live in `src/shared/types/`. They mirror the database shape where the app serializes snake_case columns to camelCase in the API layer.
+Shared TypeScript models and **branded ID types** (e.g. `ItemId`, `UserId`, `SubscriptionId`) live in `src/shared/types/`. They mirror the database shape where the app serializes snake_case columns to camelCase in the API layer. **Subscriptions:** per-user rows in the `subscriptions` table (`SubscriptionRow`); the client may read the signed-in user’s rows for entitlements (limits, ads, etc.); writes are server-side — see [datamodel.md](datamodel.md) and [security.md](security.md).
 
 ---
 
