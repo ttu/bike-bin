@@ -349,7 +349,7 @@ Tables based on [technical-specs.md §4](technical-specs.md):
 
 - `profiles` — id (FK to auth.users), display_name, avatar_url, rating_avg, rating_count, created_at, updated_at
 - `saved_locations` — id, user_id, label, area_name, postcode, coordinates (geography(Point, 4326)), is_primary, created_at
-- `items` — id, owner_id, name, category (enum: component/tool/accessory/bike), brand, model, description, condition (enum: new/good/worn/broken), status (enum: stored/mounted/loaned/reserved/donated/sold/archived), availability_types (text[]), price, deposit, borrow_duration, storage_location, age, usage_km, purchase_date, pickup_location_id (FK), visibility (enum: private/groups/all), created_at, updated_at
+- `items` — id, owner_id, name, category (enum: component/tool/accessory/bike), brand, model, description, condition (enum: new/good/worn/broken), status (enum: stored/mounted/loaned/reserved/donated/sold/archived), availability_types (text[]), price, deposit, borrow_duration, storage_location, age, usage, purchase_date, pickup_location_id (FK), visibility (enum: private/groups/all), created_at, updated_at
 - `item_photos` — id, item_id, storage_path, sort_order, created_at
 - `bikes` — id, owner_id, name, brand, model, type (enum: road/gravel/mtb/city/touring/other), year, bike_id on items table (nullable FK)
 

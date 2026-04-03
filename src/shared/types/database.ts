@@ -421,7 +421,7 @@ export type Database = {
           subcategory: string | null;
           tags: string[];
           updated_at: string;
-          usage_km: number | null;
+          usage: number | null;
           usage_unit: string | null;
           visibility: Database['public']['Enums']['item_visibility'];
         };
@@ -451,7 +451,7 @@ export type Database = {
           subcategory?: string | null;
           tags?: string[];
           updated_at?: string;
-          usage_km?: number | null;
+          usage?: number | null;
           usage_unit?: string | null;
           visibility?: Database['public']['Enums']['item_visibility'];
         };
@@ -481,7 +481,7 @@ export type Database = {
           subcategory?: string | null;
           tags?: string[];
           updated_at?: string;
-          usage_km?: number | null;
+          usage?: number | null;
           usage_unit?: string | null;
           visibility?: Database['public']['Enums']['item_visibility'];
         };

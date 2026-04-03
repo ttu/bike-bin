@@ -13,7 +13,7 @@ import type {
 
 /** Transforms a Supabase row into the Item domain model. */
 export function mapItemRow(row: ItemRow): Item {
-  const rawUsage = row.usage_km as number | null | undefined;
+  const rawUsage = row.usage as number | null | undefined;
   const usage = rawUsage === null || rawUsage === undefined ? undefined : rawUsage;
   const usageUnit =
     usage !== undefined ? ((row.usage_unit as DistanceUnit | null) ?? undefined) : undefined;

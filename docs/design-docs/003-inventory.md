@@ -28,7 +28,7 @@ The core feature of Bike Bin—the **primary use case** is managing your own col
 | borrow_duration    | text                        | Suggested borrow duration                                                               |
 | storage_location   | text                        | Where the item is stored                                                                |
 | age                | text                        | Predefined age range key                                                                |
-| usage_km           | numeric                     | Usage in kilometers                                                                     |
+| usage              | numeric                     | Usage in kilometers                                                                     |
 | usage_unit         | text                        | Unit for usage                                                                          |
 | purchase_date      | date                        | Optional bought/purchase date (YYYY-MM-DD)                                              |
 | mounted_date       | date                        | Optional date mounted on a bike (independent of `status`)                               |

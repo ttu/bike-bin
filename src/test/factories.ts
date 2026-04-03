@@ -87,10 +87,10 @@ export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
     storage_location: faker.helpers.maybe(() => faker.location.city()) ?? null,
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`) ?? null,
     ...(() => {
-      const usage_km = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })) ?? null;
+      const usage = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })) ?? null;
       return {
-        usage_km,
-        usage_unit: usage_km !== null ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
+        usage,
+        usage_unit: usage !== null ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
       };
     })(),
     remaining_fraction: null,

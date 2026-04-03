@@ -27,7 +27,7 @@ const baseRow: ItemRow = {
   borrow_duration: null,
   storage_location: null,
   age: null,
-  usage_km: null,
+  usage: null,
   usage_unit: null,
   remaining_fraction: null,
   purchase_date: null,
@@ -40,12 +40,12 @@ const baseRow: ItemRow = {
 };
 
 describe('mapItemRow', () => {
-  it('treats usage as unset when usage_km is null even if usage_unit is present', () => {
+  it('treats usage as unset when usage is null even if usage_unit is present', () => {
     const item = mapItemRow({
       ...baseRow,
       id: 'i1',
       owner_id: 'u1',
-      usage_km: null,
+      usage: null,
       usage_unit: 'km',
     });
 
@@ -53,12 +53,12 @@ describe('mapItemRow', () => {
     expect(item.usageUnit).toBeUndefined();
   });
 
-  it('maps usage when usage_km is set', () => {
+  it('maps usage when usage is set', () => {
     const item = mapItemRow({
       ...baseRow,
       id: 'i2',
       owner_id: 'u1',
-      usage_km: 1200,
+      usage: 1200,
       usage_unit: 'mi',
     });
 
@@ -71,7 +71,7 @@ describe('mapItemRow', () => {
       ...baseRow,
       id: 'i3',
       owner_id: 'u1',
-      usage_km: 0,
+      usage: 0,
       usage_unit: 'km',
     });
 

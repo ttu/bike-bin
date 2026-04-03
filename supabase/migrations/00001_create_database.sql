@@ -145,7 +145,7 @@ CREATE TABLE items (
   borrow_duration text,
   storage_location text,
   age text,
-  usage_km integer,
+  usage integer,
   usage_unit text,
   purchase_date date,
   mounted_date date,
