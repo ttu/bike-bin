@@ -100,25 +100,23 @@ export default function SavedLocationsScreen() {
     setDeleteTarget(location);
   }, []);
 
-  const handleConfirmDelete = useCallback(() => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
     const targetId = deleteTarget.id;
     setDeleteTarget(null);
-    void (async () => {
-      try {
-        await deleteLocation.mutateAsync(targetId);
-      } catch (e) {
-        if (e instanceof DeleteLocationError) {
-          if (e.code === 'LAST_LOCATION') {
-            showSnackbarAlert({ message: t('delete.lastLocation'), variant: 'error' });
-          } else if (e.code === 'HAS_ITEMS') {
-            showSnackbarAlert({ message: t('delete.hasItems'), variant: 'error' });
-          }
-        } else {
-          showSnackbarAlert({ message: t('errors.deleteFailed'), variant: 'error' });
+    try {
+      await deleteLocation.mutateAsync(targetId);
+    } catch (e) {
+      if (e instanceof DeleteLocationError) {
+        if (e.code === 'LAST_LOCATION') {
+          showSnackbarAlert({ message: t('delete.lastLocation'), variant: 'error' });
+        } else if (e.code === 'HAS_ITEMS') {
+          showSnackbarAlert({ message: t('delete.hasItems'), variant: 'error' });
         }
+      } else {
+        showSnackbarAlert({ message: t('errors.deleteFailed'), variant: 'error' });
       }
-    })();
+    }
   }, [deleteTarget, deleteLocation, showSnackbarAlert, t]);
 
   const renderItem = useCallback(

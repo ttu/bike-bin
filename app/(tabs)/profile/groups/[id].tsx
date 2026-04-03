@@ -126,20 +126,18 @@ export default function GroupDetailScreen() {
       cancelLabel: tCommon('actions.cancel'),
       confirmLabel: tCommon('actions.delete'),
       destructive: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         closeConfirm();
-        void (async () => {
-          try {
-            await deleteGroup.mutateAsync(groupId);
-            tabScopedBack('/(tabs)/profile/groups');
-          } catch {
-            showSnackbarAlert({
-              message: t('errors.deleteFailed'),
-              variant: 'error',
-              duration: 'long',
-            });
-          }
-        })();
+        try {
+          await deleteGroup.mutateAsync(groupId);
+          tabScopedBack('/(tabs)/profile/groups');
+        } catch {
+          showSnackbarAlert({
+            message: t('errors.deleteFailed'),
+            variant: 'error',
+            duration: 'long',
+          });
+        }
       },
     });
   }, [groupId, deleteGroup, showSnackbarAlert, t, tCommon, openConfirm, closeConfirm]);
@@ -162,20 +160,18 @@ export default function GroupDetailScreen() {
       cancelLabel: tCommon('actions.cancel'),
       confirmLabel: t('detail.leaveGroup'),
       destructive: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         closeConfirm();
-        void (async () => {
-          try {
-            await leaveGroup.mutateAsync(groupId);
-            tabScopedBack('/(tabs)/profile/groups');
-          } catch {
-            showSnackbarAlert({
-              message: t('errors.leaveFailed'),
-              variant: 'error',
-              duration: 'long',
-            });
-          }
-        })();
+        try {
+          await leaveGroup.mutateAsync(groupId);
+          tabScopedBack('/(tabs)/profile/groups');
+        } catch {
+          showSnackbarAlert({
+            message: t('errors.leaveFailed'),
+            variant: 'error',
+            duration: 'long',
+          });
+        }
       },
     });
   }, [
@@ -198,22 +194,20 @@ export default function GroupDetailScreen() {
         message: t('detail.promoteConfirm', { name: displayName }),
         cancelLabel: tCommon('actions.cancel'),
         confirmLabel: t('detail.promote'),
-        onConfirm: () => {
+        onConfirm: async () => {
           closeConfirm();
-          void (async () => {
-            try {
-              await promoteMember.mutateAsync({
-                groupId,
-                userId: member.userId,
-              });
-            } catch {
-              showSnackbarAlert({
-                message: t('errors.promoteFailed'),
-                variant: 'error',
-                duration: 'long',
-              });
-            }
-          })();
+          try {
+            await promoteMember.mutateAsync({
+              groupId,
+              userId: member.userId,
+            });
+          } catch {
+            showSnackbarAlert({
+              message: t('errors.promoteFailed'),
+              variant: 'error',
+              duration: 'long',
+            });
+          }
         },
       });
     },
@@ -229,22 +223,20 @@ export default function GroupDetailScreen() {
         cancelLabel: tCommon('actions.cancel'),
         confirmLabel: t('detail.remove'),
         destructive: true,
-        onConfirm: () => {
+        onConfirm: async () => {
           closeConfirm();
-          void (async () => {
-            try {
-              await removeMember.mutateAsync({
-                groupId,
-                userId: member.userId,
-              });
-            } catch {
-              showSnackbarAlert({
-                message: t('errors.removeFailed'),
-                variant: 'error',
-                duration: 'long',
-              });
-            }
-          })();
+          try {
+            await removeMember.mutateAsync({
+              groupId,
+              userId: member.userId,
+            });
+          } catch {
+            showSnackbarAlert({
+              message: t('errors.removeFailed'),
+              variant: 'error',
+              duration: 'long',
+            });
+          }
         },
       });
     },

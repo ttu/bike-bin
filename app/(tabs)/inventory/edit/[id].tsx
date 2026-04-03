@@ -100,12 +100,10 @@ export default function EditItemScreen() {
       cancelLabel: t('confirm.delete.cancel'),
       confirmLabel: t('confirm.delete.confirm'),
       destructive: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         closeConfirm();
-        void (async () => {
-          await deleteItem.mutateAsync({ id: item.id, status: item.status });
-          tabScopedBack('/(tabs)/inventory');
-        })();
+        await deleteItem.mutateAsync({ id: item.id, status: item.status });
+        tabScopedBack('/(tabs)/inventory');
       },
     });
   };

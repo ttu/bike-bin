@@ -44,12 +44,10 @@ export default function ProfileScreen() {
     setSignOutConfirmVisible(true);
   };
 
-  const handleConfirmSignOut = () => {
+  const handleConfirmSignOut = async () => {
     setSignOutConfirmVisible(false);
-    void (async () => {
-      await signOut();
-      router.replace('/(auth)/login');
-    })();
+    await signOut();
+    router.replace('/(auth)/login');
   };
 
   const handleExitDemo = () => {

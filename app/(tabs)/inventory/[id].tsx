@@ -106,12 +106,10 @@ export default function ItemDetailScreen() {
       cancelLabel: tInv('confirm.delete.cancel'),
       confirmLabel: tInv('confirm.delete.confirm'),
       destructive: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         closeConfirm();
-        void (async () => {
-          await deleteItem.mutateAsync({ id: item.id, status: item.status });
-          tabScopedBack('/(tabs)/inventory');
-        })();
+        await deleteItem.mutateAsync({ id: item.id, status: item.status });
+        tabScopedBack('/(tabs)/inventory');
       },
     });
   };
