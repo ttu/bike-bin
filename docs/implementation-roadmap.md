@@ -916,7 +916,7 @@ Test: compresses image before upload. Test: uploads to Supabase Storage. Test: r
 
 - [ ] **Step 2: Implement usePhotoUpload**
 
-Uses `expo-image-picker` for camera/gallery selection. `expo-image-manipulator` for compression (≤2 MB). Uploads to Supabase Storage bucket `items/{userId}/{itemId}/`. Creates `item_photos` row. Returns storage path.
+Uses `expo-image-picker` for camera/gallery selection. `compressImageForMobileUpload` (`expo-image-manipulator` + size check via `expo-file-system/legacy`, target ≤512 KB). Uploads to Supabase Storage bucket `items/{userId}/{itemId}/`. Creates `item_photos` row. Returns storage path.
 
 - [ ] **Step 3: Implement PhotoPicker component**
 

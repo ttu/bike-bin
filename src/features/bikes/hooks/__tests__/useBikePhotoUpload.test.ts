@@ -9,11 +9,9 @@ jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: () => mockLaunchLibrary(),
 }));
 
-// Mock expo-image-manipulator
-const mockManipulate = jest.fn();
-jest.mock('expo-image-manipulator', () => ({
-  manipulateAsync: (...args: unknown[]) => mockManipulate(...args),
-  SaveFormat: { JPEG: 'jpeg' },
+const mockCompress = jest.fn();
+jest.mock('@/shared/utils/compressImageForMobileUpload', () => ({
+  compressImageForMobileUpload: (...args: unknown[]) => mockCompress(...args),
 }));
 
 // Mock supabase
@@ -55,6 +53,7 @@ import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 describe('useBikePhotoUpload', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
     // Default: getPhotoCount returns 0 photos, upload/insert succeed
     mockSelect.mockReturnValue({ eq: mockSelectEq });
     mockSelectEq.mockResolvedValue({ data: [] });
@@ -101,7 +100,7 @@ describe('useBikePhotoUpload', () => {
       canceled: false,
       assets: [{ uri: 'file:///photo.jpg' }],
     });
-    mockManipulate.mockResolvedValue({ uri: 'file:///compressed.jpg' });
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
     mockUpload.mockResolvedValue({ error: null });
     mockSelect.mockReturnValue({
       eq: mockSelectEq.mockResolvedValue({ data: [{ id: 'p1' }, { id: 'p2' }], error: null }),
@@ -133,7 +132,7 @@ describe('useBikePhotoUpload', () => {
       canceled: false,
       assets: [{ uri: 'file:///photo.jpg' }],
     });
-    mockManipulate.mockResolvedValue({ uri: 'file:///compressed.jpg' });
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
     mockUpload.mockResolvedValue({ error: null });
     mockSelect.mockReturnValue({
       eq: mockSelectEq.mockResolvedValue({
@@ -161,7 +160,7 @@ describe('useBikePhotoUpload', () => {
       canceled: false,
       assets: [{ uri: 'file:///photo.jpg' }],
     });
-    mockManipulate.mockResolvedValue({ uri: 'file:///compressed.jpg' });
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
     mockUpload.mockResolvedValue({
       error: Object.assign(new Error('Storage full'), { message: 'Storage full' }),
     });

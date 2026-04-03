@@ -13,9 +13,8 @@ jest.mock('expo-image-picker', () => ({
   }),
 }));
 
-jest.mock('expo-image-manipulator', () => ({
-  manipulateAsync: jest.fn().mockResolvedValue({ uri: 'file://compressed.jpg' }),
-  SaveFormat: { JPEG: 'jpeg' },
+jest.mock('@/shared/utils/compressImageForMobileUpload', () => ({
+  compressImageForMobileUpload: jest.fn().mockResolvedValue({ uri: 'file://compressed.jpg' }),
 }));
 
 jest.mock('@/shared/api/supabase', () => ({

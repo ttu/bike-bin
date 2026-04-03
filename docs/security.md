@@ -173,7 +173,7 @@ The subscription filter `conversation_id=eq.<uuid>` scopes events to one convers
 
 - **Client-side:** TypeScript types + form validation (required fields, length limits, format checks) before submission.
 - **Server-side:** PostgreSQL constraints (NOT NULL, CHECK, UNIQUE) and RLS policies enforce data integrity regardless of client.
-- **Image uploads:** Client-side compression to ≤2 MB. Supabase Storage bucket policy enforces max file size. Only allowed MIME types (image/jpeg, image/png, image/webp).
+- **Image uploads:** Client-side resize/compress targeting ≤512 KB per photo (JPEG after processing). Supabase Storage bucket policy enforces max file size. Only allowed MIME types (image/jpeg, image/png, image/webp).
 - **Text fields:** Max length constraints on name, description, messages (enforced in DB schema). Sanitize for display (no HTML injection in React Native, but be cautious with web views if added later).
 
 ### 7.2 Rate limiting

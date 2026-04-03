@@ -287,7 +287,7 @@ User creates an item while offline → `useCreateItem()` mutation fails (no netw
 
 ### Photos
 
-User takes photo → client-side resize/compress via `expo-image-manipulator` (≤2 MB) → upload to Supabase Storage (`items/{userId}/{itemId}/`) → store storage path in Item row → Supabase Image Transformation generates thumbnails for list views.
+User takes photo → client-side resize/compress via `expo-image-manipulator` (target ≤512 KB per photo; width up to 1024 px, quality stepped down until under cap) → upload to Supabase Storage (`items/{userId}/{itemId}/`) → store storage path in Item row → Supabase Image Transformation generates thumbnails for list views.
 
 ### Notifications
 
@@ -390,7 +390,7 @@ _(Pattern from [emergency-supply-tracker CI](https://github.com/ttu/emergency-su
 
 - **Module boundaries:** Features depend only on `shared/` and their own slice; no feature-to-feature imports of internals. Cross-feature communication goes through shared hooks, query cache invalidation, or navigation (deep links).
 - **External boundaries:** All server access via Supabase client (centralized in `shared/api/`). No direct HTTP calls to Supabase from components.
-- **Image limits:** Max ~2 MB per photo after client-side compression. Supabase Storage bucket policies enforce max upload size. Thumbnail generation via Supabase Image Transformation.
+- **Image limits:** Target ≤512 KB per photo after client-side compression (mobile-first); Supabase Storage bucket policies enforce max upload size. Thumbnail generation via Supabase Image Transformation.
 - **Geocoding rate limits:** Nominatim: max 1 request/sec, results cached in DB. Geocoding happens server-side (Edge Function), not client-side.
 - **Supabase plan limits:** Monitor row counts, storage, bandwidth. Plan upgrade path documented.
 

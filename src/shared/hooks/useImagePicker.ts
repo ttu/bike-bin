@@ -1,9 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-
-const COMPRESS_QUALITY = 0.7;
-const RESIZE_WIDTH = 1200;
+import { compressImageForMobileUpload } from '@/shared/utils/compressImageForMobileUpload';
 
 export interface PickedImage {
   uri: string;
@@ -34,10 +31,7 @@ export function useImagePicker(): UseImagePickerReturn {
     setIsPicking(true);
     try {
       const asset = result.assets[0];
-      const compressed = await manipulateAsync(asset.uri, [{ resize: { width: RESIZE_WIDTH } }], {
-        compress: COMPRESS_QUALITY,
-        format: SaveFormat.JPEG,
-      });
+      const compressed = await compressImageForMobileUpload(asset.uri);
 
       const fileName = `${Date.now()}.jpg`;
       return { uri: compressed.uri, fileName };

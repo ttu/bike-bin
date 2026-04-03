@@ -2,16 +2,15 @@ import { renderHook, act } from '@testing-library/react-native';
 
 const mockRequestPermissions = jest.fn();
 const mockLaunchImageLibrary = jest.fn();
-const mockManipulate = jest.fn();
+const mockCompress = jest.fn();
 
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: (...args: unknown[]) => mockRequestPermissions(...args),
   launchImageLibraryAsync: (...args: unknown[]) => mockLaunchImageLibrary(...args),
 }));
 
-jest.mock('expo-image-manipulator', () => ({
-  manipulateAsync: (...args: unknown[]) => mockManipulate(...args),
-  SaveFormat: { JPEG: 'jpeg' },
+jest.mock('@/shared/utils/compressImageForMobileUpload', () => ({
+  compressImageForMobileUpload: (...args: unknown[]) => mockCompress(...args),
 }));
 
 import { usePhotoPicker } from '../usePhotoPicker';
@@ -55,7 +54,7 @@ describe('usePhotoPicker', () => {
       canceled: false,
       assets: [{ uri: 'file:///original.jpg' }],
     });
-    mockManipulate.mockResolvedValue({ uri: 'file:///compressed.jpg' });
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
 
     const { result } = renderHook(() => usePhotoPicker());
 
@@ -67,11 +66,7 @@ describe('usePhotoPicker', () => {
     expect(picked).toBeDefined();
     expect(picked!.uri).toBe('file:///compressed.jpg');
     expect(picked!.fileName).toMatch(/\.jpg$/);
-    expect(mockManipulate).toHaveBeenCalledWith(
-      'file:///original.jpg',
-      [{ resize: { width: 1200 } }],
-      expect.objectContaining({ compress: 0.7, format: 'jpeg' }),
-    );
+    expect(mockCompress).toHaveBeenCalledWith('file:///original.jpg');
   });
 
   it('starts with isPicking false', () => {
