@@ -44,4 +44,19 @@ describe('ItemGalleryTile', () => {
     const { getByLabelText } = renderWithProviders(<ItemGalleryTile item={item} />);
     expect(getByLabelText('Bolts, 4 identical items')).toBeTruthy();
   });
+
+  it('shows item name in the tile when there is no thumbnail', () => {
+    const { getByText } = renderWithProviders(<ItemGalleryTile item={baseItem} />);
+    expect(getByText('Test Part')).toBeTruthy();
+  });
+
+  it('does not show name text when a thumbnail is present', () => {
+    const item = createMockItem({
+      ...baseItem,
+      thumbnailStoragePath:
+        'a1b2c3d4-0001-4000-8000-000000000001/d0000001-0001-4000-8000-000000000001/photo.jpg',
+    });
+    const { queryByText } = renderWithProviders(<ItemGalleryTile item={item} />);
+    expect(queryByText('Test Part')).toBeNull();
+  });
 });

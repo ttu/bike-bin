@@ -109,7 +109,7 @@ describe('InventoryScreen', () => {
     expect(screen.queryByLabelText('Add item')).toBeNull();
   });
 
-  it('gallery view hides list-only category line and shows items via image tiles only', () => {
+  it('gallery view hides list-only category line; tiles show image or name when there is no photo', () => {
     mockLocalInventory.items = [
       createMockItem({
         name: 'Helix Bolt',
@@ -122,7 +122,7 @@ describe('InventoryScreen', () => {
     expect(screen.getByText(/Components · Drivetrain/)).toBeTruthy();
     fireEvent.press(screen.getByRole('switch'));
     expect(screen.queryByText(/Components · Drivetrain/)).toBeNull();
-    expect(screen.queryByText('Helix Bolt')).toBeNull();
+    expect(screen.getByText('Helix Bolt')).toBeTruthy();
     expect(screen.getByLabelText('Helix Bolt')).toBeTruthy();
   });
 

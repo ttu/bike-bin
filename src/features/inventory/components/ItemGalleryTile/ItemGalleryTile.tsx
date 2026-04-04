@@ -1,9 +1,8 @@
 import { View, StyleSheet } from 'react-native';
-import { useTheme } from 'react-native-paper';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import type { Item } from '@/shared/types';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
@@ -54,11 +53,14 @@ export function ItemGalleryTile({ item, onPress }: ItemGalleryTileProps) {
             style={styles.thumbnailImage}
           />
         ) : (
-          <MaterialCommunityIcons
-            name="image-outline"
-            size={iconSize.lg}
-            color={theme.colors.onSurfaceVariant}
-          />
+          <Text
+            variant="labelSmall"
+            numberOfLines={3}
+            ellipsizeMode="tail"
+            style={[styles.nameFallback, { color: theme.colors.onSurface }]}
+          >
+            {item.name}
+          </Text>
         )}
       </View>
     </AnimatedPressable>
@@ -80,5 +82,9 @@ const styles = StyleSheet.create({
   thumbnailImage: {
     width: '100%',
     height: '100%',
+  },
+  nameFallback: {
+    textAlign: 'center',
+    paddingHorizontal: spacing.xs,
   },
 });
