@@ -7,8 +7,9 @@
 -- ============================================================
 -- EXTENSIONS
 -- ============================================================
+-- Schema `extensions` is created by Supabase before migrations (avoid CREATE SCHEMA here — it duplicates and emits NOTICE 42P06).
 
-CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA extensions;
 
 -- ============================================================
 -- ENUM TYPES
@@ -33,6 +34,7 @@ CREATE TYPE subscription_status AS ENUM (
   'canceled',
   'expired'
 );
+CREATE TYPE export_request_status AS ENUM ('pending', 'processing', 'completed', 'failed');
 
 -- ============================================================
 -- TABLES
@@ -322,7 +324,21 @@ CREATE TABLE reports (
   created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Geocode cache (server-only, no RLS policies needed beyond enabling RLS)
+-- Export requests (GDPR data exports)
+CREATE TABLE export_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  status export_request_status NOT NULL DEFAULT 'pending',
+  storage_path text,
+  error_message text,
+  expires_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_export_requests_user_id ON export_requests(user_id);
+
+-- Geocode cache (server-only; explicit deny policies for anon/authenticated below)
 CREATE TABLE geocode_cache (
   postcode TEXT PRIMARY KEY,
   country TEXT NOT NULL DEFAULT '',
@@ -376,6 +392,7 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE export_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE geocode_cache ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
@@ -388,6 +405,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM item_groups ig
@@ -402,6 +420,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM group_members
@@ -415,6 +434,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM groups WHERE id = p_group_id AND is_public = true
@@ -427,6 +447,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM group_members
@@ -440,6 +461,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM conversation_participants
@@ -453,6 +475,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT NOT EXISTS (
     SELECT 1 FROM conversation_participants
@@ -466,6 +489,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path TO public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM items
@@ -927,6 +951,18 @@ CREATE POLICY "subscriptions_select_own"
 -- No INSERT/UPDATE/DELETE policies: service_role / dashboard SQL only
 
 -- ============================================================
+-- RLS POLICIES: export_requests
+-- ============================================================
+
+CREATE POLICY "export_requests_select_own"
+  ON export_requests FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "export_requests_insert_own"
+  ON export_requests FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
 -- RLS POLICIES: support_requests
 -- ============================================================
 
@@ -953,12 +989,27 @@ CREATE POLICY "reports_select_own"
   USING (auth.uid() = reporter_id);
 
 -- ============================================================
+-- RLS POLICIES: geocode_cache
+-- ============================================================
+
+-- Server-only cache; explicit deny for API roles (lint 0008); service_role bypasses RLS
+CREATE POLICY "geocode_cache_deny_authenticated_and_anon"
+  ON public.geocode_cache
+  FOR ALL
+  TO authenticated, anon
+  USING (false)
+  WITH CHECK (false);
+
+-- ============================================================
 -- FUNCTIONS: Business Logic
 -- ============================================================
 
 -- Tags validation trigger: enforce per-element max length
 CREATE OR REPLACE FUNCTION check_tags_max_length()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
 DECLARE
   t text;
 BEGIN
@@ -969,13 +1020,14 @@ BEGIN
   END LOOP;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Recalculate rating_avg and rating_count on profiles
 CREATE OR REPLACE FUNCTION update_user_rating_avg()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO public
 AS $$
 DECLARE
   target_user_id uuid;
@@ -1005,6 +1057,7 @@ CREATE OR REPLACE FUNCTION create_profile_on_signup()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO public
 AS $$
 BEGIN
   INSERT INTO public.profiles (id, display_name, created_at, updated_at)
@@ -1026,7 +1079,10 @@ $$;
 
 -- Enforce no edits on borrow-locked items (only status change to stored allowed)
 CREATE OR REPLACE FUNCTION enforce_item_no_edits_while_borrow_locked()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
 DECLARE
   old_j jsonb;
   new_j jsonb;
@@ -1040,11 +1096,14 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Enforce borrow request status transition rules
 CREATE OR REPLACE FUNCTION borrow_requests_enforce_update_rules()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
 BEGIN
   IF OLD.item_id IS DISTINCT FROM NEW.item_id
      OR OLD.requester_id IS DISTINCT FROM NEW.requester_id THEN
@@ -1089,7 +1148,7 @@ BEGIN
 
   RAISE EXCEPTION 'borrow_requests: invalid status transition from % to %', OLD.status, NEW.status;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Tag autocomplete RPC
 CREATE OR REPLACE FUNCTION get_user_tags()
@@ -1151,7 +1210,7 @@ BEGIN
 
   RETURN to_jsonb(v_request);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path TO public;
 
 -- ============================================================
 -- FUNCTIONS: Search and Listing RPCs
@@ -1190,7 +1249,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 BEGIN
   RETURN QUERY
@@ -1286,6 +1345,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 STABLE
 SECURITY INVOKER
+SET search_path = public, extensions
 AS $$
 BEGIN
   IF auth.uid() IS NULL THEN
@@ -1435,6 +1495,17 @@ CREATE POLICY "item_photos_storage_delete"
   ON storage.objects FOR DELETE
   TO authenticated
   USING (bucket_id = 'item-photos' AND (storage.foldername(name))[2] = auth.uid()::text);
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('data-exports', 'data-exports', false)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "data_exports_select_own"
+  ON storage.objects FOR SELECT
+  USING (
+    bucket_id = 'data-exports'
+    AND auth.uid()::text = (string_to_array(name, '/'))[2]
+  );
 
 -- ============================================================
 -- REALTIME
