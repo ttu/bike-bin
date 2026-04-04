@@ -31,8 +31,7 @@ describe('ItemDetail', () => {
     availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
     price: 45.0,
     age: '2 years',
-    usage: 3000,
-    usageUnit: 'km',
+    usageKm: 3000,
     storageLocation: 'Garage shelf',
     description: 'Good condition cassette',
   });
@@ -79,8 +78,7 @@ describe('ItemDetail', () => {
       subcategory: 'chain_lube',
       condition: ItemCondition.Good,
       remainingFraction: 0.4,
-      usage: undefined,
-      usageUnit: undefined,
+      usageKm: undefined,
     });
     const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);
     expect(getByText('40% left')).toBeTruthy();

@@ -421,8 +421,7 @@ export type Database = {
           subcategory: string | null;
           tags: string[];
           updated_at: string;
-          usage: number | null;
-          usage_unit: string | null;
+          usage_km: number | null;
           visibility: Database['public']['Enums']['item_visibility'];
         };
         Insert: {
@@ -451,8 +450,7 @@ export type Database = {
           subcategory?: string | null;
           tags?: string[];
           updated_at?: string;
-          usage?: number | null;
-          usage_unit?: string | null;
+          usage_km?: number | null;
           visibility?: Database['public']['Enums']['item_visibility'];
         };
         Update: {
@@ -481,8 +479,7 @@ export type Database = {
           subcategory?: string | null;
           tags?: string[];
           updated_at?: string;
-          usage?: number | null;
-          usage_unit?: string | null;
+          usage_km?: number | null;
           visibility?: Database['public']['Enums']['item_visibility'];
         };
         Relationships: [

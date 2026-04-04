@@ -14,6 +14,7 @@ import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useItems } from '../../hooks/useItems';
 import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
 import { useDistanceUnit } from '@/features/profile';
+import { kmToDisplayUnit, displayUnitToKm } from '@/shared/utils/distanceConversion';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 
 import type { ItemFormState } from './types';
@@ -86,11 +87,15 @@ export function useItemFormState({
   const [storageMenuVisible, setStorageMenuVisible] = useState(false);
   const [age, setAge] = useState(initialData?.age ?? '');
   const [ageMenuVisible, setAgeMenuVisible] = useState(false);
-  const [usage, setUsage] = useState(initialData?.usage?.toString() ?? '');
+  const { distanceUnit } = useDistanceUnit();
+  const [usage, setUsage] = useState(() => {
+    const km = initialData?.usageKm;
+    if (km === undefined) return '';
+    return kmToDisplayUnit(km, distanceUnit).toString();
+  });
   const [remainingPercentStr, setRemainingPercentStr] = useState(() =>
     formatRemainingPercentField(initialData?.remainingFraction),
   );
-  const { distanceUnit } = useDistanceUnit();
   const [showOptional, setShowOptional] = useState(false);
 
   // ── Tags ─────────────────────────────────────────────────────
@@ -212,8 +217,7 @@ export function useItemFormState({
       borrowDuration: isBorrowable && borrowDuration ? borrowDuration : undefined,
       storageLocation: storageLocation || undefined,
       age: age || undefined,
-      usage: usage ? parseInt(usage, 10) : undefined,
-      usageUnit: usage ? distanceUnit : undefined,
+      usageKm: usage ? displayUnitToKm(parseInt(usage, 10), distanceUnit) : undefined,
       remainingFraction: parsedRemaining,
       purchaseDate: purchaseDate.trim() || undefined,
       mountedDate: mountedDate.trim() || undefined,

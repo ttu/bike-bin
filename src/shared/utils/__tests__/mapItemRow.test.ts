@@ -27,8 +27,7 @@ const baseRow: ItemRow = {
   borrow_duration: null,
   storage_location: null,
   age: null,
-  usage: null,
-  usage_unit: null,
+  usage_km: null,
   remaining_fraction: null,
   purchase_date: null,
   mounted_date: null,
@@ -40,43 +39,37 @@ const baseRow: ItemRow = {
 };
 
 describe('mapItemRow', () => {
-  it('treats usage as unset when usage is null even if usage_unit is present', () => {
+  it('treats usageKm as unset when usage_km is null', () => {
     const item = mapItemRow({
       ...baseRow,
       id: 'i1',
       owner_id: 'u1',
-      usage: null,
-      usage_unit: 'km',
+      usage_km: null,
     });
 
-    expect(item.usage).toBeUndefined();
-    expect(item.usageUnit).toBeUndefined();
+    expect(item.usageKm).toBeUndefined();
   });
 
-  it('maps usage when usage is set', () => {
+  it('maps usageKm when usage_km is set', () => {
     const item = mapItemRow({
       ...baseRow,
       id: 'i2',
       owner_id: 'u1',
-      usage: 1200,
-      usage_unit: 'mi',
+      usage_km: 1200,
     });
 
-    expect(item.usage).toBe(1200);
-    expect(item.usageUnit).toBe('mi');
+    expect(item.usageKm).toBe(1200);
   });
 
-  it('keeps usage 0 as a real value', () => {
+  it('keeps usageKm 0 as a real value', () => {
     const item = mapItemRow({
       ...baseRow,
       id: 'i3',
       owner_id: 'u1',
-      usage: 0,
-      usage_unit: 'km',
+      usage_km: 0,
     });
 
-    expect(item.usage).toBe(0);
-    expect(item.usageUnit).toBe('km');
+    expect(item.usageKm).toBe(0);
   });
 
   it('treats remaining_fraction null as unset', () => {

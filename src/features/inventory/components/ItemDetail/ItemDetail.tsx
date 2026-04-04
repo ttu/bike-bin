@@ -11,6 +11,7 @@ import { getStatusColor } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 import { useDistanceUnit } from '@/features/profile';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
+import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 
 const CONDITION_ICONS: Record<string, string> = {
   new: 'shield-check',
@@ -168,11 +169,11 @@ export function ItemDetail({
               value={t(`form.ageOption.${item.age}`, { defaultValue: item.age })}
             />
           )}
-          {item.usage !== undefined && (
+          {item.usageKm !== undefined && (
             <DetailCard
               icon="road-variant"
               label={t('detail.usageLabel')}
-              value={`${item.usage} ${distanceUnit}`}
+              value={`${kmToDisplayUnit(item.usageKm, distanceUnit)} ${distanceUnit}`}
             />
           )}
           {item.storageLocation && (

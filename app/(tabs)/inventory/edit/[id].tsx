@@ -136,7 +136,7 @@ export default function EditItemScreen() {
     borrowDuration: item.borrowDuration,
     storageLocation: item.storageLocation,
     age: item.age,
-    usage: item.usage,
+    usageKm: item.usageKm,
     remainingFraction: item.remainingFraction,
     purchaseDate: item.purchaseDate,
     mountedDate: item.mountedDate,

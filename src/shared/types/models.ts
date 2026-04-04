@@ -73,8 +73,7 @@ export interface Item {
   borrowDuration: BorrowDuration | undefined;
   storageLocation: string | undefined;
   age: string | undefined;
-  usage: number | undefined;
-  usageUnit: DistanceUnit | undefined;
+  usageKm: number | undefined;
   /** Consumables only: approximate fraction left (0–1). */
   remainingFraction: number | undefined;
   purchaseDate: string | undefined;

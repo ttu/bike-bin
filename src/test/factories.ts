@@ -86,13 +86,7 @@ export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
       faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 30 })} days`) ?? null,
     storage_location: faker.helpers.maybe(() => faker.location.city()) ?? null,
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`) ?? null,
-    ...(() => {
-      const usage = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })) ?? null;
-      return {
-        usage,
-        usage_unit: usage !== null ? faker.helpers.arrayElement(['km', 'mi'] as const) : null,
-      };
-    })(),
+    usage_km: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })) ?? null,
     remaining_fraction: null,
     quantity: 1,
     purchase_date: faker.helpers.maybe(() => faker.date.past().toISOString().slice(0, 10)) ?? null,
@@ -128,14 +122,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     borrowDuration: faker.helpers.maybe(() => faker.helpers.arrayElement([...DURATION_OPTIONS])),
     storageLocation: faker.helpers.maybe(() => faker.location.city()),
     age: faker.helpers.maybe(() => `${faker.number.int({ min: 1, max: 10 })} years`),
-    ...(() => {
-      const usage = faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 }));
-      return {
-        usage,
-        usageUnit:
-          usage !== undefined ? faker.helpers.arrayElement(['km', 'mi'] as const) : undefined,
-      };
-    })(),
+    usageKm: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 10000 })),
     remainingFraction: undefined,
     quantity: 1,
     purchaseDate: faker.helpers.maybe(() => faker.date.past().toISOString().slice(0, 10)),

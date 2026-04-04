@@ -13,7 +13,7 @@ import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPi
 import { usePhotoPicker } from '@/features/inventory/hooks/usePhotoPicker';
 import { useStagedPhotos } from '@/features/inventory/hooks/useStagedPhotos';
 import { ItemCategory, ItemStatus, Visibility } from '@/shared/types';
-import type { BorrowDuration, DistanceUnit } from '@/shared/types';
+import type { BorrowDuration } from '@/shared/types';
 import { spacing } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 import { LOCAL_USER_ID } from '@/shared/types';
@@ -68,8 +68,7 @@ export default function NewItemScreen() {
           borrowDuration: (data.borrowDuration as BorrowDuration) || undefined,
           storageLocation: data.storageLocation,
           age: data.age,
-          usage: data.usage,
-          usageUnit: (data.usageUnit as DistanceUnit) || undefined,
+          usageKm: data.usageKm,
           remainingFraction: data.remainingFraction,
           purchaseDate: data.purchaseDate,
           mountedDate: data.mountedDate,

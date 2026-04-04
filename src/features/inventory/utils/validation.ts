@@ -20,8 +20,7 @@ export interface ItemFormData {
   borrowDuration?: string;
   storageLocation?: string;
   age?: string;
-  usage?: number;
-  usageUnit?: string;
+  usageKm?: number;
   /** Consumables: fraction remaining 0–1 */
   remainingFraction?: number;
   purchaseDate?: string;

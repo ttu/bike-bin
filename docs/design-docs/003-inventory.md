@@ -28,8 +28,7 @@ The core feature of Bike Bin—the **primary use case** is managing your own col
 | borrow_duration    | text                        | Suggested borrow duration                                                               |
 | storage_location   | text                        | Where the item is stored                                                                |
 | age                | text                        | Predefined age range key                                                                |
-| usage              | numeric                     | Usage in kilometers                                                                     |
-| usage_unit         | text                        | Unit for usage                                                                          |
+| usage_km           | integer                     | Usage in kilometers (converted to miles for display when user prefers mi)               |
 | purchase_date      | date                        | Optional bought/purchase date (YYYY-MM-DD)                                              |
 | mounted_date       | date                        | Optional date mounted on a bike (independent of `status`)                               |
 | pickup_location_id | uuid (FK → saved_locations) | Pickup location                                                                         |
@@ -215,4 +214,4 @@ Also uses `common` namespace for shared action labels.
 
 - **Implemented:** Full CRUD, photo upload, category/subcategory system with 70+ subcategories, status lifecycle with availability-gated actions, **Remove from inventory** dialog (archive/delete chooser) + **Restore to inventory** (unarchive archived → stored), private tags with autocomplete, terminal item hiding, visibility scoping (private/groups/all), brand suggestions (60+ default brands), age and duration options, form validation
 - **Working:** All status transitions above, photo management, tag filtering, group visibility syncing
-- **Known limitations:** Price validation only checks presence for sellable items (no currency formatting), usage tracking is basic (km only)
+- **Known limitations:** Price validation only checks presence for sellable items (no currency formatting), usage stored as km, converted to miles on display based on user preference

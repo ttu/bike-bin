@@ -102,8 +102,7 @@ export function useCreateItem() {
           borrow_duration: formData.borrowDuration,
           storage_location: formData.storageLocation,
           age: formData.age,
-          usage: formData.usage,
-          usage_unit: formData.usageUnit,
+          usage_km: formData.usageKm,
           remaining_fraction:
             formData.category === ItemCategory.Consumable ? formData.remainingFraction : null,
           purchase_date: formData.purchaseDate,
@@ -156,8 +155,7 @@ export function useUpdateItem() {
           storage_location: formData.storageLocation,
           // null so PostgREST clears the column; undefined is omitted and leaves old values
           age: formData.age ?? null,
-          usage: formData.usage,
-          usage_unit: formData.usageUnit,
+          usage_km: formData.usageKm,
           remaining_fraction:
             formData.category === ItemCategory.Consumable
               ? (formData.remainingFraction ?? null)
