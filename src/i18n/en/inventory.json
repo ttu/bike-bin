@@ -1,6 +1,5 @@
 {
   "title": "Inventory",
-  "bikesLink": "Bikes →",
   "searchPlaceholder_one": "Search {{count}} item in your collection...",
   "searchPlaceholder_other": "Search {{count}} items in your collection...",
   "searchPlaceholderEmpty": "Search your collection...",
@@ -236,8 +235,7 @@
   "tagsLabel": "Tags",
   "tagsEmpty": "No tags",
   "viewMode": {
-    "listA11y": "List view",
-    "galleryA11y": "Gallery view"
+    "toggleA11y": "Switch between list and gallery layout"
   },
   "filters": {
     "showInactive": "Show inactive ({{count}})"

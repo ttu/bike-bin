@@ -86,12 +86,6 @@ describe('InventoryScreen', () => {
     mockLocalInventory.items = [];
   });
 
-  it('navigates to bikes list when bikes link is pressed', () => {
-    renderWithProviders(<InventoryScreen />);
-    fireEvent.press(screen.getByText('Bikes →'));
-    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/bikes');
-  });
-
   it('renders the search bar', () => {
     renderWithProviders(<InventoryScreen />);
     expect(screen.getByPlaceholderText(/Search/)).toBeTruthy();
@@ -126,7 +120,7 @@ describe('InventoryScreen', () => {
     ];
     renderWithProviders(<InventoryScreen />);
     expect(screen.getByText(/Components · Drivetrain/)).toBeTruthy();
-    fireEvent.press(screen.getByLabelText('Gallery view'));
+    fireEvent.press(screen.getByRole('switch'));
     expect(screen.queryByText(/Components · Drivetrain/)).toBeNull();
     expect(screen.queryByText('Helix Bolt')).toBeNull();
     expect(screen.getByLabelText('Helix Bolt')).toBeTruthy();

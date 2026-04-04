@@ -149,8 +149,7 @@ Item List (home)
   ├─► Item Detail [id]
   │     ├─► Edit Item (includes delete)
   │     └─► Photo Gallery (fullscreen)
-  ├─► Notifications (bell)
-  └─► "Bikes →" shortcut → opens Bikes tab
+  └─► Notifications (bell)
 ```
 
 #### Bikes Tab
@@ -218,7 +217,7 @@ My Profile & Settings
 
 | From                    | Action          | To                                             |
 | ----------------------- | --------------- | ---------------------------------------------- |
-| Inventory list          | "Bikes →" link  | Bikes tab → bike list                          |
+| **Bikes** tab           | Bottom tab      | Bikes tab → bike list                          |
 | Search → Listing Detail | "Contact"       | Messages tab → Conversation                    |
 | Search → Listing Detail | Owner name      | Profile tab → User Profile                     |
 | Messages → Conversation | Item card tap   | Item/Listing Detail                            |
@@ -262,7 +261,7 @@ My Profile & Settings
 
 ### 3.5 Item List (Inventory Home)
 
-- Header: "Inventory" title + "Bikes →" link
+- Search bar; when items match filters, **list / gallery** toggle on the same row
 - Category filter chips: All / Components / Tools / Accessories (horizontal scroll, active = filled teal). Donated/Sold/Archived items shown dimmed at the bottom or behind an "Archived" filter chip.
 - Item cards: primary photo thumbnail (80×60), name, category + condition, availability chips (Borrowable/Donatable/Sellable with colors), status badge
 - Status badge colors: Stored (neutral gray), Mounted (neutral gray), Loaned (amber), Reserved (amber), Donated (green), Sold (green), Archived (neutral gray, dimmed)

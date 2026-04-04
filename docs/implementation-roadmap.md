@@ -840,7 +840,7 @@ Horizontal scrollable chips: All / Components / Tools / Accessories. Active chip
 
 - [ ] **Step 5: Implement item list screen**
 
-Screen uses `useItems()` hook. Shows header ("Inventory" + "Bikes →" link), `CategoryFilter`, `FlatList` of `ItemCard`s, FAB for add. Empty state when no items. Pull-to-refresh. For unauthenticated: shows sync banner + local items.
+Screen uses `useItems()` hook. Shows search bar with list/gallery toggle when the filtered list is non-empty, `CategoryFilter`, `FlatList` of `ItemCard`s or gallery tiles, FAB for add. Empty state when no items. Pull-to-refresh. For unauthenticated: shows sync banner + local items.
 
 - [ ] **Step 6: Add inventory translations, run tests, commit**
 

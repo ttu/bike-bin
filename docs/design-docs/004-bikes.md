@@ -81,7 +81,7 @@ src/features/bikes/
 | `(tabs)/bikes/new.tsx`       | New Bike    | Bike creation form                |
 | `(tabs)/bikes/edit/[id].tsx` | Edit Bike   | Bike edit form                    |
 
-Bikes are a **dedicated bottom tab** (`(tabs)/bikes/`). The inventory list still exposes a **Bikes →** shortcut that navigates to the same Bikes tab.
+Bikes are a **dedicated bottom tab** (`(tabs)/bikes/`).
 
 ## Key Flows
 

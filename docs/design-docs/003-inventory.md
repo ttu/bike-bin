@@ -130,7 +130,7 @@ src/features/inventory/
 | `(tabs)/inventory/edit/[id].tsx`     | Edit Item      | Item edit form                                          |
 | `(tabs)/inventory/notifications.tsx` | Notifications  | Notification list (in inventory tab)                    |
 
-The inventory list header includes a **Bikes →** control that opens the **Bikes** tab (`(tabs)/bikes`) for quick access to bike management.
+The inventory list search row includes a **list / gallery** view toggle (when the filtered list is non-empty). **Bikes** is reached from the **Bikes** tab only.
 
 ## Key Flows
 

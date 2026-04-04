@@ -6,8 +6,10 @@ import {
   StyleSheet,
   RefreshControl,
   useWindowDimensions,
+  Pressable,
 } from 'react-native';
-import { Text, FAB, Chip, Searchbar, Button, SegmentedButtons, useTheme } from 'react-native-paper';
+import { Text, FAB, Chip, Searchbar, useTheme } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +24,7 @@ import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/C
 import { isTerminalStatus } from '@/features/inventory/utils/status';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { DemoBanner } from '@/features/demo';
-import { spacing } from '@/shared/theme';
+import { iconSize, spacing } from '@/shared/theme';
 import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
 
 type InventoryViewMode = 'list' | 'gallery';
@@ -122,26 +124,6 @@ export default function InventoryScreen() {
     [handleItemPress, viewMode],
   );
 
-  const viewModeButtons = useMemo(
-    () => [
-      {
-        value: 'list' as const,
-        icon: 'view-list',
-        accessibilityLabel: t('viewMode.listA11y'),
-        labelStyle: styles.viewModeSegmentHiddenLabel,
-        style: styles.viewModeSegment,
-      },
-      {
-        value: 'gallery' as const,
-        icon: 'view-grid',
-        accessibilityLabel: t('viewMode.galleryA11y'),
-        labelStyle: styles.viewModeSegmentHiddenLabel,
-        style: styles.viewModeSegment,
-      },
-    ],
-    [t],
-  );
-
   const searchPlaceholder =
     filteredItems.length > 0
       ? t('searchPlaceholder', { count: filteredItems.length })
@@ -165,16 +147,32 @@ export default function InventoryScreen() {
             elevation={0}
           />
         </View>
-        <Button
-          mode="text"
-          compact
-          onPress={() => router.push('/(tabs)/bikes')}
-          accessibilityRole="link"
-          accessibilityLabel={t('bikesLink')}
-          style={styles.bikesLinkButton}
-        >
-          {t('bikesLink')}
-        </Button>
+        {!isLoading && filteredItems.length > 0 && (
+          <Pressable
+            onPress={() => setViewMode((mode) => (mode === 'list' ? 'gallery' : 'list'))}
+            accessibilityRole="switch"
+            accessibilityLabel={t('viewMode.toggleA11y')}
+            accessibilityState={{ checked: viewMode === 'gallery' }}
+            style={({ pressed }) => [
+              styles.viewModeToggle,
+              { backgroundColor: theme.colors.surfaceVariant },
+              pressed && styles.viewModeTogglePressed,
+            ]}
+          >
+            <MaterialCommunityIcons
+              name="view-list"
+              size={iconSize.sm}
+              color={viewMode === 'list' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              importantForAccessibility="no"
+            />
+            <MaterialCommunityIcons
+              name="view-grid"
+              size={iconSize.sm}
+              color={viewMode === 'gallery' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              importantForAccessibility="no"
+            />
+          </Pressable>
+        )}
       </View>
 
       <DemoBanner />
@@ -243,18 +241,6 @@ export default function InventoryScreen() {
           >
             {t('filters.showInactive', { count: terminalCount })}
           </Chip>
-        </View>
-      )}
-
-      {!isLoading && filteredItems.length > 0 && (
-        <View style={styles.viewModeRow}>
-          <SegmentedButtons
-            value={viewMode}
-            onValueChange={(value) => setViewMode(value as InventoryViewMode)}
-            buttons={viewModeButtons}
-            density="high"
-            style={styles.viewModeSegments}
-          />
         </View>
       )}
 
@@ -327,9 +313,19 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  bikesLinkButton: {
-    marginRight: -spacing.sm,
+  viewModeToggle: {
     flexShrink: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    minHeight: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+  },
+  viewModeTogglePressed: {
+    opacity: 0.72,
   },
   searchbar: {
     borderRadius: 28,
@@ -367,26 +363,6 @@ const styles = StyleSheet.create({
   terminalChipRow: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
-  },
-  viewModeRow: {
-    paddingHorizontal: spacing.base,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.xs,
-  },
-  viewModeSegments: {
-    alignSelf: 'center',
-  },
-  viewModeSegment: {
-    minWidth: 52,
-    maxHeight: 36,
-  },
-  viewModeSegmentHiddenLabel: {
-    fontSize: 0,
-    lineHeight: 0,
-    margin: 0,
-    padding: 0,
-    height: 0,
-    opacity: 0,
   },
   galleryRow: {
     paddingHorizontal: spacing.base,

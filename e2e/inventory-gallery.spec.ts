@@ -1,7 +1,10 @@
 import { test, expect } from './fixtures';
 
+/** Matches `inventory.viewMode.toggleA11y` — single control toggles list ↔ gallery. */
+const LAYOUT_TOGGLE_NAME = 'Switch between list and gallery layout';
+
 /**
- * Inventory gallery view: icon-only list/gallery toggle and thumbnail grid.
+ * Inventory gallery view: list/gallery toggle and thumbnail grid.
  * Requires seeded inventory (same as inventory-authenticated.spec.ts).
  */
 test.describe('Inventory gallery view', () => {
@@ -12,14 +15,17 @@ test.describe('Inventory gallery view', () => {
 
     // FlatList may not mount off-screen rows on web; narrow to Components so the target row is in the DOM.
     await expect(
-      loggedInPage.getByRole('button', { name: 'Gallery view', exact: true }),
+      loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }),
     ).toBeVisible({ timeout: 15000 });
     await loggedInPage.getByRole('button', { name: 'Components' }).click();
     await expect(loggedInPage.getByText(itemName)).toBeVisible({ timeout: 10000 });
-    const galleryToggle = loggedInPage.getByRole('button', { name: 'Gallery view', exact: true });
-    await expect(galleryToggle).toBeVisible();
+    const layoutToggle = loggedInPage.getByRole('switch', {
+      name: LAYOUT_TOGGLE_NAME,
+      exact: true,
+    });
+    await expect(layoutToggle).toBeVisible();
 
-    await galleryToggle.click();
+    await layoutToggle.click();
 
     await expect(loggedInPage.getByText(itemName)).toHaveCount(0);
 
@@ -32,14 +38,14 @@ test.describe('Inventory gallery view', () => {
     const itemName = 'Fox 36 Float Fork';
 
     await expect(
-      loggedInPage.getByRole('button', { name: 'Gallery view', exact: true }),
+      loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }),
     ).toBeVisible({ timeout: 15000 });
     await loggedInPage.getByRole('button', { name: 'Components' }).click();
     await expect(loggedInPage.getByText(itemName)).toBeVisible({ timeout: 10000 });
-    await loggedInPage.getByRole('button', { name: 'Gallery view', exact: true }).click();
+    await loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }).click();
     await expect(loggedInPage.getByText(itemName)).toHaveCount(0);
 
-    await loggedInPage.getByRole('button', { name: 'List view', exact: true }).click();
+    await loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }).click();
     await expect(loggedInPage.getByText(itemName)).toBeVisible({ timeout: 10000 });
   });
 });

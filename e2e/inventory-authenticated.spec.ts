@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, navigateToBikes } from './fixtures';
 
 test.describe('Inventory list with data', () => {
   test('shows all 8 items', async ({ loggedInPage }) => {
@@ -97,20 +97,20 @@ test.describe('Item detail', () => {
 });
 
 test.describe('Bikes', () => {
-  test('navigates to bikes via header link', async ({ loggedInPage }) => {
-    await loggedInPage.getByText(/Bikes\s*→/).click();
+  test('navigates to bikes via tab', async ({ loggedInPage }) => {
+    await navigateToBikes(loggedInPage);
 
     await expect(loggedInPage.getByText('My Bikes')).toBeVisible();
   });
 
   test('shows bike cards', async ({ loggedInPage }) => {
-    await loggedInPage.getByText(/Bikes\s*→/).click();
+    await navigateToBikes(loggedInPage);
 
     await expect(loggedInPage.getByText('Santa Cruz Hightower')).toBeVisible();
   });
 
   test('bike detail shows type and condition', async ({ loggedInPage }) => {
-    await loggedInPage.getByText(/Bikes\s*→/).click();
+    await navigateToBikes(loggedInPage);
     await expect(loggedInPage.getByText('Santa Cruz Hightower')).toBeVisible({ timeout: 10000 });
     await loggedInPage.getByText('Santa Cruz Hightower').click();
 
