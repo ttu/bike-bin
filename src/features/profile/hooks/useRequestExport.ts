@@ -11,11 +11,7 @@ export function useRequestExport() {
       } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase.functions.invoke('request-export', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke('request-export');
 
       if (error) throw error;
       return data as { success: boolean; exportRequestId: string };

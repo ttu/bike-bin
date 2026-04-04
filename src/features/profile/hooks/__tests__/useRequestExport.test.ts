@@ -35,9 +35,7 @@ describe('useRequestExport', () => {
     result.current.mutate();
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockInvoke).toHaveBeenCalledWith('request-export', {
-      headers: { Authorization: 'Bearer test-token' },
-    });
+    expect(mockInvoke).toHaveBeenCalledWith('request-export');
   });
 
   it('throws when not authenticated', async () => {
