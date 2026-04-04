@@ -13,6 +13,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="support" />
       <Stack.Screen name="about" />
       <Stack.Screen name="edit-profile" />
+      <Stack.Screen name="export-data" />
     </Stack>
   );
 }

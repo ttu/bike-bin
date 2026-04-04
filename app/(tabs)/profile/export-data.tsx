@@ -1,8 +1,9 @@
 import { View, ScrollView, StyleSheet, Share } from 'react-native';
-import { Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
+import { Appbar, Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Stack } from 'expo-router';
 import { cacheDirectory, downloadAsync } from 'expo-file-system/legacy';
+import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { spacing, borderRadius } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import { useRequestExport, useLatestExport } from '@/features/profile';
@@ -77,22 +78,31 @@ export default function ExportDataScreen() {
 
   if (isLoading) {
     return (
-      <>
-        <Stack.Screen options={{ title: t('export.title') }} />
-        <View style={[styles.centered, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        edges={['bottom', 'left', 'right']}
+      >
+        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
+          <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+          <Appbar.Content title={t('export.title')} />
+        </Appbar.Header>
+        <View style={styles.centered}>
           <ActivityIndicator size="large" />
         </View>
-      </>
+      </SafeAreaView>
     );
   }
 
   return (
-    <>
-      <Stack.Screen options={{ title: t('export.title') }} />
-      <ScrollView
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
-        contentContainerStyle={styles.content}
-      >
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      edges={['bottom', 'left', 'right']}
+    >
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.Content title={t('export.title')} />
+      </Appbar.Header>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <Text variant="headlineSmall" style={{ color: theme.colors.onBackground }}>
           {t('export.title')}
         </Text>
@@ -172,7 +182,7 @@ export default function ExportDataScreen() {
           </View>
         )}
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 }
 
