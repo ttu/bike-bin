@@ -11,9 +11,7 @@ import { MountedParts } from '@/features/bikes/components/MountedParts/MountedPa
 import { formatBikeMetric } from '@/features/bikes/utils/formatBikeDetail';
 import { PhotoGallery } from '@/shared/components';
 import { spacing, borderRadius } from '@/shared/theme';
-
-const WIDE_BREAKPOINT = 768;
-const WIDE_PAGE_MAX_WIDTH = 1120;
+import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 
 export default function BikeDetailScreen() {
   const theme = useTheme<AppTheme>();
@@ -24,9 +22,7 @@ export default function BikeDetailScreen() {
   const { data: bike, isLoading } = useBike(bikeId);
   const { data: photos = [] } = useBikePhotos(bikeId);
   const { width: windowWidth } = useWindowDimensions();
-  const isWide = windowWidth >= WIDE_BREAKPOINT;
-  const wideContentWidth = Math.min(windowWidth, WIDE_PAGE_MAX_WIDTH);
-  const wideHeroGalleryMax = Math.max(320, wideContentWidth - spacing.base * 2);
+  const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
 
   if (isLoading || !bike) {
     return <View style={[styles.container, { backgroundColor: theme.colors.background }]} />;
@@ -49,12 +45,27 @@ export default function BikeDetailScreen() {
       </Appbar.Header>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, isWide && styles.wideScrollContent]}
+        contentContainerStyle={[
+          styles.content,
+          isWide && styles.wideScrollContent,
+          splitLayout && styles.wideSplitScrollContent,
+        ]}
       >
-        <View style={isWide ? styles.widePageInner : undefined}>
-          <PhotoGallery photos={photos} maxGalleryWidth={isWide ? wideHeroGalleryMax : undefined} />
-          <BikeDetails bike={bike} bikeId={bikeId} theme={theme} t={t} />
-        </View>
+        {splitLayout ? (
+          <View style={styles.wideSplitRow}>
+            <View style={styles.wideSplitLeft}>
+              <PhotoGallery photos={photos} maxGalleryWidth={galleryMaxWidth} />
+            </View>
+            <View style={[styles.wideSplitRight, { borderLeftColor: theme.colors.outlineVariant }]}>
+              <BikeDetails bike={bike} bikeId={bikeId} theme={theme} t={t} />
+            </View>
+          </View>
+        ) : (
+          <View style={isWide ? styles.widePageInner : undefined}>
+            <PhotoGallery photos={photos} maxGalleryWidth={galleryMaxWidth} />
+            <BikeDetails bike={bike} bikeId={bikeId} theme={theme} t={t} />
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -179,8 +190,28 @@ const styles = StyleSheet.create({
   },
   widePageInner: {
     width: '100%',
-    maxWidth: WIDE_PAGE_MAX_WIDTH,
+    maxWidth: WIDE_DETAIL_PAGE_MAX_WIDTH,
     alignSelf: 'center',
+  },
+  wideSplitScrollContent: {
+    paddingHorizontal: spacing.base,
+  },
+  wideSplitRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    width: '100%',
+    maxWidth: WIDE_DETAIL_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
+  },
+  wideSplitLeft: {
+    flex: 1,
+    minWidth: 280,
+  },
+  wideSplitRight: {
+    flex: 1,
+    minWidth: 280,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    paddingLeft: spacing.lg,
   },
   content: {
     paddingBottom: spacing['2xl'],

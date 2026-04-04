@@ -10,10 +10,7 @@ import type { AppTheme } from '@/shared/theme';
 import { getStatusColor } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 import { useDistanceUnit } from '@/features/profile';
-
-const WIDE_BREAKPOINT = 768;
-/** Max content width on wide viewports — centered column avoids stretched layouts on web. */
-const WIDE_PAGE_MAX_WIDTH = 1120;
+import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 
 const CONDITION_ICONS: Record<string, string> = {
   new: 'shield-check',
@@ -50,9 +47,7 @@ export function ItemDetail({
   const { t } = useTranslation('inventory');
   const themed = useThemedStyles(theme);
   const { width: windowWidth } = useWindowDimensions();
-  const isWide = windowWidth >= WIDE_BREAKPOINT;
-  const wideContentWidth = Math.min(windowWidth, WIDE_PAGE_MAX_WIDTH);
-  const wideHeroGalleryMax = Math.max(320, wideContentWidth - spacing.base * 2);
+  const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
   const { distanceUnit } = useDistanceUnit();
 
   const statusColorToken = getStatusColor(item.status);
@@ -282,12 +277,27 @@ export function ItemDetail({
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.content, isWide && styles.wideScrollContent]}
+      contentContainerStyle={[
+        styles.content,
+        isWide && styles.wideScrollContent,
+        splitLayout && styles.wideSplitScrollContent,
+      ]}
     >
-      <View style={isWide ? styles.widePageInner : undefined}>
-        <PhotoGallery photos={photos} maxGalleryWidth={isWide ? wideHeroGalleryMax : undefined} />
-        {detailContent}
-      </View>
+      {splitLayout ? (
+        <View style={styles.wideSplitRow}>
+          <View style={styles.wideSplitLeft}>
+            <PhotoGallery photos={photos} maxGalleryWidth={galleryMaxWidth} />
+          </View>
+          <View style={[styles.wideSplitRight, { borderLeftColor: theme.colors.outlineVariant }]}>
+            {detailContent}
+          </View>
+        </View>
+      ) : (
+        <View style={isWide ? styles.widePageInner : undefined}>
+          <PhotoGallery photos={photos} maxGalleryWidth={galleryMaxWidth} />
+          {detailContent}
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -342,8 +352,29 @@ const styles = StyleSheet.create({
   },
   widePageInner: {
     width: '100%',
-    maxWidth: WIDE_PAGE_MAX_WIDTH,
+    maxWidth: WIDE_DETAIL_PAGE_MAX_WIDTH,
     alignSelf: 'center',
+  },
+  wideSplitScrollContent: {
+    paddingHorizontal: spacing.base,
+  },
+  wideSplitRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.lg,
+    width: '100%',
+    maxWidth: WIDE_DETAIL_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
+  },
+  wideSplitLeft: {
+    flex: 1,
+    minWidth: 280,
+  },
+  wideSplitRight: {
+    flex: 1,
+    minWidth: 280,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    paddingLeft: spacing.lg,
   },
   content: {
     paddingBottom: spacing['2xl'],
