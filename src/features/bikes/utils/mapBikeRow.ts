@@ -5,7 +5,7 @@ import type { BikeType, ItemCondition } from '@/shared/types';
 import { ItemCondition as ItemConditionValues } from '@/shared/types';
 
 function mapOptionalNumber(value: unknown): number | undefined {
-  if (value === null || value === undefined) return undefined;
+  if (value == null) return undefined;
   const n = typeof value === 'number' ? value : parseFloat(String(value));
   return Number.isFinite(n) ? n : undefined;
 }

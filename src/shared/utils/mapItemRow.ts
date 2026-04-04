@@ -12,16 +12,10 @@ import type {
 
 /** Transforms a Supabase row into the Item domain model. */
 export function mapItemRow(row: ItemRow): Item {
-  const rawUsageKm = row.usage_km as number | null | undefined;
-  const usageKm = rawUsageKm === null || rawUsageKm === undefined ? undefined : rawUsageKm;
-
-  const rawRemaining = row.remaining_fraction as number | null | undefined;
-  const remainingFraction =
-    rawRemaining === null || rawRemaining === undefined ? undefined : rawRemaining;
-
-  const rawQty = row.quantity as number | null | undefined;
-  const quantity =
-    rawQty === null || rawQty === undefined || Number.isNaN(rawQty) ? 1 : Math.max(1, rawQty);
+  const usageKm = (row.usage_km as number | null) ?? undefined;
+  const remainingFraction = (row.remaining_fraction as number | null) ?? undefined;
+  const rawQty = (row.quantity as number | null) ?? NaN;
+  const quantity = Number.isNaN(rawQty) ? 1 : Math.max(1, rawQty);
 
   return {
     id: row.id as ItemId,
