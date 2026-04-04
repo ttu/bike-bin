@@ -74,6 +74,7 @@ export const NotificationType = {
   BorrowRequestDeclined: 'borrow_request_declined',
   ReturnReminder: 'return_reminder',
   RatingPrompt: 'rating_prompt',
+  DataExportReady: 'data_export_ready',
 } as const;
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 
@@ -114,3 +115,11 @@ export const DURATION_OPTIONS = [
   'flexible',
 ] as const;
 export type BorrowDuration = (typeof DURATION_OPTIONS)[number];
+
+export const ExportRequestStatus = {
+  Pending: 'pending',
+  Processing: 'processing',
+  Completed: 'completed',
+  Failed: 'failed',
+} as const;
+export type ExportRequestStatus = (typeof ExportRequestStatus)[keyof typeof ExportRequestStatus];

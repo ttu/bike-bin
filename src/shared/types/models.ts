@@ -13,6 +13,7 @@ import {
   BikePhotoId,
   ReportId,
   SupportRequestId,
+  ExportRequestId,
 } from './ids';
 import {
   ItemCategory,
@@ -27,6 +28,7 @@ import {
   NotificationType,
   DistanceUnit,
   BorrowDuration,
+  ExportRequestStatus,
 } from './enums';
 
 export interface UserProfile {
@@ -210,4 +212,15 @@ export interface Report {
   text: string | undefined;
   status: ReportStatus;
   createdAt: string;
+}
+
+export interface ExportRequest {
+  id: ExportRequestId;
+  userId: UserId;
+  status: ExportRequestStatus;
+  storagePath: string | undefined;
+  errorMessage: string | undefined;
+  expiresAt: string | undefined;
+  createdAt: string;
+  updatedAt: string;
 }

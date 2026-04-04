@@ -12,3 +12,5 @@ export { useUpdateProfile } from './hooks/useUpdateProfile';
 export { useDistanceUnit } from './hooks/useDistanceUnit';
 export { useSubmitSupport } from './hooks/useSubmitSupport';
 export { useDeleteAccount } from './hooks/useDeleteAccount';
+export { useRequestExport } from './hooks/useRequestExport';
+export { useLatestExport } from './hooks/useLatestExport';

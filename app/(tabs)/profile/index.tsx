@@ -202,6 +202,15 @@ export default function ProfileScreen() {
           onPress={() => router.push('/(tabs)/profile/about')}
         />
 
+        {/* Export My Data */}
+        {user && !isDemoMode && (
+          <MenuItem
+            icon="download"
+            label={t('menu.exportData')}
+            onPress={() => router.push('/(tabs)/profile/export-data' as never)}
+          />
+        )}
+
         {/* Sign Out / Exit Demo */}
         {isDemoMode && (
           <Pressable

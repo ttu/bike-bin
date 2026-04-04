@@ -13,6 +13,7 @@
     "appearance": "Appearance",
     "helpSupport": "Help & Support",
     "aboutLegal": "About & Legal",
+    "exportData": "Export My Data",
     "signOut": "Sign Out"
   },
   "appearance": {
@@ -104,6 +105,24 @@
     "deleting": "Deleting account...",
     "errorTitle": "Error",
     "errorMessage": "Failed to delete your account. Please try again or contact support."
+  },
+  "export": {
+    "menuLabel": "Export My Data",
+    "title": "Export My Data",
+    "description": "Download a copy of all your data including your profile, inventory, photos, conversations, and more.",
+    "included": "What's included:",
+    "includedItems": "Profile, saved locations, items, bikes, photos, conversations, messages, borrow requests, ratings, groups, notifications, support requests, and subscriptions.",
+    "button": "Export My Data",
+    "requesting": "Requesting export...",
+    "processing": "Your export is being prepared. We'll notify you when it's ready.",
+    "readyTitle": "Export Ready",
+    "readyMessage": "Your data export is ready to download.",
+    "expiresIn": "Available for {{hours}} more hours",
+    "download": "Download",
+    "failed": "Export failed. Please try again.",
+    "retry": "Try Again",
+    "rateLimited": "You can request a new export after {{time}}.",
+    "expired": "This export has expired. Request a new one."
   },
   "publicProfile": {
     "notFoundTitle": "Profile unavailable",

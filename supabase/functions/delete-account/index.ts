@@ -10,8 +10,9 @@
 // 5. Delete saved_locations
 // 6. Delete group_members entries
 // 7. Delete notifications
-// 8. Delete profile
-// 9. Delete auth user
+// 8. Delete export ZIP files from storage
+// 9. Delete profile
+// 10. Delete auth user
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -117,10 +118,28 @@ Deno.serve(async (req) => {
     // 11. Delete reports by this user
     await supabase.from('reports').delete().eq('reporter_id', userId);
 
-    // 12. Delete profile
+    // 12. Delete export ZIP files from storage
+    const { data: exportRequests } = await supabase
+      .from('export_requests')
+      .select('storage_path')
+      .eq('user_id', userId)
+      .not('storage_path', 'is', null);
+
+    if (exportRequests && exportRequests.length > 0) {
+      const storagePaths = exportRequests
+        .map((e) => e.storage_path)
+        .filter((p): p is string => !!p);
+      if (storagePaths.length > 0) {
+        await supabase.storage.from('data-exports').remove(storagePaths);
+      }
+    }
+
+    // export_requests rows are deleted by ON DELETE CASCADE from profiles
+
+    // 13. Delete profile
     await supabase.from('profiles').delete().eq('id', userId);
 
-    // 13. Delete auth user (must be last)
+    // 14. Delete auth user (must be last)
     const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
     if (deleteError) {
       console.error('Failed to delete auth user:', deleteError.message);

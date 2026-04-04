@@ -1,0 +1,51 @@
+import { renderHook, waitFor } from '@testing-library/react-native';
+import { useLatestExport } from '../useLatestExport';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
+
+const mockSingle = jest.fn();
+const mockLimit = jest.fn(() => ({ single: mockSingle }));
+const mockOrder = jest.fn(() => ({ limit: mockLimit }));
+const mockEq = jest.fn(() => ({ order: mockOrder }));
+const mockSelect = jest.fn(() => ({ eq: mockEq }));
+
+jest.mock('@/shared/api/supabase', () => ({
+  supabase: {
+    from: jest.fn(() => ({ select: mockSelect })),
+  },
+}));
+
+beforeEach(() => jest.clearAllMocks());
+
+describe('useLatestExport', () => {
+  it('returns the latest export request for the user', async () => {
+    const mockExport = {
+      id: 'export-1',
+      user_id: 'user-1',
+      status: 'completed',
+      storage_path: 'exports/user-1/export-1.zip',
+      expires_at: new Date(Date.now() + 86400000).toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    mockSingle.mockResolvedValue({ data: mockExport, error: null });
+
+    const { result } = renderHook(() => useLatestExport('user-1'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.status).toBe('completed');
+  });
+
+  it('returns null when no export requests exist', async () => {
+    mockSingle.mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'No rows' } });
+
+    const { result } = renderHook(() => useLatestExport('user-1'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toBeNull();
+  });
+});
