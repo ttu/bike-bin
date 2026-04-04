@@ -512,20 +512,20 @@ $$;
 -- Own profile: full access (includes push_token)
 CREATE POLICY "profiles_select_own"
   ON profiles FOR SELECT
-  USING (auth.uid() = id);
+  USING ((select auth.uid()) = id);
 
 CREATE POLICY "profiles_insert_own"
   ON profiles FOR INSERT
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK ((select auth.uid()) = id);
 
 CREATE POLICY "profiles_update_own"
   ON profiles FOR UPDATE
-  USING (auth.uid() = id)
-  WITH CHECK (auth.uid() = id);
+  USING ((select auth.uid()) = id)
+  WITH CHECK ((select auth.uid()) = id);
 
 CREATE POLICY "profiles_delete_own"
   ON profiles FOR DELETE
-  USING (auth.uid() = id);
+  USING ((select auth.uid()) = id);
 
 -- ============================================================
 -- RLS POLICIES: saved_locations
@@ -533,20 +533,20 @@ CREATE POLICY "profiles_delete_own"
 
 CREATE POLICY "saved_locations_select_own"
   ON saved_locations FOR SELECT
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 CREATE POLICY "saved_locations_insert_own"
   ON saved_locations FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK ((select auth.uid()) = user_id);
 
 CREATE POLICY "saved_locations_update_own"
   ON saved_locations FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id)
+  WITH CHECK ((select auth.uid()) = user_id);
 
 CREATE POLICY "saved_locations_delete_own"
   ON saved_locations FOR DELETE
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- ============================================================
 -- RLS POLICIES: items
@@ -556,36 +556,36 @@ CREATE POLICY "items_select_public"
   ON items FOR SELECT
   USING (
     visibility = 'all'
-    OR owner_id = auth.uid()
+    OR owner_id = (select auth.uid())
     OR (
       visibility = 'groups'
-      AND public.user_shares_group_with_item(id, auth.uid())
+      AND public.user_shares_group_with_item(id, (select auth.uid()))
     )
   );
 
 CREATE POLICY "items_insert_own"
   ON items FOR INSERT
-  WITH CHECK (auth.uid() = owner_id);
+  WITH CHECK ((select auth.uid()) = owner_id);
 
 -- Owners can update their items (but not while loaned or reserved)
 CREATE POLICY "items_update_own"
   ON items FOR UPDATE
   USING (
-    auth.uid() = owner_id
+    (select auth.uid()) = owner_id
     AND status NOT IN ('loaned', 'reserved')
   )
-  WITH CHECK (auth.uid() = owner_id);
+  WITH CHECK ((select auth.uid()) = owner_id);
 
 -- Allow owners to release borrow-locked items back to stored
 CREATE POLICY "items_update_owner_release_borrow_lock"
   ON items FOR UPDATE
-  USING (auth.uid() = owner_id AND status IN ('loaned', 'reserved'))
-  WITH CHECK (auth.uid() = owner_id AND status = 'stored');
+  USING ((select auth.uid()) = owner_id AND status IN ('loaned', 'reserved'))
+  WITH CHECK ((select auth.uid()) = owner_id AND status = 'stored');
 
 CREATE POLICY "items_delete_own"
   ON items FOR DELETE
   USING (
-    auth.uid() = owner_id
+    (select auth.uid()) = owner_id
     AND status NOT IN ('loaned', 'reserved')
   );
 
@@ -601,10 +601,10 @@ CREATE POLICY "item_photos_select_via_item"
       WHERE items.id = item_photos.item_id
         AND (
           items.visibility = 'all'
-          OR items.owner_id = auth.uid()
+          OR items.owner_id = (select auth.uid())
           OR (
             items.visibility = 'groups'
-            AND public.user_shares_group_with_item(items.id, auth.uid())
+            AND public.user_shares_group_with_item(items.id, (select auth.uid()))
           )
         )
     )
@@ -615,7 +615,7 @@ CREATE POLICY "item_photos_insert_own"
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM items
-      WHERE items.id = item_photos.item_id AND items.owner_id = auth.uid()
+      WHERE items.id = item_photos.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -624,7 +624,7 @@ CREATE POLICY "item_photos_update_own"
   USING (
     EXISTS (
       SELECT 1 FROM items
-      WHERE items.id = item_photos.item_id AND items.owner_id = auth.uid()
+      WHERE items.id = item_photos.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -633,7 +633,7 @@ CREATE POLICY "item_photos_delete_own"
   USING (
     EXISTS (
       SELECT 1 FROM items
-      WHERE items.id = item_photos.item_id AND items.owner_id = auth.uid()
+      WHERE items.id = item_photos.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -643,20 +643,20 @@ CREATE POLICY "item_photos_delete_own"
 
 CREATE POLICY "bikes_select_own"
   ON bikes FOR SELECT
-  USING (auth.uid() = owner_id);
+  USING ((select auth.uid()) = owner_id);
 
 CREATE POLICY "bikes_insert_own"
   ON bikes FOR INSERT
-  WITH CHECK (auth.uid() = owner_id);
+  WITH CHECK ((select auth.uid()) = owner_id);
 
 CREATE POLICY "bikes_update_own"
   ON bikes FOR UPDATE
-  USING (auth.uid() = owner_id)
-  WITH CHECK (auth.uid() = owner_id);
+  USING ((select auth.uid()) = owner_id)
+  WITH CHECK ((select auth.uid()) = owner_id);
 
 CREATE POLICY "bikes_delete_own"
   ON bikes FOR DELETE
-  USING (auth.uid() = owner_id);
+  USING ((select auth.uid()) = owner_id);
 
 -- ============================================================
 -- RLS POLICIES: bike_photos
@@ -667,7 +667,7 @@ CREATE POLICY "bike_photos_select_own"
   USING (
     EXISTS (
       SELECT 1 FROM bikes
-      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = auth.uid()
+      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = (select auth.uid())
     )
   );
 
@@ -676,7 +676,7 @@ CREATE POLICY "bike_photos_insert_own"
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM bikes
-      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = auth.uid()
+      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = (select auth.uid())
     )
   );
 
@@ -685,7 +685,7 @@ CREATE POLICY "bike_photos_update_own"
   USING (
     EXISTS (
       SELECT 1 FROM bikes
-      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = auth.uid()
+      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = (select auth.uid())
     )
   );
 
@@ -694,7 +694,7 @@ CREATE POLICY "bike_photos_delete_own"
   USING (
     EXISTS (
       SELECT 1 FROM bikes
-      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = auth.uid()
+      WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = (select auth.uid())
     )
   );
 
@@ -706,20 +706,20 @@ CREATE POLICY "groups_select"
   ON groups FOR SELECT
   USING (
     is_public = true
-    OR public.is_group_member(id, auth.uid())
+    OR public.is_group_member(id, (select auth.uid()))
   );
 
 CREATE POLICY "groups_insert_authenticated"
   ON groups FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL);
+  WITH CHECK ((select auth.uid()) IS NOT NULL);
 
 CREATE POLICY "groups_update_admin"
   ON groups FOR UPDATE
-  USING (public.is_group_admin(id, auth.uid()));
+  USING (public.is_group_admin(id, (select auth.uid())));
 
 CREATE POLICY "groups_delete_admin"
   ON groups FOR DELETE
-  USING (public.is_group_admin(id, auth.uid()));
+  USING (public.is_group_admin(id, (select auth.uid())));
 
 -- ============================================================
 -- RLS POLICIES: group_members
@@ -728,27 +728,27 @@ CREATE POLICY "groups_delete_admin"
 CREATE POLICY "group_members_select"
   ON group_members FOR SELECT
   USING (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     OR public.is_public_group(group_id)
-    OR public.is_group_member(group_id, auth.uid())
+    OR public.is_group_member(group_id, (select auth.uid()))
   );
 
 CREATE POLICY "group_members_insert"
   ON group_members FOR INSERT
   WITH CHECK (
-    user_id = auth.uid()
-    OR public.is_group_admin(group_id, auth.uid())
+    user_id = (select auth.uid())
+    OR public.is_group_admin(group_id, (select auth.uid()))
   );
 
 CREATE POLICY "group_members_update_admin"
   ON group_members FOR UPDATE
-  USING (public.is_group_admin(group_id, auth.uid()));
+  USING (public.is_group_admin(group_id, (select auth.uid())));
 
 CREATE POLICY "group_members_delete"
   ON group_members FOR DELETE
   USING (
-    user_id = auth.uid()
-    OR public.is_group_admin(group_id, auth.uid())
+    user_id = (select auth.uid())
+    OR public.is_group_admin(group_id, (select auth.uid()))
   );
 
 -- ============================================================
@@ -761,12 +761,12 @@ CREATE POLICY "item_groups_select"
     EXISTS (
       SELECT 1 FROM group_members
       WHERE group_members.group_id = item_groups.group_id
-        AND group_members.user_id = auth.uid()
+        AND group_members.user_id = (select auth.uid())
     )
     OR EXISTS (
       SELECT 1 FROM items
       WHERE items.id = item_groups.item_id
-        AND items.owner_id = auth.uid()
+        AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -774,7 +774,7 @@ CREATE POLICY "item_groups_insert_owner"
   ON item_groups FOR INSERT
   WITH CHECK (
     EXISTS (
-      SELECT 1 FROM items WHERE items.id = item_groups.item_id AND items.owner_id = auth.uid()
+      SELECT 1 FROM items WHERE items.id = item_groups.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -782,7 +782,7 @@ CREATE POLICY "item_groups_delete_owner"
   ON item_groups FOR DELETE
   USING (
     EXISTS (
-      SELECT 1 FROM items WHERE items.id = item_groups.item_id AND items.owner_id = auth.uid()
+      SELECT 1 FROM items WHERE items.id = item_groups.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -793,18 +793,18 @@ CREATE POLICY "item_groups_delete_owner"
 CREATE POLICY "borrow_requests_select"
   ON borrow_requests FOR SELECT
   USING (
-    requester_id = auth.uid()
+    requester_id = (select auth.uid())
     OR EXISTS (
-      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = auth.uid()
+      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
 CREATE POLICY "borrow_requests_insert"
   ON borrow_requests FOR INSERT
   WITH CHECK (
-    auth.uid() = requester_id
+    (select auth.uid()) = requester_id
     AND NOT EXISTS (
-      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = auth.uid()
+      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -812,15 +812,15 @@ CREATE POLICY "borrow_requests_insert"
 CREATE POLICY "borrow_requests_update"
   ON borrow_requests FOR UPDATE
   USING (
-    requester_id = auth.uid()
+    requester_id = (select auth.uid())
     OR EXISTS (
-      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = auth.uid()
+      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = (select auth.uid())
     )
   )
   WITH CHECK (
-    requester_id = auth.uid()
+    requester_id = (select auth.uid())
     OR EXISTS (
-      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = auth.uid()
+      SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.owner_id = (select auth.uid())
     )
   );
 
@@ -831,15 +831,15 @@ CREATE POLICY "borrow_requests_update"
 CREATE POLICY "conversations_select"
   ON conversations FOR SELECT
   USING (
-    public.is_conversation_participant(id, auth.uid())
+    public.is_conversation_participant(id, (select auth.uid()))
   );
 
 CREATE POLICY "conversations_insert_authenticated"
   ON conversations FOR INSERT
   WITH CHECK (
-    auth.uid() IS NOT NULL
+    (select auth.uid()) IS NOT NULL
     AND item_id IS NOT NULL
-    AND public.can_see_item(item_id, auth.uid())
+    AND public.can_see_item(item_id, (select auth.uid()))
   );
 
 -- ============================================================
@@ -849,19 +849,19 @@ CREATE POLICY "conversations_insert_authenticated"
 CREATE POLICY "conversation_participants_select"
   ON conversation_participants FOR SELECT
   USING (
-    user_id = auth.uid()
-    OR public.is_conversation_participant(conversation_id, auth.uid())
+    user_id = (select auth.uid())
+    OR public.is_conversation_participant(conversation_id, (select auth.uid()))
   );
 
 CREATE POLICY "conversation_participants_insert"
   ON conversation_participants FOR INSERT
   WITH CHECK (
-    auth.uid() IS NOT NULL
+    (select auth.uid()) IS NOT NULL
     AND (
       -- Conversation is brand new (no participants yet)
       public.conversation_has_no_participants(conversation_id)
       -- Inserter is already a participant
-      OR public.is_conversation_participant(conversation_id, auth.uid())
+      OR public.is_conversation_participant(conversation_id, (select auth.uid()))
     )
   );
 
@@ -872,14 +872,14 @@ CREATE POLICY "conversation_participants_insert"
 CREATE POLICY "messages_select"
   ON messages FOR SELECT
   USING (
-    public.is_conversation_participant(conversation_id, auth.uid())
+    public.is_conversation_participant(conversation_id, (select auth.uid()))
   );
 
 CREATE POLICY "messages_insert"
   ON messages FOR INSERT
   WITH CHECK (
-    auth.uid() = sender_id
-    AND public.is_conversation_participant(conversation_id, auth.uid())
+    (select auth.uid()) = sender_id
+    AND public.is_conversation_participant(conversation_id, (select auth.uid()))
   );
 
 -- ============================================================
@@ -894,7 +894,7 @@ CREATE POLICY "ratings_select_public"
 CREATE POLICY "ratings_insert_verified"
   ON ratings FOR INSERT
   WITH CHECK (
-    auth.uid() = from_user_id
+    (select auth.uid()) = from_user_id
     AND from_user_id != to_user_id
     AND EXISTS (
       SELECT 1 FROM borrow_requests br
@@ -912,14 +912,14 @@ CREATE POLICY "ratings_insert_verified"
 CREATE POLICY "ratings_update_own"
   ON ratings FOR UPDATE
   USING (
-    auth.uid() = from_user_id
+    (select auth.uid()) = from_user_id
     AND (editable_until IS NULL OR editable_until > now())
   )
-  WITH CHECK (auth.uid() = from_user_id);
+  WITH CHECK ((select auth.uid()) = from_user_id);
 
 CREATE POLICY "ratings_delete_own"
   ON ratings FOR DELETE
-  USING (auth.uid() = from_user_id);
+  USING ((select auth.uid()) = from_user_id);
 
 -- ============================================================
 -- RLS POLICIES: notifications
@@ -927,18 +927,18 @@ CREATE POLICY "ratings_delete_own"
 
 CREATE POLICY "notifications_select_own"
   ON notifications FOR SELECT
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- No INSERT policy: only service_role (Edge Functions/triggers) can insert
 
 CREATE POLICY "notifications_update_own"
   ON notifications FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id)
+  WITH CHECK ((select auth.uid()) = user_id);
 
 CREATE POLICY "notifications_delete_own"
   ON notifications FOR DELETE
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- ============================================================
 -- RLS POLICIES: subscriptions
@@ -946,7 +946,7 @@ CREATE POLICY "notifications_delete_own"
 
 CREATE POLICY "subscriptions_select_own"
   ON subscriptions FOR SELECT
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- No INSERT/UPDATE/DELETE policies: service_role / dashboard SQL only
 
@@ -956,11 +956,11 @@ CREATE POLICY "subscriptions_select_own"
 
 CREATE POLICY "export_requests_select_own"
   ON export_requests FOR SELECT
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 CREATE POLICY "export_requests_insert_own"
   ON export_requests FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK ((select auth.uid()) = user_id);
 
 -- ============================================================
 -- RLS POLICIES: support_requests
@@ -969,12 +969,12 @@ CREATE POLICY "export_requests_insert_own"
 CREATE POLICY "support_requests_insert"
   ON support_requests FOR INSERT
   WITH CHECK (
-    user_id IS NULL OR auth.uid() = user_id
+    user_id IS NULL OR (select auth.uid()) = user_id
   );
 
 CREATE POLICY "support_requests_select_own"
   ON support_requests FOR SELECT
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- ============================================================
 -- RLS POLICIES: reports
@@ -982,11 +982,11 @@ CREATE POLICY "support_requests_select_own"
 
 CREATE POLICY "reports_insert_authenticated"
   ON reports FOR INSERT
-  WITH CHECK (auth.uid() = reporter_id);
+  WITH CHECK ((select auth.uid()) = reporter_id);
 
 CREATE POLICY "reports_select_own"
   ON reports FOR SELECT
-  USING (auth.uid() = reporter_id);
+  USING ((select auth.uid()) = reporter_id);
 
 -- ============================================================
 -- RLS POLICIES: geocode_cache
@@ -1119,28 +1119,28 @@ BEGIN
   END IF;
 
   IF OLD.status = 'pending' AND NEW.status IN ('accepted', 'rejected') THEN
-    IF NOT EXISTS (SELECT 1 FROM items WHERE id = NEW.item_id AND owner_id = auth.uid()) THEN
+    IF NOT EXISTS (SELECT 1 FROM items WHERE id = NEW.item_id AND owner_id = (select auth.uid())) THEN
       RAISE EXCEPTION 'borrow_requests: only item owner may accept or reject';
     END IF;
     RETURN NEW;
   END IF;
 
   IF OLD.status = 'pending' AND NEW.status = 'cancelled' THEN
-    IF OLD.requester_id IS DISTINCT FROM auth.uid() THEN
+    IF OLD.requester_id IS DISTINCT FROM (select auth.uid()) THEN
       RAISE EXCEPTION 'borrow_requests: only requester may cancel a pending request';
     END IF;
     RETURN NEW;
   END IF;
 
   IF OLD.status = 'accepted' AND NEW.status = 'returned' THEN
-    IF NOT EXISTS (SELECT 1 FROM items WHERE id = NEW.item_id AND owner_id = auth.uid()) THEN
+    IF NOT EXISTS (SELECT 1 FROM items WHERE id = NEW.item_id AND owner_id = (select auth.uid())) THEN
       RAISE EXCEPTION 'borrow_requests: only item owner may mark returned';
     END IF;
     RETURN NEW;
   END IF;
 
   IF OLD.status = 'accepted' AND NEW.status = 'cancelled' THEN
-    IF OLD.requester_id IS DISTINCT FROM auth.uid() THEN
+    IF OLD.requester_id IS DISTINCT FROM (select auth.uid()) THEN
       RAISE EXCEPTION 'borrow_requests: only requester may cancel an accepted request';
     END IF;
     RETURN NEW;
@@ -1153,7 +1153,7 @@ $$;
 -- Tag autocomplete RPC
 CREATE OR REPLACE FUNCTION get_user_tags()
 RETURNS SETOF text AS $$
-  SELECT DISTINCT unnest(tags) FROM items WHERE owner_id = auth.uid()
+  SELECT DISTINCT unnest(tags) FROM items WHERE owner_id = (select auth.uid())
   ORDER BY 1;
 $$ LANGUAGE sql SECURITY DEFINER STABLE
 SET search_path = public;
@@ -1288,21 +1288,21 @@ BEGIN
   LEFT JOIN LATERAL (
     SELECT loc.coordinates
     FROM saved_locations loc
-    WHERE loc.user_id = auth.uid() AND loc.is_primary = true
+    WHERE loc.user_id = (select auth.uid()) AND loc.is_primary = true
     LIMIT 1
   ) caller_loc ON true
   WHERE i.id = p_item_id
     -- Non-owners cannot view archived, donated, or sold items
-    AND (i.owner_id = auth.uid() OR i.status NOT IN ('archived', 'donated', 'sold'))
+    AND (i.owner_id = (select auth.uid()) OR i.status NOT IN ('archived', 'donated', 'sold'))
     AND (
       i.visibility = 'all'
-      OR i.owner_id = auth.uid()
+      OR i.owner_id = (select auth.uid())
       OR (
         i.visibility = 'groups'
         AND EXISTS (
           SELECT 1 FROM item_groups ig
           JOIN group_members gm ON gm.group_id = ig.group_id
-          WHERE ig.item_id = i.id AND gm.user_id = auth.uid()
+          WHERE ig.item_id = i.id AND gm.user_id = (select auth.uid())
         )
       )
     );
@@ -1348,7 +1348,7 @@ SECURITY INVOKER
 SET search_path = public, extensions
 AS $$
 BEGIN
-  IF auth.uid() IS NULL THEN
+  IF (select auth.uid()) IS NULL THEN
     RAISE EXCEPTION 'search requires authentication'
       USING ERRCODE = '42501';
   END IF;
@@ -1384,7 +1384,7 @@ BEGIN
   FROM items i
   LEFT JOIN saved_locations sl ON sl.id = i.pickup_location_id
   WHERE
-    i.owner_id != auth.uid()
+    i.owner_id != (select auth.uid())
     AND i.status NOT IN ('archived', 'donated', 'sold')
     AND (
       i.visibility = 'all'
@@ -1393,7 +1393,7 @@ BEGIN
         AND EXISTS (
           SELECT 1 FROM item_groups ig
           JOIN group_members gm ON gm.group_id = ig.group_id
-          WHERE ig.item_id = i.id AND gm.user_id = auth.uid()
+          WHERE ig.item_id = i.id AND gm.user_id = (select auth.uid())
         )
       )
     )
@@ -1478,7 +1478,7 @@ CREATE POLICY "item_photos_storage_insert"
   TO authenticated
   WITH CHECK (
     bucket_id = 'item-photos'
-    AND (storage.foldername(name))[2] = auth.uid()::text
+    AND (storage.foldername(name))[2] = (select auth.uid())::text
   );
 
 CREATE POLICY "item_photos_storage_select"
@@ -1489,12 +1489,12 @@ CREATE POLICY "item_photos_storage_select"
 CREATE POLICY "item_photos_storage_update"
   ON storage.objects FOR UPDATE
   TO authenticated
-  USING (bucket_id = 'item-photos' AND (storage.foldername(name))[2] = auth.uid()::text);
+  USING (bucket_id = 'item-photos' AND (storage.foldername(name))[2] = (select auth.uid())::text);
 
 CREATE POLICY "item_photos_storage_delete"
   ON storage.objects FOR DELETE
   TO authenticated
-  USING (bucket_id = 'item-photos' AND (storage.foldername(name))[2] = auth.uid()::text);
+  USING (bucket_id = 'item-photos' AND (storage.foldername(name))[2] = (select auth.uid())::text);
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('data-exports', 'data-exports', false)
@@ -1504,7 +1504,7 @@ CREATE POLICY "data_exports_select_own"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'data-exports'
-    AND auth.uid()::text = (string_to_array(name, '/'))[2]
+    AND (select auth.uid())::text = (string_to_array(name, '/'))[2]
   );
 
 -- ============================================================
