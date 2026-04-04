@@ -43,7 +43,7 @@ Aim for roughly:
 - **~20% E2E** — Critical flows (auth, inventory, borrow, messaging as they stabilize).
 - **~10% unit** — Pure functions in `utils/` (validation, state transitions, formatting).
 
-### Current status (894 app tests + 118 E2E tests + 131 RLS tests)
+### Current status (879 app tests + 118 E2E tests + 155 RLS tests)
 
 | Category                         | Tests | Share | Target | Status |
 | -------------------------------- | ----: | ----: | -----: | ------ |
@@ -51,7 +51,7 @@ Aim for roughly:
 | Screen-level (near-E2E)          |    53 |    6% |    20% | low    |
 | Unit (utils, mappers, pure fns)  |   237 |   30% |    10% | high   |
 | **E2E (Playwright)**             |   118 |     — |      — | green  |
-| **RLS (separate suite)**         |   131 |     — |      — | green  |
+| **RLS (separate suite)**         |   155 |     — |      — | green  |
 
 Unit tests are over-represented relative to the diamond target. The main gap is screen-level / E2E coverage — prioritize adding screen integration tests for critical flows (messaging, borrow, profile) and Playwright E2E specs to move toward the 70-20-10 split.
 
@@ -78,15 +78,16 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 
 **Location:** `src/test/__tests__/rls/` — one file per domain:
 
-| Suite                        | What it covers                                                  |
-| ---------------------------- | --------------------------------------------------------------- |
-| `inventory.rls.test.ts`      | Items, photos, tags — owner vs. other user vs. anon             |
-| `borrowing.rls.test.ts`      | Borrow requests — SELECT/INSERT; UPDATE state machine (trigger) |
-| `messaging.rls.test.ts`      | Conversations, messages — participant vs. non-participant       |
-| `groups.rls.test.ts`         | Groups, memberships, group items — member vs. outsider          |
-| `community.rls.test.ts`      | Profiles, ratings, notifications, subscriptions, locations      |
-| `ownership.rls.test.ts`      | Cross-cutting ownership policies (bikes, parts)                 |
-| `infrastructure.rls.test.ts` | System tables (geocode_cache, etc.) — no user access            |
+| Suite                        | What it covers                                                     |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `inventory.rls.test.ts`      | Items, photos, tags — owner vs. other user vs. anon                |
+| `borrowing.rls.test.ts`      | Borrow requests — SELECT/INSERT; UPDATE state machine (trigger)    |
+| `messaging.rls.test.ts`      | Conversations, participants, messages — access + blocked writes    |
+| `groups.rls.test.ts`         | Groups, memberships, group items — member vs. outsider             |
+| `community.rls.test.ts`      | Ratings, notifications, subscriptions, reports, support_requests   |
+| `ownership.rls.test.ts`      | Profiles, `public_profiles`, saved locations, bikes, bike photos   |
+| `export_storage.rls.test.ts` | `export_requests`; Storage `data-exports` + `item-photos` policies |
+| `infrastructure.rls.test.ts` | System tables (geocode_cache, etc.) — no user access               |
 
 **How they work:**
 

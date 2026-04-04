@@ -285,3 +285,109 @@ describe('messages — INSERT', () => {
     expect(error).toBeTruthy();
   });
 });
+
+// ============================================================
+// conversations — UPDATE / DELETE (no policies: writes blocked)
+// ============================================================
+
+describe('conversations — UPDATE / DELETE', () => {
+  it('participant cannot update conversation', async () => {
+    const { data, error } = await userA.client
+      .from('conversations')
+      .update({ item_id: itemAId })
+      .eq('id', conversationId)
+      .select();
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it('participant cannot delete conversation', async () => {
+    const { data, error } = await userA.client
+      .from('conversations')
+      .delete()
+      .eq('id', conversationId)
+      .select();
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+
+    const { data: stillExists } = await adminClient
+      .from('conversations')
+      .select('id')
+      .eq('id', conversationId);
+    expect(stillExists).toHaveLength(1);
+  });
+});
+
+// ============================================================
+// conversation_participants — UPDATE / DELETE
+// ============================================================
+
+describe('conversation_participants — UPDATE / DELETE', () => {
+  it('participant cannot update participant row', async () => {
+    const { data, error } = await userA.client
+      .from('conversation_participants')
+      .update({ user_id: userA.id })
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id)
+      .select();
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it('participant cannot delete participant row', async () => {
+    const { data, error } = await userA.client
+      .from('conversation_participants')
+      .delete()
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id)
+      .select();
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+
+    const { data: stillExists } = await adminClient
+      .from('conversation_participants')
+      .select('user_id')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id);
+    expect(stillExists).toHaveLength(1);
+  });
+});
+
+// ============================================================
+// messages — UPDATE / DELETE
+// ============================================================
+
+describe('messages — UPDATE / DELETE', () => {
+  it('participant cannot update message', async () => {
+    const { data, error } = await userA.client
+      .from('messages')
+      .update({ body: 'Tampered' })
+      .eq('id', messageAId)
+      .select();
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+
+    const { data: row } = await adminClient
+      .from('messages')
+      .select('body')
+      .eq('id', messageAId)
+      .single();
+    expect(row?.body).toBe('Hello from A');
+  });
+
+  it('participant cannot delete message', async () => {
+    const { data, error } = await userA.client
+      .from('messages')
+      .delete()
+      .eq('id', messageAId)
+      .select();
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+
+    const { data: stillExists } = await adminClient
+      .from('messages')
+      .select('id')
+      .eq('id', messageAId);
+    expect(stillExists).toHaveLength(1);
+  });
+});

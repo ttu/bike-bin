@@ -407,16 +407,36 @@ describe('subscriptions — INSERT / UPDATE / DELETE', () => {
   });
 
   it('user CANNOT update own subscriptions', async () => {
-    const { error } = await userA.client
+    const { data, error } = await userA.client
       .from('subscriptions')
       .update({ status: 'canceled' })
-      .eq('id', subscriptionId);
-    expect(error).toBeTruthy();
+      .eq('id', subscriptionId)
+      .select();
+    expect(error).toBeNull(); // RLS: no UPDATE policy — zero rows affected, no PostgREST error
+    expect(data).toEqual([]);
+
+    const { data: row } = await adminClient
+      .from('subscriptions')
+      .select('status')
+      .eq('id', subscriptionId)
+      .single();
+    expect(row?.status).toBe('active');
   });
 
   it('user CANNOT delete own subscriptions', async () => {
-    const { error } = await userA.client.from('subscriptions').delete().eq('id', subscriptionId);
-    expect(error).toBeTruthy();
+    const { data, error } = await userA.client
+      .from('subscriptions')
+      .delete()
+      .eq('id', subscriptionId)
+      .select();
+    expect(error).toBeNull(); // RLS silently filters — no rows deleted
+    expect(data).toEqual([]);
+
+    const { data: stillExists } = await adminClient
+      .from('subscriptions')
+      .select('id')
+      .eq('id', subscriptionId);
+    expect(stillExists).toHaveLength(1);
   });
 });
 
