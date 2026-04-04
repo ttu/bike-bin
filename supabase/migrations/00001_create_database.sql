@@ -567,20 +567,11 @@ CREATE POLICY "items_insert_own"
   ON items FOR INSERT
   WITH CHECK ((select auth.uid()) = owner_id);
 
--- Owners can update their items (but not while loaned or reserved)
-CREATE POLICY "items_update_own"
+-- Owners can update their own rows (borrow-lock rules: trigger above).
+CREATE POLICY "items_update_owner"
   ON items FOR UPDATE
-  USING (
-    (select auth.uid()) = owner_id
-    AND status NOT IN ('loaned', 'reserved')
-  )
+  USING ((select auth.uid()) = owner_id)
   WITH CHECK ((select auth.uid()) = owner_id);
-
--- Allow owners to release borrow-locked items back to stored
-CREATE POLICY "items_update_owner_release_borrow_lock"
-  ON items FOR UPDATE
-  USING ((select auth.uid()) = owner_id AND status IN ('loaned', 'reserved'))
-  WITH CHECK ((select auth.uid()) = owner_id AND status = 'stored');
 
 CREATE POLICY "items_delete_own"
   ON items FOR DELETE
@@ -1077,7 +1068,8 @@ BEGIN
 END;
 $$;
 
--- Enforce no edits on borrow-locked items (only status change to stored allowed)
+-- Enforce no edits on borrow-locked items (only status change to stored allowed).
+-- Borrow→non-stored status changes are enforced here so `items` needs only one UPDATE policy (linter performance).
 CREATE OR REPLACE FUNCTION enforce_item_no_edits_while_borrow_locked()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -1093,6 +1085,8 @@ BEGIN
     IF old_j IS DISTINCT FROM new_j THEN
       RAISE EXCEPTION 'Borrow-locked items may only change when releasing to stored';
     END IF;
+  ELSIF OLD.status IN ('loaned', 'reserved') AND NEW.status IS DISTINCT FROM 'stored' THEN
+    RAISE EXCEPTION 'Borrow-locked items may only be released to stored';
   END IF;
   RETURN NEW;
 END;
