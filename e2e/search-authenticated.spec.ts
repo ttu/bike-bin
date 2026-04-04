@@ -1,4 +1,28 @@
-import { test, expect, navigateToSearch } from './fixtures';
+import { test, expect, navigateToSearch, navigateToTab } from './fixtures';
+import type { Page } from '@playwright/test';
+
+/**
+ * RN web can keep inactive tab screens in the DOM; the first matching node may be hidden.
+ * Waits until at least one "N results within … km" line is visible.
+ */
+async function expectVisibleSearchResultsBanner(page: Page) {
+  await expect(async () => {
+    const lines = page.getByText(/\d+ results? within \d+ km/);
+    const count = await lines.count();
+    expect(count).toBeGreaterThan(0);
+    let found = false;
+    for (let i = 0; i < count; i++) {
+      const line = lines.nth(i);
+      if (await line.isVisible()) {
+        await line.scrollIntoViewIfNeeded();
+        await expect(line).toBeVisible();
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+  }).toPass({ timeout: 10000 });
+}
 
 test.describe('Search with authenticated user', () => {
   test('shows search bar and empty state', async ({ loggedInPage }) => {
@@ -161,5 +185,62 @@ test.describe('Listing detail', () => {
     // The detail page should show condition info and owner section
     await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
     await expect(loggedInPage.getByText('View profile')).toBeVisible();
+  });
+
+  test('header back button returns to search results', async ({ loggedInPage }) => {
+    await navigateToSearch(loggedInPage);
+
+    const searchInput = loggedInPage.getByPlaceholder('Parts, tools, bikes...');
+    await searchInput.fill('shimano');
+    await searchInput.press('Enter');
+
+    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+      timeout: 10000,
+    });
+
+    await loggedInPage.getByText('Shimano').first().click();
+    await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+
+    await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
+
+    await loggedInPage.waitForURL((url) => /\/search\/?$/.test(url.pathname), { timeout: 10000 });
+
+    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+      timeout: 10000,
+    });
+  });
+
+  test('switching away from Search and back keeps results after opening a listing', async ({
+    loggedInPage,
+  }) => {
+    await navigateToSearch(loggedInPage);
+
+    const searchInput = loggedInPage.getByPlaceholder('Parts, tools, bikes...');
+    await searchInput.fill('a');
+    await searchInput.press('Enter');
+
+    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+      timeout: 10000,
+    });
+
+    await loggedInPage
+      .getByText(/Shimano|Continental|Brompton|Kryptonite|Tubus|Ortlieb|Vittoria|Brooks/)
+      .first()
+      .click();
+    await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+
+    await navigateToTab(loggedInPage, 'Inventory');
+    await loggedInPage.waitForURL(/\/inventory/, { timeout: 10000 });
+
+    await navigateToTab(loggedInPage, 'Search');
+    await loggedInPage.waitForURL(/\/search/, { timeout: 10000 });
+
+    // Tab switch restores Search with the stack still on listing detail, so the results banner is
+    // not visible yet. A second tap on Search (tab already focused) pops to the index root.
+    const tablist = loggedInPage.getByRole('tablist');
+    await tablist.getByRole('tab', { name: /Search/i }).click();
+
+    await expectVisibleSearchResultsBanner(loggedInPage);
   });
 });

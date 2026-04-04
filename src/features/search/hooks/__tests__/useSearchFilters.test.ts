@@ -20,6 +20,17 @@ describe('useSearchFilters', () => {
     const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
     expect(result.current.filters.categories).toEqual([]);
     expect(result.current.hasActiveFilters).toBe(false);
+    expect(result.current.hasSearched).toBe(false);
+  });
+
+  it('updates hasSearched via setHasSearched', () => {
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+
+    act(() => {
+      result.current.setHasSearched(true);
+    });
+
+    expect(result.current.hasSearched).toBe(true);
   });
 
   it('updates filters partially', () => {

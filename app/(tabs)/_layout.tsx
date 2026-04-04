@@ -7,6 +7,7 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnreadCount } from '@/features/messaging';
 import type { AppTheme } from '@/shared/theme';
+import { navigateToTabRoot } from '@/shared/utils/navigateToTabRoot';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -39,9 +40,14 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             target: route.key,
             canPreventDefault: true,
           });
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
+          if (event.defaultPrevented) {
+            return;
           }
+          if (!isFocused) {
+            navigation.navigate(route.name, route.params);
+            return;
+          }
+          navigateToTabRoot(navigation, route.name);
         };
 
         return (

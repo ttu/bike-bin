@@ -13,3 +13,5 @@ export { SearchResultCard } from './components/SearchResultCard/SearchResultCard
 export { SearchResultGridCard } from './components/SearchResultGridCard/SearchResultGridCard';
 export { FilterSheet } from './components/FilterSheet/FilterSheet';
 export { ListingDetail } from './components/ListingDetail/ListingDetail';
+export { ListingDetailRoute } from './components/ListingDetailRoute';
+export type { ListingDetailRouteProps } from './components/ListingDetailRoute';

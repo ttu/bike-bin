@@ -150,7 +150,7 @@ test.describe('Conversation detail', () => {
     });
   });
 
-  test('back navigation returns to list', async ({ loggedInPage }) => {
+  test('header back button returns to conversations list', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
     await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
@@ -158,15 +158,12 @@ test.describe('Conversation detail', () => {
     });
     await loggedInPage.getByText('Kai R.').click();
 
-    // Wait for detail to load
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
       timeout: 10000,
     });
 
-    // Navigate back
-    await loggedInPage.goBack();
+    await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
 
-    // Verify we're back on the conversations list
     await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
       timeout: 10000,
     });
@@ -174,6 +171,44 @@ test.describe('Conversation detail', () => {
       timeout: 10000,
     });
     await expect(loggedInPage.getByText('Nina T.')).toBeVisible({
+      timeout: 10000,
+    });
+  });
+
+  test('header back from listing opened via View returns to conversation thread', async ({
+    loggedInPage,
+  }) => {
+    await navigateToMessages(loggedInPage);
+
+    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+      timeout: 10000,
+    });
+    await loggedInPage.getByText('Kai R.').click();
+
+    await expect(
+      loggedInPage.getByRole('textbox', { name: 'Type a message...' }).first(),
+    ).toBeVisible({
+      timeout: 10000,
+    });
+
+    await loggedInPage.getByRole('link', { name: 'View' }).click();
+
+    await loggedInPage.waitForURL(/\/messages\/item\/[^/]+/, { timeout: 10000 });
+    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+
+    await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
+
+    await loggedInPage.waitForURL(
+      (url) => /^\/messages\/[^/]+$/.test(url.pathname) && !url.pathname.includes('/item'),
+      { timeout: 10000 },
+    );
+
+    // RN web can keep multiple message inputs in the DOM (stack); target one visible textbox.
+    const messageInput = loggedInPage.getByRole('textbox', { name: 'Type a message...' }).first();
+    await expect(messageInput).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand').first()).toBeVisible({
       timeout: 10000,
     });
   });

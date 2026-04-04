@@ -100,9 +100,9 @@ export default function ConversationDetailScreen() {
   const handleViewItem = useCallback(() => {
     if (!conversation?.itemId || !conversationId) return;
     router.push({
-      pathname: '/(tabs)/search/[id]',
+      pathname: '/(tabs)/messages/item/[itemId]',
       params: {
-        id: conversation.itemId,
+        itemId: conversation.itemId,
         returnPath: encodeReturnPath(`/(tabs)/messages/${conversationId}`),
       },
     });

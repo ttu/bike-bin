@@ -27,7 +27,8 @@ function SearchScreenContent() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const router = useRouter();
-  const { filters, updateFilters, resetFilters, hasActiveFilters } = useSearchFilters();
+  const { filters, updateFilters, resetFilters, hasActiveFilters, hasSearched, setHasSearched } =
+    useSearchFilters();
   const { data: primaryLocation } = usePrimaryLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { isDemoMode } = useDemoMode();
@@ -35,7 +36,6 @@ function SearchScreenContent() {
   const showGuestWall = !isDemoMode && !authLoading && !isAuthenticated;
   const showAuthSpinner = !isDemoMode && authLoading;
 
-  const [hasSearched, setHasSearched] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
 
   const { data: serverResults, isLoading } = useSearchItems({
@@ -55,14 +55,14 @@ function SearchScreenContent() {
         setHasSearched(false);
       }
     },
-    [updateFilters],
+    [updateFilters, setHasSearched],
   );
 
   const handleSubmit = useCallback(() => {
     if (filters.query.trim().length > 0) {
       setHasSearched(true);
     }
-  }, [filters.query]);
+  }, [filters.query, setHasSearched]);
 
   const handleResultPress = useCallback(
     (item: SearchResultItem) => {

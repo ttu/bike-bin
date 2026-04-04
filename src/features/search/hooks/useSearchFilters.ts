@@ -8,6 +8,12 @@ interface SearchFiltersContextType {
   resetFilters: () => void;
   /** True if any filter deviates from defaults (excluding query). */
   hasActiveFilters: boolean;
+  /**
+   * True after the user has submitted a non-empty search. Kept in context so the
+   * search tab can remount (e.g. tab navigation) without losing the results view.
+   */
+  hasSearched: boolean;
+  setHasSearched: (value: boolean) => void;
 }
 
 const SearchFiltersContext = createContext<SearchFiltersContextType | undefined>(undefined);
@@ -18,6 +24,7 @@ interface SearchFiltersProviderProps {
 
 export function SearchFiltersProvider({ children }: SearchFiltersProviderProps) {
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_SEARCH_FILTERS);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const updateFilters = useCallback((partial: Partial<SearchFilters>) => {
     setFilters((prev) => ({ ...prev, ...partial }));
@@ -44,8 +51,15 @@ export function SearchFiltersProvider({ children }: SearchFiltersProviderProps) 
   }, [filters]);
 
   const value = useMemo(
-    () => ({ filters, updateFilters, resetFilters, hasActiveFilters }),
-    [filters, updateFilters, resetFilters, hasActiveFilters],
+    () => ({
+      filters,
+      updateFilters,
+      resetFilters,
+      hasActiveFilters,
+      hasSearched,
+      setHasSearched,
+    }),
+    [filters, updateFilters, resetFilters, hasActiveFilters, hasSearched],
   );
 
   return React.createElement(SearchFiltersContext.Provider, { value }, children);
