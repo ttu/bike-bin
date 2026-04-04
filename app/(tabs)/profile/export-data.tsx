@@ -1,4 +1,4 @@
-import { View, ScrollView, StyleSheet, Share } from 'react-native';
+import { View, ScrollView, StyleSheet, Share, Platform, Linking } from 'react-native';
 import { Appbar, Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -67,6 +67,11 @@ export default function ExportDataScreen() {
       .createSignedUrl(latestExport.storagePath, 3600); // 1h signed URL
 
     if (error || !data?.signedUrl) return;
+
+    if (Platform.OS === 'web') {
+      await Linking.openURL(data.signedUrl);
+      return;
+    }
 
     const fileUri = `${cacheDirectory}bike-bin-export.zip`;
     const download = await downloadAsync(data.signedUrl, fileUri);
