@@ -1,12 +1,14 @@
 import { test, expect, navigateToBikes } from './fixtures';
 
 test.describe('Inventory list with data', () => {
-  test('shows all 8 items', async ({ loggedInPage }) => {
+  test('shows all 10 items', async ({ loggedInPage }) => {
     await expect(loggedInPage.getByText('Muc-Off Chain Lube')).toBeVisible();
     await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand')).toBeVisible();
+    await expect(loggedInPage.getByText('Lezyne Digital Floor Drive')).toBeVisible();
     await expect(loggedInPage.getByText('Troy Lee Designs A3 Helmet')).toBeVisible();
     await expect(loggedInPage.getByText('Maxxis Minion DHF/DHR Combo')).toBeVisible();
     await expect(loggedInPage.getByText('Topeak Alien II Multi-tool')).toBeVisible();
+    await expect(loggedInPage.getByText('Park Tool P-Handle Hex Set')).toBeVisible();
     await expect(loggedInPage.getByText('RaceFace Turbine R Cranks')).toBeVisible();
     await expect(loggedInPage.getByText('Fox 36 Float Fork')).toBeVisible();
     await expect(loggedInPage.getByText('Park Tool Chain Checker')).toBeVisible();
@@ -41,7 +43,9 @@ test.describe('Inventory list with data', () => {
     await loggedInPage.getByRole('button', { name: 'Tools' }).click();
 
     await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand')).toBeVisible();
+    await expect(loggedInPage.getByText('Lezyne Digital Floor Drive')).toBeVisible();
     await expect(loggedInPage.getByText('Topeak Alien II Multi-tool')).toBeVisible();
+    await expect(loggedInPage.getByText('Park Tool P-Handle Hex Set')).toBeVisible();
     await expect(loggedInPage.getByText('Park Tool Chain Checker')).toBeVisible();
 
     await expect(loggedInPage.getByText('Muc-Off Chain Lube')).toBeHidden();
@@ -58,9 +62,11 @@ test.describe('Inventory list with data', () => {
 
     await expect(loggedInPage.getByText('Muc-Off Chain Lube')).toBeVisible();
     await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand')).toBeVisible();
+    await expect(loggedInPage.getByText('Lezyne Digital Floor Drive')).toBeVisible();
     await expect(loggedInPage.getByText('Troy Lee Designs A3 Helmet')).toBeVisible();
     await expect(loggedInPage.getByText('Maxxis Minion DHF/DHR Combo')).toBeVisible();
     await expect(loggedInPage.getByText('Topeak Alien II Multi-tool')).toBeVisible();
+    await expect(loggedInPage.getByText('Park Tool P-Handle Hex Set')).toBeVisible();
     await expect(loggedInPage.getByText('RaceFace Turbine R Cranks')).toBeVisible();
     await expect(loggedInPage.getByText('Fox 36 Float Fork')).toBeVisible();
     await expect(loggedInPage.getByText('Park Tool Chain Checker')).toBeVisible();

@@ -45,8 +45,8 @@ test.describe('Mark as Donated', () => {
 
 test.describe('Mark as Returned', () => {
   test('marks a loaned item as returned', async ({ loggedInPage }) => {
-    // Park Tool PCS-10.3 Stand is loaned + borrowable
-    await loggedInPage.getByText('Park Tool PCS-10.3 Stand').first().click();
+    // Lezyne Digital Floor Drive: second active loan (Marcus) — avoids racing borrow-lifecycle.spec.ts (Kai + PCS-10).
+    await loggedInPage.getByText('Lezyne Digital Floor Drive').first().click();
     await waitForItemDetail(loggedInPage);
 
     await loggedInPage.getByRole('button', { name: /Mark as Returned/i }).click();
@@ -66,7 +66,7 @@ test.describe('Mark as Returned', () => {
     // Navigate back to inventory list — item should still be visible (now stored)
     const tablist = loggedInPage.getByRole('tablist');
     await tablist.getByRole('tab', { name: /Inventory/ }).click();
-    await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand').first()).toBeVisible({
+    await expect(loggedInPage.getByText('Lezyne Digital Floor Drive').first()).toBeVisible({
       timeout: 10000,
     });
   });
@@ -74,8 +74,8 @@ test.describe('Mark as Returned', () => {
 
 test.describe('Archive item', () => {
   test('archives an item', async ({ loggedInPage }) => {
-    // Park Tool Chain Checker (stored, borrowable)
-    await loggedInPage.getByText('Park Tool Chain Checker').first().click();
+    // Dedicated seed item (no pending borrow — Chain Checker is targeted by accept-borrow E2E).
+    await loggedInPage.getByText('Park Tool P-Handle Hex Set').first().click();
     await waitForItemDetail(loggedInPage);
 
     // Click "Remove from inventory" → opens choice dialog
