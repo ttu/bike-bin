@@ -88,7 +88,7 @@ Server-side utility table (no RLS): caches Nominatim geocoding results for postc
 
 ## PostgreSQL enums
 
-Defined in migrations (with later `ALTER TYPE ... ADD VALUE` updates):
+Each enum is created with its feature migration (e.g. `subscription_*` in `00002_auth_profiles_locations.sql`, `item_*` / `group_role` in `00004_groups_items.sql`). Later changes use `ALTER TYPE ... ADD VALUE` in new migrations.
 
 | SQL enum                | Values (current)                                                         |
 | ----------------------- | ------------------------------------------------------------------------ |
@@ -127,7 +127,7 @@ Migrations may define **SECURITY DEFINER** functions (e.g. tag autocomplete, sea
 
 ## RLS
 
-All user-facing tables use **Row Level Security**. Policy definitions live in **`supabase/migrations/00001_create_database.sql`** (consolidated schema). **subscriptions:** authenticated users may **SELECT** only rows where `user_id = auth.uid()`; **INSERT/UPDATE/DELETE** are not exposed to the anon/authenticated PostgREST roles — use the **service role** (Edge Functions, webhooks) or SQL in the Supabase dashboard. **Items:** policies + triggers for owner updates, including borrow-lock rules. **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
+All user-facing tables use **Row Level Security**. Policy definitions live in **`supabase/migrations/`** using one file per domain (DDL + RLS + triggers and/or Realtime where applicable): `00002_auth_profiles_locations.sql` (includes profile-on-signup trigger), `00003_bikes.sql`, `00004_groups_items.sql` (group/item helpers + policies + item triggers), `00005_borrow_requests.sql` (borrow update trigger), `00006_messaging.sql` (Realtime on `messages`), `00007_ratings.sql` (rating aggregate trigger), `00008_notifications.sql` (Realtime on `notifications`), `00009_support_reports.sql`, `00010_geocode_cache.sql`, `00011_export_requests_storage.sql`, then RPC helpers (`00012_functions_business.sql`, `00013_functions_search_listing.sql`), `item-photos` storage (`00014_storage_item_photos.sql`). **subscriptions:** authenticated users may **SELECT** only rows where `user_id = auth.uid()`; **INSERT/UPDATE/DELETE** are not exposed to the anon/authenticated PostgREST roles — use the **service role** (Edge Functions, webhooks) or SQL in the Supabase dashboard. **Items:** policies + triggers for owner updates, including borrow-lock rules. **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
 
 ---
 

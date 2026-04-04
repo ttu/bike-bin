@@ -989,7 +989,7 @@ Edge Function calls Nominatim API (max 1 req/sec), caches results in a `geocode_
 - [ ] **Step 3: Create geocode_cache migration**
 
 ```sql
--- supabase/migrations/00006_geocode_cache.sql
+-- supabase/migrations/00010_geocode_cache.sql
 CREATE TABLE geocode_cache (
   postcode TEXT PRIMARY KEY,
   area_name TEXT NOT NULL,
