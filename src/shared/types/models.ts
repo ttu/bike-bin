@@ -164,8 +164,10 @@ export interface Message {
 
 export interface Rating {
   id: RatingId;
-  fromUserId: UserId;
-  toUserId: UserId;
+  /** Undefined when the reviewer account was deleted (GDPR anonymization). */
+  fromUserId: UserId | undefined;
+  /** Undefined when the recipient account was deleted (GDPR anonymization). */
+  toUserId: UserId | undefined;
   itemId: ItemId | undefined;
   transactionType: TransactionType;
   score: number;

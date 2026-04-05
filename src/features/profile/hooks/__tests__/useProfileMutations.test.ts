@@ -64,6 +64,28 @@ describe('useDeleteAccount', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error?.message).toBe('Not authenticated');
   });
+
+  it('propagates delete-account edge function errors (GDPR flow)', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: { access_token: 'test-token' } },
+    });
+    mockInvoke.mockResolvedValue({
+      data: null,
+      error: { message: 'Too many requests' },
+    });
+
+    const { result } = renderHook(() => useDeleteAccount(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate();
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error?.message).toBe('Too many requests');
+    expect(mockInvoke).toHaveBeenCalledWith('delete-account', {
+      headers: { Authorization: 'Bearer test-token' },
+    });
+  });
 });
 
 describe('useSubmitSupport', () => {

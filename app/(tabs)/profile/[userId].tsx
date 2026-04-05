@@ -170,6 +170,7 @@ export default function PublicUserProfileScreen() {
               <ReviewCard
                 key={rating.id}
                 reviewerName={rating.reviewer.displayName}
+                isDeletedReviewer={rating.fromUserId === undefined}
                 score={rating.score}
                 text={rating.text}
                 transactionType={rating.transactionType}

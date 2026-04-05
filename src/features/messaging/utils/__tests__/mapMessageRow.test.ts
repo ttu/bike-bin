@@ -1,7 +1,8 @@
+import type { MessageRow } from '@/shared/types';
 import { mapMessageRow } from '../mapMessageRow';
 
 describe('mapMessageRow', () => {
-  const row = {
+  const row: MessageRow = {
     id: 'msg-1',
     conversation_id: 'conv-1',
     sender_id: 'user-A',
@@ -23,6 +24,13 @@ describe('mapMessageRow', () => {
 
   it('sets isOwn=false when sender is different user', () => {
     const result = mapMessageRow(row, 'user-B');
+    expect(result.isOwn).toBe(false);
+  });
+
+  it('maps anonymized message (null sender_id) as not own', () => {
+    const anonymized: MessageRow = { ...row, sender_id: null };
+    const result = mapMessageRow(anonymized, 'user-A');
+    expect(result.senderId).toBeUndefined();
     expect(result.isOwn).toBe(false);
   });
 });

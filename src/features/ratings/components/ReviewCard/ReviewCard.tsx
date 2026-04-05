@@ -7,6 +7,8 @@ import type { TransactionType } from '@/shared/types';
 
 interface ReviewCardProps {
   reviewerName: string | undefined;
+  /** When true, show GDPR anonymized label instead of missing display name. */
+  isDeletedReviewer?: boolean;
   score: number;
   text: string | undefined;
   transactionType: TransactionType;
@@ -15,6 +17,7 @@ interface ReviewCardProps {
 
 export function ReviewCard({
   reviewerName,
+  isDeletedReviewer = false,
   score,
   text,
   transactionType,
@@ -22,6 +25,7 @@ export function ReviewCard({
 }: ReviewCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('ratings');
+  const { t: tCommon } = useTranslation('common');
 
   const transactionLabel =
     transactionType === 'borrow'
@@ -41,7 +45,7 @@ export function ReviewCard({
       {/* Header: reviewer name + date */}
       <View style={styles.header}>
         <Text variant="labelLarge" style={{ color: theme.colors.onSurface }}>
-          {reviewerName ?? t('review.noText')}
+          {isDeletedReviewer ? tCommon('privacy.deletedUser') : (reviewerName ?? '')}
         </Text>
         <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
           {formattedDate}

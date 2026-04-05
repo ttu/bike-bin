@@ -50,4 +50,11 @@ describe('ReviewCard', () => {
     );
     expect(getByText('Alice')).toBeTruthy();
   });
+
+  it('shows GDPR deleted-user label when reviewer was anonymized', () => {
+    const { getByText } = renderWithProviders(
+      <ReviewCard {...defaultProps} reviewerName={undefined} isDeletedReviewer />,
+    );
+    expect(getByText('[Deleted user]')).toBeTruthy();
+  });
 });

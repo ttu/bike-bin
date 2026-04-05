@@ -5,10 +5,11 @@
 CREATE TYPE transaction_type AS ENUM ('borrow', 'donate', 'sell');
 
 -- Ratings
+-- from_user_id / to_user_id may be NULL after GDPR account deletion (anonymization).
 CREATE TABLE ratings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  from_user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  to_user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  from_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  to_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
   item_id uuid REFERENCES items(id) ON DELETE SET NULL,
   transaction_type transaction_type NOT NULL,
   score integer NOT NULL CHECK (score >= 1 AND score <= 5),
@@ -61,19 +62,15 @@ CREATE POLICY "ratings_delete_own"
 -- Trigger: recalculate profile rating aggregates
 -- ============================================================
 
-CREATE OR REPLACE FUNCTION update_user_rating_avg()
-RETURNS trigger
+CREATE OR REPLACE FUNCTION public.recalc_user_rating_aggregate(target_user_id uuid)
+RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path TO public
 AS $$
-DECLARE
-  target_user_id uuid;
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    target_user_id := OLD.to_user_id;
-  ELSE
-    target_user_id := NEW.to_user_id;
+  IF target_user_id IS NULL THEN
+    RETURN;
   END IF;
 
   UPDATE profiles
@@ -85,8 +82,30 @@ BEGIN
     rating_count = (SELECT COUNT(*) FROM ratings WHERE to_user_id = target_user_id),
     updated_at = now()
   WHERE id = target_user_id;
+END;
+$$;
 
-  RETURN NULL;
+CREATE OR REPLACE FUNCTION public.update_user_rating_avg()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO public
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    PERFORM public.recalc_user_rating_aggregate(OLD.to_user_id);
+    RETURN OLD;
+  ELSIF TG_OP = 'INSERT' THEN
+    PERFORM public.recalc_user_rating_aggregate(NEW.to_user_id);
+    RETURN NEW;
+  ELSE
+    IF OLD.to_user_id IS NOT DISTINCT FROM NEW.to_user_id THEN
+      RETURN NEW;
+    END IF;
+    PERFORM public.recalc_user_rating_aggregate(OLD.to_user_id);
+    PERFORM public.recalc_user_rating_aggregate(NEW.to_user_id);
+    RETURN NEW;
+  END IF;
 END;
 $$;
 

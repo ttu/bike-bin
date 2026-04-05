@@ -7,8 +7,8 @@ import type { RatingWithReviewer } from '../types';
 export function mapRatingRow(row: RatingRow): Rating {
   return {
     id: row.id as RatingId,
-    fromUserId: row.from_user_id as UserId,
-    toUserId: row.to_user_id as UserId,
+    fromUserId: row.from_user_id != null ? (row.from_user_id as UserId) : undefined,
+    toUserId: row.to_user_id != null ? (row.to_user_id as UserId) : undefined,
     itemId: (row.item_id as ItemId) ?? undefined,
     transactionType: row.transaction_type as TransactionType,
     score: row.score as number,

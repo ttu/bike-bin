@@ -23,5 +23,8 @@
   "alerts": {
     "errorTitle": "Error",
     "noticeTitle": "Notice"
+  },
+  "privacy": {
+    "deletedUser": "[Deleted user]"
   }
 }

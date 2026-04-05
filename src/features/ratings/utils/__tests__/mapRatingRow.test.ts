@@ -29,6 +29,24 @@ describe('mapRatingRow', () => {
     });
   });
 
+  it('maps GDPR-anonymized reviewer (null from_user_id)', () => {
+    const row: RatingRow = {
+      id: 'rating-anon',
+      from_user_id: null,
+      to_user_id: 'user-B',
+      item_id: null,
+      transaction_type: 'borrow',
+      score: 5,
+      text: null,
+      editable_until: null,
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    };
+    const result = mapRatingRow(row);
+    expect(result.fromUserId).toBeUndefined();
+    expect(result.toUserId).toBe('user-B');
+  });
+
   it('handles optional fields', () => {
     const row: RatingRow = {
       id: 'rating-2',
@@ -69,6 +87,24 @@ describe('mapRatingWithReviewerRow', () => {
       displayName: 'Alice',
       avatarUrl: 'https://example.com/a.jpg',
     });
+  });
+
+  it('handles anonymized reviewer with no joined profile', () => {
+    const row = {
+      id: 'rating-2',
+      from_user_id: null,
+      to_user_id: 'user-B',
+      item_id: null,
+      transaction_type: 'sell' as const,
+      score: 3,
+      text: null,
+      editable_until: null,
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    };
+    const result = mapRatingWithReviewerRow(row);
+    expect(result.fromUserId).toBeUndefined();
+    expect(result.reviewer.displayName).toBeUndefined();
   });
 
   it('handles missing profiles data', () => {

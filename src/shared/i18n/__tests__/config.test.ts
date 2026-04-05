@@ -35,6 +35,10 @@ describe('i18n config', () => {
     expect(i18n.t('common:tabs.profile')).toBe('Profile');
   });
 
+  it('translates GDPR deleted-user label', () => {
+    expect(i18n.t('common:privacy.deletedUser')).toBe('[Deleted user]');
+  });
+
   it('translates common actions', () => {
     expect(i18n.t('common:actions.save')).toBe('Save');
     expect(i18n.t('common:actions.cancel')).toBe('Cancel');

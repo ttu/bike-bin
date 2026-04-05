@@ -25,7 +25,8 @@ export interface ConversationListItem {
 export interface MessageWithSender {
   id: MessageId;
   conversationId: ConversationId;
-  senderId: UserId;
+  /** Undefined when the sender account was deleted (GDPR anonymization). */
+  senderId: UserId | undefined;
   body: string;
   createdAt: string;
   isOwn: boolean;

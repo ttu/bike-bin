@@ -519,7 +519,7 @@ export type Database = {
           conversation_id: string;
           created_at: string;
           id: string;
-          sender_id: string;
+          sender_id: string | null;
         };
         Insert: {
           body: string;
@@ -533,7 +533,7 @@ export type Database = {
           conversation_id?: string;
           created_at?: string;
           id?: string;
-          sender_id?: string;
+          sender_id?: string | null;
         };
         Relationships: [
           {
@@ -650,12 +650,12 @@ export type Database = {
         Row: {
           created_at: string;
           editable_until: string | null;
-          from_user_id: string;
+          from_user_id: string | null;
           id: string;
           item_id: string | null;
           score: number;
           text: string | null;
-          to_user_id: string;
+          to_user_id: string | null;
           transaction_type: Database['public']['Enums']['transaction_type'];
           updated_at: string;
         };
@@ -674,12 +674,12 @@ export type Database = {
         Update: {
           created_at?: string;
           editable_until?: string | null;
-          from_user_id?: string;
+          from_user_id?: string | null;
           id?: string;
           item_id?: string | null;
           score?: number;
           text?: string | null;
-          to_user_id?: string;
+          to_user_id?: string | null;
           transaction_type?: Database['public']['Enums']['transaction_type'];
           updated_at?: string;
         };

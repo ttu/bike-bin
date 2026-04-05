@@ -4,21 +4,27 @@
 //
 // Steps:
 // 1. Delete user's items and item_photos
-// 2. Anonymize conversations (set participant references to null)
-// 3. Anonymize ratings (nullify from_user_id, keep rating data)
-// 4. Delete support_requests for this user
-// 5. Delete saved_locations
-// 6. Delete group_members entries
-// 7. Delete notifications
-// 8. Delete export ZIP files from storage
-// 9. Delete profile
-// 10. Delete auth user
+// 2. Anonymize ratings and messages (null FKs to profiles; requires nullable columns)
+// 3. Delete conversation_participants, borrow_requests, etc.
+// 4. Delete export ZIP files from storage
+// 5. Delete profile
+// 6. Delete auth user
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // Rate limit: 1 delete attempt per user per hour
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const recentAttempts = new Map<string, number>();
+
+function assertNoFnError(error: unknown, step: string): void {
+  if (error) {
+    const msg =
+      typeof error === 'object' && error !== null && 'message' in error
+        ? String((error as { message: string }).message)
+        : String(error);
+    throw new Error(`${step}: ${msg}`);
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
@@ -77,69 +83,109 @@ Deno.serve(async (req) => {
     // Service role client for privileged operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 1. Delete item_photos for user's items
-    const { data: userItems } = await supabase.from('items').select('id').eq('owner_id', userId);
+    const { data: userItems, error: itemsSelectError } = await supabase
+      .from('items')
+      .select('id')
+      .eq('owner_id', userId);
+    assertNoFnError(itemsSelectError, 'select items');
 
     if (userItems && userItems.length > 0) {
       const itemIds = userItems.map((item) => item.id);
-      await supabase.from('item_photos').delete().in('item_id', itemIds);
+      const { error: photosError } = await supabase
+        .from('item_photos')
+        .delete()
+        .in('item_id', itemIds);
+      assertNoFnError(photosError, 'delete item_photos');
     }
 
-    // 2. Delete items
-    await supabase.from('items').delete().eq('owner_id', userId);
+    const { error: deleteItemsError } = await supabase
+      .from('items')
+      .delete()
+      .eq('owner_id', userId);
+    assertNoFnError(deleteItemsError, 'delete items');
 
-    // 3. Anonymize ratings (set from_user_id to null for ratings this user gave)
-    await supabase.from('ratings').update({ from_user_id: null }).eq('from_user_id', userId);
+    const { error: ratingFromError } = await supabase
+      .from('ratings')
+      .update({ from_user_id: null })
+      .eq('from_user_id', userId);
+    assertNoFnError(ratingFromError, 'anonymize ratings (from_user_id)');
 
-    // Also anonymize ratings received (set to_user_id to null)
-    await supabase.from('ratings').update({ to_user_id: null }).eq('to_user_id', userId);
+    const { error: ratingToError } = await supabase
+      .from('ratings')
+      .update({ to_user_id: null })
+      .eq('to_user_id', userId);
+    assertNoFnError(ratingToError, 'anonymize ratings (to_user_id)');
 
-    // 4. Anonymize messages (set sender_id to null)
-    await supabase.from('messages').update({ sender_id: null }).eq('sender_id', userId);
+    const { error: messagesError } = await supabase
+      .from('messages')
+      .update({ sender_id: null })
+      .eq('sender_id', userId);
+    assertNoFnError(messagesError, 'anonymize messages');
 
-    // 5. Delete conversation_participants entries
-    await supabase.from('conversation_participants').delete().eq('user_id', userId);
+    const { error: participantsError } = await supabase
+      .from('conversation_participants')
+      .delete()
+      .eq('user_id', userId);
+    assertNoFnError(participantsError, 'delete conversation_participants');
 
-    // 6. Delete borrow_requests (both as requester and item owner)
-    await supabase.from('borrow_requests').delete().eq('requester_id', userId);
+    const { error: borrowError } = await supabase
+      .from('borrow_requests')
+      .delete()
+      .eq('requester_id', userId);
+    assertNoFnError(borrowError, 'delete borrow_requests');
 
-    // 7. Delete support_requests
-    await supabase.from('support_requests').delete().eq('user_id', userId);
+    const { error: supportError } = await supabase
+      .from('support_requests')
+      .delete()
+      .eq('user_id', userId);
+    assertNoFnError(supportError, 'delete support_requests');
 
-    // 8. Delete saved_locations
-    await supabase.from('saved_locations').delete().eq('user_id', userId);
+    const { error: locationsError } = await supabase
+      .from('saved_locations')
+      .delete()
+      .eq('user_id', userId);
+    assertNoFnError(locationsError, 'delete saved_locations');
 
-    // 9. Delete group_members
-    await supabase.from('group_members').delete().eq('user_id', userId);
+    const { error: groupMembersError } = await supabase
+      .from('group_members')
+      .delete()
+      .eq('user_id', userId);
+    assertNoFnError(groupMembersError, 'delete group_members');
 
-    // 10. Delete notifications
-    await supabase.from('notifications').delete().eq('user_id', userId);
+    const { error: notificationsError } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', userId);
+    assertNoFnError(notificationsError, 'delete notifications');
 
-    // 11. Delete reports by this user
-    await supabase.from('reports').delete().eq('reporter_id', userId);
+    const { error: reportsError } = await supabase
+      .from('reports')
+      .delete()
+      .eq('reporter_id', userId);
+    assertNoFnError(reportsError, 'delete reports');
 
-    // 12. Delete export ZIP files from storage
-    const { data: exportRequests } = await supabase
+    const { data: exportRequests, error: exportSelectError } = await supabase
       .from('export_requests')
       .select('storage_path')
       .eq('user_id', userId)
       .not('storage_path', 'is', null);
+    assertNoFnError(exportSelectError, 'select export_requests');
 
     if (exportRequests && exportRequests.length > 0) {
       const storagePaths = exportRequests
         .map((e) => e.storage_path)
         .filter((p): p is string => !!p);
       if (storagePaths.length > 0) {
-        await supabase.storage.from('data-exports').remove(storagePaths);
+        const { error: storageError } = await supabase.storage
+          .from('data-exports')
+          .remove(storagePaths);
+        assertNoFnError(storageError, 'remove export files from storage');
       }
     }
 
-    // export_requests rows are deleted by ON DELETE CASCADE from profiles
+    const { error: profileError } = await supabase.from('profiles').delete().eq('id', userId);
+    assertNoFnError(profileError, 'delete profile');
 
-    // 13. Delete profile
-    await supabase.from('profiles').delete().eq('id', userId);
-
-    // 14. Delete auth user (must be last)
     const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
     if (deleteError) {
       console.error('Failed to delete auth user:', deleteError.message);

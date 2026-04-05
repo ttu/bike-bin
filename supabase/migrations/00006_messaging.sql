@@ -17,10 +17,11 @@ CREATE TABLE conversation_participants (
 );
 
 -- Messages
+-- sender_id is NULL after GDPR account deletion (anonymized sender); app shows a deleted-user label.
 CREATE TABLE messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-  sender_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  sender_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
   body text NOT NULL,
   created_at timestamptz DEFAULT now() NOT NULL
 );

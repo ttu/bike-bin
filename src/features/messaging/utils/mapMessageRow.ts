@@ -3,12 +3,13 @@ import type { MessageWithSender } from '../types';
 
 /** Transforms a Supabase message row into the MessageWithSender domain model. */
 export function mapMessageRow(row: MessageRow, currentUserId: string): MessageWithSender {
+  const senderId = row.sender_id != null ? (row.sender_id as UserId) : undefined;
   return {
     id: row.id as MessageId,
     conversationId: row.conversation_id as ConversationId,
-    senderId: row.sender_id as UserId,
+    senderId,
     body: row.body as string,
     createdAt: row.created_at as string,
-    isOwn: row.sender_id === currentUserId,
+    isOwn: senderId !== undefined && senderId === currentUserId,
   };
 }
