@@ -70,6 +70,49 @@ describe('useReport', () => {
     ).rejects.toThrow('RLS violation');
   });
 
+  it('inserts report with target_type item_photo', async () => {
+    mockInsert.mockResolvedValue({ error: null });
+
+    const { result } = renderHook(() => useReport(), { wrapper: createQueryClientHookWrapper() });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        reporterId: 'user-123' as UserId,
+        targetType: 'item_photo',
+        targetId: 'photo-abc',
+        reason: 'inappropriate',
+      });
+    });
+
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ target_type: 'item_photo', target_id: 'photo-abc' }),
+    );
+  });
+
+  it('inserts report with target_type message', async () => {
+    mockInsert.mockResolvedValue({ error: null });
+
+    const { result } = renderHook(() => useReport(), { wrapper: createQueryClientHookWrapper() });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        reporterId: 'user-123' as UserId,
+        targetType: 'message',
+        targetId: 'msg-xyz',
+        reason: 'harassment',
+        text: 'Threatening message',
+      });
+    });
+
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target_type: 'message',
+        target_id: 'msg-xyz',
+        text: 'Threatening message',
+      }),
+    );
+  });
+
   it('always sets status to "open"', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
