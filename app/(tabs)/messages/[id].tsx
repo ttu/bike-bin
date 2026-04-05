@@ -28,7 +28,11 @@ import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
-import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { ConfirmDialog, LoadingScreen, ReportDialog } from '@/shared/components';
+import type { ReportReason } from '@/shared/components/ReportDialog/ReportDialog';
+import { useReport } from '@/shared/hooks/useReport';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import type { MessageId, UserId } from '@/shared/types';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -48,6 +52,48 @@ export default function ConversationDetailScreen() {
   const [messageText, setMessageText] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const [exchangeConfirm, setExchangeConfirm] = useState<ExchangeConfirm | null>(null);
+  const [reportMessageId, setReportMessageId] = useState<MessageId | null>(null);
+  const reportMutation = useReport();
+  const { showSnackbarAlert } = useSnackbarAlerts();
+  const { t: tProfile } = useTranslation('profile');
+
+  const handleMessageLongPress = useCallback((msg: MessageWithSender) => {
+    // Only allow reporting messages from other users
+    if (msg.isOwn) return;
+    setReportMessageId(msg.id);
+  }, []);
+
+  const handleReportSubmit = useCallback(
+    (reason: ReportReason, text: string | undefined) => {
+      if (!user || !reportMessageId) return;
+      reportMutation.mutate(
+        {
+          reporterId: user.id as string as UserId,
+          targetType: 'message',
+          targetId: reportMessageId,
+          reason,
+          text,
+        },
+        {
+          onSuccess: () => {
+            setReportMessageId(null);
+            showSnackbarAlert({
+              message: tProfile('report.successMessage'),
+              variant: 'success',
+            });
+          },
+          onError: () => {
+            showSnackbarAlert({
+              message: tProfile('report.errorMessage'),
+              variant: 'error',
+              duration: 'long',
+            });
+          },
+        },
+      );
+    },
+    [user, reportMessageId, reportMutation, showSnackbarAlert, tProfile],
+  );
 
   const { data: conversation, isLoading: convLoading } = useConversation(conversationId);
   const { data: item } = useItem(conversation?.itemId as ItemId);
@@ -265,7 +311,9 @@ export default function ConversationDetailScreen() {
         <FlatList
           data={messages}
           keyExtractor={(listItem) => listItem.id}
-          renderItem={({ item: listItem }) => <ChatBubble message={listItem} />}
+          renderItem={({ item: listItem }) => (
+            <ChatBubble message={listItem} onLongPress={handleMessageLongPress} />
+          )}
           inverted
           contentContainerStyle={styles.messagesContent}
           onEndReached={handleLoadMore}
@@ -313,6 +361,13 @@ export default function ConversationDetailScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      <ReportDialog
+        visible={reportMessageId !== null}
+        onDismiss={() => setReportMessageId(null)}
+        onSubmit={handleReportSubmit}
+        loading={reportMutation.isPending}
+      />
 
       <ConfirmDialog
         visible={exchangeConfirm !== null}

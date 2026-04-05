@@ -26,6 +26,7 @@ interface ListingDetailProps {
   onContact?: () => void;
   onRequestBorrow?: () => void;
   onOwnerPress?: () => void;
+  onPhotoLongPress?: (photo: ItemPhoto) => void;
 }
 
 export function ListingDetail({
@@ -34,6 +35,7 @@ export function ListingDetail({
   onContact,
   onRequestBorrow,
   onOwnerPress,
+  onPhotoLongPress,
 }: ListingDetailProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation(['search', 'inventory']);
@@ -64,7 +66,17 @@ export function ListingDetail({
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Photo gallery */}
-      <PhotoGallery photos={photos} />
+      <PhotoGallery
+        photos={photos}
+        onPhotoLongPress={
+          onPhotoLongPress
+            ? (p) => {
+                const found = photos.find((x) => x.id === p.id);
+                if (found) onPhotoLongPress(found);
+              }
+            : undefined
+        }
+      />
 
       {/* Category breadcrumb + Title */}
       <View style={styles.section}>
