@@ -53,4 +53,4 @@ See [docs/development.md](docs/development.md) for full setup instructions.
 
 ## License
 
-TBD
+[GNU General Public License v3.0](LICENSE) (GPL-3.0).
