@@ -3,6 +3,9 @@ import { zipSync } from 'https://esm.sh/fflate@0.8.2';
 
 const PHOTO_BATCH_SIZE = 20;
 
+/** Item and bike photos use the same bucket (`00014_storage_item_photos.sql`). */
+const PHOTOS_BUCKET = 'item-photos';
+
 interface ExportPayload {
   exportRequestId: string;
   userId: string;
@@ -203,7 +206,7 @@ Deno.serve(async (req) => {
         batch.map(async (photo) => {
           try {
             const { data: photoData } = await supabase.storage
-              .from('item-photos')
+              .from(PHOTOS_BUCKET)
               .download(photo.storage_path);
             if (photoData) {
               const filename = photo.storage_path.split('/').pop() ?? `${photo.id}.jpg`;
@@ -226,7 +229,7 @@ Deno.serve(async (req) => {
         batch.map(async (photo) => {
           try {
             const { data: photoData } = await supabase.storage
-              .from('bike-photos')
+              .from(PHOTOS_BUCKET)
               .download(photo.storage_path);
             if (photoData) {
               const filename = photo.storage_path.split('/').pop() ?? `${photo.id}.jpg`;
