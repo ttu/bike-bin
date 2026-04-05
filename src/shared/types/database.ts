@@ -2003,7 +2003,7 @@ export type Database = {
       item_status: 'stored' | 'mounted' | 'loaned' | 'reserved' | 'donated' | 'sold' | 'archived';
       item_visibility: 'private' | 'groups' | 'all';
       report_status: 'open' | 'reviewed' | 'closed';
-      report_target_type: 'item' | 'user';
+      report_target_type: 'item' | 'user' | 'item_photo' | 'message';
       subscription_plan: 'free' | 'paid';
       subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
       support_status: 'open' | 'closed';
@@ -2152,7 +2152,7 @@ export const Constants = {
       item_status: ['stored', 'mounted', 'loaned', 'reserved', 'donated', 'sold', 'archived'],
       item_visibility: ['private', 'groups', 'all'],
       report_status: ['open', 'reviewed', 'closed'],
-      report_target_type: ['item', 'user'],
+      report_target_type: ['item', 'user', 'item_photo', 'message'],
       subscription_plan: ['free', 'paid'],
       subscription_status: ['trialing', 'active', 'past_due', 'canceled', 'expired'],
       support_status: ['open', 'closed'],

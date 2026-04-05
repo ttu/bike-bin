@@ -201,14 +201,14 @@ export interface SupportRequest {
   createdAt: string;
 }
 
-export type ReportTargetType = 'item' | 'user';
+export type ReportTargetType = 'item' | 'user' | 'item_photo' | 'message';
 export type ReportStatus = 'open' | 'reviewed' | 'closed';
 
 export interface Report {
   id: ReportId;
   reporterId: UserId;
   targetType: ReportTargetType;
-  targetId: ItemId | UserId;
+  targetId: ItemId | UserId | ItemPhotoId | MessageId;
   reason: string;
   text: string | undefined;
   status: ReportStatus;
