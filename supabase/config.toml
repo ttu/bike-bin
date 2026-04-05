@@ -65,3 +65,12 @@ secret = "env(APPLE_CLIENT_SECRET)"
 [storage]
 enabled = true
 file_size_limit = "10MB"
+
+# Edge Functions: Kong verifies JWTs before the worker runs (verify_jwt defaults true).
+# That can 401 valid sessions locally when keys/token shape differ from the gateway.
+# Auth is still enforced inside each function (user JWT / service role).
+[functions.request-export]
+verify_jwt = false
+
+[functions.generate-export]
+verify_jwt = false

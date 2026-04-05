@@ -19,16 +19,21 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    if (!supabaseServiceKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+    }
 
-    // Verify user identity
-    const supabaseUser = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: authHeader } },
+    const accessToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+    // Verify user JWT via Auth API using service role (same as dashboard / admin patterns).
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
     });
 
     const {
       data: { user },
       error: authError,
-    } = await supabaseUser.auth.getUser();
+    } = await supabaseAdmin.auth.getUser(accessToken);
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -86,12 +91,16 @@ Deno.serve(async (req) => {
       throw new Error(insertError?.message ?? 'Failed to create export request');
     }
 
-    // Fire-and-forget: invoke generate-export worker
-    supabase.functions
-      .invoke('generate-export', {
-        body: { exportRequestId: exportRequest.id, userId },
-      })
-      .catch((err) => console.error('Failed to invoke generate-export:', err));
+    // Fire-and-forget: call worker with fetch (avoids Edge runtime quirks with functions.invoke).
+    const workerUrl = `${supabaseUrl.replace(/\/$/, '')}/functions/v1/generate-export`;
+    fetch(workerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${supabaseServiceKey}`,
+      },
+      body: JSON.stringify({ exportRequestId: exportRequest.id, userId }),
+    }).catch((err) => console.error('Failed to invoke generate-export:', err));
 
     return new Response(JSON.stringify({ success: true, exportRequestId: exportRequest.id }), {
       status: 202,

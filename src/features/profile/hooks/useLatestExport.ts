@@ -26,12 +26,10 @@ export function useLatestExport(userId: string | undefined) {
         .eq('user_id', userId!)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        if (error.code === 'PGRST116') return null; // no rows
-        throw error;
-      }
+      if (error) throw error;
+      if (!data) return null;
       return mapExportRow(data as Record<string, unknown>);
     },
     enabled: !!userId,

@@ -2,8 +2,8 @@ import { renderHook, waitFor } from '@testing-library/react-native';
 import { useLatestExport } from '../useLatestExport';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-const mockSingle = jest.fn();
-const mockLimit = jest.fn(() => ({ single: mockSingle }));
+const mockMaybeSingle = jest.fn();
+const mockLimit = jest.fn(() => ({ maybeSingle: mockMaybeSingle }));
 const mockOrder = jest.fn(() => ({ limit: mockLimit }));
 const mockEq = jest.fn(() => ({ order: mockOrder }));
 const mockSelect = jest.fn(() => ({ eq: mockEq }));
@@ -28,7 +28,7 @@ describe('useLatestExport', () => {
       updated_at: new Date().toISOString(),
     };
 
-    mockSingle.mockResolvedValue({ data: mockExport, error: null });
+    mockMaybeSingle.mockResolvedValue({ data: mockExport, error: null });
 
     const { result } = renderHook(() => useLatestExport('user-1'), {
       wrapper: createQueryClientHookWrapper(),
@@ -39,7 +39,7 @@ describe('useLatestExport', () => {
   });
 
   it('returns null when no export requests exist', async () => {
-    mockSingle.mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'No rows' } });
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
 
     const { result } = renderHook(() => useLatestExport('user-1'), {
       wrapper: createQueryClientHookWrapper(),

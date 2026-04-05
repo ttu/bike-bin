@@ -7,11 +7,22 @@ export function useRequestExport() {
   return useMutation({
     mutationFn: async () => {
       const {
-        data: { session },
+        data: { session: initialSession },
       } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      if (!initialSession) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase.functions.invoke('request-export');
+      // Use current access token only. Do not call refreshSession here: it POSTs to
+      // /auth/v1/token?grant_type=refresh_token and can 400 (bad refresh token) on web/local.
+      const accessToken = initialSession.access_token;
+
+      const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+      const { data, error } = await supabase.functions.invoke('request-export', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          apikey: anonKey,
+        },
+      });
 
       if (error) throw error;
       return data as { success: boolean; exportRequestId: string };

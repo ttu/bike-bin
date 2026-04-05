@@ -19,9 +19,15 @@ jest.mock('@/shared/api/supabase', () => ({
 beforeEach(() => jest.clearAllMocks());
 
 describe('useRequestExport', () => {
-  it('calls request-export edge function with auth token', async () => {
+  it('calls request-export edge function with session access token and apikey', async () => {
+    process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
     mockGetSession.mockResolvedValue({
-      data: { session: { access_token: 'test-token' } },
+      data: {
+        session: {
+          access_token: 'test-token',
+          refresh_token: 'refresh-token',
+        },
+      },
     });
     mockInvoke.mockResolvedValue({
       data: { success: true, exportRequestId: 'test-id' },
@@ -35,7 +41,9 @@ describe('useRequestExport', () => {
     result.current.mutate();
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockInvoke).toHaveBeenCalledWith('request-export');
+    expect(mockInvoke).toHaveBeenCalledWith('request-export', {
+      headers: { Authorization: 'Bearer test-token', apikey: 'test-anon-key' },
+    });
   });
 
   it('throws when not authenticated', async () => {
