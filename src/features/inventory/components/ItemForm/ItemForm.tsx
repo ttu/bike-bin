@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { Banner, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { ItemCategory } from '@/shared/types';
 
@@ -28,6 +28,7 @@ export function ItemForm({
   isEditMode = false,
   headerComponent,
   photoSection,
+  submitBlockedMessage,
 }: ItemFormProps) {
   const theme = useTheme<AppTheme>();
   const state = useItemFormState({ initialData, initialCategory, onSave });
@@ -166,11 +167,18 @@ export function ItemForm({
         {...inputStyling}
       />
 
+      {submitBlockedMessage !== undefined && submitBlockedMessage.length > 0 ? (
+        <Banner visible icon="information" style={styles.limitBanner}>
+          {submitBlockedMessage}
+        </Banner>
+      ) : null}
+
       <ActionsSection
         handleSubmit={state.handleSubmit}
         isSubmitting={isSubmitting}
         isEditMode={isEditMode}
         onDelete={onDelete}
+        saveDisabled={Boolean(submitBlockedMessage)}
       />
     </ScrollView>
   );

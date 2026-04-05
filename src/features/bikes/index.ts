@@ -12,6 +12,8 @@ export {
   useUpdateBike,
   useDeleteBike,
 } from './hooks/useBikes';
+export { useMyBikeLimit } from './hooks/useMyBikeLimit';
+export { useBikeRowCapacity } from './hooks/useBikeRowCapacity';
 export { useBikePhotoUpload } from './hooks/useBikePhotoUpload';
 export { useRemoveBikePhoto } from './hooks/useBikePhotoManagement';
 export { useMountedParts } from './hooks/useMountedParts';

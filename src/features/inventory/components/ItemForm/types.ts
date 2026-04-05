@@ -15,6 +15,8 @@ export interface ItemFormProps {
   isEditMode?: boolean;
   headerComponent?: React.ReactNode;
   photoSection?: React.ReactNode;
+  /** When set, shows a banner and disables save (e.g. subscription inventory cap). */
+  submitBlockedMessage?: string;
 }
 
 export interface InputStyling {

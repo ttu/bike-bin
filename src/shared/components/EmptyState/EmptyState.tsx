@@ -10,9 +10,17 @@ interface EmptyStateProps {
   description: string;
   ctaLabel?: string;
   onCtaPress?: () => void;
+  ctaDisabled?: boolean;
 }
 
-export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  ctaLabel,
+  onCtaPress,
+  ctaDisabled = false,
+}: EmptyStateProps) {
   const theme = useTheme();
 
   return (
@@ -34,7 +42,7 @@ export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: E
         {description}
       </Text>
       {ctaLabel !== undefined && onCtaPress !== undefined && (
-        <GradientButton onPress={onCtaPress} style={styles.button}>
+        <GradientButton onPress={onCtaPress} disabled={ctaDisabled} style={styles.button}>
           {ctaLabel}
         </GradientButton>
       )}

@@ -17,6 +17,13 @@ export {
   useUpdateItemStatus,
   useDeleteItem,
 } from './hooks/useItems';
+export { useMyInventoryItemLimit } from './hooks/useMyInventoryItemLimit';
+export { useInventoryRowCapacity } from './hooks/useInventoryRowCapacity';
+export {
+  isBikeLimitExceededError,
+  isInventoryLimitExceededError,
+  isPhotoLimitExceededError,
+} from '@/shared/utils/subscriptionLimitErrors';
 export { usePhotoUpload } from './hooks/usePhotoUpload';
 export { useSwapItemPhotoOrder, useRemoveItemPhoto } from './hooks/useItemPhotoManagement';
 export { useUserTags } from './hooks/useUserTags';

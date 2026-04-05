@@ -1,11 +1,10 @@
-import { useState, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/features/auth';
-import { useImagePicker } from '@/shared/hooks/useImagePicker';
-import { uploadPhoto, getPhotoCount } from '@/shared/utils/uploadPhoto';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  useEntityPhotoUpload,
+  type EntityPhotoUploadError,
+} from '@/shared/hooks/useEntityPhotoUpload';
 import type { ItemId } from '@/shared/types';
-
-const MAX_PHOTOS = 5;
 
 interface UsePhotoUploadReturn {
   pickAndUpload: (itemId: ItemId) => Promise<string | undefined>;
@@ -13,60 +12,36 @@ interface UsePhotoUploadReturn {
   error: string | undefined;
 }
 
+function translate(
+  error: EntityPhotoUploadError,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  tCommon: (key: string) => string,
+): string {
+  if (error.kind === 'max-per-entity') {
+    return t('limit.maxPhotosPerEntity', { max: error.max });
+  }
+  if (error.kind === 'account-limit') {
+    return t('limit.saveSnackbarPhoto');
+  }
+  return error.message || tCommon('errors.uploadFailed');
+}
+
 export function usePhotoUpload(): UsePhotoUploadReturn {
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | undefined>();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const { pickImage } = useImagePicker();
+  const { t } = useTranslation('inventory');
+  const { t: tCommon } = useTranslation('common');
 
-  const pickAndUpload = useCallback(
-    async (itemId: ItemId): Promise<string | undefined> => {
-      setError(undefined);
+  const { pickAndUpload, isUploading, error } = useEntityPhotoUpload<ItemId>({
+    bucket: 'item-photos',
+    table: 'item_photos',
+    entityIdColumn: 'item_id',
+    pathPrefix: 'items',
+    photoQueryKey: 'item_photos',
+  });
 
-      const picked = await pickImage();
-      if (!picked) {
-        return undefined;
-      }
-
-      setIsUploading(true);
-      try {
-        const storagePath = `items/${user!.id}/${itemId}/${picked.fileName}`;
-
-        const count = await getPhotoCount({
-          table: 'item_photos',
-          entityIdColumn: 'item_id',
-          entityId: itemId,
-        });
-        const sortOrder = count + 1;
-
-        if (sortOrder > MAX_PHOTOS) {
-          setError(`Maximum ${MAX_PHOTOS} photos allowed`);
-          return undefined;
-        }
-
-        const result = await uploadPhoto({
-          bucket: 'item-photos',
-          storagePath,
-          localUri: picked.uri,
-          table: 'item_photos',
-          entityIdColumn: 'item_id',
-          entityId: itemId,
-          sortOrder,
-        });
-
-        queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
-
-        return result;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Upload failed');
-        return undefined;
-      } finally {
-        setIsUploading(false);
-      }
-    },
-    [user, queryClient, pickImage],
+  const translatedError = useMemo(
+    () => (error ? translate(error, t, tCommon) : undefined),
+    [error, t, tCommon],
   );
 
-  return { pickAndUpload, isUploading, error };
+  return { pickAndUpload, isUploading, error: translatedError };
 }

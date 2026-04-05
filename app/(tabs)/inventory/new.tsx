@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
+import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useAuth } from '@/features/auth';
-import { useCreateItem } from '@/features/inventory';
+import {
+  useCreateItem,
+  useInventoryRowCapacity,
+  isInventoryLimitExceededError,
+  isPhotoLimitExceededError,
+} from '@/features/inventory';
+import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
 import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory';
 import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
@@ -21,9 +27,14 @@ import { LOCAL_USER_ID } from '@/shared/types';
 export default function NewItemScreen() {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
+  const { t: tCommon } = useTranslation('common');
   const { isAuthenticated } = useAuth();
   const createItem = useCreateItem();
   const { addItem } = useLocalInventory();
+  const { atLimit, limit, isReady } = useInventoryRowCapacity();
+  const { atLimit: atPhotoLimit, isReady: photoCapacityReady } = usePhotoRowCapacity();
+  const [limitSnackbarVisible, setLimitSnackbarVisible] = useState(false);
+  const [photoLimitSnackbarVisible, setPhotoLimitSnackbarVisible] = useState(false);
   const { category } = useLocalSearchParams<{ category?: string }>();
   const initialCategory = Object.values(ItemCategory).includes(category as ItemCategory)
     ? (category as ItemCategory)
@@ -40,13 +51,34 @@ export default function NewItemScreen() {
     }
   };
 
+  const submitBlockedMessage =
+    isAuthenticated && isReady && atLimit && limit !== undefined
+      ? t('limit.reachedBanner', { limit })
+      : undefined;
+
   const handleSave = async (data: ItemFormData) => {
     setIsSaving(true);
     try {
       if (isAuthenticated) {
-        const item = await createItem.mutateAsync(data);
-        if (stagedPhotos.length > 0) {
-          await uploadAll(item.id);
+        try {
+          const item = await createItem.mutateAsync(data);
+          if (stagedPhotos.length > 0) {
+            try {
+              await uploadAll(item.id);
+            } catch (pe) {
+              if (isPhotoLimitExceededError(pe)) {
+                setPhotoLimitSnackbarVisible(true);
+                return;
+              }
+              throw pe;
+            }
+          }
+        } catch (e) {
+          if (isInventoryLimitExceededError(e)) {
+            setLimitSnackbarVisible(true);
+            return;
+          }
+          throw e;
         }
       } else {
         await addItem({
@@ -93,6 +125,7 @@ export default function NewItemScreen() {
         onAdd={handleAddPhoto}
         onRemove={removeStaged}
         isUploading={isPicking || isUploading}
+        accountPhotoLimitReached={isAuthenticated && photoCapacityReady && atPhotoLimit}
       />
     </View>
   );
@@ -112,7 +145,27 @@ export default function NewItemScreen() {
         onSave={handleSave}
         isSubmitting={isSaving || createItem.isPending}
         photoSection={photoSection}
+        submitBlockedMessage={submitBlockedMessage}
       />
+      <Snackbar
+        visible={limitSnackbarVisible}
+        onDismiss={() => setLimitSnackbarVisible(false)}
+        duration={5000}
+        action={{ label: tCommon('actions.close'), onPress: () => setLimitSnackbarVisible(false) }}
+      >
+        {t('limit.saveSnackbar')}
+      </Snackbar>
+      <Snackbar
+        visible={photoLimitSnackbarVisible}
+        onDismiss={() => setPhotoLimitSnackbarVisible(false)}
+        duration={5000}
+        action={{
+          label: tCommon('actions.close'),
+          onPress: () => setPhotoLimitSnackbarVisible(false),
+        }}
+      >
+        {t('limit.saveSnackbarPhoto')}
+      </Snackbar>
     </View>
   );
 }

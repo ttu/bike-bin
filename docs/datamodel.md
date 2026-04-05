@@ -34,6 +34,8 @@ The TS model also carries `thumbnailStoragePath` — this is **not** a DB column
 
 Related: **`item_photos`**, **`item_groups`** (many-to-many with `groups`).
 
+**Subscription caps** (`00015_inventory_item_subscription_limit.sql`, `BEFORE INSERT` triggers): limits use **table row counts** only (`items.quantity` is not summed into the item cap). **Free tier:** **500** `items` rows, **15** `bikes` rows, and **100** combined `item_photos` + `bike_photos` rows per owner. **Paid tier** (entitled `subscriptions` row: `plan = paid`, `status` in `trialing` / `active` / `past_due`): **10_000** for each of those three caps. RPCs: `get_my_inventory_item_limit()`, `get_my_bike_limit()`, `get_my_photo_limit()`, `get_my_photo_count()`.
+
 **Lifecycle (app):** Owners may set `status` to **`archived`** or back to **`stored`** (unarchive) when RLS allows updates — see `items_update_own` (not loaned/reserved) and migration **`00029`** for borrow-lock exceptions. Product behavior for **Remove from inventory** / **Restore** is documented in [design-docs/003-inventory.md](design-docs/003-inventory.md).
 
 ### `item_photos` → `ItemPhoto`

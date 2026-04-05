@@ -4,9 +4,11 @@ import type { ItemId } from '@/shared/types';
 
 const mockUpload = jest.fn();
 const mockInsert = jest.fn();
+const mockRpc = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
+    rpc: (...args: unknown[]) => mockRpc(...args),
     storage: {
       from: () => ({
         upload: (...args: unknown[]) => mockUpload(...args),
@@ -30,6 +32,15 @@ import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 describe('useStagedPhotos', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRpc.mockImplementation((fn: string) => {
+      if (fn === 'get_my_photo_limit') {
+        return Promise.resolve({ data: 10_000, error: null });
+      }
+      if (fn === 'get_my_photo_count') {
+        return Promise.resolve({ data: 0, error: null });
+      }
+      return Promise.resolve({ data: null, error: null });
+    });
   });
 
   it('starts with empty staged photos', () => {

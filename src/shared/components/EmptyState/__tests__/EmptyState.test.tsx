@@ -46,4 +46,13 @@ describe('EmptyState', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Add item' }));
     expect(onCtaPress).toHaveBeenCalledTimes(1);
   });
+
+  it('does not call onCtaPress when ctaDisabled is true', () => {
+    const onCtaPress = jest.fn();
+    renderWithProviders(
+      <EmptyState {...defaultProps} ctaLabel="Add item" onCtaPress={onCtaPress} ctaDisabled />,
+    );
+    fireEvent.press(screen.getByRole('button', { name: 'Add item' }));
+    expect(onCtaPress).not.toHaveBeenCalled();
+  });
 });
