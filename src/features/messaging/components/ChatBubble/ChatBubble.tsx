@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { formatMessageTime } from '@/shared/utils';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -7,9 +7,10 @@ import type { MessageWithSender } from '../../types';
 
 interface ChatBubbleProps {
   message: MessageWithSender;
+  onLongPress?: (message: MessageWithSender) => void;
 }
 
-export function ChatBubble({ message }: ChatBubbleProps) {
+export function ChatBubble({ message, onLongPress }: ChatBubbleProps) {
   const theme = useTheme<AppTheme>();
 
   const isOwn = message.isOwn;
@@ -17,7 +18,9 @@ export function ChatBubble({ message }: ChatBubbleProps) {
   const timestamp = formatMessageTime(message.createdAt);
 
   return (
-    <View
+    <Pressable
+      onLongPress={onLongPress ? () => onLongPress(message) : undefined}
+      delayLongPress={400}
       style={[styles.wrapper, isOwn ? styles.wrapperRight : styles.wrapperLeft]}
       accessibilityLabel={message.body}
     >
@@ -50,7 +53,7 @@ export function ChatBubble({ message }: ChatBubbleProps) {
           {timestamp}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
