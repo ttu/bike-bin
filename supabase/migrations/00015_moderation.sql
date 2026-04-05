@@ -1,0 +1,91 @@
+-- ============================================================
+-- Moderation: extend report targets, blocked identities, audit log, auth hook
+-- ============================================================
+
+-- 1. Extend report_target_type enum
+ALTER TYPE report_target_type ADD VALUE IF NOT EXISTS 'item_photo';
+ALTER TYPE report_target_type ADD VALUE IF NOT EXISTS 'message';
+
+-- 2. Blocked OAuth identities (service-role only)
+CREATE TABLE blocked_oauth_identities (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider text NOT NULL,
+  provider_user_id text NOT NULL,
+  notes text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (provider, provider_user_id)
+);
+
+ALTER TABLE blocked_oauth_identities ENABLE ROW LEVEL SECURITY;
+-- No authenticated policies — managed by service role only
+
+-- 3. Moderation enforcement log (service-role only)
+CREATE TABLE moderation_enforcement_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  sanctioned_user_id uuid NOT NULL,
+  performed_by text NOT NULL DEFAULT 'edge_function',
+  reason text,
+  report_ids uuid[],
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE moderation_enforcement_log ENABLE ROW LEVEL SECURITY;
+-- No authenticated policies — service-role only
+
+-- 4. Helper: find conversations with zero participants and zero messages
+CREATE OR REPLACE FUNCTION find_empty_conversations()
+RETURNS TABLE(id uuid)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path TO public
+AS $$
+  SELECT c.id FROM conversations c
+  WHERE NOT EXISTS (SELECT 1 FROM conversation_participants cp WHERE cp.conversation_id = c.id)
+    AND NOT EXISTS (SELECT 1 FROM messages m WHERE m.conversation_id = c.id);
+$$;
+
+-- 5. Before Sign-In auth hook: reject blocked identities
+-- Called by Supabase Auth with event jsonb; returns decision jsonb.
+-- Registered in Supabase Dashboard > Authentication > Hooks > Before Sign-In.
+CREATE OR REPLACE FUNCTION public.check_blocked_identity(event jsonb)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO public
+AS $$
+DECLARE
+  _provider text;
+  _provider_user_id text;
+  is_blocked boolean;
+BEGIN
+  -- Extract provider and subject from the auth event
+  _provider := event->'user'->'identities'->0->>'provider';
+  _provider_user_id := event->'user'->'identities'->0->>'provider_id';
+
+  -- If we can't extract identity info, allow sign-in (don't block legitimate users)
+  IF _provider IS NULL OR _provider_user_id IS NULL THEN
+    RETURN jsonb_build_object('decision', 'continue');
+  END IF;
+
+  SELECT EXISTS(
+    SELECT 1 FROM blocked_oauth_identities
+    WHERE provider = _provider AND provider_user_id = _provider_user_id
+  ) INTO is_blocked;
+
+  IF is_blocked THEN
+    RETURN jsonb_build_object(
+      'decision', 'reject',
+      'message', 'Sign-in not allowed'
+    );
+  END IF;
+
+  RETURN jsonb_build_object('decision', 'continue');
+END;
+$$;
+
+-- Grant supabase_auth_admin (the role used for auth hooks) execute permission
+GRANT EXECUTE ON FUNCTION public.check_blocked_identity(jsonb) TO supabase_auth_admin;
+REVOKE EXECUTE ON FUNCTION public.check_blocked_identity(jsonb) FROM authenticated, anon, public;
+
+-- Grant supabase_auth_admin access to read the blocklist for the hook
+GRANT SELECT ON public.blocked_oauth_identities TO supabase_auth_admin;
