@@ -30,6 +30,8 @@ interface PhotoGalleryProps {
   photos: GalleryPhoto[];
   /** When set, caps gallery width (defaults to 500). Use on wide layouts for a larger hero. */
   maxGalleryWidth?: number;
+  /** Called when a photo is long-pressed. Used to open report dialog. */
+  onPhotoLongPress?: (photo: GalleryPhoto) => void;
 }
 
 function ParallaxPhoto({
@@ -38,12 +40,14 @@ function ParallaxPhoto({
   scrollX,
   themed,
   galleryWidth,
+  onLongPress,
 }: {
   photo: GalleryPhoto;
   index: number;
   scrollX: Animated.Value;
   themed: ReturnType<typeof useThemedStyles>;
   galleryWidth: number;
+  onLongPress?: (photo: GalleryPhoto) => void;
 }) {
   const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
 
@@ -57,8 +61,11 @@ function ParallaxPhoto({
   const galleryHeight = galleryWidth * ASPECT_RATIO;
 
   return (
-    <View
+    <Pressable
       key={photo.id}
+      onLongPress={onLongPress ? () => onLongPress(photo) : undefined}
+      delayLongPress={400}
+      accessibilityLabel={`Photo ${photo.id}`}
       style={[
         styles.photoContainer,
         themed.surfaceVariantBg,
@@ -73,11 +80,11 @@ function ParallaxPhoto({
         cachePolicy="memory-disk"
         recyclingKey={photo.storagePath}
       />
-    </View>
+    </Pressable>
   );
 }
 
-export function PhotoGallery({ photos, maxGalleryWidth }: PhotoGalleryProps) {
+export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: PhotoGalleryProps) {
   const theme = useTheme<AppTheme>();
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -143,6 +150,7 @@ export function PhotoGallery({ photos, maxGalleryWidth }: PhotoGalleryProps) {
             scrollX={scrollX}
             themed={themed}
             galleryWidth={galleryWidth}
+            onLongPress={onPhotoLongPress}
           />
         ))}
       </Animated.ScrollView>

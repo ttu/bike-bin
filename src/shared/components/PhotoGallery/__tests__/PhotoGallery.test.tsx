@@ -82,6 +82,16 @@ describe('PhotoGallery', () => {
     expect(toJSON()).toBeTruthy();
   });
 
+  it('calls onPhotoLongPress with the photo when long-pressed', () => {
+    const onPhotoLongPress = jest.fn();
+    const photos = [{ id: 'p1', storagePath: 'items/photo1.jpg' }];
+    const { getByLabelText } = renderWithProviders(
+      <PhotoGallery photos={photos} onPhotoLongPress={onPhotoLongPress} />,
+    );
+    fireEvent(getByLabelText('Photo p1'), 'longPress');
+    expect(onPhotoLongPress).toHaveBeenCalledWith(photos[0]);
+  });
+
   describe('web arrow navigation', () => {
     const originalPlatform = Platform.OS;
 
