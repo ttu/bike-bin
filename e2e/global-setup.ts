@@ -8,6 +8,13 @@ import { loadBikeBinTestEnvFromEnvLocal } from './load-test-env-from-env-local';
 
 const DEFAULT_PG_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
 
+/** Default local Supabase API URL (see `supabase status`). */
+const DEFAULT_SUPABASE_URL = 'http://127.0.0.1:54321';
+
+/** Same default service role JWT as local `supabase start` (dev only). */
+const DEFAULT_SUPABASE_SERVICE_ROLE_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+
 function resolvePsqlExecutable(): string {
   const common = ['/opt/homebrew/bin/psql', '/usr/local/bin/psql'];
   for (const p of common) {
@@ -38,6 +45,9 @@ function resolveDbUrl(projectRoot: string): string {
  * and restarts containers), this truncates user-data tables and re-runs
  * seed.sql. It's fast (~1s), avoids container restarts, and doesn't disrupt
  * a running dev instance.
+ *
+ * After SQL seed, runs `scripts/seed-images.mjs` so `item-photos` storage and
+ * `item_photos` / `bike_photos` rows exist (same as `npm run db:seed` after SQL).
  */
 export default function globalSetup(config: FullConfig) {
   const projectRoot =
@@ -86,5 +96,26 @@ export default function globalSetup(config: FullConfig) {
     stdio: 'inherit',
     timeout: 60_000,
     env,
+  });
+
+  loadBikeBinTestEnvFromEnvLocal(process.cwd());
+  loadBikeBinTestEnvFromEnvLocal(projectRoot);
+
+  const supabaseUrl =
+    process.env.BIKE_BIN_TEST_SUPABASE_URL ??
+    process.env.EXPO_PUBLIC_SUPABASE_URL ??
+    DEFAULT_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? DEFAULT_SUPABASE_SERVICE_ROLE_KEY;
+
+  const seedImagesScript = resolve(projectRoot, 'scripts', 'seed-images.mjs');
+  execFileSync(process.execPath, [seedImagesScript], {
+    cwd: projectRoot,
+    stdio: 'inherit',
+    timeout: 120_000,
+    env: {
+      ...process.env,
+      SUPABASE_URL: supabaseUrl,
+      SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey,
+    },
   });
 }

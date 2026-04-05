@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const KEYS_TO_MERGE = ['BIKE_BIN_TEST_PG_URL', 'BIKE_BIN_TEST_SUPABASE_URL'] as const;
+const KEYS_TO_MERGE = [
+  'BIKE_BIN_TEST_PG_URL',
+  'BIKE_BIN_TEST_SUPABASE_URL',
+  /** Used by E2E global setup to upload seed images to the same API the web app uses. */
+  'EXPO_PUBLIC_SUPABASE_URL',
+] as const;
 
 /**
  * Playwright globalSetup may not inherit shell exports (e.g. after `source` in a wrapper script).
