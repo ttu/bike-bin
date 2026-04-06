@@ -32,7 +32,7 @@
     "test:e2e:isolated": "bash scripts/run-isolated-db-tests.sh e2e",
     "test:db:isolated": "bash scripts/run-isolated-db-tests.sh both",
     "type-check": "tsc --noEmit",
-    "test:e2e": "npx playwright test",
+    "test:e2e": "playwright test",
     "capture:media": "playwright test -c playwright.media.config.ts",
     "validate": "npm run format:check && npm run lint && npm run type-check && npm test",
     "marketing:dev": "npm run dev --prefix sites/marketing",

@@ -45,6 +45,10 @@ export async function devLogin(page: Page, options?: DevLoginOptions): Promise<v
 }
 
 export async function ensureCaptureDirs(): Promise<void> {
+  await fs.rm(RAW_DIR, { recursive: true, force: true });
+  await fs.rm(FRAMED_DIR, { recursive: true, force: true });
+  await fs.rm(VIDEO_DIR, { recursive: true, force: true });
+  await fs.rm(GIF_DIR, { recursive: true, force: true });
   await fs.mkdir(RAW_DIR, { recursive: true });
   await fs.mkdir(FRAMED_DIR, { recursive: true });
   await fs.mkdir(VIDEO_DIR, { recursive: true });

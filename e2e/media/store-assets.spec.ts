@@ -11,6 +11,7 @@
  * (login hold → inventory → collection search → item detail → edit) because it builds a fresh
  * `browser.newContext()` (no fixture page).
  */
+import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
 import { test, expect, type Page } from '@playwright/test';
@@ -63,7 +64,9 @@ authTest.describe('Store stills', () => {
     '02–07 authenticated inventory, detail, edit, search, messages',
     async ({ loggedInPage, context }) => {
       await expect(loggedInPage.getByRole('tablist')).toBeVisible({ timeout: 20_000 });
-      await waitForInventoryRowAfterComponentsFilter(loggedInPage, MAXXIS_ITEM_NAME);
+      await waitForInventoryRowAfterComponentsFilter(loggedInPage, MAXXIS_ITEM_NAME, {
+        itemVisibilityTimeoutMs: 15_000,
+      });
       await screenshotWithPhoneFrame(context, loggedInPage, '02-inventory-signed-in');
 
       await visibleExactText(loggedInPage, MAXXIS_ITEM_NAME).click();
@@ -82,7 +85,9 @@ authTest.describe('Store stills', () => {
 
       await loggedInPage.goto('/inventory');
       await expect(loggedInPage.getByRole('tablist')).toBeVisible({ timeout: 15_000 });
-      await waitForInventoryRowAfterComponentsFilter(loggedInPage, MAXXIS_ITEM_NAME);
+      await waitForInventoryRowAfterComponentsFilter(loggedInPage, MAXXIS_ITEM_NAME, {
+        itemVisibilityTimeoutMs: 15_000,
+      });
 
       await navigateToSearch(loggedInPage);
       const searchInput = loggedInPage.getByPlaceholder('Parts, tools, bikes...');
@@ -160,7 +165,6 @@ async function expectVisibleSearchResultsBanner(page: Page): Promise<void> {
 
 test.describe('Short screen recording', () => {
   test('browse flow WebM + GIF when ffmpeg is available', async ({ browser }, testInfo) => {
-    await ensureCaptureDirs();
     const webmPath = path.join(VIDEO_DIR, 'browse-flow.webm');
     const gifPath = path.join(GIF_DIR, 'browse-flow.gif');
 
@@ -176,7 +180,14 @@ test.describe('Short screen recording', () => {
     const video = page.video();
     await page.close();
     if (video !== null) {
+      const recordedPath = path.resolve(await video.path());
       await video.saveAs(webmPath);
+      const finalPath = path.resolve(webmPath);
+      if (recordedPath !== finalPath) {
+        await fs.unlink(recordedPath).catch((err: NodeJS.ErrnoException) => {
+          if (err.code !== 'ENOENT') throw err;
+        });
+      }
     }
     await context.close();
 

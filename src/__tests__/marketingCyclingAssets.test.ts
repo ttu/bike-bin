@@ -14,6 +14,7 @@ describe('marketing site assets (cycling-only policy)', () => {
     expect(src).not.toMatch(/picsum\.photos/i);
     const urlMatches = src.matchAll(/https:\/\/images\.unsplash\.com\/[^\s'"`]+/g);
     const urls = [...urlMatches].map((m) => m[0]);
+    // Zero Unsplash URLs is valid (page can rely entirely on local captures).
     for (const url of urls) {
       expect(url.startsWith('https://images.unsplash.com/')).toBe(true);
     }

@@ -12,7 +12,7 @@ Static marketing site for **https://bikebin.app**. The product web app lives at 
 
 ## Media placeholders
 
-All raster imagery is **Unsplash** cycling/bicycle photography (see `pics` in `src/pages/index.astro`). The phone mock and “How it works” cards use **still images** plus subtle CSS pan/zoom (no unrelated stock video). Replace URLs or add screen captures when you have product assets.
+Raster imagery is primarily **captured app screenshots** checked in under `public/captures/` (see `src/pages/index.astro` and `npm run capture:media`). The hero and feature sections use those stills (and optional screen recordings) inside the phone frame. If you reintroduce external stock photos later, prefer **Unsplash** cycling/bicycle URLs only (see `src/__tests__/marketingCyclingAssets.test.ts`); avoid unrelated hosts such as picsum.
 
 ## Deploy
 

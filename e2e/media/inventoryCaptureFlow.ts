@@ -13,6 +13,8 @@ export function visibleExactText(page: Page, text: string) {
 export type WaitInventoryRowOptions = {
   /** Default matches main E2E (`inventory-gallery.spec.ts`). */
   layoutSwitchTimeoutMs?: number;
+  /** After tapping Components, wait for the inventory row title (default 10s). */
+  itemVisibilityTimeoutMs?: number;
 };
 
 /**
@@ -32,9 +34,10 @@ export async function waitForInventoryRowAfterComponentsFilter(
   options?: WaitInventoryRowOptions,
 ): Promise<void> {
   const layoutSwitchTimeoutMs = options?.layoutSwitchTimeoutMs ?? 15_000;
+  const itemVisibilityTimeoutMs = options?.itemVisibilityTimeoutMs ?? 10_000;
   await expect(
     page.getByRole('switch', { name: INVENTORY_LAYOUT_TOGGLE_NAME, exact: true }),
   ).toBeVisible({ timeout: layoutSwitchTimeoutMs });
   await page.getByRole('button', { name: 'Components' }).click();
-  await expect(visibleExactText(page, itemName)).toBeVisible({ timeout: 10_000 });
+  await expect(visibleExactText(page, itemName)).toBeVisible({ timeout: itemVisibilityTimeoutMs });
 }
