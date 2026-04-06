@@ -158,6 +158,7 @@ The subscription filter `conversation_id=eq.<uuid>` scopes events to one convers
 | **Apple OAuth credentials**       | Supabase Auth dashboard (per environment)              | Server-side (Supabase Auth)                 |
 | **Resend API key**                | Supabase Edge Function secrets (per environment)       | Edge Functions only                         |
 | **Expo Push access token**        | Supabase Edge Function secrets                         | Edge Functions only                         |
+| **ADMIN_MODERATION_SECRET**       | Supabase Edge Function secrets (per environment)       | `admin-enforce-sanction` Edge Function only |
 
 ### 6.1 Key rotation
 
@@ -187,10 +188,33 @@ The subscription filter `conversation_id=eq.<uuid>` scopes events to one convers
 
 ### 7.3 Reporting & moderation
 
-- **Report flow:** Users can report a listing or a user (reason + optional description). Reports stored in a `reports` table.
+- **Report flow:** Users can report items, users, **item photos** (long-press in gallery), and **chat messages** (long-press in conversation). Reports stored in the `reports` table with `report_target_type` enum (`item`, `user`, `item_photo`, `message`).
 - **Moderation queue:** Admin/moderator reviews reports. Actions: warn user, remove listing, suspend/ban user.
 - **MVP scope:** Basic report submission + admin review (can use Supabase dashboard or a simple admin screen). Automated moderation (ML, keyword filters) is post-MVP.
 - **Blocked users:** Users can block other users. Blocked users cannot message or see each other's listings.
+
+### 7.4 Admin enforcement — `admin-enforce-sanction`
+
+A secret-protected Edge Function (`supabase/functions/admin-enforce-sanction/index.ts`) performs hard purge of a sanctioned user's data. **Not callable from the app** — invoked by an admin via `curl` or dashboard.
+
+**Authentication:** `x-admin-secret` header compared using `timingSafeEqual` against `ADMIN_MODERATION_SECRET` env var. No JWT or Supabase Auth involved.
+
+**Ordered purge steps:**
+
+1. Load OAuth identities via `supabase.auth.admin.getUserById()`
+2. Upsert `blocked_oauth_identities` (prevents re-registration)
+3. Collect storage paths (avatars, item photos, bike photos, data exports)
+4. Delete storage objects (grouped by bucket, 404s handled gracefully)
+5. Data purge: item_photos → items → bike_photos → bikes → messages (DELETE, not anonymize) → conversation_participants → empty conversations (via `find_empty_conversations()` RPC) → ratings → borrow_requests → export_requests → subscriptions → support_requests → saved_locations → group_members → notifications → close reports targeting user → delete reports filed by user → delete profile
+6. Delete auth user (`auth.admin.deleteUser()`)
+7. Insert `moderation_enforcement_log` row
+
+**Distinction from GDPR delete-account:** GDPR self-delete anonymizes messages (preserves conversation for other party). Admin enforcement **hard-deletes** messages and blocks re-registration via OAuth identity blocklist.
+
+### 7.5 OAuth identity blocklist & auth hook
+
+- **`blocked_oauth_identities`** table: records `(provider, provider_user_id)` pairs blocked during enforcement. RLS: service-role-only (no SELECT/INSERT for authenticated role).
+- **`check_blocked_identity(event jsonb)`** — a `SECURITY DEFINER` Postgres function registered as a Supabase **Before Sign-In** auth hook. Extracts `provider` and `provider_id` from the hook event, checks `blocked_oauth_identities`. If found, returns `{"decision": "reject", "message": "..."}`. Otherwise returns `{"decision": "continue"}`.
 
 ---
 
@@ -282,4 +306,4 @@ When building a new feature, verify:
 
 ---
 
-_Last updated: 2026-03-27_
+_Last updated: 2026-04-06_
