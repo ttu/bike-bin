@@ -13,16 +13,17 @@ Requirements match E2E: local Supabase, seeded DB (`e2e/global-setup.ts`), and `
 
 Typical filenames after a run:
 
-| Base name                | Screen                               |
-| ------------------------ | ------------------------------------ |
-| `01-login`               | Login                                |
-| `02-inventory-signed-in` | Inventory (Dev Login, seeded items)  |
-| `03-item-detail`         | Item detail (seeded item)            |
-| `04-item-edit`           | Edit item                            |
-| `05-search-results`      | Search with results                  |
-| `06-messages-inbox`      | Messages list (seeded conversations) |
+| Base name                | Screen                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| `01-login`               | Login                                                                                       |
+| `02-inventory-signed-in` | Inventory — same flow as `e2e/inventory-gallery.spec.ts` (switch + Components + Maxxis row) |
+| `03-item-detail`         | Item detail (tap Maxxis row like `e2e/inventory-authenticated.spec.ts`)                     |
+| `04-item-edit`           | Edit item                                                                                   |
+| `05-search-results`      | Search with results                                                                         |
+| `06-messages-inbox`      | Messages list (seeded conversations)                                                        |
+| `07-messages-thread`     | Conversation thread with Kai R. (seed messages)                                             |
 
-- **video/** — WebM screen recording from Playwright.
+- **video/** — WebM screen recording from Playwright (`browse-flow.webm`): login (held) → Dev Login → inventory → collection search → open **Maxxis** row → **Edit item** (header pencil).
 - **gif/** — optional; created when `ffmpeg` is installed (`brew install ffmpeg`).
 
 You may add this folder’s binaries to `.gitignore` if you store assets elsewhere, or commit them for the site.

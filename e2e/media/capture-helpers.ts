@@ -1,13 +1,15 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import type { BrowserContext, Page } from '@playwright/test';
+import { expect, type BrowserContext, type Page } from '@playwright/test';
 
 import {
   APP_STORE_67_HEIGHT,
   APP_STORE_67_WIDTH,
   buildFramedDeviceHtml,
 } from '../../scripts/store-media/framedDeviceHtml';
+
+import { INVENTORY_LAYOUT_TOGGLE_NAME } from './inventoryCaptureFlow';
 
 export const CAPTURE_ROOT = path.join(process.cwd(), 'sites', 'marketing', 'public', 'captures');
 export const RAW_DIR = path.join(CAPTURE_ROOT, 'raw');
@@ -17,12 +19,29 @@ export const GIF_DIR = path.join(CAPTURE_ROOT, 'gif');
 
 const FRAME_PADDING_PX = 120;
 
-/** Same flow as E2E `Dev Login` — lands on inventory with seeded items. */
-export async function devLogin(page: Page): Promise<void> {
+export type DevLoginOptions = {
+  /** Extra pause on the login route before Dev Login (e.g. marketing screen recording). */
+  holdOnLoginScreenMs?: number;
+};
+
+/**
+ * Same flow as E2E `Dev Login` — lands on inventory with seeded items.
+ * Waits for the list/gallery switch (same readiness as `inventory-gallery.spec.ts`). Do not wait for
+ * "Add item": the empty-state CTA reuses that label (`inventory.empty.cta`).
+ */
+export async function devLogin(page: Page, options?: DevLoginOptions): Promise<void> {
   await page.goto('/');
   await page.waitForURL(/\/login/);
+  const hold = options?.holdOnLoginScreenMs ?? 0;
+  if (hold > 0) {
+    await expect(page.getByText('Bike Bin')).toBeVisible({ timeout: 15_000 });
+    await page.waitForTimeout(hold);
+  }
   await page.getByRole('button', { name: /Dev Login/ }).click();
   await page.waitForURL(/\/inventory/, { timeout: 20_000 });
+  await expect(
+    page.getByRole('switch', { name: INVENTORY_LAYOUT_TOGGLE_NAME, exact: true }),
+  ).toBeVisible({ timeout: 45_000 });
 }
 
 export async function ensureCaptureDirs(): Promise<void> {

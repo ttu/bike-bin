@@ -5,13 +5,17 @@
  *
  * Run: npm run capture:media
  *
- * Raw PNGs match 6.7" App Store portrait (1290×2796). Framed PNGs add a CSS device shell
- * for the website — not an official Apple frame; swap assets if your legal/design rules require it.
+ * Authenticated inventory steps match `e2e/inventory-gallery.spec.ts` (layout switch → Components →
+ * `visibleExactText` for **Maxxis Minion DHF/DHR Combo**) and use the **`loggedInPage`** fixture like
+ * `e2e/inventory-authenticated.spec.ts`. The recording test uses `devLogin` + a scripted flow
+ * (login hold → inventory → collection search → item detail → edit) because it builds a fresh
+ * `browser.newContext()` (no fixture page).
  */
 import * as path from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
+import { test as authTest, navigateToMessages, navigateToSearch } from '../fixtures';
 import {
   devLogin,
   ensureCaptureDirs,
@@ -19,15 +23,122 @@ import {
   screenshotWithPhoneFrame,
   VIDEO_DIR,
 } from './capture-helpers';
-import { navigateToMessages, navigateToSearch } from '../fixtures';
+import {
+  INVENTORY_LAYOUT_TOGGLE_NAME,
+  visibleExactText,
+  waitForInventoryRowAfterComponentsFilter,
+} from './inventoryCaptureFlow';
 import { webmToGif } from '../../scripts/store-media/webmToGif';
 
-/** Seeded owner item (see `supabase/seed.sql`) — list must show real rows after Dev Login. */
-const SEEDED_ITEM_NAME = 'RaceFace Turbine R Cranks';
+/** Same seed row as `e2e/inventory-gallery.spec.ts` (after Components filter). */
+const MAXXIS_ITEM_NAME = 'Maxxis Minion DHF/DHR Combo';
 
 /**
- * RN web can keep inactive tab screens in the DOM; find a visible "N results within … km" line.
+ * Pacing for `browse-flow.webm` (holds and keystroke delay). `3` targets ~12s wall time;
+ * was ~6s at `1.5`.
  */
+const BROWSE_RECORDING_PACE = 3;
+
+function browseRecordingMs(baseMs: number): number {
+  return Math.round(baseMs * BROWSE_RECORDING_PACE);
+}
+
+test.describe.configure({ mode: 'serial' });
+
+test.beforeAll(async () => {
+  await ensureCaptureDirs();
+});
+
+test.describe('Store stills', () => {
+  test('01-login', async ({ page, context }) => {
+    await page.goto('/');
+    await page.waitForURL(/\/login/);
+    await expect(page.getByText('Bike Bin')).toBeVisible();
+    await screenshotWithPhoneFrame(context, page, '01-login');
+  });
+});
+
+authTest.describe('Store stills', () => {
+  authTest(
+    '02–07 authenticated inventory, detail, edit, search, messages',
+    async ({ loggedInPage, context }) => {
+      await expect(loggedInPage.getByRole('tablist')).toBeVisible({ timeout: 20_000 });
+      await waitForInventoryRowAfterComponentsFilter(loggedInPage, MAXXIS_ITEM_NAME);
+      await screenshotWithPhoneFrame(context, loggedInPage, '02-inventory-signed-in');
+
+      await visibleExactText(loggedInPage, MAXXIS_ITEM_NAME).click();
+      await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10_000 });
+      await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10_000 });
+      await screenshotWithPhoneFrame(context, loggedInPage, '03-item-detail');
+
+      const detailUrl = loggedInPage.url();
+      const idMatch = detailUrl.match(/\/inventory\/([a-f0-9-]{36})/i);
+      if (idMatch === null) {
+        throw new Error(`Expected UUID item id in URL, got: ${detailUrl}`);
+      }
+      await loggedInPage.goto(`/inventory/edit/${idMatch[1]}`);
+      await expect(loggedInPage.getByText('Edit item')).toBeVisible({ timeout: 15_000 });
+      await screenshotWithPhoneFrame(context, loggedInPage, '04-item-edit');
+
+      await loggedInPage.goto('/inventory');
+      await expect(loggedInPage.getByRole('tablist')).toBeVisible({ timeout: 15_000 });
+      await waitForInventoryRowAfterComponentsFilter(loggedInPage, MAXXIS_ITEM_NAME);
+
+      await navigateToSearch(loggedInPage);
+      const searchInput = loggedInPage.getByPlaceholder('Parts, tools, bikes...');
+      await expect(searchInput).toBeVisible({ timeout: 15_000 });
+      await searchInput.fill('a');
+      await searchInput.press('Enter');
+      await expectVisibleSearchResultsBanner(loggedInPage);
+      await screenshotWithPhoneFrame(context, loggedInPage, '05-search-results');
+
+      await navigateToMessages(loggedInPage);
+      await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({ timeout: 15_000 });
+      await screenshotWithPhoneFrame(context, loggedInPage, '06-messages-inbox');
+
+      // Same flow as `e2e/messages-authenticated.spec.ts` — open seeded thread with Kai R.
+      await loggedInPage.getByText('Kai R.').first().click();
+      await expect(loggedInPage).toHaveURL(/\/messages\//, { timeout: 15_000 });
+      await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(
+        loggedInPage.getByText('Thanks! I will bring it back Monday.').last(),
+      ).toBeVisible({ timeout: 15_000 });
+      await screenshotWithPhoneFrame(context, loggedInPage, '07-messages-thread');
+    },
+  );
+});
+
+/**
+ * Marketing recording: inventory (all categories) → in-collection search → Maxxis row → detail →
+ * header edit (pencil order as `e2e/inventory-crud.spec.ts`). No category chip change — search alone
+ * narrows to the seed row.
+ */
+async function runRecordedInventorySearchToEditFlow(page: Page): Promise<void> {
+  await expect(
+    page.getByRole('switch', { name: INVENTORY_LAYOUT_TOGGLE_NAME, exact: true }),
+  ).toBeVisible({ timeout: 45_000 });
+  await page.waitForTimeout(browseRecordingMs(600));
+
+  const collectionSearch = page.getByPlaceholder(/Search .*collection\.\.\./);
+  await expect(collectionSearch).toBeVisible({ timeout: 15_000 });
+  await collectionSearch.click();
+  await collectionSearch.pressSequentially('maxxis', { delay: browseRecordingMs(120) });
+  await expect(visibleExactText(page, MAXXIS_ITEM_NAME)).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(browseRecordingMs(500));
+
+  await visibleExactText(page, MAXXIS_ITEM_NAME).click();
+  await page.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 15_000 });
+  await expect(page.getByText('Condition')).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(browseRecordingMs(500));
+
+  await page.getByRole('button').nth(1).click();
+  await page.waitForURL(/\/edit\//, { timeout: 15_000 });
+  await expect(page.getByText('Edit item')).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(browseRecordingMs(900));
+}
+
 async function expectVisibleSearchResultsBanner(page: Page): Promise<void> {
   await expect(async () => {
     const lines = page.getByText(/\d+ results? within \d+ km/);
@@ -47,66 +158,8 @@ async function expectVisibleSearchResultsBanner(page: Page): Promise<void> {
   }).toPass({ timeout: 15_000 });
 }
 
-test.describe.configure({ mode: 'serial' });
-
-test.beforeAll(async () => {
-  await ensureCaptureDirs();
-});
-
-test.describe('Store stills', () => {
-  test('01-login', async ({ page, context }) => {
-    await page.goto('/');
-    await page.waitForURL(/\/login/);
-    await expect(page.getByText('Bike Bin')).toBeVisible();
-    await screenshotWithPhoneFrame(context, page, '01-login');
-  });
-
-  test('02–06 authenticated inventory, detail, edit, search, messages', async ({
-    page,
-    context,
-  }) => {
-    await devLogin(page);
-
-    await expect(page.getByText(SEEDED_ITEM_NAME).first()).toBeVisible({ timeout: 20_000 });
-    await screenshotWithPhoneFrame(context, page, '02-inventory-signed-in');
-
-    await page.getByText(SEEDED_ITEM_NAME).first().click();
-    await page.waitForURL(/\/inventory\/[a-f0-9-]{36}/i, { timeout: 15_000 });
-    await expect(page.getByText('Condition', { exact: true }).first()).toBeVisible({
-      timeout: 15_000,
-    });
-    await screenshotWithPhoneFrame(context, page, '03-item-detail');
-
-    const detailUrl = page.url();
-    const idMatch = detailUrl.match(/\/inventory\/([a-f0-9-]{36})/i);
-    if (idMatch === null) {
-      throw new Error(`Expected UUID item id in URL, got: ${detailUrl}`);
-    }
-    const itemId = idMatch[1];
-    await page.goto(`/inventory/edit/${itemId}`);
-    await expect(page.getByText('Edit item')).toBeVisible({ timeout: 15_000 });
-    await screenshotWithPhoneFrame(context, page, '04-item-edit');
-
-    await page.goto('/inventory');
-    await expect(page.getByRole('tablist')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(SEEDED_ITEM_NAME).first()).toBeVisible({ timeout: 15_000 });
-
-    await navigateToSearch(page);
-    const searchInput = page.getByPlaceholder('Parts, tools, bikes...');
-    await expect(searchInput).toBeVisible({ timeout: 15_000 });
-    await searchInput.fill('a');
-    await searchInput.press('Enter');
-    await expectVisibleSearchResultsBanner(page);
-    await screenshotWithPhoneFrame(context, page, '05-search-results');
-
-    await navigateToMessages(page);
-    await expect(page.getByText('Kai R.').first()).toBeVisible({ timeout: 15_000 });
-    await screenshotWithPhoneFrame(context, page, '06-messages-inbox');
-  });
-});
-
 test.describe('Short screen recording', () => {
-  test('browse flow WebM + GIF when ffmpeg is available', async ({ browser }) => {
+  test('browse flow WebM + GIF when ffmpeg is available', async ({ browser }, testInfo) => {
     await ensureCaptureDirs();
     const webmPath = path.join(VIDEO_DIR, 'browse-flow.webm');
     const gifPath = path.join(GIF_DIR, 'browse-flow.gif');
@@ -117,9 +170,8 @@ test.describe('Short screen recording', () => {
       recordVideo: { dir: VIDEO_DIR, size: { width: 430, height: 932 } },
     });
     const page = await context.newPage();
-    await devLogin(page);
-    await expect(page.getByText(SEEDED_ITEM_NAME).first()).toBeVisible({ timeout: 20_000 });
-    await page.waitForLoadState('networkidle');
+    await devLogin(page, { holdOnLoginScreenMs: browseRecordingMs(1400) });
+    await runRecordedInventorySearchToEditFlow(page);
 
     const video = page.video();
     await page.close();
@@ -130,7 +182,7 @@ test.describe('Short screen recording', () => {
 
     const converted = webmToGif(webmPath, gifPath);
     if (!converted) {
-      test.info().annotations.push({
+      testInfo.annotations.push({
         type: 'ffmpeg',
         description: `GIF skipped; WebM at ${webmPath} (install ffmpeg to enable).`,
       });

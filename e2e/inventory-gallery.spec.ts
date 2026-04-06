@@ -1,13 +1,9 @@
-import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
-
-/** Matches `inventory.viewMode.toggleA11y` — single control toggles list ↔ gallery. */
-const LAYOUT_TOGGLE_NAME = 'Switch between list and gallery layout';
-
-/** Avoid strict-mode / hidden-node issues when the same label appears twice (e.g. gallery name fallback). */
-function visibleExactText(page: Page, text: string) {
-  return page.getByText(text, { exact: true }).filter({ visible: true });
-}
+import {
+  INVENTORY_LAYOUT_TOGGLE_NAME,
+  visibleExactText,
+  waitForInventoryRowAfterComponentsFilter,
+} from './media/inventoryCaptureFlow';
 
 /**
  * Inventory gallery view: list/gallery toggle and thumbnail grid.
@@ -21,13 +17,9 @@ test.describe('Inventory gallery view', () => {
     const itemName = 'Maxxis Minion DHF/DHR Combo';
 
     // FlatList may not mount off-screen rows on web; narrow to Components so the target row is in the DOM.
-    await expect(
-      loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }),
-    ).toBeVisible({ timeout: 15000 });
-    await loggedInPage.getByRole('button', { name: 'Components' }).click();
-    await expect(visibleExactText(loggedInPage, itemName)).toBeVisible({ timeout: 10000 });
+    await waitForInventoryRowAfterComponentsFilter(loggedInPage, itemName);
     const layoutToggle = loggedInPage.getByRole('switch', {
-      name: LAYOUT_TOGGLE_NAME,
+      name: INVENTORY_LAYOUT_TOGGLE_NAME,
       exact: true,
     });
     await expect(layoutToggle).toBeVisible();
@@ -46,15 +38,15 @@ test.describe('Inventory gallery view', () => {
   test('switches back to list and shows row titles again', async ({ loggedInPage }) => {
     const itemName = 'Fox 36 Float Fork';
 
-    await expect(
-      loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }),
-    ).toBeVisible({ timeout: 15000 });
-    await loggedInPage.getByRole('button', { name: 'Components' }).click();
-    await expect(visibleExactText(loggedInPage, itemName)).toBeVisible({ timeout: 10000 });
-    await loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }).click();
+    await waitForInventoryRowAfterComponentsFilter(loggedInPage, itemName);
+    await loggedInPage
+      .getByRole('switch', { name: INVENTORY_LAYOUT_TOGGLE_NAME, exact: true })
+      .click();
     await expect(loggedInPage.getByText(/Components ·/)).toHaveCount(0);
 
-    await loggedInPage.getByRole('switch', { name: LAYOUT_TOGGLE_NAME, exact: true }).click();
+    await loggedInPage
+      .getByRole('switch', { name: INVENTORY_LAYOUT_TOGGLE_NAME, exact: true })
+      .click();
     await expect(visibleExactText(loggedInPage, itemName)).toBeVisible({ timeout: 10000 });
   });
 });
