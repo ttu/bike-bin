@@ -52,7 +52,7 @@ export default function ConversationDetailScreen() {
   const [messageText, setMessageText] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const [exchangeConfirm, setExchangeConfirm] = useState<ExchangeConfirm | null>(null);
-  const [reportMessageId, setReportMessageId] = useState<MessageId | null>(null);
+  const [reportMessageId, setReportMessageId] = useState<MessageId | undefined>(undefined);
   const reportMutation = useReport();
   const { showSnackbarAlert } = useSnackbarAlerts();
   const { t: tProfile } = useTranslation('profile');
@@ -76,7 +76,7 @@ export default function ConversationDetailScreen() {
         },
         {
           onSuccess: () => {
-            setReportMessageId(null);
+            setReportMessageId(undefined);
             showSnackbarAlert({
               message: tProfile('report.successMessage'),
               variant: 'success',
@@ -363,8 +363,8 @@ export default function ConversationDetailScreen() {
       </KeyboardAvoidingView>
 
       <ReportDialog
-        visible={reportMessageId !== null}
-        onDismiss={() => setReportMessageId(null)}
+        visible={reportMessageId !== undefined}
+        onDismiss={() => setReportMessageId(undefined)}
         onSubmit={handleReportSubmit}
         loading={reportMutation.isPending}
       />

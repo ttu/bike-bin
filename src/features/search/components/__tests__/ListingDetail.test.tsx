@@ -2,6 +2,8 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockSearchResultItem } from '@/test/factories';
 import { AvailabilityType } from '@/shared/types';
+import type { ItemPhoto } from '@/shared/types';
+import type { ItemId, ItemPhotoId } from '@/shared/types';
 import { ListingDetail } from '../ListingDetail/ListingDetail';
 import type { SearchResultItem } from '../../types';
 
@@ -196,5 +198,24 @@ describe('ListingDetail', () => {
     );
     expect(getByTestId('owner-avatar-icon')).toBeTruthy();
     expect(queryByTestId('owner-avatar-image')).toBeNull();
+  });
+
+  it('calls onPhotoLongPress with the matched ItemPhoto on long-press', () => {
+    const onPhotoLongPress = jest.fn();
+    const photos: ItemPhoto[] = [
+      {
+        id: 'p1' as ItemPhotoId,
+        itemId: 'item-1' as ItemId,
+        storagePath: 'items/photo1.jpg',
+        sortOrder: 0,
+        createdAt: '2026-01-01T00:00:00Z',
+      },
+    ];
+    const item = listingItem();
+    const { getByLabelText } = renderWithProviders(
+      <ListingDetail item={item} photos={photos} onPhotoLongPress={onPhotoLongPress} />,
+    );
+    fireEvent(getByLabelText('Photo p1'), 'longPress');
+    expect(onPhotoLongPress).toHaveBeenCalledWith(photos[0]);
   });
 });

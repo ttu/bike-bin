@@ -3,8 +3,25 @@ import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { mockAuthModule } from '@/test/authMocks';
 import ConversationDetailScreen from '../[id]';
-import type { ConversationListItem } from '@/features/messaging/types';
-import type { ConversationId, ItemId, UserId } from '@/shared/types';
+import type { ConversationListItem, MessageWithSender } from '@/features/messaging/types';
+import type { ConversationId, ItemId, MessageId, UserId } from '@/shared/types';
+
+const mockShowSnackbarAlert = jest.fn();
+
+jest.mock('@/shared/components/SnackbarAlerts', () => {
+  const actual = jest.requireActual<typeof import('@/shared/components/SnackbarAlerts')>(
+    '@/shared/components/SnackbarAlerts',
+  );
+  return {
+    ...actual,
+    useSnackbarAlerts: () => ({ showSnackbarAlert: mockShowSnackbarAlert }),
+  };
+});
+
+const mockReportMutate = jest.fn();
+jest.mock('@/shared/hooks/useReport', () => ({
+  useReport: () => ({ mutate: mockReportMutate, isPending: false }),
+}));
 
 const mockRouterPush = jest.fn();
 const mockRouterReplace = jest.fn();
@@ -74,20 +91,42 @@ const mockConversation: ConversationListItem = {
 /** Mutable ref so tests can swap conversation data without remocking the module. */
 const conversationQueryState = { data: mockConversation as ConversationListItem };
 
-jest.mock('@/features/messaging', () => ({
-  useConversation: () => ({ data: conversationQueryState.data, isLoading: false }),
-  useMessages: () => ({
-    data: { pages: [[]], pageParams: [] },
-    isLoading: false,
-    fetchNextPage: jest.fn(),
-    hasNextPage: false,
-    isFetchingNextPage: false,
-  }),
-  useSendMessage: () => ({ mutate: jest.fn(), isPending: false }),
-  useRealtimeMessages: jest.fn(),
-  ChatBubble: () => null,
-  ItemReferenceCard: () => null,
-}));
+const mockMessages: MessageWithSender[] = [];
+
+jest.mock('@/features/messaging', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Pressable, Text } = require('react-native');
+  return {
+    useConversation: () => ({ data: conversationQueryState.data, isLoading: false }),
+    useMessages: () => ({
+      data: { pages: [mockMessages], pageParams: [] },
+      isLoading: false,
+      fetchNextPage: jest.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    }),
+    useSendMessage: () => ({ mutate: jest.fn(), isPending: false }),
+    useRealtimeMessages: jest.fn(),
+    ChatBubble: ({
+      message,
+      onLongPress,
+    }: {
+      message: MessageWithSender;
+      onLongPress?: (msg: MessageWithSender) => void;
+    }) =>
+      React.createElement(
+        Pressable,
+        {
+          testID: `chat-bubble-${message.id}`,
+          onLongPress: () => onLongPress?.(message),
+        },
+        React.createElement(Text, null, message.body),
+      ),
+    ItemReferenceCard: () => null,
+  };
+});
 
 jest.mock('@/features/inventory', () => ({
   useItem: () => ({ data: undefined }),
@@ -102,6 +141,7 @@ describe('ConversationDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     conversationQueryState.data = mockConversation;
+    mockMessages.length = 0;
   });
 
   it('navigates to the other participant profile when the header is pressed', () => {
@@ -139,5 +179,106 @@ describe('ConversationDetailScreen', () => {
     expect(getByText('Mark as donated?')).toBeTruthy();
 
     setTimeoutSpy.mockRestore();
+  });
+
+  it('opens report dialog on long-press of another user message', () => {
+    mockMessages.push({
+      id: 'msg-other' as MessageId,
+      conversationId: 'conv-1' as ConversationId,
+      senderId: 'other-user' as UserId,
+      body: 'Offensive message',
+      createdAt: '2026-01-01T00:00:00Z',
+      isOwn: false,
+    });
+
+    const { getByTestId, getByText } = renderWithProviders(<ConversationDetailScreen />);
+
+    fireEvent(getByTestId('chat-bubble-msg-other'), 'longPress');
+
+    // ReportDialog should be visible (rendered with visible=true)
+    expect(getByText('Report')).toBeTruthy();
+  });
+
+  it('does not open report dialog on long-press of own message', () => {
+    mockMessages.push({
+      id: 'msg-own' as MessageId,
+      conversationId: 'conv-1' as ConversationId,
+      senderId: 'user-123' as UserId,
+      body: 'My message',
+      createdAt: '2026-01-01T00:00:00Z',
+      isOwn: true,
+    });
+
+    const { getByTestId, queryByText } = renderWithProviders(<ConversationDetailScreen />);
+
+    fireEvent(getByTestId('chat-bubble-msg-own'), 'longPress');
+
+    // ReportDialog should not appear for own messages
+    expect(queryByText('Report')).toBeNull();
+  });
+
+  it('calls reportMutation.mutate with correct args on report submit', () => {
+    mockReportMutate.mockImplementation((_input: unknown, opts: { onSuccess?: () => void }) => {
+      opts.onSuccess?.();
+    });
+
+    mockMessages.push({
+      id: 'msg-report-2' as MessageId,
+      conversationId: 'conv-1' as ConversationId,
+      senderId: 'other-user' as UserId,
+      body: 'Spam message',
+      createdAt: '2026-01-01T00:00:00Z',
+      isOwn: false,
+    });
+
+    const { getByTestId, getByText } = renderWithProviders(<ConversationDetailScreen />);
+
+    // Long-press to open report dialog
+    fireEvent(getByTestId('chat-bubble-msg-report-2'), 'longPress');
+    expect(getByText('Report')).toBeTruthy();
+
+    // Select a reason and submit
+    fireEvent.press(getByText('Spam'));
+    fireEvent.press(getByText('Submit Report'));
+
+    expect(mockReportMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reporterId: 'user-123',
+        targetType: 'message',
+        targetId: 'msg-report-2',
+        reason: 'spam',
+      }),
+      expect.any(Object),
+    );
+
+    // Success snackbar shown
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'success' }),
+    );
+  });
+
+  it('shows error snackbar when report mutation fails', () => {
+    mockReportMutate.mockImplementation((_input: unknown, opts: { onError?: () => void }) => {
+      opts.onError?.();
+    });
+
+    mockMessages.push({
+      id: 'msg-fail' as MessageId,
+      conversationId: 'conv-1' as ConversationId,
+      senderId: 'other-user' as UserId,
+      body: 'Fail report',
+      createdAt: '2026-01-01T00:00:00Z',
+      isOwn: false,
+    });
+
+    const { getByTestId, getByText } = renderWithProviders(<ConversationDetailScreen />);
+
+    fireEvent(getByTestId('chat-bubble-msg-fail'), 'longPress');
+    fireEvent.press(getByText('Spam'));
+    fireEvent.press(getByText('Submit Report'));
+
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'error' }),
+    );
   });
 });

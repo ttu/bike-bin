@@ -48,7 +48,7 @@ export function ListingDetailRoute({
   const { user } = useAuth();
   const { showSnackbarAlert } = useSnackbarAlerts();
   const reportMutation = useReport();
-  const [reportPhotoId, setReportPhotoId] = useState<ItemPhotoId | null>(null);
+  const [reportPhotoId, setReportPhotoId] = useState<ItemPhotoId | undefined>(undefined);
 
   const { item, photos, isLoading } = useListingDetail(listingId);
 
@@ -137,7 +137,7 @@ export function ListingDetailRoute({
       },
       {
         onSuccess: () => {
-          setReportPhotoId(null);
+          setReportPhotoId(undefined);
           showSnackbarAlert({
             message: tProfile('report.successMessage'),
             variant: 'success',
@@ -171,8 +171,8 @@ export function ListingDetailRoute({
       />
 
       <ReportDialog
-        visible={reportPhotoId !== null}
-        onDismiss={() => setReportPhotoId(null)}
+        visible={reportPhotoId !== undefined}
+        onDismiss={() => setReportPhotoId(undefined)}
         onSubmit={handleReportSubmit}
         loading={reportMutation.isPending}
       />

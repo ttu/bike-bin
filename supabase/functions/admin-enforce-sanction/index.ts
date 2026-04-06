@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
       const { error: blockError } = await supabase.from('blocked_oauth_identities').upsert(
         {
           provider: identity.provider,
-          provider_user_id: identity.id,
+          provider_user_id: identity.identity_data?.sub ?? identity.id,
           notes: reason ?? null,
         },
         { onConflict: 'provider,provider_user_id' },
@@ -160,47 +160,59 @@ Deno.serve(async (req) => {
     const storagePaths: { bucket: string; path: string }[] = [];
 
     // Avatar
-    const { data: profileData } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('avatar_url')
       .eq('id', userId)
       .single();
+    assertNoError(profileError, 'load profile for storage paths');
     if (profileData?.avatar_url) {
       storagePaths.push({ bucket: 'avatars', path: profileData.avatar_url });
     }
 
     // Item photos
-    const { data: userItems } = await supabase.from('items').select('id').eq('owner_id', userId);
+    const { data: userItems, error: userItemsError } = await supabase
+      .from('items')
+      .select('id')
+      .eq('owner_id', userId);
+    assertNoError(userItemsError, 'load user items for storage paths');
     if (userItems && userItems.length > 0) {
       const itemIds = userItems.map((i) => i.id);
-      const { data: itemPhotos } = await supabase
+      const { data: itemPhotos, error: itemPhotosError } = await supabase
         .from('item_photos')
         .select('storage_path')
         .in('item_id', itemIds);
+      assertNoError(itemPhotosError, 'load item photos for storage paths');
       for (const p of itemPhotos ?? []) {
         if (p.storage_path) storagePaths.push({ bucket: 'item-photos', path: p.storage_path });
       }
     }
 
     // Bike photos
-    const { data: userBikes } = await supabase.from('bikes').select('id').eq('owner_id', userId);
+    const { data: userBikes, error: userBikesError } = await supabase
+      .from('bikes')
+      .select('id')
+      .eq('owner_id', userId);
+    assertNoError(userBikesError, 'load user bikes for storage paths');
     if (userBikes && userBikes.length > 0) {
       const bikeIds = userBikes.map((b) => b.id);
-      const { data: bikePhotos } = await supabase
+      const { data: bikePhotos, error: bikePhotosError } = await supabase
         .from('bike_photos')
         .select('storage_path')
         .in('bike_id', bikeIds);
+      assertNoError(bikePhotosError, 'load bike photos for storage paths');
       for (const p of bikePhotos ?? []) {
         if (p.storage_path) storagePaths.push({ bucket: 'item-photos', path: p.storage_path });
       }
     }
 
     // Export files
-    const { data: exportRequests } = await supabase
+    const { data: exportRequests, error: exportRequestsError } = await supabase
       .from('export_requests')
       .select('storage_path')
       .eq('user_id', userId)
       .not('storage_path', 'is', null);
+    assertNoError(exportRequestsError, 'load export requests for storage paths');
     for (const e of exportRequests ?? []) {
       if (e.storage_path) storagePaths.push({ bucket: 'data-exports', path: e.storage_path });
     }
@@ -216,7 +228,7 @@ Deno.serve(async (req) => {
       const { error } = await supabase.storage.from(bucket).remove(paths);
       // Handle 404s gracefully on retry — not an error
       if (error && !error.message?.includes('Not Found')) {
-        console.warn(`Storage cleanup warning for ${bucket}:`, error.message);
+        throw new Error(`storage remove ${bucket}: ${error.message}`);
       }
       counts.storageObjects += paths.length;
     }
