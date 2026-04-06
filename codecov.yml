@@ -1,14 +1,44 @@
+# https://docs.codecov.com/docs/codecov-yaml
+# Validate: curl -X POST https://api.codecov.io/validate --data-binary @codecov.yml
+
+codecov:
+  require_ci_to_pass: yes
+
 coverage:
+  precision: 2
+  round: down
+  # Match Jest coverageThreshold global floor (see jest.config.js)
+  range: "65...100"
   status:
     project:
       default:
         target: auto
+        threshold: 1%
     patch:
       default:
         target: 80%
         threshold: 1%
+        only_pulls: true
+
+parsers:
+  javascript:
+    enable_partials: yes
+
+comment:
+  layout: "diff,flags,files"
+  behavior: default
+  require_changes: true
+
+# Align with jest.config.js collectCoverageFrom
 ignore:
   - "src/**/*.test.ts"
   - "src/**/*.test.tsx"
+  - "src/**/*.stories.ts"
   - "src/**/*.stories.tsx"
+  - "src/**/index.ts"
   - "src/test/**"
+  - "app/**/*.test.ts"
+  - "app/**/*.test.tsx"
+  - "app/**/*.stories.ts"
+  - "app/**/*.stories.tsx"
+  - "app/**/index.ts"

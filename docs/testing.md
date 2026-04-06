@@ -30,8 +30,8 @@
 - **Setup:** `src/test/setup.ts` (via `setupFilesAfterEnv`).
 - **Ignored paths:** `node_modules`, `e2e/`, `.worktrees/` (see `testPathIgnorePatterns`).
 - **Path alias:** `@/` → `src/` (matches app imports in tests).
-- **Coverage collection:** `src/**/*.{ts,tsx}` with exclusions for stories, test files, barrel `index.ts`, and `src/test/**`.
-- **Global thresholds (current):** 40% branches, functions, lines, statements — see `coverageThreshold` in `jest.config.js`. The product spec targets higher over time; **Codecov** patch rules may enforce stricter bars on PRs (see `codecov.yml`).
+- **Coverage collection:** `src/**` and `app/**` (Expo Router), excluding stories, `*.test.*`, barrel `index.ts`, `src/test/**`, and generated/type-only files (`src/shared/types/database.ts`, `models.ts`, `rows.ts`).
+- **Thresholds:** **`src/`** — 65% branches, functions, lines, statements. **`app/`** — separate minimums (screens are branch-heavy vs. current test depth; see `coverageThreshold` in `jest.config.js`). **Codecov** UI range matches the `src/` floor; patch rules may add PR bars (see `codecov.yml`).
 
 ---
 

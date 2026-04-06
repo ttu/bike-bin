@@ -17,13 +17,29 @@ module.exports = {
     '!src/**/*.test.{ts,tsx}',
     '!src/**/index.ts',
     '!src/test/**',
+    // Generated / type-only — no meaningful runtime coverage
+    '!src/shared/types/database.ts',
+    '!src/shared/types/models.ts',
+    '!src/shared/types/rows.ts',
+    'app/**/*.{ts,tsx}',
+    '!app/**/*.stories.{ts,tsx}',
+    '!app/**/*.test.{ts,tsx}',
+    '!app/**/index.ts',
   ],
+  // Per-tree gates: `src/` holds feature code (strict). `app/` is Expo Router screens (thin but many branches);
+  // a single global % mixes them and fails despite strong `src/` coverage.
   coverageThreshold: {
-    global: {
-      branches: 40,
-      functions: 40,
-      lines: 40,
-      statements: 40,
+    'src/': {
+      branches: 65,
+      functions: 65,
+      lines: 65,
+      statements: 65,
+    },
+    'app/': {
+      branches: 28,
+      functions: 21,
+      lines: 33,
+      statements: 33,
     },
   },
   moduleNameMapper: {
