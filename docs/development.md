@@ -122,7 +122,12 @@ Uses production build env from your machine (e.g. `.env.local`). For CI, the **D
 
 ### Automated deploy (CI)
 
-After the **CI** workflow succeeds on a **`push` to `main`**, **Deploy web** (`.github/workflows/deploy-web.yml`) exports the web bundle and runs `eas deploy --prod --non-interactive`. You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch**).
+**Deploy web** (`.github/workflows/deploy-web.yml`) runs after **CI** completes successfully:
+
+- **Pull requests** to `main` (same-repo branches only): preview deploy — `eas deploy --non-interactive` and `EXPO_PUBLIC_ENV=preview`. Fork PRs are skipped (no deploy).
+- **Push to `main`**: production deploy — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.
+
+You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch**), which uses the production deploy path.
 
 ## Common issues
 

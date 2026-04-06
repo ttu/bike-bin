@@ -1,4 +1,4 @@
-# Production web deploy to EAS Hosting (runs after CI succeeds on main).
+# EAS Hosting deploy: preview after CI on each PR (same repo); production after CI on push to main.
 # Prerequisites: eas init (commit eas.json + app extra.eas), EXPO_TOKEN, EXPO_PUBLIC_* secrets
 # — see docs/development.md (Web production / EAS Hosting).
 
@@ -9,26 +9,28 @@ on:
     workflows: [CI]
     types:
       - completed
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: deploy-web-${{ github.ref }}
+  group: deploy-web-${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' && github.ref_name == 'main') ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main' &&
-       github.event.workflow_run.event == 'push')
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       (
+         github.event.workflow_run.event == 'pull_request' ||
+         (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+       ))
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref_name == 'main' && github.sha || github.event.workflow_run.head_sha }}
       - name: Require linked EAS project
         run: |
           if [ ! -f eas.json ]; then
@@ -46,13 +48,27 @@ jobs:
           eas-version: latest
           packager: npm
           token: ${{ secrets.EXPO_TOKEN }}
+      - name: Set deploy target (preview vs production)
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "production=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.workflow_run.event }}" = "pull_request" ]; then
+            echo "production=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "production=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Export web
         run: npm run build:web
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
-          EXPO_PUBLIC_ENV: production
+          EXPO_PUBLIC_ENV: ${{ steps.target.outputs.production == 'true' && 'production' || 'preview' }}
           NODE_ENV: production
-      - name: Deploy to EAS Hosting
+      - name: Deploy to EAS Hosting (preview)
+        if: steps.target.outputs.production != 'true'
+        run: eas deploy --non-interactive
+      - name: Deploy to EAS Hosting (production)
+        if: steps.target.outputs.production == 'true'
         run: eas deploy --prod --non-interactive
