@@ -102,7 +102,7 @@ export default function InventoryScreen() {
     router.push(`/(tabs)/inventory/${item.id}`);
   }, []);
 
-  const blockNewItems = isAuthenticated && capacityReady && atLimit && limit !== undefined;
+  const blockNewItems = isAuthenticated && capacityReady && atLimit;
 
   const handleAddPress = useCallback(() => {
     if (blockNewItems) {
@@ -266,9 +266,7 @@ export default function InventoryScreen() {
           icon="package-variant"
           title={t('empty.title')}
           description={
-            blockNewItems && limit !== undefined
-              ? t('limit.emptyStateDescription', { limit })
-              : t('empty.description')
+            blockNewItems ? t('limit.emptyStateDescription', { limit }) : t('empty.description')
           }
           ctaLabel={t('empty.cta')}
           onCtaPress={handleAddPress}

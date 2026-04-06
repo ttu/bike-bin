@@ -25,7 +25,7 @@ export function useBikeRowCapacity(): BikeRowCapacity {
 
   const bikeRowCount = bikes?.length ?? 0;
   const isReady = !bikesLoading && !limitLoading && limit !== undefined;
-  const atLimit = isReady && limit !== undefined && bikeRowCount >= limit;
+  const atLimit = isReady && bikeRowCount >= limit;
 
   return {
     atLimit,

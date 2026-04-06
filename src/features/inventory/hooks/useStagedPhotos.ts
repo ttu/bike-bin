@@ -41,8 +41,10 @@ export function useStagedPhotos(): UseStagedPhotosReturn {
 
       setIsUploading(true);
       try {
-        const limRes = await supabase.rpc('get_my_photo_limit');
-        const cntRes = await supabase.rpc('get_my_photo_count');
+        const [limRes, cntRes] = await Promise.all([
+          supabase.rpc('get_my_photo_limit'),
+          supabase.rpc('get_my_photo_count'),
+        ]);
         if (limRes.error) {
           throw limRes.error;
         }

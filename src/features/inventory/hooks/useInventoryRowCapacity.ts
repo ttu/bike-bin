@@ -17,7 +17,7 @@ export type InventoryRowCapacity = {
  */
 export function useInventoryRowCapacity(): InventoryRowCapacity {
   const { isAuthenticated, user } = useAuth();
-  const { data: items, isLoading: itemsLoading } = useItems();
+  const { data: items, isLoading: itemsLoading, isError: itemsError } = useItems();
   const { data: limit, isLoading: limitLoading } = useMyInventoryItemLimit();
 
   if (!isAuthenticated || !user) {
@@ -29,9 +29,10 @@ export function useInventoryRowCapacity(): InventoryRowCapacity {
     };
   }
 
-  const itemRowCount = items?.length ?? 0;
-  const isReady = !itemsLoading && !limitLoading && limit !== undefined;
-  const atLimit = isReady && limit !== undefined && itemRowCount >= limit;
+  const itemsResolved = !itemsLoading && !itemsError && items !== undefined;
+  const itemRowCount = itemsResolved ? items.length : 0;
+  const isReady = itemsResolved && !limitLoading && limit !== undefined;
+  const atLimit = isReady && itemRowCount >= limit;
 
   return {
     atLimit,

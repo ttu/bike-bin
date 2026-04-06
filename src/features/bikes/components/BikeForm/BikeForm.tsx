@@ -373,7 +373,7 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
-      {submitBlockedMessage !== undefined && submitBlockedMessage.length > 0 ? (
+      {submitBlockedMessage ? (
         <Banner visible icon="information" style={styles.limitBanner}>
           {submitBlockedMessage}
         </Banner>

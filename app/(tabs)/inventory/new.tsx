@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useAuth } from '@/features/auth';
 import {
@@ -68,6 +68,7 @@ export default function NewItemScreen() {
             } catch (pe) {
               if (isPhotoLimitExceededError(pe)) {
                 setPhotoLimitSnackbarVisible(true);
+                router.push(`/(tabs)/inventory/${item.id}`);
                 return;
               }
               throw pe;

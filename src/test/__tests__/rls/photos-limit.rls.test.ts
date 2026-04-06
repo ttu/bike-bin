@@ -2,6 +2,7 @@ import { adminClient, createTestUser, cleanupUsers, TestUser } from '../../rls/s
 
 let limitUser: TestUser;
 let itemId: string;
+let bikeId: string;
 
 beforeAll(async () => {
   limitUser = await createTestUser('photo-limit');
@@ -24,6 +25,22 @@ beforeAll(async () => {
   }
   itemId = item.id;
 
+  const { data: bike, error: bikeError } = await adminClient
+    .from('bikes')
+    .insert({
+      owner_id: limitUser.id,
+      name: 'Photo seed bike',
+      type: 'road',
+      condition: 'good',
+    })
+    .select('id')
+    .single();
+
+  if (bikeError || !bike) {
+    throw new Error(`Failed to seed bike: ${bikeError?.message}`);
+  }
+  bikeId = bike.id;
+
   const photoRows = Array.from({ length: 100 }, (_, i) => ({
     item_id: itemId,
     storage_path: `test/photo-limit-${limitUser.id}-${i}.jpg`,
@@ -39,6 +56,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await adminClient.from('subscriptions').delete().eq('user_id', limitUser.id);
+  await adminClient.from('bikes').delete().eq('id', bikeId);
   await adminClient.from('items').delete().eq('id', itemId);
   await cleanupUsers([limitUser]);
 });
@@ -70,6 +88,44 @@ describe('item_photos — account photo row limit', () => {
         item_id: itemId,
         storage_path: `test/photo-limit-after-paid-${limitUser.id}.jpg`,
         sort_order: 101,
+      })
+      .select('id')
+      .single();
+
+    expect(error).toBeNull();
+    expect(data?.id).toBeDefined();
+  });
+});
+
+describe('bike_photos — cross-table photo row limit', () => {
+  it('blocks bike_photos insert when item_photos already at free-tier cap', async () => {
+    // item_photos already has 100 rows from beforeAll; remove any paid subscription
+    await adminClient.from('subscriptions').delete().eq('user_id', limitUser.id);
+
+    const { error } = await limitUser.client.from('bike_photos').insert({
+      bike_id: bikeId,
+      storage_path: `test/cross-table-overflow-${limitUser.id}.jpg`,
+      sort_order: 0,
+    });
+
+    expect(error).not.toBeNull();
+    expect(error?.code).toBe('23514');
+    expect(error?.message).toContain('photo_limit_exceeded');
+  });
+
+  it('allows bike_photos insert after upgrading to paid plan', async () => {
+    await adminClient.from('subscriptions').upsert({
+      user_id: limitUser.id,
+      plan: 'paid',
+      status: 'active',
+    });
+
+    const { data, error } = await limitUser.client
+      .from('bike_photos')
+      .insert({
+        bike_id: bikeId,
+        storage_path: `test/cross-table-after-paid-${limitUser.id}.jpg`,
+        sort_order: 0,
       })
       .select('id')
       .single();

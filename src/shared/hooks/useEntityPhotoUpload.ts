@@ -58,6 +58,11 @@ export function useEntityPhotoUpload<TEntityId extends string>(
         return undefined;
       }
 
+      if (!user?.id) {
+        setError({ kind: 'unknown', message: 'Not authenticated' });
+        return undefined;
+      }
+
       setIsUploading(true);
       try {
         const count = await getPhotoCount({ table, entityIdColumn, entityId });
@@ -68,7 +73,7 @@ export function useEntityPhotoUpload<TEntityId extends string>(
           return undefined;
         }
 
-        const storagePath = `${pathPrefix}/${user!.id}/${entityId}/${picked.fileName}`;
+        const storagePath = `${pathPrefix}/${user.id}/${entityId}/${picked.fileName}`;
 
         const result = await uploadPhoto({
           bucket,

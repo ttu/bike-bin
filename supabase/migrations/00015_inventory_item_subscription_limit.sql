@@ -174,6 +174,7 @@ DECLARE
   lim integer;
   cnt bigint;
 BEGIN
+  PERFORM pg_advisory_xact_lock('items_limit'::regclass::bigint, hashtext(NEW.owner_id::text));
   lim := public.inventory_item_limit_for_user(NEW.owner_id);
   SELECT COUNT(*) INTO cnt FROM public.items WHERE owner_id = NEW.owner_id;
   IF cnt >= lim THEN
@@ -202,6 +203,7 @@ DECLARE
   lim integer;
   cnt bigint;
 BEGIN
+  PERFORM pg_advisory_xact_lock('bikes_limit'::regclass::bigint, hashtext(NEW.owner_id::text));
   lim := public.bike_limit_for_user(NEW.owner_id);
   SELECT COUNT(*) INTO cnt FROM public.bikes WHERE owner_id = NEW.owner_id;
   IF cnt >= lim THEN
@@ -235,6 +237,7 @@ BEGIN
   IF owner IS NULL THEN
     RETURN NEW;
   END IF;
+  PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(owner::text));
   lim := public.photo_limit_for_user(owner);
   cnt := public.user_photo_count(owner);
   IF cnt >= lim THEN
@@ -268,6 +271,7 @@ BEGIN
   IF owner IS NULL THEN
     RETURN NEW;
   END IF;
+  PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(owner::text));
   lim := public.photo_limit_for_user(owner);
   cnt := public.user_photo_count(owner);
   IF cnt >= lim THEN
