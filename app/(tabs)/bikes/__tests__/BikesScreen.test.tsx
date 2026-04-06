@@ -45,6 +45,7 @@ jest.mock('react-native-safe-area-context', () => {
 
 jest.mock('@/features/bikes', () => ({
   useBikes: () => mockUseBikes(),
+  useBikeRowCapacity: () => ({ atLimit: false, bikeRowCount: 0, limit: undefined, isReady: true }),
 }));
 
 describe('BikesScreen', () => {
