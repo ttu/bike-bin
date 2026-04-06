@@ -57,6 +57,10 @@ export async function screenshotWithPhoneFrame(
     height: shellH + FRAME_PADDING_PX * 2,
   });
   await framePage.setContent(html, { waitUntil: 'load' });
-  await framePage.screenshot({ path: framedPath, animations: 'disabled' });
+  await framePage.screenshot({
+    path: framedPath,
+    animations: 'disabled',
+    omitBackground: true,
+  });
   await framePage.close();
 }

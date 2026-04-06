@@ -7,6 +7,8 @@ describe('buildFramedDeviceHtml', () => {
     expect(html).toContain(`height: ${APP_STORE_67_HEIGHT}px`);
     expect(html).toContain('data:image/png;base64,ab+/=');
     expect(html).not.toContain('<script');
+    expect(html).toContain('background: transparent');
+    expect(html).not.toContain('radial-gradient');
   });
 
   it('strips invalid base64 characters from the data URL payload', () => {

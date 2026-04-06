@@ -9,7 +9,7 @@ npm run capture:media
 Requirements match E2E: local Supabase, seeded DB (`e2e/global-setup.ts`), and `.env.local`.
 
 - **raw/** — 1290×2796 PNGs suitable for App Store screenshot slots (6.7" portrait).
-- **framed/** — same shots inside a simple CSS “phone” shell for the marketing site.
+- **framed/** — same shots inside a simple CSS “phone” shell for the marketing site. The canvas outside the device is **transparent** (no gradient backdrop); place on any site background.
 
 Typical filenames after a run:
 

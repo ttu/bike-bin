@@ -18,12 +18,15 @@ export function buildFramedDeviceHtml(
   <meta charset="utf-8" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      background: transparent;
+    }
     body {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(ellipse at 30% 20%, #2a2d3a 0%, #0f1014 55%, #070708 100%);
+      background: transparent;
     }
     .phone {
       width: ${shellW}px;
@@ -31,9 +34,7 @@ export function buildFramedDeviceHtml(
       padding: 36px 28px 48px;
       background: linear-gradient(145deg, #1c1d22 0%, #0a0a0c 100%);
       border-radius: 56px;
-      box-shadow:
-        0 32px 80px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
       border: 2px solid rgba(255, 255, 255, 0.06);
       position: relative;
     }
