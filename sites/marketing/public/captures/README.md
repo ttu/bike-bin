@@ -10,6 +10,18 @@ Requirements match E2E: local Supabase, seeded DB (`e2e/global-setup.ts`), and `
 
 - **raw/** — 1290×2796 PNGs suitable for App Store screenshot slots (6.7" portrait).
 - **framed/** — same shots inside a simple CSS “phone” shell for the marketing site.
+
+Typical filenames after a run:
+
+| Base name                | Screen                               |
+| ------------------------ | ------------------------------------ |
+| `01-login`               | Login                                |
+| `02-inventory-signed-in` | Inventory (Dev Login, seeded items)  |
+| `03-item-detail`         | Item detail (seeded item)            |
+| `04-item-edit`           | Edit item                            |
+| `05-search-results`      | Search with results                  |
+| `06-messages-inbox`      | Messages list (seeded conversations) |
+
 - **video/** — WebM screen recording from Playwright.
 - **gif/** — optional; created when `ffmpeg` is installed (`brew install ffmpeg`).
 

@@ -17,6 +17,14 @@ export const GIF_DIR = path.join(CAPTURE_ROOT, 'gif');
 
 const FRAME_PADDING_PX = 120;
 
+/** Same flow as E2E `Dev Login` — lands on inventory with seeded items. */
+export async function devLogin(page: Page): Promise<void> {
+  await page.goto('/');
+  await page.waitForURL(/\/login/);
+  await page.getByRole('button', { name: /Dev Login/ }).click();
+  await page.waitForURL(/\/inventory/, { timeout: 20_000 });
+}
+
 export async function ensureCaptureDirs(): Promise<void> {
   await fs.mkdir(RAW_DIR, { recursive: true });
   await fs.mkdir(FRAMED_DIR, { recursive: true });
