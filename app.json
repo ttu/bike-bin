@@ -16,7 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bikebin.app",
-      "associatedDomains": ["applinks:bikebin.app"]
+      "associatedDomains": ["applinks:bikebin.app"],
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -53,6 +56,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "be9dee6b-548b-43a6-8ea5-070d509f8dcf"
+      }
+    },
+    "owner": "tomitu"
   }
 }

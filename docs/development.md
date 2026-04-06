@@ -93,6 +93,61 @@ Set these in an `.env` file at the project root or via your shell. Expo loads `E
 
 **Git worktrees:** Each worktree is its own root — copy or symlink `.env.local` from the primary clone into the worktree (see [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) bootstrap steps), then run `npm install` there.
 
+## Web production (EAS Hosting)
+
+The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/)** (static export, `expo.web.output`: `single` in `app.json`).
+
+### One-time setup
+
+1. **Link the app to an EAS project** (creates `eas.json` and may add `extra.eas` to `app.json`):
+   - `npx eas-cli@latest login`
+   - `npx eas-cli@latest init`
+2. **Commit** `eas.json` and any `app.json` changes so CI can run `eas deploy`.
+3. **GitHub repository secrets** (Settings → Secrets and variables → Actions):
+
+   | Secret                          | Purpose                                                                              |
+   | ------------------------------- | ------------------------------------------------------------------------------------ |
+   | `EXPO_TOKEN`                    | Expo [access token](https://expo.dev/settings/access-tokens) — used by EAS CLI in CI |
+   | `EXPO_PUBLIC_SUPABASE_URL`      | Production Supabase project URL                                                      |
+   | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Production Supabase anon (public) key                                                |
+   | `EXPO_PUBLIC_SENTRY_DSN`        | Optional — omit or leave empty if unused                                             |
+
+### Manual deploy
+
+```bash
+npm run deploy:web:prod
+```
+
+Uses production build env from your machine (e.g. `.env.local`). For CI, workflows inject secrets as `EXPO_PUBLIC_*` during `npm run build:web`.
+
+### Automated deploy (CI)
+
+- **Pull requests** to `main`: the **CI** workflow runs **`deploy-web-preview`** after the **`build`** job succeeds (every push to the PR, including new commits). Same-repo branches only — `eas deploy --non-interactive` with `EXPO_PUBLIC_ENV=preview`. Fork PRs skip this job (no deploy).
+- **Push to `main`**: **Deploy web** (`.github/workflows/deploy-web.yml`) runs after the **CI** workflow completes successfully — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.
+
+You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch** on `main`), which uses the production deploy path.
+
+## Marketing site (GitHub Pages)
+
+The Astro marketing site (`sites/marketing/`) deploys to **[GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages)** via **Deploy marketing site (GitHub Pages)** (`.github/workflows/deploy-marketing-pages.yml`).
+
+### One-time setup
+
+1. **Repository → Settings → Pages** — under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
+2. Merge a change under `sites/marketing/` to `main`, or run the workflow manually (**Actions** → **Deploy marketing site (GitHub Pages)** → **Run workflow**).
+3. **Custom domain `bikebin.app`:** DNS should point to GitHub Pages ([docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)). The repo includes `sites/marketing/public/CNAME` so the built site publishes the hostname; finish configuration in **Pages** → **Custom domain** if needed.
+
+### Optional repository variables
+
+For the default **https://bikebin.app/** deployment, no variables are required (`ASTRO_*` defaults are set in the workflow).
+
+To preview on the **default** GitHub project URL (`https://<owner>.github.io/<repo>/`) before a custom domain is attached, set **Settings → Secrets and variables → Actions → Variables**:
+
+| Variable              | Example                      | Purpose                                      |
+| --------------------- | ---------------------------- | -------------------------------------------- |
+| `MARKETING_SITE_URL`  | `https://yourname.github.io` | Astro `site` (canonical / sitemap base URL). |
+| `MARKETING_BASE_PATH` | `/bike-bin/`                 | Astro `base` — must match the `/repo/` path. |
+
 ## Common issues
 
 - **Docker not running** — `db:start` fails until Docker is up.

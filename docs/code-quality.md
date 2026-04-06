@@ -78,7 +78,11 @@ Do **not** bypass hooks with `--no-verify` — fix the underlying issue instead.
 
 ## CI overview
 
-See `.github/workflows/ci.yml` for the exact job graph: lint, type-check, test with coverage, optional E2E/a11y/visual/Sonar, then web build. Keep this doc aligned when CI steps change.
+- **`.github/workflows/ci.yml`** — lint, type-check, test with coverage, optional E2E/a11y/visual/Sonar, web export smoke build (`expo export --platform web`), **`deploy-web-preview`** (EAS Hosting preview after `build` on same-repo PRs to `main`), marketing site build. Runs on pushes and pull requests to `main`.
+- **`.github/workflows/deploy-web.yml`** — after **CI** completes successfully on **push to `main`**, runs **`eas deploy --prod`** to EAS Hosting (or **workflow_dispatch** on `main`). PR previews live in **ci.yml** (`deploy-web-preview`). Requires `eas.json` (from `eas init`) and repository secrets; see [development.md](development.md) (Web production).
+- **`.github/workflows/deploy-marketing-pages.yml`** — builds the Astro marketing site (`sites/marketing/`) and deploys to **GitHub Pages** on **push to `main`** when `sites/marketing/` (or the workflow file) changes, or via **workflow_dispatch**. See [development.md](development.md) (Marketing site — GitHub Pages).
+
+Keep this doc aligned when CI steps change.
 
 ---
 

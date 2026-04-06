@@ -327,12 +327,12 @@ Development follows an **incremental, visual-first** principle (see [technical-s
 
 ### Environments
 
-| Environment    | Supabase                                                                                                | App build                                                                                | Purpose                                                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Local**      | Supabase CLI (`supabase start`) — local PostgreSQL + PostGIS, local Auth, local Storage                 | Expo Go / dev client + `expo start --web`                                                | Day-to-day development                                                                                                  |
-| **PR Preview** | **Supabase Branching** — automatic preview database per PR (branched from staging, includes migrations) | **EAS Update** preview channel + **Vercel** preview deployment (automatic per PR)        | Test new features in isolation before merge. PR description includes QR code / link to preview build + web preview URL. |
-| **Staging**    | Hosted Supabase project (staging)                                                                       | EAS Build staging channel + Vercel staging deployment                                    | Integration testing, E2E (Maestro), QA before production release                                                        |
-| **Production** | Hosted Supabase project (prod)                                                                          | EAS Build production channel (App Store / Play Store) + **Vercel production** deployment | Live users. Web is continuously deployed; mobile releases go through store review.                                      |
+| Environment    | Supabase                                                                                                | App build                                                                                                                | Purpose                                                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| **Local**      | Supabase CLI (`supabase start`) — local PostgreSQL + PostGIS, local Auth, local Storage                 | Expo Go / dev client + `expo start --web`                                                                                | Day-to-day development                                                                                                |
+| **PR Preview** | **Supabase Branching** — automatic preview database per PR (branched from staging, includes migrations) | **EAS Update** preview channel + optional **EAS Hosting** preview (`eas deploy` without `--prod`) or ad-hoc preview URLs | Test new features in isolation before merge. PR description can include QR / link to preview build + web preview URL. |
+| **Staging**    | Hosted Supabase project (staging)                                                                       | EAS Build staging channel + optional staging web deploy                                                                  | Integration testing, E2E (Maestro), QA before production release                                                      |
+| **Production** | Hosted Supabase project (prod)                                                                          | EAS Build production channel (App Store / Play Store) + **EAS Hosting** production web (`eas deploy --prod` via CI)      | Live users. Web is deployed after CI passes on `main`; mobile releases go through store review.                       |
 
 ### CI/CD flow
 
@@ -371,15 +371,16 @@ _(Pattern from [emergency-supply-tracker CI](https://github.com/ttu/emergency-su
 
 #### Deployment flow
 
-1. **PR opened** → GitHub Actions: all CI jobs run in parallel → Supabase creates preview branch DB → EAS builds preview → Vercel deploys web preview → PR comment with mobile preview link + web preview URL.
-2. **PR merged to main** → GitHub Actions: full test suite → deploy migrations to staging Supabase → EAS Update to staging channel → **Vercel auto-deploys web to production** (continuous deployment) → Maestro E2E against staging.
-3. **Mobile release** → Promote staging to production: apply migrations to prod Supabase → EAS Submit to App Store / Play Store (or OTA update for JS-only changes via EAS Update).
+1. **PR opened** → GitHub Actions: CI runs (lint, type-check, tests, web export smoke build, marketing build, etc.) → optional Supabase preview branch / EAS Update previews as configured.
+2. **PR merged to main** → CI runs on the `push` to `main`. When the **CI** workflow completes successfully, **Deploy web** runs: production `expo export` + **`eas deploy --prod`** to [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/). Native releases remain a separate EAS Build / Submit process.
+3. **Mobile release** → Apply migrations to prod Supabase → EAS Submit to App Store / Play Store (or OTA update for JS-only changes via EAS Update).
 
-**Web continuous deployment:** The web version is deployed to Vercel on every merge to `main`. No store review, no waiting — features are live immediately. This allows for rapid iteration and early user feedback before the same changes ship to mobile stores.
+**Web continuous deployment:** The web app ships to **EAS Hosting** after the same commit passes CI on `main` (`.github/workflows/deploy-web.yml`). No store review for web. Configure secrets and `eas init` as described in [development.md](development.md).
 
 ### Secrets & config
 
-- **Supabase URL / anon key:** Per-environment, stored in Expo config (`.env.local`, `.env.staging`, `.env.production`) and GitHub Actions secrets.
+- **Supabase URL / anon key:** Per-environment, stored in Expo config (`.env.local`, `.env.staging`, `.env.production`) and GitHub Actions secrets (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` for the **Deploy web** workflow).
+- **EXPO_TOKEN:** Expo [access token](https://expo.dev/settings/access-tokens) for `eas deploy` in CI (GitHub secret `EXPO_TOKEN`).
 - **Service role key:** Never in client. Used in Edge Functions and CI only.
 - **Resend API key:** In Supabase Edge Function secrets (per environment).
 - **Google OAuth client ID/secret:** In Supabase dashboard (per project/environment).
