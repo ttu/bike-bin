@@ -131,22 +131,31 @@ You can also run **Deploy web** manually from the Actions tab (**workflow_dispat
 
 The Astro marketing site (`sites/marketing/`) deploys to **[GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages)** via **Deploy marketing site (GitHub Pages)** (`.github/workflows/deploy-marketing-pages.yml`).
 
+Built CSS and JS are emitted under `/astro/` (`build.assets` in `astro.config.mjs`), not Astro’s default `/_astro/`, because GitHub Pages’ **Jekyll** integration does not publish paths that start with `_`, so default Astro assets 404 on Pages.
+
 ### One-time setup
 
 1. **Repository → Settings → Pages** — under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
 2. Merge a change under `sites/marketing/` to `main`, or run the workflow manually (**Actions** → **Deploy marketing site (GitHub Pages)** → **Run workflow**).
 3. **Custom domain `bikebin.app`:** DNS should point to GitHub Pages ([docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)). The repo includes `sites/marketing/public/CNAME` so the built site publishes the hostname; finish configuration in **Pages** → **Custom domain** if needed.
 
-### Optional repository variables
+### Required repository variables (deploy workflow)
 
-For the default **https://bikebin.app/** deployment, no variables are required (`ASTRO_*` defaults are set in the workflow).
+**Deploy marketing site (GitHub Pages)** fails fast if either variable is missing. Set both under **Settings → Secrets and variables → Actions → Repository variables**:
 
-To preview on the **default** GitHub project URL (`https://<owner>.github.io/<repo>/`) before a custom domain is attached, set **Settings → Secrets and variables → Actions → Variables**:
+| Variable              | Purpose                                                                                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MARKETING_SITE_URL`  | Passed to `ASTRO_SITE_URL` — canonical host for Astro (`site`), sitemap, and meta URLs.                                                                                     |
+| `MARKETING_BASE_PATH` | Passed to `ASTRO_BASE_PATH` — must match how Pages serves the site root (`/` for a custom domain at the apex or `www`; `/<repo>/` for `https://<owner>.github.io/<repo>/`). |
 
-| Variable              | Example                      | Purpose                                      |
-| --------------------- | ---------------------------- | -------------------------------------------- |
-| `MARKETING_SITE_URL`  | `https://yourname.github.io` | Astro `site` (canonical / sitemap base URL). |
-| `MARKETING_BASE_PATH` | `/bike-bin/`                 | Astro `base` — must match the `/repo/` path. |
+Examples:
+
+| Where the site is served                                                                           | `MARKETING_SITE_URL`                               | `MARKETING_BASE_PATH` |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------- | --------------------- |
+| Custom domain at site root (e.g. `https://bikebin.app/` or `https://www.bikebin.app/`)             | `https://bikebin.app` or `https://www.bikebin.app` | `/`                   |
+| GitHub Pages project URL (e.g. [https://ttu.github.io/bike-bin/](https://ttu.github.io/bike-bin/)) | `https://ttu.github.io`                            | `/bike-bin/`          |
+
+Switching hosts is only a matter of updating these two values (and DNS / **Pages → Custom domain** / `public/CNAME` as needed). **CI** still builds the marketing site without these variables — `sites/marketing/astro.config.mjs` uses local defaults when `ASTRO_*` is unset.
 
 ## Common issues
 

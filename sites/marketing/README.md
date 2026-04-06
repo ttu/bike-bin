@@ -16,4 +16,6 @@ All raster imagery is **Unsplash** cycling/bicycle photography (see `pics` in `s
 
 ## Deploy
 
-Point the host at `sites/marketing` with build `npm run build` and output `dist`.
+**Production:** GitHub Pages — `.github/workflows/deploy-marketing-pages.yml` builds `dist/` and deploys on push to `main` when this directory changes (enable **Settings → Pages → GitHub Actions**). See [docs/development.md](../../docs/development.md) (Marketing site — GitHub Pages).
+
+For a generic static host, point it at `sites/marketing` with build `npm run build` and output `dist`.
