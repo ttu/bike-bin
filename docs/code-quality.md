@@ -70,9 +70,9 @@ Do **not** bypass hooks with `--no-verify` — fix the underlying issue instead.
 
 ## Coverage
 
-- Jest collects coverage per `jest.config.js`.
+- Jest collects coverage per `jest.config.js` (`src/` + `app/`, with documented exclusions).
+- **`src/`** is gated at **65%** (branches, functions, lines, statements); **`app/`** uses separate minimums in the same config.
 - `codecov.yml` sets **patch** coverage expectations (e.g. 80% target with threshold) and ignores test helpers/stories.
-- Global Jest thresholds in `jest.config.js` are a baseline; raise them as the suite matures.
 
 ---
 

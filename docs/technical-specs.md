@@ -405,16 +405,18 @@ _(Guidance from [emergency-supply-tracker TESTING_STRATEGY](https://github.com/t
 
 ### Coverage requirements
 
-| Metric     | Threshold (target) |
-| ---------- | ------------------ |
-| Branches   | 80%                |
-| Functions  | 80%                |
-| Lines      | 80%                |
-| Statements | 80%                |
+| Metric     | Threshold (target) — `src/` |
+| ---------- | --------------------------- |
+| Branches   | 65%                         |
+| Functions  | 65%                         |
+| Lines      | 65%                         |
+| Statements | 65%                         |
+
+`app/` (Expo Router) is included in the coverage report with separate minimums in `jest.config.js` so the `src/` gate stays meaningful.
 
 - **Patch coverage (Codecov):** New/modified code must have ≥80% coverage. Project coverage must not decrease (1% tolerance for fluctuation). Codecov posts PR comments with coverage diffs and sets status checks.
 - **Codecov config:** `codecov.yml` in repo root — `target: auto` for project, `target: 80%` for patch, `threshold: 1%`. Exclude `src/test/**` from coverage.
-- **Exclude from coverage:** `*.d.ts`, entry point, test helpers, Storybook files.
+- **Exclude from coverage:** `*.d.ts`, entry point, test helpers, Storybook files, generated Supabase schema types (`src/shared/types/database.ts`) and type-only re-exports (`models.ts`, `rows.ts`).
 
 ### Testing patterns
 

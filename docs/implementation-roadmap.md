@@ -88,7 +88,7 @@ Create `.eslintrc.js` with TypeScript + React Native rules. Create `.prettierrc`
 
 - [x] **Step 6: Configure Jest**
 
-Create `jest.config.js` with `jest-expo` preset. Configure coverage thresholds (80% branches/functions/lines/statements). Setup `src/test/setup.ts` for RNTL and i18n mock.
+Create `jest.config.js` with `jest-expo` preset. Configure coverage thresholds (`src/` 65% branches/functions/lines/statements; separate `app/` minimums). Setup `src/test/setup.ts` for RNTL and i18n mock.
 
 - [x] **Step 7: Add npm scripts to package.json**
 
