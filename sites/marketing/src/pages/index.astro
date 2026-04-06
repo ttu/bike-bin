@@ -3,12 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PhoneFrame from '../components/PhoneFrame.astro';
 import VideoCard from '../components/VideoCard.astro';
 
-const title = 'Bike Bin — your bike parts inventory';
+const title = 'Bike Bin - your bike parts inventory';
 const description =
-  'Catalog parts, tools, and builds in one place. When you want to, list or find gear nearby and coordinate handoffs—with privacy-friendly locations and messaging. From bikers to bikers.';
+  'Catalog bike parts, tools, and builds in one inventory - photos, condition, and where they\'re stored. When you want to, list or find gear nearby and coordinate handoffs on your terms. From bikers to bikers.';
 
 /**
- * Unsplash — cycling / bicycle imagery only (no generic stock).
+ * Unsplash - cycling / bicycle imagery only (no generic stock).
  * @see https://unsplash.com/license
  */
 const u = (photoId: string, w: number, h?: number) =>
@@ -47,29 +47,31 @@ const pics = {
         <div class="hero-copy reveal">
           <p class="eyebrow">From bikers to bikers</p>
           <h1 id="hero-heading">
-            Know your bin. <span class="hl">Share when you want.</span>
+            Your parts and tools, organized.<span class="hl">Photos, condition, where they're stored - and search across all of it.</span>
           </h1>
           <p class="lead">
-            Keep your parts, tools, and builds organized—photos, condition, and status in one inventory. Listing,
-            nearby search, and groups are there when you need them; pickups stay area-level until you coordinate in-app.
+            One inventory for what you own - photos, condition, usage, and status - so you can find anything without a
+            spreadsheet. Borrowing, selling, and lending are optional: list or search nearby when that moment comes, and
+            coordinate handoffs on your terms.
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="https://app.bikebin.app">Open web app</a>
             <a class="btn btn-secondary" href="https://github.com/ttu/bike-bin">Source</a>
           </div>
           <ul class="hero-stats" aria-label="Highlights">
-            <li><strong>Inventory</strong><span>your parts &amp; builds</span></li>
-            <li><strong>Optional</strong><span>list, search nearby, groups</span></li>
-            <li><strong>Private</strong><span>area-level handoffs</span></li>
+            <li><strong>Components and gear always lost?</strong><span>Catalog them in one bin - photos, condition, and where they're stored.</span></li>
+            <li><strong>Don't remember what you own?</strong><span>Search your inventory instead of guessing in the workshop.</span></li>
+            <li><strong>Need a tool without buying one?</strong><span>Check if someone nearby can loan it - distance-aware discovery when you list.</span></li>
+            <li><strong>Got tools to spare?</strong><span>Sell or lend when you want - optional listing and handoffs you coordinate in-app.</span></li>
           </ul>
         </div>
         <div class="hero-visual reveal reveal-delay-1">
           <PhoneFrame
             posterSrc={pics.hero}
-            imageAlt="Road bicycle against a wall—cycling stock photo behind an animated generic app mock-up."
+            imageAlt="Road bicycle against a wall - cycling stock photo behind an animated generic app mock-up."
           />
           <p class="hero-caption">
-            Cycling photo with a subtle pan plus a generic app-style animation — replace with real product UI when ready.
+            Cycling photo with a subtle pan plus a generic app-style animation - replace with real product UI when ready.
           </p>
         </div>
       </div>
@@ -81,8 +83,13 @@ const pics = {
           <p class="eyebrow">On the go</p>
           <h2 id="story-heading">Your inventory comes first</h2>
           <p class="section-lead muted">
-            The bin is home—search, groups, and messaging sit one layer out when you are ready to share or pick
-            something up. Same codebase on web, iOS, and Android.
+            The bin is home - search, groups, and messaging sit one layer out when you are ready to share or pick
+            something up.
+          </p>
+          <p class="section-lead muted section-lead-follow">
+            The same application on web, iOS, and Android. Use whatever device suits what you're doing - phone in
+            the workshop, tablet on the couch, or browser at a desk - or stay signed in on all of them; your bin stays
+            one account.
           </p>
         </div>
         <figure class="split-media reveal reveal-delay-1">
@@ -90,11 +97,11 @@ const pics = {
             src={pics.wide}
             width={1800}
             height={1100}
-            alt="Cyclist on a road bike on a country road—stock photo."
+            alt="Cyclist on a road bike on a country road - stock photo."
             loading="lazy"
             decoding="async"
           />
-          <figcaption class="media-cap">Unsplash stock (cycling) — replace with your photography.</figcaption>
+          <figcaption class="media-cap">Unsplash stock (cycling) - replace with your photography.</figcaption>
         </figure>
       </div>
     </section>
@@ -103,42 +110,42 @@ const pics = {
       <div class="section-dark-grid" aria-hidden="true"></div>
       <div class="section-inner">
         <div class="section-head reveal">
-          <p class="eyebrow eyebrow-dark">Still previews</p>
-          <h2 id="how-heading">Three beats: your bin, then the rest</h2>
+          <p class="eyebrow eyebrow-dark">Three steps</p>
+          <h2 id="how-heading">Your bin, then list or search, then chat</h2>
           <p class="section-lead section-lead-dark">
-            Cycling photography placeholders with a light pan animation—swap for app screen captures when you ship the
-            tour.
+            Start by tracking what you own. When you want to share or pick something up, list or browse nearby, then use
+            in-app messaging to agree on timing and pickup.
           </p>
         </div>
         <div class="video-grid">
           <div class="reveal reveal-delay-1">
             <VideoCard
               variant="dark"
-              step="01 — Your bin"
+              step="01 - Your bin"
               title="Track what you own"
-              body="Photos, condition, usage, and status—keep your workshop straight without a spreadsheet."
+              body="Photos, condition, usage, and status - keep your workshop straight without a spreadsheet."
               posterSrc={pics.step1}
-              imageAlt="Road bike build—cycling stock placeholder for inventory."
+              imageAlt="Road bike build - cycling stock placeholder for inventory."
             />
           </div>
           <div class="reveal reveal-delay-2">
             <VideoCard
               variant="dark"
-              step="02 — When you want"
+              step="02 - When you want"
               title="List or find nearby"
-              body="Offer borrow, donation, or sale; search with distance and availability—only when you need it."
+              body="Offer borrow, donation, or sale; search with distance and availability - only when you need it."
               posterSrc={pics.step2}
-              imageAlt="Cyclist on the road—cycling stock placeholder for listing and search."
+              imageAlt="Cyclist on the road - cycling stock placeholder for listing and search."
             />
           </div>
           <div class="reveal reveal-delay-3">
             <VideoCard
               variant="dark"
-              step="03 — Hand off"
-              title="Coordinate clearly"
-              body="Item-linked threads and requests—pickup stays area-level until you align in chat."
+              step="03 - Hand off"
+              title="Easy in-app messaging"
+              body="Chat on the item you're discussing - agree on timing and pickup in one thread without jumping to other apps."
               posterSrc={pics.step3}
-              imageAlt="Cycling—stock placeholder for hand-off."
+              imageAlt="Cycling - stock placeholder for hand-off."
             />
           </div>
         </div>
@@ -148,23 +155,24 @@ const pics = {
     <section id="features" class="section features-section section-band section-band--surface" aria-labelledby="features-heading">
       <div class="section-inner">
         <div class="section-head reveal">
-          <p class="eyebrow">Product map</p>
+          <p class="eyebrow">What's included</p>
           <h2 id="features-heading">Everything in one bin</h2>
           <p class="section-lead">
-            Core workflow is yours to own—everything below layers on when you list or meet someone.
+            Your personal inventory is the starting point. When you list something for others or arrange a handoff, you
+            can use nearby search, groups, messaging, pickup areas, and ratings - each only as far as you take it.
           </p>
         </div>
         <div class="bento">
           <article class="bento-card bento-wide reveal">
             <h3>Personal inventory</h3>
             <p>
-              The main job: know what you have—photos, condition, usage, and lifecycle status. Availability to borrow,
+              The main job: know what you have - photos, condition, usage, and lifecycle status. Availability to borrow,
               donate, or sell is optional on each item.
             </p>
           </article>
           <article class="bento-card reveal reveal-delay-1">
             <h3>Distance search</h3>
-            <p>When you list publicly, discovery is PostGIS-backed around you—not a flat catalog.</p>
+            <p>When you list publicly, nearby riders can find your items by distance - not just scroll a generic catalog.</p>
           </article>
           <article class="bento-card reveal reveal-delay-2">
             <h3>Groups</h3>
@@ -186,11 +194,32 @@ const pics = {
       </div>
     </section>
 
+    <section
+      class="section section-band section-band--alt sustain-section"
+      aria-labelledby="sustain-heading"
+    >
+      <div class="section-inner sustain-inner reveal">
+        <p class="eyebrow">Fair expectations</p>
+        <h2 id="sustain-heading">Why item limits, ads, or paid tiers may exist</h2>
+        <p class="section-lead muted sustain-copy">
+          Although Bike Bin is built by bikers for their own use, running it is not free. Storing your photos and
+          inventory data, hosting the service, and moving that data over the network all cost money.
+        </p>
+        <p class="section-lead muted sustain-copy">
+          On the free tier today you can track up to 1,000 items and attach up to 100 photos - a solid starting point
+          with a clear ceiling so storage and bandwidth stay sustainable. There will always be a free tier that includes
+          at least those same minimum limits. We may introduce ads or different subscription levels in the future (with
+          higher allowances where it makes sense) so the service can stay online, scale safely, and keep improving. If
+          those options appear, we will aim to keep them clear and proportionate.
+        </p>
+      </div>
+    </section>
+
     <section class="cta section-band section-band--alt" aria-labelledby="cta-heading">
       <div class="cta-inner reveal">
         <p class="eyebrow eyebrow-cta">Ready</p>
         <h2 id="cta-heading">Open the bin on the web</h2>
-        <p class="cta-lead">Same account as native when you sign in.</p>
+        <p class="cta-lead">Use the same login you use in the app - no second account for the web.</p>
         <a class="btn btn-primary btn-lg" href="https://app.bikebin.app">app.bikebin.app</a>
       </div>
     </section>
@@ -198,7 +227,7 @@ const pics = {
 
   <footer class="footer">
     <div class="footer-inner">
-      <p><strong>Bike Bin</strong> — iOS, Android, Web.</p>
+      <p><strong>Bike Bin</strong> - iOS, Android, Web.</p>
       <p class="footer-meta">
         <a href="https://github.com/ttu/bike-bin">GitHub</a>
         <span aria-hidden="true">·</span>
@@ -210,7 +239,7 @@ const pics = {
 </BaseLayout>
 
 <style>
-  /** Opacity only — avoid transform here; it fights .split-media rotate and breaks grid alignment. */
+  /** Opacity only - avoid transform here; it fights .split-media rotate and breaks grid alignment. */
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -378,6 +407,9 @@ const pics = {
   .hl {
     color: var(--color-accent);
     font-style: italic;
+    font-size: 0.82em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   .eyebrow {
@@ -404,6 +436,15 @@ const pics = {
     line-height: 1.02;
     letter-spacing: -0.035em;
     font-weight: 700;
+  }
+
+  #hero-heading {
+    line-height: 1.12;
+  }
+
+  #hero-heading .hl {
+    display: block;
+    margin-top: 0.28em;
   }
 
   h2 {
@@ -478,12 +519,18 @@ const pics = {
 
   .hero-stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.85rem;
     list-style: none;
     margin: 0;
     padding: 0;
-    max-width: 520px;
+    max-width: 640px;
+  }
+
+  @media (max-width: 520px) {
+    .hero-stats {
+      grid-template-columns: 1fr;
+    }
   }
 
   .hero-stats li {
@@ -544,6 +591,10 @@ const pics = {
 
   .muted {
     color: var(--color-muted) !important;
+  }
+
+  .section-lead-follow {
+    margin-top: 0.65rem;
   }
 
   .section-dark {
@@ -655,6 +706,15 @@ const pics = {
 
   .features-section {
     padding-bottom: clamp(2rem, 5vw, 3rem);
+  }
+
+  .sustain-copy {
+    margin: 0;
+    max-width: 58ch;
+  }
+
+  .sustain-copy + .sustain-copy {
+    margin-top: 0.65rem;
   }
 
   .bento {
