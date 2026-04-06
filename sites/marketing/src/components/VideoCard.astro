@@ -6,17 +6,34 @@ interface Props {
   posterSrc: string;
   imageAlt: string;
   variant?: 'light' | 'dark';
+  imageWidth?: number;
+  imageHeight?: number;
+  /**
+   * Portrait app captures: fixed-height slot, letterboxed (no cover crop), no pan animation.
+   * Use with raw viewport PNGs (no device chrome) or framed captures in the marketing grid.
+   */
+  phonePreview?: boolean;
 }
 
-const { title, body, step, posterSrc, imageAlt, variant = 'light' } = Astro.props;
+const {
+  title,
+  body,
+  step,
+  posterSrc,
+  imageAlt,
+  variant = 'light',
+  imageWidth = 960,
+  imageHeight = 600,
+  phonePreview = false,
+} = Astro.props;
 const dark = variant === 'dark';
 ---
 
 <article class:list={['card', dark && 'card-dark']}>
   <p class="step">{step}</p>
-  <div class="media">
-    <div class="ratio">
-      <img src={posterSrc} alt={imageAlt} width={960} height={600} loading="lazy" decoding="async" />
+  <div class:list={['media', phonePreview && 'media--phone-preview']}>
+    <div class:list={['ratio', phonePreview && 'ratio--phone']}>
+      <img src={posterSrc} alt={imageAlt} width={imageWidth} height={imageHeight} loading="lazy" decoding="async" />
       <div class="grain" aria-hidden="true"></div>
     </div>
   </div>
@@ -29,6 +46,7 @@ const dark = variant === 'dark';
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    height: 100%;
     padding: 1.15rem;
     border-radius: var(--radius-xl);
     background: var(--color-glass);
@@ -78,11 +96,39 @@ const dark = variant === 'dark';
     border-color: rgba(255, 255, 255, 0.1);
   }
 
+  .media.media--phone-preview {
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
   .ratio {
     position: relative;
     aspect-ratio: 16 / 10;
     background: #0f172a;
     overflow: hidden;
+  }
+
+  .media--phone-preview {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  /* Fixed slot so every card in the marketing row matches height (thread/detail/search). */
+  .ratio--phone {
+    flex-shrink: 0;
+    width: min(100%, 240px);
+    height: min(380px, 52vw);
+    margin-inline: auto;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
+    border: none;
+    background: transparent;
   }
 
   .ratio img {
@@ -94,10 +140,22 @@ const dark = variant === 'dark';
     animation: card-pan 12s ease-in-out infinite alternate;
   }
 
+  .ratio--phone img {
+    object-fit: contain;
+    object-position: center top;
+    transform: none;
+    animation: none;
+    background: transparent;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ratio img {
       animation: none;
       transform: scale(1);
+    }
+
+    .ratio--phone img {
+      transform: none;
     }
   }
 
@@ -108,6 +166,10 @@ const dark = variant === 'dark';
     to {
       transform: scale(1.1) translate(-2%, 1%);
     }
+  }
+
+  .ratio--phone .grain {
+    display: none;
   }
 
   .grain {

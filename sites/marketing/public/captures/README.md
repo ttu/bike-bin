@@ -26,4 +26,6 @@ Typical filenames after a run:
 - **video/** — WebM screen recording from Playwright (`browse-flow.webm`): login (held) → Dev Login → inventory → collection search → open **Maxxis** row → **Edit item** (header pencil).
 - **gif/** — optional; created when `ffmpeg` is installed (`brew install ffmpeg`).
 
+The marketing homepage hero uses **`video/browse-flow.webm`** inside the phone frame (with **`raw/02-inventory-signed-in.png`** as the `poster`, same 430×932 viewport as the recording).
+
 You may add this folder’s binaries to `.gitignore` if you store assets elsewhere, or commit them for the site.

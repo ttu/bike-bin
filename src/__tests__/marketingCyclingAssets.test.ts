@@ -10,13 +10,12 @@ describe('marketing site assets (cycling-only policy)', () => {
     expect(src).not.toMatch(/flower\.mp4/i);
   });
 
-  it('loads raster placeholders only from images.unsplash.com', () => {
+  it('allows local captures; any Unsplash rasters must use images.unsplash.com only', () => {
+    expect(src).not.toMatch(/picsum\.photos/i);
     const urlMatches = src.matchAll(/https:\/\/images\.unsplash\.com\/[^\s'"`]+/g);
     const urls = [...urlMatches].map((m) => m[0]);
-    expect(urls.length).toBeGreaterThan(0);
     for (const url of urls) {
       expect(url.startsWith('https://images.unsplash.com/')).toBe(true);
     }
-    expect(src).not.toMatch(/picsum\.photos/i);
   });
 });
