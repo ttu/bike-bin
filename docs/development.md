@@ -118,16 +118,35 @@ The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hostin
 npm run deploy:web:prod
 ```
 
-Uses production build env from your machine (e.g. `.env.local`). For CI, the **Deploy web** workflow injects secrets as `EXPO_PUBLIC_*` during `npm run build:web`.
+Uses production build env from your machine (e.g. `.env.local`). For CI, workflows inject secrets as `EXPO_PUBLIC_*` during `npm run build:web`.
 
 ### Automated deploy (CI)
 
-**Deploy web** (`.github/workflows/deploy-web.yml`) runs after **CI** completes successfully:
+- **Pull requests** to `main`: the **CI** workflow runs **`deploy-web-preview`** after the **`build`** job succeeds (every push to the PR, including new commits). Same-repo branches only — `eas deploy --non-interactive` with `EXPO_PUBLIC_ENV=preview`. Fork PRs skip this job (no deploy).
+- **Push to `main`**: **Deploy web** (`.github/workflows/deploy-web.yml`) runs after the **CI** workflow completes successfully — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.
 
-- **Pull requests** to `main` (same-repo branches only): preview deploy — `eas deploy --non-interactive` and `EXPO_PUBLIC_ENV=preview`. Fork PRs are skipped (no deploy).
-- **Push to `main`**: production deploy — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.
+You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch** on `main`), which uses the production deploy path.
 
-You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch**), which uses the production deploy path.
+## Marketing site (GitHub Pages)
+
+The Astro marketing site (`sites/marketing/`) deploys to **[GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages)** via **Deploy marketing site (GitHub Pages)** (`.github/workflows/deploy-marketing-pages.yml`).
+
+### One-time setup
+
+1. **Repository → Settings → Pages** — under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
+2. Merge a change under `sites/marketing/` to `main`, or run the workflow manually (**Actions** → **Deploy marketing site (GitHub Pages)** → **Run workflow**).
+3. **Custom domain `bikebin.app`:** DNS should point to GitHub Pages ([docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)). The repo includes `sites/marketing/public/CNAME` so the built site publishes the hostname; finish configuration in **Pages** → **Custom domain** if needed.
+
+### Optional repository variables
+
+For the default **https://bikebin.app/** deployment, no variables are required (`ASTRO_*` defaults are set in the workflow).
+
+To preview on the **default** GitHub project URL (`https://<owner>.github.io/<repo>/`) before a custom domain is attached, set **Settings → Secrets and variables → Actions → Variables**:
+
+| Variable              | Example                      | Purpose                                      |
+| --------------------- | ---------------------------- | -------------------------------------------- |
+| `MARKETING_SITE_URL`  | `https://yourname.github.io` | Astro `site` (canonical / sitemap base URL). |
+| `MARKETING_BASE_PATH` | `/bike-bin/`                 | Astro `base` — must match the `/repo/` path. |
 
 ## Common issues
 

@@ -1,6 +1,5 @@
-# EAS Hosting deploy: preview after CI on each PR (same repo); production after CI on push to main.
-# Prerequisites: eas init (commit eas.json + app extra.eas), EXPO_TOKEN, EXPO_PUBLIC_* secrets
-# — see docs/development.md (Web production / EAS Hosting).
+# EAS Hosting production deploy: after CI succeeds on push to main, or manual dispatch on main.
+# PR preview deploys run from ci.yml (deploy-web-preview job) on every PR push after build passes.
 
 name: Deploy web
 
@@ -12,7 +11,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-web-${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
+  group: deploy-web-prod-${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
@@ -23,10 +22,8 @@ jobs:
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_repository.full_name == github.repository &&
-       (
-         github.event.workflow_run.event == 'pull_request' ||
-         (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
-       ))
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,27 +45,13 @@ jobs:
           eas-version: latest
           packager: npm
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Set deploy target (preview vs production)
-        id: target
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "production=true" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.workflow_run.event }}" = "pull_request" ]; then
-            echo "production=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "production=true" >> "$GITHUB_OUTPUT"
-          fi
       - name: Export web
         run: npm run build:web
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
-          EXPO_PUBLIC_ENV: ${{ steps.target.outputs.production == 'true' && 'production' || 'preview' }}
+          EXPO_PUBLIC_ENV: production
           NODE_ENV: production
-      - name: Deploy to EAS Hosting (preview)
-        if: steps.target.outputs.production != 'true'
-        run: eas deploy --non-interactive
       - name: Deploy to EAS Hosting (production)
-        if: steps.target.outputs.production == 'true'
         run: eas deploy --prod --non-interactive
