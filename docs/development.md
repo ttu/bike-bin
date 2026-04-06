@@ -93,6 +93,37 @@ Set these in an `.env` file at the project root or via your shell. Expo loads `E
 
 **Git worktrees:** Each worktree is its own root — copy or symlink `.env.local` from the primary clone into the worktree (see [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) bootstrap steps), then run `npm install` there.
 
+## Web production (EAS Hosting)
+
+The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/)** (static export, `expo.web.output`: `single` in `app.json`).
+
+### One-time setup
+
+1. **Link the app to an EAS project** (creates `eas.json` and may add `extra.eas` to `app.json`):
+   - `npx eas-cli@latest login`
+   - `npx eas-cli@latest init`
+2. **Commit** `eas.json` and any `app.json` changes so CI can run `eas deploy`.
+3. **GitHub repository secrets** (Settings → Secrets and variables → Actions):
+
+   | Secret                          | Purpose                                                                              |
+   | ------------------------------- | ------------------------------------------------------------------------------------ |
+   | `EXPO_TOKEN`                    | Expo [access token](https://expo.dev/settings/access-tokens) — used by EAS CLI in CI |
+   | `EXPO_PUBLIC_SUPABASE_URL`      | Production Supabase project URL                                                      |
+   | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Production Supabase anon (public) key                                                |
+   | `EXPO_PUBLIC_SENTRY_DSN`        | Optional — omit or leave empty if unused                                             |
+
+### Manual deploy
+
+```bash
+npm run deploy:web:prod
+```
+
+Uses production build env from your machine (e.g. `.env.local`). For CI, the **Deploy web** workflow injects secrets as `EXPO_PUBLIC_*` during `npm run build:web`.
+
+### Automated deploy (CI)
+
+After the **CI** workflow succeeds on a **`push` to `main`**, **Deploy web** (`.github/workflows/deploy-web.yml`) exports the web bundle and runs `eas deploy --prod --non-interactive`. You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch**).
+
 ## Common issues
 
 - **Docker not running** — `db:start` fails until Docker is up.

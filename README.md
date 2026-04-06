@@ -49,7 +49,7 @@ npm install
 npm run dev              # Start Supabase + Expo dev server
 ```
 
-See [docs/development.md](docs/development.md) for full setup instructions.
+See [docs/development.md](docs/development.md) for full setup instructions. Production web deploy uses **EAS Hosting** and GitHub Actions (see **Web production (EAS Hosting)** in that doc).
 
 ## License
 

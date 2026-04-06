@@ -38,6 +38,8 @@
     "marketing:build": "npm run build --prefix sites/marketing",
     "marketing:test": "npm run test --prefix sites/marketing",
     "build:web": "expo export --platform web",
+    "deploy:web": "npm run build:web && eas deploy",
+    "deploy:web:prod": "npm run build:web && eas deploy --prod",
     "build:android": "eas build --platform android",
     "build:ios": "eas build --platform ios",
     "ios:prebuild": "expo prebuild --platform ios --clean",

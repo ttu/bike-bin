@@ -78,7 +78,10 @@ Do **not** bypass hooks with `--no-verify` — fix the underlying issue instead.
 
 ## CI overview
 
-See `.github/workflows/ci.yml` for the exact job graph: lint, type-check, test with coverage, optional E2E/a11y/visual/Sonar, then web build. Keep this doc aligned when CI steps change.
+- **`.github/workflows/ci.yml`** — lint, type-check, test with coverage, optional E2E/a11y/visual/Sonar, web export smoke build (`expo export --platform web`), marketing site build. Runs on pushes and pull requests to `main`.
+- **`.github/workflows/deploy-web.yml`** — after **CI** completes successfully on a **push to `main`**, exports the web app with production `EXPO_PUBLIC_*` secrets and runs **`eas deploy --prod`** to EAS Hosting. Requires `eas.json` (from `eas init`) and repository secrets; see [development.md](development.md) (Web production). Can also be triggered manually (**workflow_dispatch**).
+
+Keep this doc aligned when CI steps change.
 
 ---
 
