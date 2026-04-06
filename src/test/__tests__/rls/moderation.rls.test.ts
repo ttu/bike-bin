@@ -91,6 +91,20 @@ describe('moderation_enforcement_log RLS', () => {
     const { data } = await userA.client.from('moderation_enforcement_log').select('*');
     expect(data).toEqual([]);
   });
+
+  it('service role can insert and select', async () => {
+    const { error: insertErr } = await adminClient
+      .from('moderation_enforcement_log')
+      .insert({ sanctioned_user_id: userB.id, reason: 'rls-test' });
+    expect(insertErr).toBeNull();
+
+    const { data, error: selectErr } = await adminClient
+      .from('moderation_enforcement_log')
+      .select('*')
+      .eq('reason', 'rls-test');
+    expect(selectErr).toBeNull();
+    expect(data!.length).toBeGreaterThan(0);
+  });
 });
 
 describe('reports with new target types', () => {

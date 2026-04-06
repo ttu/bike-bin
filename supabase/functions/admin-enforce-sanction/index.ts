@@ -3,7 +3,7 @@
 // Purges all data for a sanctioned user and blocks their OAuth identities.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { timingSafeEqual } from 'https://deno.land/std/crypto/timing_safe_equal.ts';
+import { timingSafeEqual } from 'https://deno.land/std@0.224.0/crypto/timing_safe_equal.ts';
 
 interface SanctionRequest {
   userId: string;
@@ -93,8 +93,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseUrl || !supabaseServiceKey) {
+      const missing = [
+        !supabaseUrl && 'SUPABASE_URL',
+        !supabaseServiceKey && 'SUPABASE_SERVICE_ROLE_KEY',
+      ]
+        .filter(Boolean)
+        .join(', ');
+      console.error(`Missing environment variable(s): ${missing}`);
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const counts: PurgeCounts = {
@@ -323,16 +336,17 @@ Deno.serve(async (req) => {
     const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('id', userId);
     assertNoError(profileDeleteError, 'delete profile');
 
-    // 7. Delete auth user last
-    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
-    assertNoError(authDeleteError, 'delete auth user');
-
-    // Log enforcement action
-    await supabase.from('moderation_enforcement_log').insert({
+    // 7. Log enforcement action before deleting the auth user
+    const { error: logError } = await supabase.from('moderation_enforcement_log').insert({
       sanctioned_user_id: userId,
       reason: reason ?? null,
       report_ids: relatedReportIds ?? null,
     });
+    assertNoError(logError, 'insert moderation_enforcement_log');
+
+    // 8. Delete auth user last
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+    assertNoError(authDeleteError, 'delete auth user');
 
     return new Response(JSON.stringify({ success: true, counts }), {
       status: 200,

@@ -129,7 +129,7 @@ export function ListingDetailRoute({
     if (!user || !reportPhotoId) return;
     reportMutation.mutate(
       {
-        reporterId: user.id as string as UserId,
+        reporterId: user.id as UserId,
         targetType: 'item_photo',
         targetId: reportPhotoId,
         reason,

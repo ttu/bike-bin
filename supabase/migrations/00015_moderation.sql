@@ -54,22 +54,23 @@ SECURITY DEFINER
 SET search_path TO public
 AS $$
 DECLARE
-  _provider text;
-  _provider_user_id text;
+  _identities jsonb;
   is_blocked boolean;
 BEGIN
-  -- Extract provider and subject from the auth event
-  _provider := event->'user'->'identities'->0->>'provider';
-  _provider_user_id := event->'user'->'identities'->0->>'provider_id';
+  _identities := event->'user'->'identities';
 
-  -- If we can't extract identity info, allow sign-in (don't block legitimate users)
-  IF _provider IS NULL OR _provider_user_id IS NULL THEN
+  -- If no identities array, allow sign-in (don't block legitimate users)
+  IF _identities IS NULL OR jsonb_array_length(_identities) = 0 THEN
     RETURN jsonb_build_object('decision', 'continue');
   END IF;
 
+  -- Check if ANY identity matches a blocked entry
   SELECT EXISTS(
-    SELECT 1 FROM blocked_oauth_identities
-    WHERE provider = _provider AND provider_user_id = _provider_user_id
+    SELECT 1
+    FROM jsonb_array_elements(_identities) AS identity
+    JOIN blocked_oauth_identities b
+      ON b.provider = identity->>'provider'
+     AND b.provider_user_id = identity->>'provider_id'
   ) INTO is_blocked;
 
   IF is_blocked THEN

@@ -88,7 +88,7 @@ Admin-only table recording OAuth identities blocked during moderation enforcemen
 
 ### `moderation_enforcement_log`
 
-Audit log of admin enforcement actions. Columns: `id` (uuid PK), `sanctioned_user_id` (text — not FK, since the auth user is deleted), optional `reason`, optional `report_ids` (uuid array), `created_at`.
+Audit log of admin enforcement actions. Columns: `id` (uuid PK), `sanctioned_user_id` (uuid, NOT NULL — not a foreign key, since the auth user is deleted), optional `reason`, optional `report_ids` (uuid array), `created_at`.
 
 ### `geocode_cache`
 

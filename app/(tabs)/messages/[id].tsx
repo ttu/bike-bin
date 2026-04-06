@@ -68,7 +68,7 @@ export default function ConversationDetailScreen() {
       if (!user || !reportMessageId) return;
       reportMutation.mutate(
         {
-          reporterId: user.id as string as UserId,
+          reporterId: user.id as UserId,
           targetType: 'message',
           targetId: reportMessageId,
           reason,
