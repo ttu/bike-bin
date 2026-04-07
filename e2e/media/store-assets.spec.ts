@@ -171,7 +171,8 @@ test.describe('Short screen recording', () => {
     const context = await browser.newContext({
       viewport: { width: 430, height: 932 },
       deviceScaleFactor: 3,
-      recordVideo: { dir: VIDEO_DIR, size: { width: 430, height: 932 } },
+      // Encode WebM at physical pixels (3× logical) so footage is not soft vs framed PNGs.
+      recordVideo: { dir: VIDEO_DIR, size: { width: 1290, height: 2796 } },
     });
     const page = await context.newPage();
     await devLogin(page, { holdOnLoginScreenMs: browseRecordingMs(1400) });
