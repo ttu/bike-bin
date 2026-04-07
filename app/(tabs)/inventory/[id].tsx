@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
+import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
@@ -26,8 +26,16 @@ export default function ItemDetailScreen() {
   const { t } = useTranslation('exchange');
   const { t: tInv } = useTranslation('inventory');
   const { t: tBorrow } = useTranslation('borrow');
-  const params = useLocalSearchParams<{ id: string; fromBike?: string | string[] }>();
+  const { t: tCommon } = useTranslation('common');
+  const params = useLocalSearchParams<{
+    id: string;
+    fromBike?: string | string[];
+    photoLimitWarning?: string;
+  }>();
   const { id } = params;
+  const [photoLimitSnackbarVisible, setPhotoLimitSnackbarVisible] = useState(
+    () => params.photoLimitWarning === '1',
+  );
   const fromBikeRaw = params.fromBike;
   const fromBikeId =
     typeof fromBikeRaw === 'string'
@@ -200,6 +208,17 @@ export default function ItemDetailScreen() {
         }
       />
       <ConfirmDialog {...confirmDialogProps} />
+      <Snackbar
+        visible={photoLimitSnackbarVisible}
+        onDismiss={() => setPhotoLimitSnackbarVisible(false)}
+        duration={5000}
+        action={{
+          label: tCommon('actions.close'),
+          onPress: () => setPhotoLimitSnackbarVisible(false),
+        }}
+      >
+        {tInv('limit.saveSnackbarPhoto')}
+      </Snackbar>
     </View>
   );
 }

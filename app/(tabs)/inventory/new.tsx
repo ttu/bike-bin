@@ -34,7 +34,6 @@ export default function NewItemScreen() {
   const { atLimit, limit, isReady } = useInventoryRowCapacity();
   const { atLimit: atPhotoLimit, isReady: photoCapacityReady } = usePhotoRowCapacity();
   const [limitSnackbarVisible, setLimitSnackbarVisible] = useState(false);
-  const [photoLimitSnackbarVisible, setPhotoLimitSnackbarVisible] = useState(false);
   const { category } = useLocalSearchParams<{ category?: string }>();
   const initialCategory = Object.values(ItemCategory).includes(category as ItemCategory)
     ? (category as ItemCategory)
@@ -67,8 +66,7 @@ export default function NewItemScreen() {
               await uploadAll(item.id);
             } catch (pe) {
               if (isPhotoLimitExceededError(pe)) {
-                setPhotoLimitSnackbarVisible(true);
-                router.push(`/(tabs)/inventory/${item.id}`);
+                router.push(`/(tabs)/inventory/${item.id}?photoLimitWarning=1`);
                 return;
               }
               throw pe;
@@ -155,17 +153,6 @@ export default function NewItemScreen() {
         action={{ label: tCommon('actions.close'), onPress: () => setLimitSnackbarVisible(false) }}
       >
         {t('limit.saveSnackbar')}
-      </Snackbar>
-      <Snackbar
-        visible={photoLimitSnackbarVisible}
-        onDismiss={() => setPhotoLimitSnackbarVisible(false)}
-        duration={5000}
-        action={{
-          label: tCommon('actions.close'),
-          onPress: () => setPhotoLimitSnackbarVisible(false),
-        }}
-      >
-        {t('limit.saveSnackbarPhoto')}
       </Snackbar>
     </View>
   );

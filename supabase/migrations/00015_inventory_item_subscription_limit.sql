@@ -171,26 +171,30 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  lim integer;
-  cnt bigint;
+  r record;
 BEGIN
-  PERFORM pg_advisory_xact_lock('items_limit'::regclass::bigint, hashtext(NEW.owner_id::text));
-  lim := public.inventory_item_limit_for_user(NEW.owner_id);
-  SELECT COUNT(*) INTO cnt FROM public.items WHERE owner_id = NEW.owner_id;
-  IF cnt >= lim THEN
-    RAISE EXCEPTION 'inventory_limit_exceeded'
-      USING ERRCODE = '23514',
-      HINT = 'Remove items or upgrade your subscription to add more.';
-  END IF;
-  RETURN NEW;
+  FOR r IN
+    SELECT owner_id, COUNT(*) AS batch_count
+    FROM new_items
+    GROUP BY owner_id
+  LOOP
+    PERFORM pg_advisory_xact_lock(hashtext('items_limit'), hashtext(r.owner_id::text));
+    IF (SELECT COUNT(*) FROM public.items WHERE owner_id = r.owner_id) > public.inventory_item_limit_for_user(r.owner_id) THEN
+      RAISE EXCEPTION 'inventory_limit_exceeded'
+        USING ERRCODE = '23514',
+        HINT = 'Remove items or upgrade your subscription to add more.';
+    END IF;
+  END LOOP;
+  RETURN NULL;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.enforce_items_inventory_row_limit() FROM PUBLIC;
 
 CREATE TRIGGER trg_items_enforce_inventory_row_limit
-  BEFORE INSERT ON public.items
-  FOR EACH ROW
+  AFTER INSERT ON public.items
+  REFERENCING NEW TABLE AS new_items
+  FOR EACH STATEMENT
   EXECUTE FUNCTION public.enforce_items_inventory_row_limit();
 
 CREATE OR REPLACE FUNCTION public.enforce_bikes_row_limit()
@@ -200,26 +204,30 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  lim integer;
-  cnt bigint;
+  r record;
 BEGIN
-  PERFORM pg_advisory_xact_lock('bikes_limit'::regclass::bigint, hashtext(NEW.owner_id::text));
-  lim := public.bike_limit_for_user(NEW.owner_id);
-  SELECT COUNT(*) INTO cnt FROM public.bikes WHERE owner_id = NEW.owner_id;
-  IF cnt >= lim THEN
-    RAISE EXCEPTION 'bike_limit_exceeded'
-      USING ERRCODE = '23514',
-      HINT = 'Remove bikes or upgrade your subscription to add more.';
-  END IF;
-  RETURN NEW;
+  FOR r IN
+    SELECT owner_id, COUNT(*) AS batch_count
+    FROM new_bikes
+    GROUP BY owner_id
+  LOOP
+    PERFORM pg_advisory_xact_lock(hashtext('bikes_limit'), hashtext(r.owner_id::text));
+    IF (SELECT COUNT(*) FROM public.bikes WHERE owner_id = r.owner_id) > public.bike_limit_for_user(r.owner_id) THEN
+      RAISE EXCEPTION 'bike_limit_exceeded'
+        USING ERRCODE = '23514',
+        HINT = 'Remove bikes or upgrade your subscription to add more.';
+    END IF;
+  END LOOP;
+  RETURN NULL;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.enforce_bikes_row_limit() FROM PUBLIC;
 
 CREATE TRIGGER trg_bikes_enforce_row_limit
-  BEFORE INSERT ON public.bikes
-  FOR EACH ROW
+  AFTER INSERT ON public.bikes
+  REFERENCING NEW TABLE AS new_bikes
+  FOR EACH STATEMENT
   EXECUTE FUNCTION public.enforce_bikes_row_limit();
 
 CREATE OR REPLACE FUNCTION public.enforce_item_photos_account_limit()
@@ -229,31 +237,31 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  owner uuid;
-  lim integer;
-  cnt bigint;
+  r record;
 BEGIN
-  SELECT i.owner_id INTO owner FROM public.items i WHERE i.id = NEW.item_id;
-  IF owner IS NULL THEN
-    RETURN NEW;
-  END IF;
-  PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(owner::text));
-  lim := public.photo_limit_for_user(owner);
-  cnt := public.user_photo_count(owner);
-  IF cnt >= lim THEN
-    RAISE EXCEPTION 'photo_limit_exceeded'
-      USING ERRCODE = '23514',
-      HINT = 'Remove photos or upgrade your subscription to add more.';
-  END IF;
-  RETURN NEW;
+  FOR r IN
+    SELECT DISTINCT i.owner_id
+    FROM new_item_photos np
+    INNER JOIN public.items i ON i.id = np.item_id
+    WHERE i.owner_id IS NOT NULL
+  LOOP
+    PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(r.owner_id::text));
+    IF public.user_photo_count(r.owner_id) > public.photo_limit_for_user(r.owner_id) THEN
+      RAISE EXCEPTION 'photo_limit_exceeded'
+        USING ERRCODE = '23514',
+        HINT = 'Remove photos or upgrade your subscription to add more.';
+    END IF;
+  END LOOP;
+  RETURN NULL;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.enforce_item_photos_account_limit() FROM PUBLIC;
 
 CREATE TRIGGER trg_item_photos_enforce_account_limit
-  BEFORE INSERT ON public.item_photos
-  FOR EACH ROW
+  AFTER INSERT ON public.item_photos
+  REFERENCING NEW TABLE AS new_item_photos
+  FOR EACH STATEMENT
   EXECUTE FUNCTION public.enforce_item_photos_account_limit();
 
 CREATE OR REPLACE FUNCTION public.enforce_bike_photos_account_limit()
@@ -263,29 +271,29 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  owner uuid;
-  lim integer;
-  cnt bigint;
+  r record;
 BEGIN
-  SELECT b.owner_id INTO owner FROM public.bikes b WHERE b.id = NEW.bike_id;
-  IF owner IS NULL THEN
-    RETURN NEW;
-  END IF;
-  PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(owner::text));
-  lim := public.photo_limit_for_user(owner);
-  cnt := public.user_photo_count(owner);
-  IF cnt >= lim THEN
-    RAISE EXCEPTION 'photo_limit_exceeded'
-      USING ERRCODE = '23514',
-      HINT = 'Remove photos or upgrade your subscription to add more.';
-  END IF;
-  RETURN NEW;
+  FOR r IN
+    SELECT DISTINCT b.owner_id
+    FROM new_bike_photos np
+    INNER JOIN public.bikes b ON b.id = np.bike_id
+    WHERE b.owner_id IS NOT NULL
+  LOOP
+    PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(r.owner_id::text));
+    IF public.user_photo_count(r.owner_id) > public.photo_limit_for_user(r.owner_id) THEN
+      RAISE EXCEPTION 'photo_limit_exceeded'
+        USING ERRCODE = '23514',
+        HINT = 'Remove photos or upgrade your subscription to add more.';
+    END IF;
+  END LOOP;
+  RETURN NULL;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.enforce_bike_photos_account_limit() FROM PUBLIC;
 
 CREATE TRIGGER trg_bike_photos_enforce_account_limit
-  BEFORE INSERT ON public.bike_photos
-  FOR EACH ROW
+  AFTER INSERT ON public.bike_photos
+  REFERENCING NEW TABLE AS new_bike_photos
+  FOR EACH STATEMENT
   EXECUTE FUNCTION public.enforce_bike_photos_account_limit();
