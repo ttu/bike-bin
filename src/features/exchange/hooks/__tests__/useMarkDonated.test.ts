@@ -1,6 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
+import { mockUpdate, mockEq, mockSupabase } from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
+
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
+
+// Import after mocks
 import { useMarkDonated } from '../useMarkDonated';
 import { useMarkSold } from '../useMarkSold';
 import {
@@ -8,26 +15,6 @@ import {
   createQueryClientHookWrapperWithClient,
   createTestQueryClient,
 } from '@/test/queryTestUtils';
-
-// Mock supabase
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      update: mockUpdate,
-    })),
-  },
-}));
-
-// Mock useAuth
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
 
 describe('useMarkDonated', () => {
   beforeEach(() => {

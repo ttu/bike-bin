@@ -1,17 +1,8 @@
 import { renderHook } from '@testing-library/react-native';
+import { mockSelect, mockEq, mockOrder, mockSupabase } from '@/test/supabaseMocks';
 import type { UserId } from '@/shared/types';
 
-const mockOrder = jest.fn();
-const mockEq = jest.fn();
-const mockSelect = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-    })),
-  },
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
 import { useUserRatings } from '../useUserRatings';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';

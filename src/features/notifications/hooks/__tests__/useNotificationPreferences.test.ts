@@ -1,22 +1,9 @@
 import { renderHook, waitFor, act } from '@testing-library/react-native';
+import { mockSelect, mockUpdate, mockEq, mockSingle, mockSupabase } from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 
-const mockSelect = jest.fn();
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-const mockSingle = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-      update: mockUpdate,
-    })),
-  },
-}));
-
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 // Import after mocks
 import { useNotificationPreferences } from '../useNotificationPreferences';
