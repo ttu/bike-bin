@@ -7,20 +7,19 @@ const title = 'Bike Bin - your bike parts inventory';
 const description =
   'Catalog bike parts, tools, and builds in one inventory - photos, condition, and where they\'re stored. When you want to, list or find gear nearby and coordinate handoffs on your terms. From bikers to bikers.';
 
-/**
- * Unsplash - cycling / bicycle imagery only (no generic stock).
- * @see https://unsplash.com/license
- */
-const u = (photoId: string, w: number, h?: number) =>
-  `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=${w}${h != null ? `&h=${h}` : ''}&q=80`;
+/** Framed app captures from `npm run capture:media` (see `public/captures/README.md`). */
+const base = import.meta.env.BASE_URL;
+const cap = (slug: string) => `${base}captures/framed/${slug}.png`;
+const capRaw = (slug: string) => `${base}captures/raw/${slug}.png`;
+const capVideo = (name: string) => `${base}captures/video/${name}.webm`;
 
-const pics = {
-  hero: u('photo-1618762044398-ec1e7e048bbd', 800, 1280),
-  step1: u('photo-1532298229144-0ec0c57515c7', 960, 600),
-  step2: u('photo-1541625602330-2277a4c46182', 960, 600),
-  step3: u('photo-1511994298241-608e28f14fde', 960, 600),
-  wide: u('photo-1485965120184-e220f721d03e', 1800, 1100),
-};
+/** Logical pixel size of framed PNGs (matches `capture:media` output at 3×). */
+const captureW = 1618;
+const captureH = 3196;
+
+/** Viewport-only captures (no device chrome) — Playwright viewport 430×932 @ 1× logical. */
+const rawViewportW = 430;
+const rawViewportH = 932;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -67,12 +66,13 @@ const pics = {
         </div>
         <div class="hero-visual reveal reveal-delay-1">
           <PhoneFrame
-            posterSrc={pics.hero}
-            imageAlt="Road bicycle against a wall - cycling stock photo behind an animated generic app mock-up."
+            videoSrc={capVideo('browse-flow')}
+            posterSrc={capRaw('02-inventory-signed-in')}
+            imageAlt="Screen recording: Bike Bin web app — inventory search, item detail, and edit on a phone."
+            mockOverlay={false}
+            width={rawViewportW}
+            height={rawViewportH}
           />
-          <p class="hero-caption">
-            Cycling photo with a subtle pan plus a generic app-style animation - replace with real product UI when ready.
-          </p>
         </div>
       </div>
     </section>
@@ -92,16 +92,15 @@ const pics = {
             one account.
           </p>
         </div>
-        <figure class="split-media reveal reveal-delay-1">
+        <figure class="split-media split-media--capture split-media--phone reveal reveal-delay-1">
           <img
-            src={pics.wide}
-            width={1800}
-            height={1100}
-            alt="Cyclist on a road bike on a country road - stock photo."
+            src={capRaw('02-inventory-signed-in')}
+            width={rawViewportW}
+            height={rawViewportH}
+            alt="Bike Bin inventory list on a phone: search, categories, and parts."
             loading="lazy"
             decoding="async"
           />
-          <figcaption class="media-cap">Unsplash stock (cycling) - replace with your photography.</figcaption>
         </figure>
       </div>
     </section>
@@ -121,31 +120,40 @@ const pics = {
           <div class="reveal reveal-delay-1">
             <VideoCard
               variant="dark"
-              step="01 - Your bin"
-              title="Track what you own"
-              body="Photos, condition, usage, and status - keep your workshop straight without a spreadsheet."
-              posterSrc={pics.step1}
-              imageAlt="Road bike build - cycling stock placeholder for inventory."
+              step="01 - Item detail"
+              title="See each part clearly"
+              body="Photos, condition, usage, and storage on one screen - so you always know what you have and where it lives."
+              posterSrc={capRaw('03-item-detail')}
+              imageAlt="Bike Bin item detail on a phone: photos, condition, and metadata."
+              imageWidth={rawViewportW}
+              imageHeight={rawViewportH}
+              phonePreview
             />
           </div>
           <div class="reveal reveal-delay-2">
             <VideoCard
               variant="dark"
-              step="02 - When you want"
+              step="02 - Search"
               title="List or find nearby"
               body="Offer borrow, donation, or sale; search with distance and availability - only when you need it."
-              posterSrc={pics.step2}
-              imageAlt="Cyclist on the road - cycling stock placeholder for listing and search."
+              posterSrc={capRaw('05-search-results')}
+              imageAlt="Bike Bin search results with distance on a phone."
+              imageWidth={rawViewportW}
+              imageHeight={rawViewportH}
+              phonePreview
             />
           </div>
           <div class="reveal reveal-delay-3">
             <VideoCard
               variant="dark"
-              step="03 - Hand off"
+              step="03 - Messaging"
               title="Easy in-app messaging"
-              body="Chat on the item you're discussing - agree on timing and pickup in one thread without jumping to other apps."
-              posterSrc={pics.step3}
-              imageAlt="Cycling - stock placeholder for hand-off."
+              body="Item-linked threads - agree on timing and pickup in one place without switching apps."
+              posterSrc={capRaw('07-messages-thread')}
+              imageAlt="Bike Bin conversation thread on a phone."
+              imageWidth={rawViewportW}
+              imageHeight={rawViewportH}
+              phonePreview
             />
           </div>
         </div>
@@ -556,16 +564,6 @@ const pics = {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.65rem;
-  }
-
-  .hero-caption {
-    margin: 0;
-    font-size: 0.78rem;
-    color: var(--color-muted);
-    text-align: center;
-    max-width: 260px;
-    line-height: 1.4;
   }
 
   .section {
@@ -632,6 +630,18 @@ const pics = {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.1rem;
+    align-items: stretch;
+  }
+
+  .video-grid > .reveal {
+    display: flex;
+    min-height: 0;
+  }
+
+  .video-grid > .reveal > :global(article.card) {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
   }
 
   @media (max-width: 960px) {
@@ -692,16 +702,41 @@ const pics = {
     height: auto;
   }
 
-  .media-cap {
-    padding: 0.85rem 1rem;
-    font-size: 0.8rem;
-    color: var(--color-muted);
-    background: #faf7f2;
-    border-top: 1px solid var(--color-line);
+  .split-media--capture {
+    background: #0f172a;
   }
 
-  .section-band--alt .media-cap {
-    background: var(--color-paper);
+  .split-media--capture img {
+    width: 100%;
+    max-height: min(72vh, 640px);
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: center top;
+  }
+
+  /**
+   * Raw viewport inside a modest device bezel (readable as a phone, not the heavy framed PNG).
+   */
+  .split-media--capture.split-media--phone {
+    max-width: min(300px, 100%);
+    margin-inline: auto;
+    padding: 0.52rem;
+    border-radius: 1.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.45) inset,
+      0 16px 44px rgba(12, 15, 14, 0.22),
+      0 0 1px rgba(28, 25, 23, 0.2);
+    background: linear-gradient(155deg, #353230 0%, #1c1917 38%, #0a0a0a 100%);
+  }
+
+  .split-media--capture.split-media--phone img {
+    max-height: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 1.4rem;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   }
 
   .features-section {

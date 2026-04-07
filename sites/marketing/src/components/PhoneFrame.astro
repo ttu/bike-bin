@@ -2,47 +2,97 @@
 interface Props {
   posterSrc: string;
   imageAlt: string;
+  /** When false, show only the screenshot (no generic app chrome overlay). */
+  mockOverlay?: boolean;
+  /** Intrinsic size of the poster image (for layout / CLS). */
+  width?: number;
+  height?: number;
+  /**
+   * Looping video inside the frame (e.g. `captures/video/browse-flow.webm`). Uses `posterSrc` as poster.
+   * `mockOverlay` should be false when using real product footage.
+   */
+  videoSrc?: string;
 }
 
-const { posterSrc, imageAlt } = Astro.props;
+const {
+  posterSrc,
+  imageAlt,
+  mockOverlay = true,
+  width = 800,
+  height = 1280,
+  videoSrc,
+} = Astro.props;
+
+/** Stable id for inline reduced-motion script (single hero video per page). */
+const videoId = 'bike-bin-hero-demo-video';
 ---
 
-<div class="frame" data-phone-frame>
+<div class:list={['frame', !mockOverlay && 'frame--real']} data-phone-frame>
   <div class="ring" aria-hidden="true"></div>
   <div class="bezel">
-    <div class="notch" aria-hidden="true"></div>
+    {mockOverlay && <div class="notch" aria-hidden="true"></div>}
     <div class="screen">
       <div class="still">
-        <img src={posterSrc} alt={imageAlt} width={800} height={1280} loading="eager" decoding="async" />
-        <div class="app-ui" aria-hidden="true">
-          <div class="app-chrome">
-            <span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span>
-          </div>
-          <div class="app-header">
-            <span class="app-pill"></span>
-            <span class="app-title"></span>
-          </div>
-          <div class="app-scroll-wrap">
-            <div class="app-scroll">
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
-              <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+        {videoSrc ? (
+          <video
+            id={videoId}
+            src={videoSrc}
+            poster={posterSrc}
+            width={width}
+            height={height}
+            autoplay
+            muted
+            loop
+            playsinline
+            aria-label={imageAlt}
+          />
+        ) : (
+          <img src={posterSrc} alt={imageAlt} width={width} height={height} loading="eager" decoding="async" />
+        )}
+        {mockOverlay && (
+          <div class="app-ui" aria-hidden="true">
+            <div class="app-chrome">
+              <span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span>
+            </div>
+            <div class="app-header">
+              <span class="app-pill"></span>
+              <span class="app-title"></span>
+            </div>
+            <div class="app-scroll-wrap">
+              <div class="app-scroll">
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+                <div class="app-row"><span class="app-thumb"></span><span class="app-lines"><span></span><span></span></span></div>
+              </div>
+            </div>
+            <div class="app-tab">
+              <span class="app-tab-dot"></span><span class="app-tab-dot app-tab-dot--on"></span><span class="app-tab-dot"></span>
             </div>
           </div>
-          <div class="app-tab">
-            <span class="app-tab-dot"></span><span class="app-tab-dot app-tab-dot--on"></span><span class="app-tab-dot"></span>
-          </div>
-        </div>
-        <div class="shine" aria-hidden="true"></div>
+        )}
+        {mockOverlay && <div class="shine" aria-hidden="true"></div>}
       </div>
     </div>
   </div>
 </div>
+
+{videoSrc && (
+  <script is:inline define:vars={{ videoId }}>
+    (function () {
+      const el = document.getElementById(videoId);
+      if (!(el instanceof HTMLVideoElement)) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.removeAttribute('autoplay');
+        el.pause();
+      }
+    })();
+  </script>
+)}
 
 <style>
   .frame {
@@ -96,7 +146,8 @@ const { posterSrc, imageAlt } = Astro.props;
     overflow: hidden;
   }
 
-  .still img {
+  .still img,
+  .still video {
     display: block;
     width: 100%;
     height: 100%;
@@ -105,11 +156,30 @@ const { posterSrc, imageAlt } = Astro.props;
     animation: kb 14s ease-in-out infinite alternate;
   }
 
+  .still video {
+    animation: none;
+    transform: scale(1.02);
+    object-position: center top;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .still img {
       animation: none;
       transform: scale(1.02);
     }
+  }
+
+  /* Match Playwright viewport (430×932) so footage is not cropped; tab bar stays visible. */
+  .frame--real .screen {
+    aspect-ratio: 430 / 932;
+  }
+
+  .frame--real .still img,
+  .frame--real .still video {
+    animation: none;
+    object-fit: contain;
+    object-position: center;
+    transform: none;
   }
 
   @keyframes kb {
