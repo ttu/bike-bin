@@ -1,0 +1,78 @@
+# Push migrations + Edge Functions to staging Supabase (GitHub Environment: staging).
+# Repo secret: SUPABASE_ACCESS_TOKEN. Environment "staging": variable SUPABASE_PROJECT_REF, secret SUPABASE_DB_PASSWORD.
+
+name: Deploy Supabase staging
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy-supabase-staging.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-supabase-staging-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require Supabase credentials
+        env:
+          TOKEN_SET: ${{ secrets.SUPABASE_ACCESS_TOKEN != '' }}
+          PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ "$TOKEN_SET" != "true" ]; then
+            echo "Missing repository secret SUPABASE_ACCESS_TOKEN."
+            echo "Create one at: https://supabase.com/dashboard/account/tokens"
+            exit 1
+          fi
+          if [ -z "$PROJECT_REF" ]; then
+            echo "Missing GitHub Environment \"staging\" variable SUPABASE_PROJECT_REF (Supabase project ref from dashboard URL)."
+            echo "Settings → Environments → staging → Environment variables"
+            exit 1
+          fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: supabase link --project-ref "$PROJECT_REF"
+
+      - name: Push database migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push --linked
+
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for dir in supabase/functions/*/; do
+            name=$(basename "$dir")
+            case "$name" in
+              _*|.*) continue ;;
+            esac
+            if [[ -f "${dir}index.ts" || -f "${dir}index.js" ]]; then
+              echo "Deploying function: ${name}"
+              supabase functions deploy "${name}" --project-ref "$PROJECT_REF" --use-api
+            else
+              echo "Skipping ${name} (no index.ts or index.js entrypoint)"
+            fi
+          done

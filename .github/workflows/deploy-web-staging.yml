@@ -1,0 +1,73 @@
+# EAS Hosting staging deploy: after CI succeeds on push to main, or manual dispatch on main.
+# PR preview deploys run from ci.yml (deploy-web-preview job) on every PR push after build passes.
+# Production deploys from release tags: deploy-web-production.yml
+#
+# GitHub Environment "staging": EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY, EXPO_PUBLIC_SENTRY_DSN (optional).
+# Repository secret: EXPO_TOKEN.
+
+name: Deploy web staging
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types:
+      - completed
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web-staging-${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref_name == 'main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref_name == 'main' && github.sha || github.event.workflow_run.head_sha }}
+      - name: Require linked EAS project
+        run: |
+          if [ ! -f eas.json ]; then
+            echo "Missing eas.json — run locally: npx eas-cli@latest init"
+            echo "Then commit eas.json and any app.json extra.eas changes."
+            exit 1
+          fi
+      - name: Require Expo web env (staging environment)
+        env:
+          URL_SET: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL != '' }}
+          KEY_SET: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY != '' }}
+        run: |
+          if [ "$URL_SET" != "true" ] || [ "$KEY_SET" != "true" ]; then
+            echo "Missing GitHub Environment \"staging\" secrets EXPO_PUBLIC_SUPABASE_URL and/or EXPO_PUBLIC_SUPABASE_ANON_KEY."
+            echo "Settings → Environments → staging → Environment secrets"
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
+      # NODE_ENV=production: optimized Metro export. EXPO_PUBLIC_ENV=staging: API keys / app tier (not Node mode).
+      - name: Export web
+        run: npm run build:web
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          EXPO_PUBLIC_ENV: staging
+          NODE_ENV: production
+      - name: Deploy to EAS Hosting (staging alias)
+        run: eas deploy --alias staging --non-interactive

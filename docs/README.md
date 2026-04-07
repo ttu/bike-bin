@@ -28,6 +28,7 @@ These files describe the **current implementation**. Update them when behavior o
 | [datamodel.md](datamodel.md)       | Entities, types, Supabase schema                              |
 | [testing.md](testing.md)           | How to run and write tests                                    |
 | [code-quality.md](code-quality.md) | ESLint, Prettier, hooks, CI                                   |
+| [deployments.md](deployments.md)   | Git ↔ EAS ↔ Supabase environments, web release flow           |
 
 ## Where truth lives
 

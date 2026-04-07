@@ -1,38 +1,40 @@
-# EAS Hosting production deploy: after CI succeeds on push to main, or manual dispatch on main.
-# PR preview deploys run from ci.yml (deploy-web-preview job) on every PR push after build passes.
+# EAS Hosting production deploy: push a version tag (e.g. v1.2.3).
+#
+# GitHub Environment "production": EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY, EXPO_PUBLIC_SENTRY_DSN (optional).
+# Repository secret: EXPO_TOKEN.
 
-name: Deploy web
+name: Deploy web production
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types:
-      - completed
-  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 concurrency:
-  group: deploy-web-prod-${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
+  group: deploy-web-production-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: >-
-      (github.event_name == 'workflow_dispatch' && github.ref_name == 'main') ||
-      (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_repository.full_name == github.repository &&
-       github.event.workflow_run.event == 'push' &&
-       github.event.workflow_run.head_branch == 'main')
+    environment: production
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref_name == 'main' && github.sha || github.event.workflow_run.head_sha }}
       - name: Require linked EAS project
         run: |
           if [ ! -f eas.json ]; then
             echo "Missing eas.json — run locally: npx eas-cli@latest init"
             echo "Then commit eas.json and any app.json extra.eas changes."
+            exit 1
+          fi
+      - name: Require Expo web env (production environment)
+        env:
+          URL_SET: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL != '' }}
+          KEY_SET: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY != '' }}
+        run: |
+          if [ "$URL_SET" != "true" ] || [ "$KEY_SET" != "true" ]; then
+            echo "Missing GitHub Environment \"production\" secrets EXPO_PUBLIC_SUPABASE_URL and/or EXPO_PUBLIC_SUPABASE_ANON_KEY."
+            echo "Settings → Environments → production → Environment secrets"
             exit 1
           fi
       - uses: actions/setup-node@v4

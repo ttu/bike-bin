@@ -95,7 +95,7 @@ Set these in an `.env` file at the project root or via your shell. Expo loads `E
 
 ## Web production (EAS Hosting)
 
-The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/)** (static export, `expo.web.output`: `single` in `app.json`).
+The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/)** (static export, `expo.web.output`: `single` in `app.json`). For how **Git branches, tags, EAS URLs, and Supabase projects** fit together, see **[deployments.md](deployments.md)**.
 
 ### One-time setup
 
@@ -103,14 +103,11 @@ The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hostin
    - `npx eas-cli@latest login`
    - `npx eas-cli@latest init`
 2. **Commit** `eas.json` and any `app.json` changes so CI can run `eas deploy`.
-3. **GitHub repository secrets** (Settings → Secrets and variables → Actions):
-
-   | Secret                          | Purpose                                                                              |
-   | ------------------------------- | ------------------------------------------------------------------------------------ |
-   | `EXPO_TOKEN`                    | Expo [access token](https://expo.dev/settings/access-tokens) — used by EAS CLI in CI |
-   | `EXPO_PUBLIC_SUPABASE_URL`      | Production Supabase project URL                                                      |
-   | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Production Supabase anon (public) key                                                |
-   | `EXPO_PUBLIC_SENTRY_DSN`        | Optional — omit or leave empty if unused                                             |
+3. **GitHub** — see [deployments.md](deployments.md) §7 for the full list. In short:
+   - **Repository → Settings → Environments:** create **`preview`**, **`staging`**, **`production`**.
+   - In **each** environment, add secrets **`EXPO_PUBLIC_SUPABASE_URL`**, **`EXPO_PUBLIC_SUPABASE_ANON_KEY`** (and optional **`EXPO_PUBLIC_SENTRY_DSN`**) with values for **that** Supabase project.
+   - In **`staging`** and **`production`**, add variable **`SUPABASE_PROJECT_REF`** and optional secret **`SUPABASE_DB_PASSWORD`** for Supabase CLI deploys.
+   - **Repository → Secrets and variables → Actions → Secrets:** **`EXPO_TOKEN`**, **`SUPABASE_ACCESS_TOKEN`** (shared by all deploy jobs).
 
 ### Manual deploy
 
@@ -123,9 +120,41 @@ Uses production build env from your machine (e.g. `.env.local`). For CI, workflo
 ### Automated deploy (CI)
 
 - **Pull requests** to `main`: the **CI** workflow runs **`deploy-web-preview`** after the **`build`** job succeeds (every push to the PR, including new commits). Same-repo branches only — `eas deploy --non-interactive` with `EXPO_PUBLIC_ENV=preview`. Fork PRs skip this job (no deploy).
-- **Push to `main`**: **Deploy web** (`.github/workflows/deploy-web.yml`) runs after the **CI** workflow completes successfully — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.
+- **Push to `main`**: **Deploy web staging** (`.github/workflows/deploy-web-staging.yml`) runs after the **CI** workflow completes successfully — `eas deploy --alias staging --non-interactive` and `EXPO_PUBLIC_ENV=staging`.
 
-You can also run **Deploy web** manually from the Actions tab (**workflow_dispatch** on `main`), which uses the production deploy path.
+- **Version tags** (`v*`, e.g. `v1.2.3`): **Deploy web production** (`.github/workflows/deploy-web-production.yml`) runs on the tag push — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.
+
+You can also run **Deploy web staging** manually from the Actions tab (**workflow_dispatch** on `main`).
+
+### Supabase staging (migrations + Edge Functions on `main`)
+
+When **`supabase/migrations/**`or`supabase/functions/**`** changes on **`main`**, **Deploy Supabase staging** (`.github/workflows/deploy-supabase-staging.yml`) runs **`supabase db push`** and deploys all Edge Functions under `supabase/functions/`. The job uses GitHub Environment **`staging`** (`SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`) plus repository **`SUPABASE_ACCESS_TOKEN`**.
+
+### Supabase production (migrations + Edge Functions on release tag)
+
+Production database and Edge Functions should track **released** code, not every `main` commit. After merging to `main` and verifying staging, cut a **version tag** (same pattern as web production):
+
+```bash
+git fetch origin && git checkout main && git pull
+git tag v1.2.3   # use your version
+git push origin v1.2.3
+```
+
+Pushing tag **`v*`** runs **Deploy Supabase production** (`.github/workflows/deploy-supabase-production.yml`): **`supabase db push`** and the same Edge Function set as staging, against the **production** project. The job uses GitHub Environment **`production`** (`SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`) plus repository **`SUPABASE_ACCESS_TOKEN`**.
+
+You can also run **Deploy Supabase production** from the Actions tab (**workflow_dispatch**) — pick the branch or tag that should be deployed.
+
+**Manual alternative (local):** with the CLI logged in and linked to the prod project, from repo root:
+
+```bash
+supabase link --project-ref <production-ref>
+supabase db push
+supabase functions deploy <name> --use-api   # repeat per function, or use CI
+```
+
+**Order with web:** Push the **`v*`** tag once; **Deploy web production** and **Deploy Supabase production** both trigger on that tag. Ensure the **`production`** environment’s **`EXPO_PUBLIC_*`** secrets match the production Supabase URL and anon key so the shipped web app talks to the DB you just migrated.
+
+Details: [deployments.md](deployments.md).
 
 ## Marketing site (GitHub Pages)
 

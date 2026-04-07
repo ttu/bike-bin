@@ -372,15 +372,15 @@ _(Pattern from [emergency-supply-tracker CI](https://github.com/ttu/emergency-su
 #### Deployment flow
 
 1. **PR opened** → GitHub Actions: CI runs (lint, type-check, tests, web export smoke build, marketing build, etc.) → optional Supabase preview branch / EAS Update previews as configured.
-2. **PR merged to main** → CI runs on the `push` to `main`. When the **CI** workflow completes successfully, **Deploy web** runs: production `expo export` + **`eas deploy --prod`** to [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/). Native releases remain a separate EAS Build / Submit process.
+2. **PR merged to main** → CI runs on the `push` to `main`. When the **CI** workflow completes successfully, **Deploy web staging** runs: `expo export` + **`eas deploy --alias staging`** to [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/). **Production** web deploy runs when a **`v*`** tag is pushed (**Deploy web production**: **`eas deploy --prod`**). Native releases remain a separate EAS Build / Submit process.
 3. **Mobile release** → Apply migrations to prod Supabase → EAS Submit to App Store / Play Store (or OTA update for JS-only changes via EAS Update).
 
-**Web continuous deployment:** The web app ships to **EAS Hosting** after the same commit passes CI on `main` (`.github/workflows/deploy-web.yml`). No store review for web. Configure secrets and `eas init` as described in [development.md](development.md).
+**Web continuous deployment:** Staging updates after CI on `main` (`.github/workflows/deploy-web-staging.yml`); production updates on **`v*`** tags (`.github/workflows/deploy-web-production.yml`). No store review for web. Configure secrets and `eas init` as described in [development.md](development.md).
 
 ### Secrets & config
 
-- **Supabase URL / anon key:** Per-environment, stored in Expo config (`.env.local`, `.env.staging`, `.env.production`) and GitHub Actions secrets (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` for the **Deploy web** workflow).
-- **EXPO_TOKEN:** Expo [access token](https://expo.dev/settings/access-tokens) for `eas deploy` in CI (GitHub secret `EXPO_TOKEN`).
+- **Supabase URL / anon key:** Per-environment locally (`.env.local`, etc.) and in CI via **GitHub Environments** — `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` on **`preview`**, **`staging`**, and **`production`** (see [deployments.md](deployments.md) §7).
+- **EXPO_TOKEN** / **SUPABASE_ACCESS_TOKEN:** Repository secrets shared by deploy jobs.
 - **Service role key:** Never in client. Used in Edge Functions and CI only.
 - **Resend API key:** In Supabase Edge Function secrets (per environment).
 - **Google OAuth client ID/secret:** In Supabase dashboard (per project/environment).

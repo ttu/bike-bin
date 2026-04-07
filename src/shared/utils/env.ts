@@ -1,4 +1,4 @@
-export type AppEnv = 'development' | 'test' | 'staging' | 'production';
+export type AppEnv = 'development' | 'test' | 'preview' | 'staging' | 'production';
 
 export const APP_ENV: AppEnv = (process.env.EXPO_PUBLIC_ENV as AppEnv) || 'development';
 
