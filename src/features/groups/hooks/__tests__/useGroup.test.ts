@@ -1,18 +1,9 @@
 import { renderHook } from '@testing-library/react-native';
 import { createMockGroup } from '@/test/factories';
+import { mockSelect, mockEq, mockSingle, mockSupabase } from '@/test/supabaseMocks';
 import type { GroupId } from '@/shared/types';
 
-const mockSelect = jest.fn();
-const mockEq = jest.fn();
-const mockSingle = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-    })),
-  },
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
 // Import after mocks
 import { useGroup } from '../useGroup';

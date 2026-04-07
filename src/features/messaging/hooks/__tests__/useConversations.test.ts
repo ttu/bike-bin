@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 
 const mockFetchPublicProfilesMap = jest.fn();
 
@@ -20,9 +21,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 // Import after mocks
 import { useConversations } from '../useConversations';

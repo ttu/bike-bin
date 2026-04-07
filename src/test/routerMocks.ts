@@ -1,54 +1,34 @@
 /**
- * Shared expo-router mock factories for screen tests.
+ * Shared expo-router mock for screen tests.
+ *
+ * All exports are prefixed with `mock` so they can be referenced inside
+ * jest.mock() factories.
  *
  * Usage:
- *   const routerMocks = createRouterMocks({ id: 'item-123' });
- *   jest.mock('expo-router', () => routerMocks.module);
- *   // Then assert: expect(routerMocks.push).toHaveBeenCalledWith(...)
+ *   import { mockRouterModule, mockRouterPush, mockRouterReplace, mockSearchParams } from '@/test/routerMocks';
+ *   jest.mock('expo-router', () => mockRouterModule);
+ *
+ * Mutate `mockSearchParams` in tests to simulate different routes.
+ * Call jest.clearAllMocks() in beforeEach to reset mock call history.
  */
 
-export interface RouterMocksResult {
-  push: jest.Mock;
-  replace: jest.Mock;
-  dismiss: jest.Mock;
-  canDismiss: jest.Mock;
-  back: jest.Mock;
-  module: Record<string, unknown>;
-  searchParams: Record<string, string | string[] | undefined>;
-}
+export const mockRouterPush = jest.fn();
+export const mockRouterReplace = jest.fn();
+export const mockRouterDismiss = jest.fn();
+export const mockRouterCanDismiss = jest.fn().mockReturnValue(true);
+export const mockRouterBack = jest.fn();
 
-/**
- * Creates an expo-router mock module with all commonly-used exports.
- * The `searchParams` object is mutable — change it in tests to simulate different routes.
- */
-export function createRouterMocks(
-  initialSearchParams: Record<string, string | string[] | undefined> = {},
-): RouterMocksResult {
-  const push = jest.fn();
-  const replace = jest.fn();
-  const dismiss = jest.fn();
-  const canDismiss = jest.fn().mockReturnValue(true);
-  const back = jest.fn();
+/** Mutable search params — modify in tests to change route params. */
+export const mockSearchParams: Record<string, string | string[] | undefined> = {};
 
-  const searchParams = { ...initialSearchParams };
-
-  return {
-    push,
-    replace,
-    dismiss,
-    canDismiss,
-    back,
-    searchParams,
-    module: {
-      useLocalSearchParams: () => searchParams,
-      useRouter: () => ({ push, replace }),
-      router: {
-        push: (...args: unknown[]) => push(...args),
-        replace: (...args: unknown[]) => replace(...args),
-        canDismiss: () => canDismiss(),
-        dismiss: (...args: unknown[]) => dismiss(...args),
-        back: (...args: unknown[]) => back(...args),
-      },
-    },
-  };
-}
+export const mockRouterModule = {
+  useLocalSearchParams: () => mockSearchParams,
+  useRouter: () => ({ push: mockRouterPush, replace: mockRouterReplace }),
+  router: {
+    push: (...args: unknown[]) => mockRouterPush(...args),
+    replace: (...args: unknown[]) => mockRouterReplace(...args),
+    canDismiss: () => mockRouterCanDismiss(),
+    dismiss: (...args: unknown[]) => mockRouterDismiss(...args),
+    back: (...args: unknown[]) => mockRouterBack(...args),
+  },
+};

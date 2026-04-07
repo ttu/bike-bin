@@ -1,20 +1,16 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { createMockLocation } from '@/test/factories';
+import {
+  mockSelect,
+  mockInsert,
+  mockUpdate,
+  mockDelete,
+  mockEq,
+  mockOrder,
+  mockSingle,
+} from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import type { LocationId } from '@/shared/types';
-import { useLocations, useLocation } from '../useLocations';
-import { useCreateLocation } from '../useCreateLocation';
-import { useDeleteLocation, DeleteLocationError } from '../useDeleteLocation';
-import { usePrimaryLocation } from '../usePrimaryLocation';
-import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
-
-// Mock supabase
-const mockSelect = jest.fn();
-const mockInsert = jest.fn();
-const mockUpdate = jest.fn();
-const mockDeleteFn = jest.fn();
-const mockEq = jest.fn();
-const mockOrder = jest.fn();
-const mockSingle = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -22,21 +18,21 @@ jest.mock('@/shared/api/supabase', () => ({
       select: mockSelect,
       insert: mockInsert,
       update: mockUpdate,
-      delete: mockDeleteFn,
+      delete: mockDelete,
     })),
     functions: {
       invoke: jest.fn(),
     },
   },
 }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
-// Mock useAuth
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+// Import after mocks
+import { useLocations, useLocation } from '../useLocations';
+import { useCreateLocation } from '../useCreateLocation';
+import { useDeleteLocation, DeleteLocationError } from '../useDeleteLocation';
+import { usePrimaryLocation } from '../usePrimaryLocation';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 // Mock geocoding
 jest.mock('../../utils/geocoding', () => ({

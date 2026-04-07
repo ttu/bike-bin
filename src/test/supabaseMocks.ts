@@ -1,130 +1,52 @@
 /**
- * Shared Supabase mock factories for test files.
+ * Shared Supabase mock variables for test files.
+ *
+ * All exports are prefixed with `mock` so they can be referenced inside
+ * jest.mock() factories (Jest only allows `mock`-prefixed variables there).
  *
  * Usage (simple chain):
- *   const mocks = createSupabaseMocks();
- *   jest.mock('@/shared/api/supabase', () => ({ supabase: mocks.supabase }));
- *
- * Usage (counter-based):
- *   const mocks = createCounterBasedSupabaseMocks();
- *   mocks.setChains([chain1, chain2]);
- *   jest.mock('@/shared/api/supabase', () => ({ supabase: mocks.supabase }));
+ *   import { mockSelect, mockEq, mockSupabase } from '@/test/supabaseMocks';
+ *   jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
  *
  * Usage (storage):
- *   const storageMock = createSupabaseStorageMock();
- *   jest.mock('@/shared/api/supabase', () => ({ supabase: { storage: storageMock.storage } }));
+ *   import { mockSupabaseStorage } from '@/test/supabaseMocks';
+ *   jest.mock('@/shared/api/supabase', () => ({ supabase: { storage: mockSupabaseStorage } }));
+ *
+ * IMPORTANT: Call jest.clearAllMocks() in beforeEach to reset all mocks between tests.
  */
 
-export interface SupabaseChainMocks {
-  mockSelect: jest.Mock;
-  mockInsert: jest.Mock;
-  mockUpdate: jest.Mock;
-  mockDelete: jest.Mock;
-  mockEq: jest.Mock;
-  mockNeq: jest.Mock;
-  mockOrder: jest.Mock;
-  mockSingle: jest.Mock;
-  mockLimit: jest.Mock;
-  mockLt: jest.Mock;
-  mockIn: jest.Mock;
-  mockRpc: jest.Mock;
-  supabase: {
-    from: jest.Mock;
-    rpc: jest.Mock;
-  };
-}
+// Query chain mocks
+export const mockSelect = jest.fn();
+export const mockInsert = jest.fn();
+export const mockUpdate = jest.fn();
+export const mockDelete = jest.fn();
+export const mockEq = jest.fn();
+export const mockNeq = jest.fn();
+export const mockOrder = jest.fn();
+export const mockSingle = jest.fn();
+export const mockLimit = jest.fn();
+export const mockLt = jest.fn();
+export const mockIn = jest.fn();
+export const mockRpc = jest.fn();
 
-/**
- * Creates a simple supabase mock with a single `from()` chain.
- * Individual mock fns are exposed so tests can set return values and assert calls.
- */
-export function createSupabaseMocks(): SupabaseChainMocks {
-  const mockSelect = jest.fn();
-  const mockInsert = jest.fn();
-  const mockUpdate = jest.fn();
-  const mockDelete = jest.fn();
-  const mockEq = jest.fn();
-  const mockNeq = jest.fn();
-  const mockOrder = jest.fn();
-  const mockSingle = jest.fn();
-  const mockLimit = jest.fn();
-  const mockLt = jest.fn();
-  const mockIn = jest.fn();
-  const mockRpc = jest.fn();
+/** Simple supabase mock with `from()` returning all query chain methods. */
+export const mockSupabase = {
+  from: jest.fn(() => ({
+    select: mockSelect,
+    insert: mockInsert,
+    update: mockUpdate,
+    delete: mockDelete,
+  })),
+  rpc: mockRpc,
+};
 
-  const supabase = {
-    from: jest.fn(() => ({
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      delete: mockDelete,
-    })),
-    rpc: mockRpc,
-  };
+/** Supabase storage mock with `getPublicUrl`. */
+export const mockGetPublicUrl = jest.fn((path: string) => ({
+  data: { publicUrl: `https://test/${path}` },
+}));
 
-  return {
-    mockSelect,
-    mockInsert,
-    mockUpdate,
-    mockDelete,
-    mockEq,
-    mockNeq,
-    mockOrder,
-    mockSingle,
-    mockLimit,
-    mockLt,
-    mockIn,
-    mockRpc,
-    supabase,
-  };
-}
-
-export interface CounterBasedSupabaseMocks {
-  supabase: { from: jest.Mock };
-  setChains: (chains: Record<string, unknown>[]) => void;
-  resetCounter: () => void;
-}
-
-/**
- * Creates a counter-based supabase mock for hooks that call `from()` multiple
- * times in a single query function (e.g. useConversations, useBorrowRequests).
- * Call `setChains([chain1, chain2])` before each test to configure responses.
- */
-export function createCounterBasedSupabaseMocks(): CounterBasedSupabaseMocks {
-  let callCount = 0;
-  let chains: Record<string, unknown>[] = [];
-
-  const supabase = {
-    from: jest.fn(() => {
-      const chain = chains[callCount] ?? chains[chains.length - 1];
-      callCount++;
-      return chain;
-    }),
-  };
-
-  return {
-    supabase,
-    setChains: (c: Record<string, unknown>[]) => {
-      chains = c;
-    },
-    resetCounter: () => {
-      callCount = 0;
-    },
-  };
-}
-
-/** Creates a supabase storage mock with `getPublicUrl`. */
-export function createSupabaseStorageMock() {
-  const mockGetPublicUrl = jest.fn((path: string) => ({
-    data: { publicUrl: `https://test/${path}` },
-  }));
-
-  return {
-    storage: {
-      from: jest.fn(() => ({
-        getPublicUrl: mockGetPublicUrl,
-      })),
-    },
-    mockGetPublicUrl,
-  };
-}
+export const mockSupabaseStorage = {
+  from: jest.fn(() => ({
+    getPublicUrl: mockGetPublicUrl,
+  })),
+};
