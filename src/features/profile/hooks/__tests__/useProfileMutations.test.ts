@@ -1,12 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { useDeleteAccount } from '../useDeleteAccount';
-import { useSubmitSupport } from '../useSubmitSupport';
-import { useUpdateProfile } from '../useUpdateProfile';
-import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
+import { mockInsert, mockUpdate, mockEq } from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 
-const mockInsert = jest.fn();
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
 const mockGetSession = jest.fn();
 const mockInvoke = jest.fn();
 
@@ -24,10 +19,13 @@ jest.mock('@/shared/api/supabase', () => ({
     },
   },
 }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+// Import after mocks
+import { useDeleteAccount } from '../useDeleteAccount';
+import { useSubmitSupport } from '../useSubmitSupport';
+import { useUpdateProfile } from '../useUpdateProfile';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 beforeEach(() => jest.clearAllMocks());
 

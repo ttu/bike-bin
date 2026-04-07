@@ -1,14 +1,6 @@
-const mockSelect = jest.fn();
-const mockIn = jest.fn();
-const mockOrder = jest.fn();
+import { mockSelect, mockIn, mockOrder, mockSupabase } from '@/test/supabaseMocks';
 
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-    })),
-  },
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
 // Import after mocks
 import { fetchBikeThumbnailPaths } from '../fetchBikeThumbnailPaths';

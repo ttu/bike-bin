@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 
 const mockEq2 = jest.fn();
 const mockEq = jest.fn();
@@ -18,9 +19,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 import { useUnreadNotificationCount } from '../useUnreadNotificationCount';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';

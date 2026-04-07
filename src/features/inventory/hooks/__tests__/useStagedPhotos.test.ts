@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 import type { ItemId } from '@/shared/types';
 
 const mockUpload = jest.fn();
@@ -17,9 +18,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 // Mock fetch for blob creation
 const mockFetch = jest.fn();

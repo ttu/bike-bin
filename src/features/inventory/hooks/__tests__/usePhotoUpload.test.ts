@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 import * as ImagePicker from 'expo-image-picker';
 import type { ItemId } from '@/shared/types';
 import { usePhotoUpload } from '../usePhotoUpload';
@@ -33,12 +34,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 // Mock fetch for blob conversion
 global.fetch = jest.fn().mockResolvedValue({
