@@ -66,12 +66,12 @@ A `react-native-paper` Banner shown to unauthenticated users on the inventory sc
 
 ## Screens & Navigation
 
-| Route                | Screen       | Purpose                                                                                         |
-| -------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
-| `(auth)/_layout.tsx` | Auth layout  | Layout wrapper for auth screens                                                                 |
-| `(auth)/login.tsx`   | Login screen | OAuth buttons (Google, Apple), browse without signing in, demo mode, dev login (non-production) |
+| Route                | Screen       | Purpose                                                                                                                      |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `(auth)/_layout.tsx` | Auth layout  | Layout wrapper for auth screens                                                                                              |
+| `(auth)/login.tsx`   | Login screen | OAuth buttons (Google, Apple), browse without signing in, demo mode, test-user password login (`isPasswordDemoLoginEnabled`) |
 
-**Dev login** (non-production only): Collapsible section with test user email/password login for development and E2E testing.
+**Test-user password login** (`isPasswordDemoLoginEnabled` in `src/shared/utils/env.ts`): Shown when `EXPO_PUBLIC_ENV` is `development`, `test`, `preview`, or `staging` — including PR web previews and staging deploys so seeded demo accounts work. Hidden when `EXPO_PUBLIC_ENV` is `production`.
 
 ## Key Flows
 
