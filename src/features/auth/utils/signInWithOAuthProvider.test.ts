@@ -88,4 +88,21 @@ describe('signInWithOAuthProvider', () => {
 
     expect(mockSetSession).not.toHaveBeenCalled();
   });
+
+  it('on native, throws when the callback URL omits tokens', async () => {
+    (Platform as { OS: typeof originalOs }).OS = 'ios';
+    mockSignInWithOAuth.mockResolvedValue({
+      data: { url: 'https://example.test/oauth' },
+      error: null,
+    });
+    mockOpenAuthSession.mockResolvedValue({
+      type: 'success',
+      url: 'bike-bin://auth/callback',
+    });
+
+    await expect(signInWithOAuthProvider('google')).rejects.toThrow(
+      'Missing access_token or refresh_token in OAuth callback',
+    );
+    expect(mockSetSession).not.toHaveBeenCalled();
+  });
 });

@@ -60,7 +60,7 @@ export async function signInWithOAuthProvider(provider: 'google' | 'apple'): Pro
     throw new Error(params.error_description ?? params.error);
   }
   if (accessToken === undefined || refreshToken === undefined) {
-    return;
+    throw new Error('Missing access_token or refresh_token in OAuth callback');
   }
 
   const { error: sessionError } = await supabase.auth.setSession({

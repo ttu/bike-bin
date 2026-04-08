@@ -105,7 +105,7 @@ The app uses Supabase Auth for Google OAuth. Client code lives in `src/features/
 
 **2. Secrets**
 
-- **Local:** Create `supabase/.env` (gitignored) with `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` matching that Web client. `supabase/config.toml` reads them via `env(GOOGLE_CLIENT_ID)` / `env(GOOGLE_CLIENT_SECRET)`. Run `supabase stop && supabase start` (or `npm run db:start`) after changing this file.
+- **Local:** Create `supabase/.env` (gitignored) with `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` matching that Web client. `supabase/config.toml` reads them via `env(GOOGLE_CLIENT_ID)` / `env(GOOGLE_CLIENT_SECRET)`. **After changing `supabase/.env`,** restart the local stack with **`supabase stop && supabase start`** so GoTrue reloads those variables. **`npm run db:start` by itself** does **not** restart an already-running stack (see [Quick start](#quick-start)), so it will **not** load new `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — run **`supabase stop`** (or **`npm run db:stop`**) first, or always use the **stop then start** sequence.
 - **Hosted:** In the Supabase Dashboard → **Authentication** → **Providers** → **Google**, enable the provider and paste the same client ID and secret.
 
 **3. Redirect URLs (Supabase)**
