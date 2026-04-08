@@ -82,7 +82,7 @@ REVOKE ALL ON FUNCTION public.photo_limit_for_user(uuid) FROM PUBLIC;
 CREATE OR REPLACE FUNCTION public.user_photo_count(p_user_id uuid)
 RETURNS bigint
 LANGUAGE sql
-STABLE
+VOLATILE
 SECURITY DEFINER
 SET search_path = public
 AS $$
@@ -151,7 +151,7 @@ GRANT EXECUTE ON FUNCTION public.get_my_photo_limit() TO authenticated;
 CREATE OR REPLACE FUNCTION public.get_my_photo_count()
 RETURNS integer
 LANGUAGE sql
-STABLE
+VOLATILE
 SECURITY DEFINER
 SET search_path = public
 AS $$
@@ -177,6 +177,7 @@ BEGIN
     SELECT owner_id, COUNT(*) AS batch_count
     FROM new_items
     GROUP BY owner_id
+    ORDER BY owner_id
   LOOP
     PERFORM pg_advisory_xact_lock(hashtext('items_limit'), hashtext(r.owner_id::text));
     IF (SELECT COUNT(*) FROM public.items WHERE owner_id = r.owner_id) > public.inventory_item_limit_for_user(r.owner_id) THEN
@@ -210,6 +211,7 @@ BEGIN
     SELECT owner_id, COUNT(*) AS batch_count
     FROM new_bikes
     GROUP BY owner_id
+    ORDER BY owner_id
   LOOP
     PERFORM pg_advisory_xact_lock(hashtext('bikes_limit'), hashtext(r.owner_id::text));
     IF (SELECT COUNT(*) FROM public.bikes WHERE owner_id = r.owner_id) > public.bike_limit_for_user(r.owner_id) THEN
@@ -244,6 +246,7 @@ BEGIN
     FROM new_item_photos np
     INNER JOIN public.items i ON i.id = np.item_id
     WHERE i.owner_id IS NOT NULL
+    ORDER BY i.owner_id
   LOOP
     PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(r.owner_id::text));
     IF public.user_photo_count(r.owner_id) > public.photo_limit_for_user(r.owner_id) THEN
@@ -278,6 +281,7 @@ BEGIN
     FROM new_bike_photos np
     INNER JOIN public.bikes b ON b.id = np.bike_id
     WHERE b.owner_id IS NOT NULL
+    ORDER BY b.owner_id
   LOOP
     PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(r.owner_id::text));
     IF public.user_photo_count(r.owner_id) > public.photo_limit_for_user(r.owner_id) THEN
