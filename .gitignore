@@ -8,6 +8,7 @@ android/
 coverage/
 *.tsbuildinfo
 .env.local
+.env.production.local
 test-results/
 supabase/.branches/
 supabase/.temp/
