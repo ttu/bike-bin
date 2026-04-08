@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -13,14 +14,23 @@ interface DetailCardProps {
 export function DetailCard({ icon, label, value }: DetailCardProps) {
   const theme = useTheme<AppTheme>();
 
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        iconBg: { backgroundColor: theme.customColors.surfaceContainerHighest },
+        label: {
+          color: theme.colors.onSurfaceVariant,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+        },
+        value: { color: theme.colors.onSurface },
+      }),
+    [theme],
+  );
+
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.iconContainer,
-          { backgroundColor: theme.customColors.surfaceContainerHighest },
-        ]}
-      >
+      <View style={[styles.iconContainer, themed.iconBg]}>
         <MaterialCommunityIcons
           name={icon as never}
           size={iconSize.md}
@@ -28,17 +38,10 @@ export function DetailCard({ icon, label, value }: DetailCardProps) {
         />
       </View>
       <View style={styles.text}>
-        <Text
-          variant="labelSmall"
-          style={{
-            color: theme.colors.onSurfaceVariant,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
+        <Text variant="labelSmall" style={themed.label}>
           {label}
         </Text>
-        <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+        <Text variant="bodyLarge" style={themed.value}>
           {value}
         </Text>
       </View>

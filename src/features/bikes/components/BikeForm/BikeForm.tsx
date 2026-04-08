@@ -1,4 +1,4 @@
-import { useState, useCallback, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -72,10 +72,13 @@ export function BikeForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
 
-  const softInputStyle = {
-    backgroundColor: theme.customColors.surfaceContainerHighest,
-    borderRadius: 12,
-  };
+  const softInputStyle = useMemo(
+    () => ({
+      backgroundColor: theme.customColors.surfaceContainerHighest,
+      borderRadius: 12,
+    }),
+    [theme],
+  );
   const underlineColor = theme.colors.outlineVariant + '26';
   const activeUnderlineColor = theme.colors.primary;
 

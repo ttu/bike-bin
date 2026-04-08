@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
   Text,
@@ -41,10 +41,13 @@ export function LocationForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('locations');
 
-  const softInputStyle = {
-    backgroundColor: theme.customColors.surfaceContainerHighest,
-    borderRadius: 12,
-  };
+  const softInputStyle = useMemo(
+    () => ({
+      backgroundColor: theme.customColors.surfaceContainerHighest,
+      borderRadius: 12,
+    }),
+    [theme],
+  );
   const underlineColor = theme.colors.outlineVariant + '26';
   const activeUnderlineColor = theme.colors.primary;
 
