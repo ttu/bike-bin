@@ -31,7 +31,7 @@ jest.mock('expo-linear-gradient', () => {
 });
 
 jest.mock('@/shared/utils/env', () => ({
-  isProduction: true,
+  isPasswordDemoLoginEnabled: false,
 }));
 
 jest.mock('@/features/auth', () => ({

@@ -9,7 +9,7 @@ import { useAuth } from '@/features/auth';
 import { useDemoMode } from '@/features/demo';
 import { supabase } from '@/shared/api/supabase';
 import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
-import { isProduction } from '@/shared/utils/env';
+import { isPasswordDemoLoginEnabled } from '@/shared/utils/env';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
@@ -148,7 +148,7 @@ export default function LoginScreen() {
             </Text>
           </Pressable>
 
-          {!isProduction && (
+          {isPasswordDemoLoginEnabled && (
             <Pressable
               onPress={() => handleDevLogin(MAIN_TEST_USER.email)}
               disabled={signingInAs !== null}
@@ -173,7 +173,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Dev expandable users */}
-        {!isProduction && (
+        {isPasswordDemoLoginEnabled && (
           <View style={styles.devSection}>
             <Button
               mode="text"
