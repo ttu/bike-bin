@@ -162,13 +162,18 @@ Create three environments: **Settings → Environments** → add **`preview`**, 
 
 Use the **same names** in each environment; **values** differ (staging URL vs production URL, etc.).
 
-| Name                            | Type              | Environments                       | Purpose                                                         |
-| ------------------------------- | ----------------- | ---------------------------------- | --------------------------------------------------------------- |
-| `SUPABASE_PROJECT_REF`          | **Variable**      | `staging`, `production`            | Supabase project ref from the dashboard URL (`…/project/<ref>`) |
-| `SUPABASE_DB_PASSWORD`          | Secret (optional) | `staging`, `production`            | Postgres password if `link` / `db push` requires it             |
-| `EXPO_PUBLIC_SUPABASE_URL`      | Secret            | `preview`, `staging`, `production` | API URL for that tier’s Supabase project                        |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Secret            | `preview`, `staging`, `production` | Anon / publishable key for that project                         |
-| `EXPO_PUBLIC_SENTRY_DSN`        | Secret (optional) | `preview`, `staging`, `production` | Sentry DSN; omit if unused                                      |
+| Name                                    | Type              | Environments                       | Purpose                                                                                                                               |
+| --------------------------------------- | ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUPABASE_PROJECT_REF`                  | **Variable**      | `staging`, `production`            | Supabase project ref from the dashboard URL (`…/project/<ref>`)                                                                       |
+| `SUPABASE_STAGING_PROJECT_REF`          | **Variable**      | `preview`                          | Same ref as your **staging parent** project — used to list PR preview branches via Management API (`GET /v1/projects/{ref}/branches`) |
+| `SUPABASE_DB_PASSWORD`                  | Secret (optional) | `staging`, `production`            | Postgres password if `link` / `db push` requires it                                                                                   |
+| `EXPO_PUBLIC_SUPABASE_URL`              | Secret            | `preview`, `staging`, `production` | API URL for that tier’s Supabase project                                                                                              |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY`         | Secret            | `preview`, `staging`, `production` | Anon / publishable key for that project                                                                                               |
+| `STAGING_EXPO_PUBLIC_SUPABASE_URL`      | Secret (optional) | `preview`                          | Staging API URL used when **no** Supabase preview branch exists yet for the PR (preferred over `EXPO_PUBLIC_*` for that case)         |
+| `STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY` | Secret (optional) | `preview`                          | Staging anon / publishable key (pair with `STAGING_EXPO_PUBLIC_SUPABASE_URL`)                                                         |
+| `EXPO_PUBLIC_SENTRY_DSN`                | Secret (optional) | `preview`, `staging`, `production` | Sentry DSN; omit if unused                                                                                                            |
+
+**PR preview web (`deploy-web-preview`):** Configure **`SUPABASE_STAGING_PROJECT_REF`** on the **`preview`** environment to the **staging** (parent) project ref where Supabase Branching creates per-PR preview databases. The workflow runs **`scripts/resolve-supabase-pr-preview-env.ts`**, which calls the [Management API](https://supabase.com/docs/reference/api/introduction) to find the branch whose `pr_number` matches the pull request, then sets `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to that preview’s API URL and anon/publishable key. Repository secret **`SUPABASE_ACCESS_TOKEN`** must be allowed to read branches and API keys (fine-grained tokens: branching read + `api_gateway_keys_read` / `secrets:read` as required by your org). If **`SUPABASE_STAGING_PROJECT_REF`** is unset, or **`SUPABASE_ACCESS_TOKEN`** is unset, the job falls back to **`EXPO_PUBLIC_SUPABASE_URL`** and **`EXPO_PUBLIC_SUPABASE_ANON_KEY`** from **`preview`** secrets. **When branching has not created a preview branch for this PR yet** (or branching is off), the resolver uses **`STAGING_EXPO_PUBLIC_SUPABASE_*`** if both are set, otherwise the same **`EXPO_PUBLIC_*`** **`preview`** secrets (often duplicate staging URL + anon key so PR web builds still work). After **`eas deploy --non-interactive --json`**, the job posts or updates a **PR comment** with the EAS Hosting preview URL (marker `<!-- bike-bin-web-preview -->`). The job sets **`permissions: pull-requests: write`**; in **Repository → Settings → Actions → General → Workflow permissions**, use **Read and write permissions** (or equivalent) so `GITHUB_TOKEN` can comment.
 
 **Jobs → environments:** `ci.yml` **`deploy-web-preview`** → **`preview`**; **`deploy-web-staging`** + **`deploy-supabase-staging`** → **`staging`**; **`deploy-web-production`** + **`deploy-supabase-production`** → **`production`**.
 
@@ -184,17 +189,18 @@ If you also use the **Supabase GitHub integration** “deploy to production on `
 
 ## 8. Related files
 
-| File                                               | Role                                               |
-| -------------------------------------------------- | -------------------------------------------------- |
-| `.github/workflows/ci.yml`                         | Lint/test/build; `deploy-web-preview`              |
-| `.github/workflows/deploy-web-staging.yml`         | Staging after CI on `main`                         |
-| `.github/workflows/deploy-web-production.yml`      | Production on tag `v*`                             |
-| `.github/workflows/deploy-supabase-staging.yml`    | Staging: `db push` + Edge Functions on `main`      |
-| `.github/workflows/deploy-supabase-production.yml` | Production: `db push` + Edge Functions on tag `v*` |
-| `app.json` → `expo.web`                            | Metro, static export, favicon                      |
-| `eas.json`                                         | EAS CLI / build profiles                           |
-| `src/shared/api/supabase.ts`                       | Supabase client from `EXPO_PUBLIC_*`               |
-| `src/shared/utils/env.ts`                          | `EXPO_PUBLIC_ENV` / `APP_ENV`                      |
+| File                                               | Role                                                                      |
+| -------------------------------------------------- | ------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`                         | Lint/test/build; `deploy-web-preview` (Supabase PR preview resolve + EAS) |
+| `scripts/resolve-supabase-pr-preview-env.ts`       | Management API: PR branch → `EXPO_PUBLIC_*` for preview export            |
+| `.github/workflows/deploy-web-staging.yml`         | Staging after CI on `main`                                                |
+| `.github/workflows/deploy-web-production.yml`      | Production on tag `v*`                                                    |
+| `.github/workflows/deploy-supabase-staging.yml`    | Staging: `db push` + Edge Functions on `main`                             |
+| `.github/workflows/deploy-supabase-production.yml` | Production: `db push` + Edge Functions on tag `v*`                        |
+| `app.json` → `expo.web`                            | Metro, static export, favicon                                             |
+| `eas.json`                                         | EAS CLI / build profiles                                                  |
+| `src/shared/api/supabase.ts`                       | Supabase client from `EXPO_PUBLIC_*`                                      |
+| `src/shared/utils/env.ts`                          | `EXPO_PUBLIC_ENV` / `APP_ENV`                                             |
 
 **Edge Functions (staging + production workflows):** Each **immediate subfolder** of `supabase/functions/` is deployed if it has an **`index.ts`** or **`index.js`** entrypoint. Folders whose names start with **`_`** (e.g. `_shared` helpers) or **`.`** are skipped so they are never sent as standalone functions. Add a new function by adding a new folder with a standard entrypoint; no workflow edit is required.
 
