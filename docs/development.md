@@ -105,7 +105,8 @@ The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hostin
 2. **Commit** `eas.json` and any `app.json` changes so CI can run `eas deploy`.
 3. **GitHub** — see [deployments.md](deployments.md) §7 for the full list. In short:
    - **Repository → Settings → Environments:** create **`preview`**, **`staging`**, **`production`**.
-   - In **each** environment, add secrets **`EXPO_PUBLIC_SUPABASE_URL`**, **`EXPO_PUBLIC_SUPABASE_ANON_KEY`** (and optional **`EXPO_PUBLIC_SENTRY_DSN`**) with values for **that** Supabase project.
+   - In **each** environment, add secrets **`EXPO_PUBLIC_SUPABASE_URL`**, **`EXPO_PUBLIC_SUPABASE_ANON_KEY`** (and optional **`EXPO_PUBLIC_SENTRY_DSN`**) with values for **that** Supabase project (or, for **`preview`**, as **fallback** when per-PR resolve is unavailable).
+   - On **`preview`**, add variable **`SUPABASE_STAGING_PROJECT_REF`** (staging parent project ref) so CI can resolve each PR’s Supabase preview branch URL and anon key via the Management API; keep **`EXPO_PUBLIC_*`** as fallback.
    - In **`staging`** and **`production`**, add variable **`SUPABASE_PROJECT_REF`** and optional secret **`SUPABASE_DB_PASSWORD`** for Supabase CLI deploys.
    - **Repository → Secrets and variables → Actions → Secrets:** **`EXPO_TOKEN`**, **`SUPABASE_ACCESS_TOKEN`** (shared by all deploy jobs).
 
@@ -119,7 +120,7 @@ Uses production build env from your machine (e.g. `.env.local`). For CI, workflo
 
 ### Automated deploy (CI)
 
-- **Pull requests** to `main`: the **CI** workflow runs **`deploy-web-preview`** after the **`build`** job succeeds (every push to the PR, including new commits). Same-repo branches only — `eas deploy --non-interactive` with `EXPO_PUBLIC_ENV=preview`. Fork PRs skip this job (no deploy).
+- **Pull requests** to `main`: the **CI** workflow runs **`deploy-web-preview`** after the **`build`** job succeeds (every push to the PR, including new commits). Same-repo branches only — `eas deploy --non-interactive --json` with `EXPO_PUBLIC_ENV=preview`; the job **comments on the PR** with the EAS Hosting preview URL (updates the same comment on each push). Fork PRs skip this job (no deploy).
 - **Push to `main`**: **Deploy web staging** (`.github/workflows/deploy-web-staging.yml`) runs after the **CI** workflow completes successfully — `eas deploy --alias staging --non-interactive` and `EXPO_PUBLIC_ENV=staging`.
 
 - **Version tags** (`v*`, e.g. `v1.2.3`): **Deploy web production** (`.github/workflows/deploy-web-production.yml`) runs on the tag push — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.

@@ -39,6 +39,7 @@
     "marketing:build": "npm run build --prefix sites/marketing",
     "marketing:test": "npm run test --prefix sites/marketing",
     "build:web": "expo export --platform web",
+    "ci:resolve-supabase-pr-preview": "node --experimental-strip-types ./scripts/resolve-supabase-pr-preview-env.ts",
     "deploy:web": "npm run build:web && eas deploy",
     "deploy:web:prod": "npm run build:web && eas deploy --prod",
     "build:android": "eas build --platform android",
