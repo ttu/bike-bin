@@ -205,17 +205,17 @@ const rawViewportH = 932;
 
     <section
       id="open-source"
-      class="section section-band section-band--alt open-source-section"
+      class="section section-band section-band--alt sustain-section"
       aria-labelledby="open-source-heading"
     >
-      <div class="section-inner open-source-inner reveal">
+      <div class="section-inner sustain-inner reveal">
         <p class="eyebrow">Community</p>
         <h2 id="open-source-heading">Open source</h2>
-        <p class="section-lead muted open-source-copy">
+        <p class="section-lead muted sustain-copy">
           Bike Bin is open source. On GitHub you can suggest feature requests, report bugs, and contribute improvements
           to the app - whether that is code, docs, or ideas.
         </p>
-        <div class="open-source-actions">
+        <div class="hero-actions open-source-cta">
           <a class="btn btn-primary" href="https://github.com/ttu/bike-bin">Repository</a>
           <a class="btn btn-secondary" href="https://github.com/ttu/bike-bin/issues">Issues</a>
         </div>
@@ -763,18 +763,10 @@ const rawViewportH = 932;
     padding-bottom: clamp(2rem, 5vw, 3rem);
   }
 
-  .open-source-inner {
-    max-width: 640px;
-  }
-
-  .open-source-copy {
-    margin: 0 0 1.35rem;
-  }
-
-  .open-source-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.85rem;
+  /** Tighter bottom margin after CTA row (hero-actions defaults to hero spacing). */
+  .open-source-cta {
+    margin-bottom: 0;
+    margin-top: 0.65rem;
   }
 
   .sustain-copy {
