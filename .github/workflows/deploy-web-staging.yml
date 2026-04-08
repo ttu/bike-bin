@@ -3,7 +3,7 @@
 # Production deploys from release tags: deploy-web-production.yml
 #
 # GitHub Environment "staging": EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY, EXPO_PUBLIC_SENTRY_DSN (optional).
-# Optional repository/org variable: E2E_STAGING_BASE_URL — used if `eas deploy --json` omits `url`.
+# Smoke E2E uses the **per-deployment `url`** from `eas deploy --json` only (no stable-alias fallback — aliases/CDN can serve stale content briefly).
 # After deploy, **e2e-remote-smoke** runs read-only Playwright smoke tests (no DB globalSetup).
 # Repository secret: EXPO_TOKEN.
 
@@ -78,21 +78,31 @@ jobs:
           NODE_ENV: production
       - name: Deploy to EAS Hosting (staging alias)
         id: deploy
-        env:
-          FALLBACK_URL: ${{ vars.E2E_STAGING_BASE_URL }}
         run: |
           set -euo pipefail
           eas deploy --alias staging --non-interactive --json > deploy-result.json
-          URL="$(node -p "String(JSON.parse(require('node:fs').readFileSync('deploy-result.json','utf8')).url || '')")"
+          URL="$(node -p "const fs=require('node:fs');const d=JSON.parse(fs.readFileSync('deploy-result.json','utf8'));const o=Array.isArray(d)?d[0]:d;String(o?.url??'').trim()")"
           if [ -z "$URL" ] || [ "$URL" = "undefined" ]; then
-            URL="$FALLBACK_URL"
-          fi
-          if [ -z "$URL" ]; then
-            echo "::error::No deployment URL from eas deploy --json; set repository variable E2E_STAGING_BASE_URL"
+            echo "::error::eas deploy --json must include a non-empty url for smoke E2E (stable alias fallback removed — it can hit stale CDN content)."
+            cat deploy-result.json
             exit 1
           fi
+          echo "Per-deployment URL from EAS: $URL"
+          READY_ATTEMPTS=30
+          READY_SLEEP=2
+          for attempt in $(seq 1 "$READY_ATTEMPTS"); do
+            if curl -fsSL -o /dev/null --max-redirs 10 --connect-timeout 15 "$URL"; then
+              echo "Deployment URL reachable (attempt $attempt/$READY_ATTEMPTS)"
+              break
+            fi
+            if [ "$attempt" -eq "$READY_ATTEMPTS" ]; then
+              echo "::error::Deployment URL did not become reachable within $((READY_ATTEMPTS * READY_SLEEP))s: $URL"
+              exit 1
+            fi
+            echo "Waiting for hosting/CDN (attempt $attempt/$READY_ATTEMPTS)..."
+            sleep "$READY_SLEEP"
+          done
           echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "Staging web URL: $URL"
 
   e2e-remote-smoke:
     runs-on: ubuntu-latest
