@@ -106,7 +106,7 @@ The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hostin
 3. **GitHub** — see [deployments.md](deployments.md) §7 for the full list. In short:
    - **Repository → Settings → Environments:** create **`preview`**, **`staging`**, **`production`**.
    - In **each** environment, add secrets **`EXPO_PUBLIC_SUPABASE_URL`**, **`EXPO_PUBLIC_SUPABASE_ANON_KEY`** (and optional **`EXPO_PUBLIC_SENTRY_DSN`**) with values for **that** Supabase project (or, for **`preview`**, as **fallback** when per-PR resolve is unavailable).
-   - On **`preview`**, add variable **`SUPABASE_STAGING_PROJECT_REF`** (staging parent project ref) so CI can resolve each PR’s Supabase preview branch URL and anon key via the Management API; keep **`EXPO_PUBLIC_*`** as fallback.
+   - On **`preview`**, add variable **`SUPABASE_STAGING_PROJECT_REF`** (staging parent project ref) so CI can resolve each PR’s Supabase preview branch URL and anon key via the Management API. If a preview branch does not exist for the PR, CI uses optional secrets **`STAGING_EXPO_PUBLIC_SUPABASE_URL`** / **`STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY`**, or the **`preview`** **`EXPO_PUBLIC_*`** secrets (often the same as staging) as fallback.
    - In **`staging`** and **`production`**, add variable **`SUPABASE_PROJECT_REF`** and optional secret **`SUPABASE_DB_PASSWORD`** for Supabase CLI deploys.
    - **Repository → Secrets and variables → Actions → Secrets:** **`EXPO_TOKEN`**, **`SUPABASE_ACCESS_TOKEN`** (shared by all deploy jobs).
 

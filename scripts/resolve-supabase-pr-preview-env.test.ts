@@ -1,8 +1,10 @@
 import {
   buildPreviewApiUrl,
   findBranchForPr,
+  NoPreviewBranchForPrError,
   pickPublishableAnonKey,
   resolvePreviewSupabaseEnv,
+  selectStagingOrFallbackForNoPreviewBranch,
   type SupabaseApiKeyRow,
   type SupabaseBranchRow,
 } from './resolve-supabase-pr-preview-env';
@@ -106,7 +108,7 @@ describe('resolvePreviewSupabaseEnv', () => {
     );
   });
 
-  it('throws when no branch for PR', async () => {
+  it('throws NoPreviewBranchForPrError when no branch for PR', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
       status: 200,
@@ -119,6 +121,35 @@ describe('resolvePreviewSupabaseEnv', () => {
         stagingProjectRef: 'p',
         prNumber: 999,
       }),
-    ).rejects.toThrow('No Supabase preview branch');
+    ).rejects.toBeInstanceOf(NoPreviewBranchForPrError);
+  });
+});
+
+describe('selectStagingOrFallbackForNoPreviewBranch', () => {
+  it('prefers STAGING_* over FALLBACK_*', () => {
+    const out = selectStagingOrFallbackForNoPreviewBranch({
+      STAGING_EXPO_PUBLIC_SUPABASE_URL: 'https://stg.supabase.co',
+      STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY: 'stg-key',
+      FALLBACK_EXPO_PUBLIC_SUPABASE_URL: 'https://fb.supabase.co',
+      FALLBACK_EXPO_PUBLIC_SUPABASE_ANON_KEY: 'fb-key',
+    });
+    expect(out?.url).toBe('https://stg.supabase.co');
+    expect(out?.anonKey).toBe('stg-key');
+    expect(out?.reasonLabel).toContain('staging credentials');
+  });
+
+  it('uses FALLBACK_* when STAGING_* incomplete', () => {
+    const out = selectStagingOrFallbackForNoPreviewBranch({
+      STAGING_EXPO_PUBLIC_SUPABASE_URL: '',
+      STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY: 'only-key',
+      FALLBACK_EXPO_PUBLIC_SUPABASE_URL: 'https://fb.supabase.co',
+      FALLBACK_EXPO_PUBLIC_SUPABASE_ANON_KEY: 'fb-key',
+    });
+    expect(out?.url).toBe('https://fb.supabase.co');
+    expect(out?.anonKey).toBe('fb-key');
+  });
+
+  it('returns undefined when neither pair is complete', () => {
+    expect(selectStagingOrFallbackForNoPreviewBranch({})).toBeUndefined();
   });
 });

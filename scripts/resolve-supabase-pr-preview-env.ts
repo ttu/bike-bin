@@ -16,6 +16,10 @@
  *
  * Fallback when SUPABASE_STAGING_PROJECT_REF is empty:
  * - FALLBACK_EXPO_PUBLIC_SUPABASE_URL, FALLBACK_EXPO_PUBLIC_SUPABASE_ANON_KEY — static preview secrets
+ *
+ * When a preview branch exists for the PR but is not found (branching lag or disabled):
+ * - STAGING_EXPO_PUBLIC_SUPABASE_URL + STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY — preferred staging target
+ * - else same FALLBACK_* pair as above (often set to staging URL + anon key on the preview environment)
  */
 
 import { appendFileSync } from 'node:fs';
@@ -34,6 +38,47 @@ export type SupabaseApiKeyRow = {
   name?: string | null;
   type?: string | null;
 };
+
+/** Thrown when the parent project has no preview branch row for this PR (API succeeded, no match). */
+export class NoPreviewBranchForPrError extends Error {
+  override readonly name = 'NoPreviewBranchForPrError';
+  constructor(
+    readonly prNumber: number,
+    readonly stagingParentRef: string,
+  ) {
+    super(
+      `No Supabase preview branch found for PR #${prNumber}. ` +
+        `Confirm Supabase Branching created a branch for this PR (check parent project ${stagingParentRef}).`,
+    );
+  }
+}
+
+/**
+ * When no per-PR preview DB exists, CI uses staging credentials: explicit STAGING_* first, else FALLBACK_*.
+ */
+export function selectStagingOrFallbackForNoPreviewBranch(
+  env: Record<string, string | undefined>,
+): { url: string; anonKey: string; reasonLabel: string } | undefined {
+  const stagingUrl = env.STAGING_EXPO_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  const stagingKey = env.STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? '';
+  if (stagingUrl && stagingKey) {
+    return {
+      url: stagingUrl,
+      anonKey: stagingKey,
+      reasonLabel: 'staging credentials (no Supabase preview branch for this PR)',
+    };
+  }
+  const fbUrl = env.FALLBACK_EXPO_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  const fbKey = env.FALLBACK_EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? '';
+  if (fbUrl && fbKey) {
+    return {
+      url: fbUrl,
+      anonKey: fbKey,
+      reasonLabel: 'FALLBACK EXPO_PUBLIC_* (no Supabase preview branch for this PR)',
+    };
+  }
+  return undefined;
+}
 
 export function findBranchForPr(
   branches: SupabaseBranchRow[],
@@ -126,10 +171,7 @@ export async function resolvePreviewSupabaseEnv(options: {
   const branch = findBranchForPr(branches as SupabaseBranchRow[], prNumber);
   const previewRef = branch?.project_ref?.trim();
   if (!previewRef) {
-    throw new Error(
-      `No Supabase preview branch found for PR #${prNumber}. ` +
-        `Confirm Supabase Branching created a branch for this PR (check parent project ${stagingProjectRef}).`,
-    );
+    throw new NoPreviewBranchForPrError(prNumber, stagingProjectRef);
   }
 
   const url = buildPreviewApiUrl(previewRef);
@@ -211,31 +253,48 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const resolved = await resolvePreviewSupabaseEnv({
-    accessToken: token,
-    stagingProjectRef: parentRef,
-    prNumber,
-  });
+  try {
+    const resolved = await resolvePreviewSupabaseEnv({
+      accessToken: token,
+      stagingProjectRef: parentRef,
+      prNumber,
+    });
 
-  if (githubEnv) {
-    appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
-    appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
-    console.log(
-      `resolve-supabase-pr-preview-env: OK → preview project ${resolved.previewProjectRef} (PR #${prNumber}).`,
-    );
-  } else {
-    console.log(
-      JSON.stringify(
-        {
-          url: resolved.url,
-          previewProjectRef: resolved.previewProjectRef,
-          prNumber,
-          source: 'management_api',
-        },
-        null,
-        2,
-      ),
-    );
+    if (githubEnv) {
+      appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
+      appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
+      console.log(
+        `resolve-supabase-pr-preview-env: OK → preview project ${resolved.previewProjectRef} (PR #${prNumber}).`,
+      );
+    } else {
+      console.log(
+        JSON.stringify(
+          {
+            url: resolved.url,
+            previewProjectRef: resolved.previewProjectRef,
+            prNumber,
+            source: 'management_api',
+          },
+          null,
+          2,
+        ),
+      );
+    }
+  } catch (err) {
+    if (err instanceof NoPreviewBranchForPrError) {
+      const pick = selectStagingOrFallbackForNoPreviewBranch(process.env);
+      if (pick) {
+        writeFallback(githubEnv, pick.url, pick.anonKey, pick.reasonLabel);
+        return;
+      }
+      console.error(
+        'resolve-supabase-pr-preview-env: no preview branch for this PR and no staging/fallback credentials. ' +
+          'Add secrets STAGING_EXPO_PUBLIC_SUPABASE_URL + STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY (staging), ' +
+          'or EXPO_PUBLIC_SUPABASE_URL + EXPO_PUBLIC_SUPABASE_ANON_KEY on the preview environment (often staging).',
+      );
+      process.exit(1);
+    }
+    throw err;
   }
 }
 
