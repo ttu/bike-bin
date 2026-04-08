@@ -89,13 +89,14 @@ export function useCreateBike() {
       return mapBikeRow(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bikes'] });
+      queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
     },
   });
 }
 
 export function useUpdateBike() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ id, ...formData }: BikeFormData & { id: BikeId }) => {
@@ -120,7 +121,7 @@ export function useUpdateBike() {
       return mapBikeRow(data);
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['bikes'] });
+      queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
       queryClient.invalidateQueries({ queryKey: ['bikes', variables.id] });
     },
   });
@@ -128,6 +129,7 @@ export function useUpdateBike() {
 
 export function useDeleteBike() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (id: BikeId) => {
@@ -137,8 +139,8 @@ export function useDeleteBike() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bikes'] });
-      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
+      queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
     },
   });
 }

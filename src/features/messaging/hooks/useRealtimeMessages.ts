@@ -33,9 +33,9 @@ export function useRealtimeMessages(conversationId: ConversationId | undefined) 
           void queryClient.invalidateQueries({
             queryKey: [MESSAGES_QUERY_KEY, conversationId],
           });
-          // Invalidate conversations list to update last message
+          // Invalidate this user's conversations list to update last message
           void queryClient.invalidateQueries({
-            queryKey: [CONVERSATIONS_QUERY_KEY],
+            queryKey: [CONVERSATIONS_QUERY_KEY, user.id],
           });
           // Invalidate unread count
           void queryClient.invalidateQueries({

@@ -44,7 +44,7 @@ export function useBorrowTransition({
         queryKey: ['items'],
       });
       void queryClient.invalidateQueries({
-        queryKey: ['searchItems'],
+        queryKey: ['search', 'items'],
       });
       for (const key of additionalInvalidateKeys) {
         void queryClient.invalidateQueries({ queryKey: [key] });

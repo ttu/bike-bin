@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { useAuth } from '@/features/auth';
 import type { ItemId } from '@/shared/types';
 
 interface SwapPhotoOrderParams {
@@ -12,6 +13,7 @@ interface SwapPhotoOrderParams {
 
 export function useSwapItemPhotoOrder() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ photoIdA, sortOrderA, photoIdB, sortOrderB }: SwapPhotoOrderParams) => {
@@ -29,7 +31,7 @@ export function useSwapItemPhotoOrder() {
     },
     onSuccess: (_data, { itemId }) => {
       queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
-      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
     },
   });
 }
@@ -42,6 +44,7 @@ interface RemoveItemPhotoParams {
 
 export function useRemoveItemPhoto() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ photoId, storagePath }: RemoveItemPhotoParams) => {
@@ -52,7 +55,7 @@ export function useRemoveItemPhoto() {
     },
     onSuccess: (_data, { itemId }) => {
       queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
-      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
     },
   });
 }
