@@ -1,10 +1,16 @@
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import {
+  BIKE_BIN_CI_SUPABASE_METADATA_FILENAME,
   buildPreviewApiUrl,
   findBranchForPr,
   NoPreviewBranchForPrError,
   pickPublishableAnonKey,
   resolvePreviewSupabaseEnv,
   selectStagingOrFallbackForNoPreviewBranch,
+  writeBikeBinCiSupabaseMetadata,
   type SupabaseApiKeyRow,
   type SupabaseBranchRow,
 } from './resolve-supabase-pr-preview-env';
@@ -149,5 +155,20 @@ describe('selectStagingOrFallbackForNoPreviewBranch', () => {
 
   it('returns undefined when neither pair is complete', () => {
     expect(selectStagingOrFallbackForNoPreviewBranch({})).toBeUndefined();
+  });
+});
+
+describe('writeBikeBinCiSupabaseMetadata', () => {
+  it('writes e2eRemoteSuite for smoke and full', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'bb-ci-supabase-'));
+    try {
+      const path = join(dir, BIKE_BIN_CI_SUPABASE_METADATA_FILENAME);
+      writeBikeBinCiSupabaseMetadata('smoke', dir);
+      expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({ e2eRemoteSuite: 'smoke' });
+      writeBikeBinCiSupabaseMetadata('full', dir);
+      expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({ e2eRemoteSuite: 'full' });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

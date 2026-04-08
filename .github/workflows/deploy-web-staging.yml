@@ -3,6 +3,8 @@
 # Production deploys from release tags: deploy-web-production.yml
 #
 # GitHub Environment "staging": EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY, EXPO_PUBLIC_SENTRY_DSN (optional).
+# Smoke E2E uses the **per-deployment `url`** from `eas deploy --json` only (no stable-alias fallback — aliases/CDN can serve stale content briefly).
+# After deploy, **e2e-remote-smoke** runs read-only Playwright smoke tests (no DB globalSetup).
 # Repository secret: EXPO_TOKEN.
 
 name: Deploy web staging
@@ -25,6 +27,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: staging
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.url }}
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref_name == 'main') ||
       (github.event_name == 'workflow_run' &&
@@ -73,4 +77,47 @@ jobs:
           EXPO_PUBLIC_ENV: staging
           NODE_ENV: production
       - name: Deploy to EAS Hosting (staging alias)
-        run: eas deploy --alias staging --non-interactive
+        id: deploy
+        run: |
+          set -euo pipefail
+          eas deploy --alias staging --non-interactive --json > deploy-result.json
+          URL="$(node -p "const fs=require('node:fs');const d=JSON.parse(fs.readFileSync('deploy-result.json','utf8'));const o=Array.isArray(d)?d[0]:d;String(o?.url??'').trim()")"
+          if [ -z "$URL" ] || [ "$URL" = "undefined" ]; then
+            echo "::error::eas deploy --json must include a non-empty url for smoke E2E (stable alias fallback removed — it can hit stale CDN content)."
+            cat deploy-result.json
+            exit 1
+          fi
+          echo "Per-deployment URL from EAS: $URL"
+          READY_ATTEMPTS=30
+          READY_SLEEP=2
+          for attempt in $(seq 1 "$READY_ATTEMPTS"); do
+            if curl -fsSL -o /dev/null --max-redirs 10 --connect-timeout 15 "$URL"; then
+              echo "Deployment URL reachable (attempt $attempt/$READY_ATTEMPTS)"
+              break
+            fi
+            if [ "$attempt" -eq "$READY_ATTEMPTS" ]; then
+              echo "::error::Deployment URL did not become reachable within $((READY_ATTEMPTS * READY_SLEEP))s: $URL"
+              exit 1
+            fi
+            echo "Waiting for hosting/CDN (attempt $attempt/$READY_ATTEMPTS)..."
+            sleep "$READY_SLEEP"
+          done
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+  e2e-remote-smoke:
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref_name == 'main' && github.sha || github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Remote smoke E2E (read-only, no DB globalSetup)
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ needs.deploy.outputs.deployment_url }}
+        run: npm run test:e2e:remote-smoke

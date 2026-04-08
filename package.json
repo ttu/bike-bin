@@ -33,6 +33,8 @@
     "test:db:isolated": "bash scripts/run-isolated-db-tests.sh both",
     "type-check": "tsc --noEmit",
     "test:e2e": "playwright test",
+    "test:e2e:remote-smoke": "playwright test -c playwright.remote-smoke.config.ts",
+    "test:e2e:remote-full": "playwright test -c playwright.remote-full.config.ts",
     "test:a11y": "playwright test e2e/accessibility.spec.ts",
     "capture:media": "playwright test -c playwright.media.config.ts",
     "validate": "npm run format:check && npm run lint && npm run type-check && npm test",
