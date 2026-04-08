@@ -64,7 +64,7 @@ Do **not** bypass hooks with `--no-verify` — fix the underlying issue instead.
 - User-facing strings through **react-i18next** (`t(...)`), not hardcoded copy.
 - **Theme tokens** for colors and spacing — avoid magic numbers in UI.
 - **Business logic** in `utils/` or hooks, not buried in presentational components.
-- **Commits:** Conventional style `type: description` (e.g. `feat:`, `fix:`, `test:`) — no scopes in commit messages per project rules.
+- **Commits:** conventional `type: description`; optional bullets / `Refs:`; **no scopes**. **Types:** `feat` (new features), `fix` (bug fixes), `refactor` (refactor without intended behavior change), `test` (tests), `docs` (documentation), `style` (formatting/style only), `chore` (deps, tooling, misc), `ci` (CI/CD), `build` (build/bundler), `perf` (performance). **Never commit with `--no-verify`.** Details: `AGENTS.md` / `CLAUDE.md`.
 
 ---
 

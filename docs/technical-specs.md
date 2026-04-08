@@ -528,24 +528,11 @@ _(From [emergency-supply-tracker CODE_QUALITY](https://github.com/ttu/emergency-
 
 ### Commit messages
 
-Use **conventional commits** (no scopes):
+Conventional `type: description`; optional body (bullets, `Refs: #issue`). **No scopes** (`feat:` not `feat(scope):`).
 
-```
-type: short description
+**Types:** `feat` (new features), `fix` (bug fixes), `refactor` (refactor without intended behavior change), `test` (tests), `docs` (documentation), `style` (formatting/style only), `chore` (deps, tooling, misc), `ci` (CI/CD), `build` (build/bundler), `perf` (performance).
 
-- Optional detail
-```
-
-| Type       | Use for                        |
-| ---------- | ------------------------------ |
-| `feat`     | New features                   |
-| `fix`      | Bug fixes                      |
-| `refactor` | Refactors (no behavior change) |
-| `test`     | Adding/updating tests          |
-| `docs`     | Documentation                  |
-| `style`    | Formatting only                |
-| `chore`    | Deps, tooling                  |
-| `ci`       | CI/CD config                   |
+**Never commit with `--no-verify`** — fix pre-commit failures instead. See `AGENTS.md` / `CLAUDE.md`.
 
 ### Scripts (target)
 

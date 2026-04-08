@@ -22,7 +22,7 @@
 
 ## 2. Version control and when things deploy
 
-This repo uses **git worktrees** for feature work (see [CLAUDE.md](../CLAUDE.md)); **integration** still flows through **`main`** and **tags** for production web.
+This repo uses **git worktrees** for feature work (see [CLAUDE.md](../CLAUDE.md)); changes land on **`main` via pull request**, and **tags** gate production web.
 
 | Git event                        | Typical use            | Web (EAS Hosting)                                | Workflow file                   |
 | -------------------------------- | ---------------------- | ------------------------------------------------ | ------------------------------- |

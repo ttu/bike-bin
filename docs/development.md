@@ -91,7 +91,7 @@ The app reads these `EXPO_PUBLIC_*` variables (see `src/shared/api/supabase.ts` 
 
 Set these in an `.env` file at the project root or via your shell. Expo loads `EXPO_PUBLIC_*` vars automatically.
 
-**Git worktrees:** Each worktree is its own root — copy or symlink `.env.local` from the primary clone into the worktree (see [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) bootstrap steps), then run `npm install` there.
+**Git worktrees:** Each worktree is its own root — copy or symlink `.env.local` from the primary clone into the worktree (see [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) bootstrap steps), then run `npm install` there. When you finish a branch, push with **`git push -u origin <branch>`** (or **`git branch -u origin/<branch>`** if the remote already exists) so your editor shows a proper upstream; then open a **PR** to `main` — see the worktree “Finishing a Feature” section in those files.
 
 ## Web production (EAS Hosting)
 

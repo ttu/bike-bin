@@ -2,7 +2,7 @@
 
 Static marketing site for **https://bikebin.app**. The product web app lives at **https://app.bikebin.app**.
 
-**Workflow:** Implement and commit this tree **only** from the git worktree (e.g. `.worktrees/marketing-site` on `feat/marketing-site`), not from the primary clone’s `main`, until the branch is merged. See `CLAUDE.md` / `AGENTS.md`.
+**Workflow:** Implement and commit this tree **only** from the git worktree (e.g. `.worktrees/marketing-site` on `feat/marketing-site`), not from the primary clone’s `main`, until the branch is merged via **PR** to `main`. See `CLAUDE.md` / `AGENTS.md`.
 
 ## Commands (from repo root)
 
