@@ -1,6 +1,7 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
+import { mockAuthModule } from '@/test/authMocks';
 import ConversationDetailScreen from '../[id]';
 import type { ConversationListItem } from '@/features/messaging/types';
 import type { ConversationId, ItemId, UserId } from '@/shared/types';
@@ -40,9 +41,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {

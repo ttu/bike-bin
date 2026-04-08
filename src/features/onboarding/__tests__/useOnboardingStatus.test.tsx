@@ -1,13 +1,9 @@
 import { renderHook } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 import { useOnboardingStatus } from '../hooks/useOnboardingStatus';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 const mockFrom = jest.fn();
 

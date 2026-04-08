@@ -1,5 +1,6 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
+import { mockAuthModule } from '@/test/authMocks';
 import ExportDataScreen from '../export-data';
 
 const mockDismiss = jest.fn();
@@ -31,9 +32,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/features/profile', () => ({
   useLatestExport: () => ({ data: null, isLoading: false }),

@@ -1,5 +1,6 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
+import { mockAuthModule } from '@/test/authMocks';
 import ListingDetailScreen from '../[id]';
 
 const mockShowSnackbarAlert = jest.fn();
@@ -50,9 +51,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {

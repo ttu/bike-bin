@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
+import { mockAuthModule } from '@/test/authMocks';
 import { BikeType } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
 import EditBikeScreen from '../[id]';
@@ -35,9 +36,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 const mockDeleteMutate = jest.fn();
 
