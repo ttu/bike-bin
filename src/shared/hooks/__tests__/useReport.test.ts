@@ -1,15 +1,8 @@
 import { renderHook, act } from '@testing-library/react-native';
+import { mockInsert, mockSupabase } from '@/test/supabaseMocks';
 import type { UserId } from '@/shared/types';
 
-const mockInsert = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      insert: mockInsert,
-    })),
-  },
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
 // Import after mocks
 import { useReport } from '../useReport';

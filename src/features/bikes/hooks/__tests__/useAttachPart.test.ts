@@ -1,31 +1,17 @@
 import { renderHook } from '@testing-library/react-native';
 import { createMockItem } from '@/test/factories';
+import { mockSelect, mockUpdate, mockEq, mockSingle, mockSupabase } from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId, BikeId } from '@/shared/types';
+
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
+
+// Import after mocks
 import { useAttachPart } from '../useAttachPart';
 import { useDetachPart } from '../useDetachPart';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
-
-// Mock supabase
-const mockSelect = jest.fn();
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-const mockSingle = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      update: mockUpdate,
-    })),
-  },
-}));
-
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
 
 describe('useAttachPart', () => {
   beforeEach(() => {

@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
@@ -13,9 +14,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('../../utils/mapLocationRow', () => ({
   mapLocationRow: jest.fn((row: Record<string, unknown>) => ({

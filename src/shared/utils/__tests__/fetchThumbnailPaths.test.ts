@@ -1,16 +1,9 @@
+import { mockSelect, mockIn, mockOrder, mockSupabase } from '@/test/supabaseMocks';
+
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+
+// Import after mocks
 import { fetchThumbnailPaths } from '../fetchThumbnailPaths';
-
-const mockOrder = jest.fn();
-const mockIn = jest.fn();
-const mockSelect = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-    })),
-  },
-}));
 
 describe('fetchThumbnailPaths', () => {
   beforeEach(() => {

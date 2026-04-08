@@ -1,17 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { useCreateBorrowRequest } from '../useCreateBorrowRequest';
-import { useAcceptBorrowRequest } from '../useAcceptBorrowRequest';
-import { useCancelBorrowRequest } from '../useCancelBorrowRequest';
-import { useDeclineBorrowRequest } from '../useDeclineBorrowRequest';
-import { useMarkReturned } from '../useMarkReturned';
-import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
-
-const mockInsert = jest.fn();
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-const mockSelect = jest.fn();
-const mockSingle = jest.fn();
-const mockRpc = jest.fn();
+import {
+  mockInsert,
+  mockUpdate,
+  mockEq,
+  mockSelect,
+  mockSingle,
+  mockRpc,
+} from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -22,10 +18,15 @@ jest.mock('@/shared/api/supabase', () => ({
     rpc: (...args: unknown[]) => mockRpc(...args),
   },
 }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+// Import after mocks
+import { useCreateBorrowRequest } from '../useCreateBorrowRequest';
+import { useAcceptBorrowRequest } from '../useAcceptBorrowRequest';
+import { useCancelBorrowRequest } from '../useCancelBorrowRequest';
+import { useDeclineBorrowRequest } from '../useDeclineBorrowRequest';
+import { useMarkReturned } from '../useMarkReturned';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 function setupChain(data: unknown = { id: 'req-1' }) {
   mockSingle.mockResolvedValue({ data, error: null });

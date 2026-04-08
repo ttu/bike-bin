@@ -1,19 +1,22 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { createMockItemRow } from '@/test/factories';
+import {
+  mockSelect,
+  mockInsert,
+  mockUpdate,
+  mockDelete,
+  mockEq,
+  mockOrder,
+  mockSingle,
+} from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
 import { useItems, useItem, useCreateItem, useDeleteItem } from '../useItems';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-// Mock supabase
-const mockSelect = jest.fn();
-const mockInsert = jest.fn();
-const mockUpdate = jest.fn();
-const mockDeleteFn = jest.fn();
-const mockEq = jest.fn();
-const mockOrder = jest.fn();
-const mockSingle = jest.fn();
+const mockDeleteFn = mockDelete;
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -31,19 +34,13 @@ jest.mock('@/shared/api/supabase', () => ({
         select: mockSelect,
         insert: mockInsert,
         update: mockUpdate,
-        delete: mockDeleteFn,
+        delete: mockDelete,
       };
     }),
   },
 }));
 
-// Mock useAuth
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 describe('useItems', () => {
   beforeEach(() => {

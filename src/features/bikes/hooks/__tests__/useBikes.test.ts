@@ -1,34 +1,21 @@
 import { renderHook } from '@testing-library/react-native';
 import { createMockBike } from '@/test/factories';
+import {
+  mockSelect,
+  mockInsert,
+  mockUpdate,
+  mockDelete,
+  mockEq,
+  mockOrder,
+  mockSingle,
+  mockSupabase,
+} from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import type { BikeId } from '@/shared/types';
 import { BikeType, ItemCondition } from '@/shared/types';
 
-// Supabase mock chains
-const mockSelect = jest.fn();
-const mockInsert = jest.fn();
-const mockUpdate = jest.fn();
-const mockDelete = jest.fn();
-const mockEq = jest.fn();
-const mockOrder = jest.fn();
-const mockSingle = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      delete: mockDelete,
-    })),
-  },
-}));
-
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/shared/utils/fetchBikeThumbnailPaths', () => ({
   fetchBikeThumbnailPaths: jest.fn().mockResolvedValue(new Map()),

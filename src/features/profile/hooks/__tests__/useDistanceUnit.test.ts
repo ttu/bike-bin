@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 
 const mockUpdate = jest.fn();
 const mockEq = jest.fn();
@@ -18,9 +19,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('../useProfile', () => ({
   useProfile: () => ({ data: { distanceUnit: 'mi' } }),

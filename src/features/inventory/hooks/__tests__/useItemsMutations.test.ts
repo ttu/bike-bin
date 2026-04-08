@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 import type { GroupId, ItemId, Item, ItemRow, ItemPhotoRow } from '@/shared/types';
 import {
   AvailabilityType,
@@ -22,9 +23,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/shared/utils/fetchThumbnailPaths', () => ({
   fetchThumbnailPaths: jest.fn().mockResolvedValue(new Map()),

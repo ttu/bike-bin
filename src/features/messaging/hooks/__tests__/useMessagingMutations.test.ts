@@ -1,29 +1,17 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { useSendMessage } from '../useSendMessage';
-import { useCreateConversation } from '../useCreateConversation';
-import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
+import { mockInsert, mockSelect, mockSingle, mockEq, mockSupabase } from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 
 jest.mock('@/shared/utils/randomUuid', () => ({
   randomUuidV4: jest.fn(() => 'conv-new'),
 }));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
-const mockInsert = jest.fn();
-const mockSelect = jest.fn();
-const mockSingle = jest.fn();
-const mockEq = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      insert: mockInsert,
-      select: mockSelect,
-    })),
-  },
-}));
-
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+// Import after mocks
+import { useSendMessage } from '../useSendMessage';
+import { useCreateConversation } from '../useCreateConversation';
+import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 beforeEach(() => jest.clearAllMocks());
 

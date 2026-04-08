@@ -1,17 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
+import { mockUpdate, mockEq, mockSupabase } from '@/test/supabaseMocks';
+
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+
+// Import after mocks
 import { useMarkNotificationRead } from '../useMarkNotificationRead';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
-
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      update: mockUpdate,
-    })),
-  },
-}));
 
 beforeEach(() => jest.clearAllMocks());
 

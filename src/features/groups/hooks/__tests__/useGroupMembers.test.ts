@@ -1,25 +1,20 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { createMockGroupMember } from '@/test/factories';
+import {
+  mockSelect,
+  mockUpdate,
+  mockDelete,
+  mockEq,
+  mockOrder,
+  mockSupabase,
+} from '@/test/supabaseMocks';
 import { GroupRole } from '@/shared/types';
 import type { GroupId, UserId } from '@/shared/types';
 
-const mockSelect = jest.fn();
-const mockUpdate = jest.fn();
-const mockDelete = jest.fn();
-const mockEq = jest.fn();
 const mockEq2 = jest.fn();
-const mockOrder = jest.fn();
 const mockOrder2 = jest.fn();
 
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-      update: mockUpdate,
-      delete: mockDelete,
-    })),
-  },
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
 // Import after mocks
 import { useGroupMembers, usePromoteMember, useRemoveMember } from '../useGroupMembers';

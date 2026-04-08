@@ -1,6 +1,8 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem, createMockBike } from '@/test/factories';
+import { mockSelect, mockUpdate, mockEq, mockSingle, mockOrder } from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import { ItemStatus } from '@/shared/types';
 import { MountedParts } from '../MountedParts';
 
@@ -11,13 +13,6 @@ jest.mock('expo-router', () => ({
     push: (...args: unknown[]) => mockRouterPush(...args),
   },
 }));
-
-// Mock supabase
-const mockSelect = jest.fn();
-const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-const mockSingle = jest.fn();
-const mockOrder = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -33,12 +28,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 const bike = createMockBike();
 const bikeId = bike.id;

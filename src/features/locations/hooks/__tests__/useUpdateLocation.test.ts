@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
+import { mockAuthModule } from '@/test/authMocks';
 import { useUpdateLocation } from '../useUpdateLocation';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
@@ -39,9 +40,7 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('../../utils/geocoding', () => ({
   geocodePostcode: jest.fn().mockResolvedValue({

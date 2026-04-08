@@ -1,34 +1,20 @@
 import { renderHook } from '@testing-library/react-native';
 import { createMockGroup } from '@/test/factories';
+import {
+  mockSelect,
+  mockInsert,
+  mockDelete,
+  mockEq,
+  mockOrder,
+  mockSingle,
+  mockSupabase,
+} from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import { GroupRole } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 
-// Mock supabase
-const mockSelect = jest.fn();
-const mockInsert = jest.fn();
-const mockUpdate = jest.fn();
-const mockDelete = jest.fn();
-const mockEq = jest.fn();
-const mockOrder = jest.fn();
-const mockSingle = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      delete: mockDelete,
-    })),
-  },
-}));
-
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-  }),
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 // Import after mocks
 import { useGroups, useCreateGroup, useDeleteGroup } from '../useGroups';

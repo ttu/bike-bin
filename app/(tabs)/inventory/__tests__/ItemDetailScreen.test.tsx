@@ -1,6 +1,7 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
+import { mockAuthModule } from '@/test/authMocks';
 import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import type { Item, ItemId } from '@/shared/types';
 import ItemDetailScreen from '../[id]';
@@ -39,9 +40,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {

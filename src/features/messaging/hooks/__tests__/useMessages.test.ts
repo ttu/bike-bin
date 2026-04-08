@@ -1,23 +1,17 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
+import {
+  mockSelect,
+  mockEq,
+  mockOrder,
+  mockLimit,
+  mockLt,
+  mockSupabase,
+} from '@/test/supabaseMocks';
+import { mockAuthModule } from '@/test/authMocks';
 import type { ConversationId } from '@/shared/types';
 
-const mockSelect = jest.fn();
-const mockEq = jest.fn();
-const mockOrder = jest.fn();
-const mockLimit = jest.fn();
-const mockLt = jest.fn();
-
-jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: mockSelect,
-    })),
-  },
-}));
-
-jest.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
-}));
+jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => mockAuthModule);
 
 // Import after mocks
 import { useMessages } from '../useMessages';
