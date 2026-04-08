@@ -2,11 +2,11 @@
 
 ## Overview
 
-Content moderation system enabling users to report unsuitable **items**, **item photos**, and **chat messages**, with admin enforcement via a secured Edge Function that performs a hard purge of the offending user's data and blocks their OAuth identities from re-registering. Distinct from GDPR self-service account deletion: enforcement prioritizes removal of harmful content and account closure over conversation continuity.
+Content moderation system enabling users to report unsuitable **items**, **item photos**, **chat messages**, and **user profiles**, with admin enforcement via a secured Edge Function that performs a hard purge of the offending user's data and blocks their OAuth identities from re-registering. User-profile reports use `targetType: 'user'` and are filed via the profile flag icon; enforcement closes all report types targeting the sanctioned user's content. Distinct from GDPR self-service account deletion: enforcement prioritizes removal of harmful content and account closure over conversation continuity.
 
 ## Architecture
 
-```
+```text
 src/shared/
 ├── components/
 │   └── ReportDialog/

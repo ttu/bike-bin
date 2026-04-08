@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
       .from('profiles')
       .select('avatar_url')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     assertNoError(profileError, 'load profile for storage paths');
     if (profileData?.avatar_url) {
       storagePaths.push({ bucket: 'avatars', path: profileData.avatar_url });
@@ -233,7 +233,49 @@ Deno.serve(async (req) => {
       counts.storageObjects += paths.length;
     }
 
-    // 6. Data purge
+    // 6. Close reports before purging data (IDs needed while rows still exist)
+    // Close reports targeting this user's profile
+    const { data: closedUserReports, error: closeUserErr } = await supabase
+      .from('reports')
+      .update({ status: 'closed' })
+      .eq('target_type', 'user')
+      .eq('target_id', userId)
+      .select('id');
+    assertNoError(closeUserErr, 'close reports targeting user');
+    counts.reportsClosed = closedUserReports?.length ?? 0;
+
+    // Close reports targeting this user's items, item_photos, and messages
+    const ownedItemIds = (userItems ?? []).map((i) => i.id);
+    const ownedItemPhotoIds: string[] = [];
+    if (ownedItemIds.length > 0) {
+      const { data: photoRows, error: photoIdsErr } = await supabase
+        .from('item_photos')
+        .select('id')
+        .in('item_id', ownedItemIds);
+      assertNoError(photoIdsErr, 'load item_photo ids for report closure');
+      for (const p of photoRows ?? []) ownedItemPhotoIds.push(p.id);
+    }
+
+    const { data: ownedMessages, error: ownedMsgErr } = await supabase
+      .from('messages')
+      .select('id')
+      .eq('sender_id', userId);
+    assertNoError(ownedMsgErr, 'load message ids for report closure');
+    const ownedMessageIds = (ownedMessages ?? []).map((m) => m.id);
+
+    const contentIds = [...ownedItemIds, ...ownedItemPhotoIds, ...ownedMessageIds];
+    if (contentIds.length > 0) {
+      const { data: closedContentReports, error: closeContentErr } = await supabase
+        .from('reports')
+        .update({ status: 'closed' })
+        .in('target_type', ['item', 'item_photo', 'message'])
+        .in('target_id', contentIds)
+        .select('id');
+      assertNoError(closeContentErr, 'close reports targeting user content');
+      counts.reportsClosed += closedContentReports?.length ?? 0;
+    }
+
+    // 7. Data purge
     // Item photos + items
     if (userItems && userItems.length > 0) {
       const itemIds = userItems.map((i) => i.id);
@@ -273,7 +315,10 @@ Deno.serve(async (req) => {
     );
 
     // Clean up empty conversations (zero participants AND zero messages)
-    const { data: emptyConvos } = await supabase.rpc('find_empty_conversations');
+    const { data: emptyConvos, error: emptyConvosError } = await supabase.rpc(
+      'find_empty_conversations',
+    );
+    assertNoError(emptyConvosError, 'find empty conversations');
     if (emptyConvos && emptyConvos.length > 0) {
       const emptyIds = emptyConvos.map((c: { id: string }) => c.id);
       counts.conversationsDeleted = deleteCount(
@@ -328,16 +373,6 @@ Deno.serve(async (req) => {
       'delete notifications',
     );
 
-    // Close reports targeting this user's profile
-    const { data: closedReports, error: closeErr } = await supabase
-      .from('reports')
-      .update({ status: 'closed' })
-      .eq('target_type', 'user')
-      .eq('target_id', userId)
-      .select('id');
-    assertNoError(closeErr, 'close reports targeting user');
-    counts.reportsClosed = closedReports?.length ?? 0;
-
     // Delete reports filed by this user
     counts.reportsDeleted = deleteCount(
       await supabase.from('reports').delete().eq('reporter_id', userId).select('id'),
@@ -348,7 +383,7 @@ Deno.serve(async (req) => {
     const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('id', userId);
     assertNoError(profileDeleteError, 'delete profile');
 
-    // 7. Log enforcement action before deleting the auth user
+    // 8. Log enforcement action before deleting the auth user
     const { error: logError } = await supabase.from('moderation_enforcement_log').insert({
       sanctioned_user_id: userId,
       reason: reason ?? null,
@@ -356,7 +391,7 @@ Deno.serve(async (req) => {
     });
     assertNoError(logError, 'insert moderation_enforcement_log');
 
-    // 8. Delete auth user last
+    // 9. Delete auth user last
     const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
     assertNoError(authDeleteError, 'delete auth user');
 

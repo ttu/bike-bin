@@ -46,6 +46,7 @@ $$;
 
 -- Grant/revoke for find_empty_conversations (service-role only, not callable by app users)
 REVOKE EXECUTE ON FUNCTION public.find_empty_conversations() FROM authenticated, anon, public;
+GRANT EXECUTE ON FUNCTION public.find_empty_conversations() TO service_role;
 
 -- 5. Before Sign-In auth hook: reject blocked identities
 -- Called by Supabase Auth with event jsonb; returns decision jsonb.
