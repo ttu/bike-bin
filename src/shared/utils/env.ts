@@ -6,7 +6,4 @@ export const isProduction = APP_ENV === 'production';
 
 /** Seeded test-user password buttons on the login screen (local, CI, PR preview, staging). Disabled in production only. */
 export const isPasswordDemoLoginEnabled =
-  APP_ENV === 'development' ||
-  APP_ENV === 'test' ||
-  APP_ENV === 'preview' ||
-  APP_ENV === 'staging';
+  APP_ENV === 'development' || APP_ENV === 'test' || APP_ENV === 'preview' || APP_ENV === 'staging';
