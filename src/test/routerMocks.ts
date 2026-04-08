@@ -23,7 +23,13 @@ export const mockSearchParams: Record<string, string | string[] | undefined> = {
 
 export const mockRouterModule = {
   useLocalSearchParams: () => mockSearchParams,
-  useRouter: () => ({ push: mockRouterPush, replace: mockRouterReplace }),
+  useRouter: () => ({
+    push: mockRouterPush,
+    replace: mockRouterReplace,
+    canDismiss: mockRouterCanDismiss,
+    dismiss: mockRouterDismiss,
+    back: mockRouterBack,
+  }),
   router: {
     push: (...args: unknown[]) => mockRouterPush(...args),
     replace: (...args: unknown[]) => mockRouterReplace(...args),
