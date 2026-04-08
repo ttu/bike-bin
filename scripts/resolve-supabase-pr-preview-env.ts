@@ -25,6 +25,40 @@
 import { appendFileSync } from 'node:fs';
 
 const API_BASE = 'https://api.supabase.com/v1';
+/** Management API fetch timeout (per attempt). */
+const API_TIMEOUT_MS = 30_000;
+/** Initial attempt + retries for 429 / 5xx / timeout. */
+const FETCH_MAX_ATTEMPTS = 4;
+const FETCH_BASE_BACKOFF_MS = 500;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableHttpStatus(status: number): boolean {
+  return status === 429 || (status >= 500 && status <= 599);
+}
+
+function parseRetryAfterMs(header: string | null): number | undefined {
+  if (!header) {
+    return undefined;
+  }
+  const seconds = parseInt(header.trim(), 10);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.min(seconds * 1000, 60_000);
+  }
+  return undefined;
+}
+
+function isAbortOrTimeoutError(e: unknown): boolean {
+  if (!(e instanceof Error)) {
+    return false;
+  }
+  if (e.name === 'AbortError' || e.name === 'TimeoutError') {
+    return true;
+  }
+  return e instanceof DOMException && e.name === 'TimeoutError';
+}
 
 export type SupabaseBranchRow = {
   /** Management API may return string or number. */
@@ -132,20 +166,45 @@ async function fetchJson(
   url: string,
   token: string,
 ): Promise<{ ok: boolean; status: number; json: unknown; text: string }> {
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-    },
-  });
-  const text = await res.text();
-  let json: unknown;
-  try {
-    json = text ? JSON.parse(text) : null;
-  } catch {
-    json = undefined;
+  let lastThrown: unknown;
+
+  for (let attempt = 0; attempt < FETCH_MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        signal: AbortSignal.timeout(API_TIMEOUT_MS),
+      });
+      const text = await res.text();
+      let json: unknown;
+      try {
+        json = text ? JSON.parse(text) : undefined;
+      } catch {
+        json = undefined;
+      }
+      const out = { ok: res.ok, status: res.status, json, text };
+
+      if (isRetryableHttpStatus(res.status) && attempt < FETCH_MAX_ATTEMPTS - 1) {
+        const fromHeader = parseRetryAfterMs(res.headers.get('retry-after'));
+        const backoff = Math.min(FETCH_BASE_BACKOFF_MS * 2 ** attempt, 10_000);
+        await delay(fromHeader ?? backoff);
+        continue;
+      }
+
+      return out;
+    } catch (e) {
+      lastThrown = e;
+      if (isAbortOrTimeoutError(e) && attempt < FETCH_MAX_ATTEMPTS - 1) {
+        await delay(Math.min(FETCH_BASE_BACKOFF_MS * 2 ** attempt, 10_000));
+        continue;
+      }
+      throw e;
+    }
   }
-  return { ok: res.ok, status: res.status, json, text };
+
+  throw lastThrown instanceof Error ? lastThrown : new Error(String(lastThrown));
 }
 
 export async function resolvePreviewSupabaseEnv(options: {
