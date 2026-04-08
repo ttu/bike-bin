@@ -43,14 +43,16 @@ export type SupabaseApiKeyRow = {
 /** Thrown when the parent project has no preview branch row for this PR (API succeeded, no match). */
 export class NoPreviewBranchForPrError extends Error {
   override readonly name = 'NoPreviewBranchForPrError';
-  constructor(
-    readonly prNumber: number,
-    readonly stagingParentRef: string,
-  ) {
+  readonly prNumber: number;
+  readonly stagingParentRef: string;
+
+  constructor(prNumber: number, stagingParentRef: string) {
     super(
       `No Supabase preview branch found for PR #${prNumber}. ` +
         `Confirm Supabase Branching created a branch for this PR (check parent project ${stagingParentRef}).`,
     );
+    this.prNumber = prNumber;
+    this.stagingParentRef = stagingParentRef;
   }
 }
 
