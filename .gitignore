@@ -9,6 +9,7 @@ coverage/
 *.tsbuildinfo
 .env.local
 .env.production.local
+.bike-bin-ci-supabase.json
 test-results/
 supabase/.branches/
 supabase/.temp/

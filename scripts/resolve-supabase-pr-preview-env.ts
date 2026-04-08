@@ -7,6 +7,8 @@
  * - GET /v1/projects/{preview_ref}/api-keys?reveal=true → anon / publishable key
  *
  * Writes to GITHUB_ENV when set; otherwise prints JSON (for local debugging without secrets).
+ * Always writes **.bike-bin-ci-supabase.json** in the cwd with `{ "e2eRemoteSuite": "full" | "smoke" }`
+ * so CI can default Playwright remote E2E (`full` only for isolated preview branches; `smoke` for staging/fallback).
  *
  * Env (CI):
  * - SUPABASE_ACCESS_TOKEN — required for API (repo secret SUPABASE_ACCESS_TOKEN)
@@ -22,7 +24,25 @@
  * - else same FALLBACK_* pair as above (often set to staging URL + anon key on the preview environment)
  */
 
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+/** Written in CI so downstream jobs know whether the PR uses an isolated preview DB or shared staging. */
+export const BIKE_BIN_CI_SUPABASE_METADATA_FILENAME = '.bike-bin-ci-supabase.json';
+
+export type BikeBinCiSupabaseE2eRemoteSuite = 'full' | 'smoke';
+
+/**
+ * `full` — Management API resolved a Supabase **preview branch** for this PR (disposable DB).
+ * `smoke` — static fallback / staging credentials (shared DB; do not run mutating remote E2E).
+ */
+export function writeBikeBinCiSupabaseMetadata(
+  e2eRemoteSuite: BikeBinCiSupabaseE2eRemoteSuite,
+  cwd: string = process.cwd(),
+): void {
+  const path = join(cwd, BIKE_BIN_CI_SUPABASE_METADATA_FILENAME);
+  writeFileSync(path, `${JSON.stringify({ e2eRemoteSuite })}\n`, 'utf8');
+}
 
 const API_BASE = 'https://api.supabase.com/v1';
 /** Management API fetch timeout (per attempt). */
@@ -271,6 +291,7 @@ function writeFallback(
   fallbackKey: string,
   reason: string,
 ): void {
+  writeBikeBinCiSupabaseMetadata('smoke');
   if (githubEnv) {
     appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', fallbackUrl);
     appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', fallbackKey);
@@ -320,6 +341,7 @@ async function main(): Promise<void> {
       prNumber,
     });
 
+    writeBikeBinCiSupabaseMetadata('full');
     if (githubEnv) {
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
@@ -334,6 +356,7 @@ async function main(): Promise<void> {
             previewProjectRef: resolved.previewProjectRef,
             prNumber,
             source: 'management_api',
+            e2eRemoteSuite: 'full' as const,
           },
           null,
           2,
