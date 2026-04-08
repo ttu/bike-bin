@@ -20,8 +20,10 @@ export function useGroupMembers(groupId: GroupId) {
         .order('joined_at', { ascending: true });
 
       if (error) throw error;
-
-      return (data ?? []).map((row) => {
+      return data ?? [];
+    },
+    select: (data) =>
+      data.map((row) => {
         const profile = row.profiles as unknown as
           | { display_name?: string; avatar_url?: string }
           | undefined;
@@ -35,8 +37,7 @@ export function useGroupMembers(groupId: GroupId) {
             avatarUrl: profile?.avatar_url,
           },
         };
-      }) as GroupMemberWithProfile[];
-    },
+      }) as GroupMemberWithProfile[],
     enabled: !!groupId,
   });
 }
