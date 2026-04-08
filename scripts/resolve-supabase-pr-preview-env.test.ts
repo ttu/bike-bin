@@ -19,10 +19,8 @@ describe('findBranchForPr', () => {
     expect(findBranchForPr(branches, 42)?.project_ref).toBe('bbb');
   });
 
-  it('matches string pr_number from API', () => {
-    expect(
-      findBranchForPr([{ pr_number: 7 as unknown as number, project_ref: 'x' }], 7)?.project_ref,
-    ).toBe('x');
+  it('matches string pr_number from API via String comparison', () => {
+    expect(findBranchForPr([{ pr_number: '7', project_ref: 'x' }], 7)?.project_ref).toBe('x');
   });
 });
 
@@ -52,12 +50,12 @@ describe('pickPublishableAnonKey', () => {
     expect(pickPublishableAnonKey(keys)).toBe('sb_publishable_xxx');
   });
 
-  it('excludes service_role in fallback', () => {
+  it('returns undefined when only non-allowlisted keys exist', () => {
     const keys: SupabaseApiKeyRow[] = [
       { name: 'service_role', api_key: 'svc' },
-      { name: 'other', api_key: 'safe' },
+      { name: 'other', api_key: 'unsafe' },
     ];
-    expect(pickPublishableAnonKey(keys)).toBe('safe');
+    expect(pickPublishableAnonKey(keys)).toBeUndefined();
   });
 
   it('returns undefined when empty', () => {

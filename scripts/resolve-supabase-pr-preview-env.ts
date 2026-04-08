@@ -27,7 +27,8 @@ import { appendFileSync } from 'node:fs';
 const API_BASE = 'https://api.supabase.com/v1';
 
 export type SupabaseBranchRow = {
-  pr_number?: number | null;
+  /** Management API may return string or number. */
+  pr_number?: number | string | null;
   project_ref?: string | null;
   git_branch?: string | null;
   status?: string | null;
@@ -95,36 +96,34 @@ export function buildPreviewApiUrl(projectRef: string): string {
   return `https://${ref}.supabase.co`;
 }
 
-/** Prefer legacy anon JWT; then publishable / sb_publishable; never service_role. */
+/**
+ * Only accept legacy `anon`, new publishable keys, or `sb_publishable_*` secrets.
+ * Rejects unknown names/types so we never embed arbitrary API keys in the client bundle.
+ */
 export function pickPublishableAnonKey(keys: SupabaseApiKeyRow[]): string | undefined {
   if (!Array.isArray(keys) || keys.length === 0) {
     return undefined;
   }
 
-  const anon = keys.find((k) => k.name === 'anon' && k.api_key);
+  const anon = keys.find(
+    (k) => k.name === 'anon' && typeof k.api_key === 'string' && k.api_key.length > 0,
+  );
   if (anon?.api_key) {
     return anon.api_key;
   }
 
-  const publishable = keys.find(
-    (k) =>
-      k.api_key &&
-      (k.name === 'publishable' ||
-        k.type === 'publishable' ||
-        (typeof k.api_key === 'string' && k.api_key.startsWith('sb_publishable_'))),
-  );
-  if (publishable?.api_key) {
-    return publishable.api_key;
-  }
-
-  const safe = keys.find(
-    (k) =>
-      k.api_key &&
-      k.name !== 'service_role' &&
-      k.type !== 'service_role' &&
-      !String(k.api_key).startsWith('sb_secret_'),
-  );
-  return safe?.api_key ?? undefined;
+  const publishable = keys.find((k) => {
+    const key = k.api_key;
+    if (typeof key !== 'string' || key.length === 0) {
+      return false;
+    }
+    if (key.startsWith('sb_publishable_')) {
+      return true;
+    }
+    return k.name === 'publishable' || k.type === 'publishable';
+  });
+  const pubKey = publishable?.api_key;
+  return typeof pubKey === 'string' && pubKey.length > 0 ? pubKey : undefined;
 }
 
 async function fetchJson(
