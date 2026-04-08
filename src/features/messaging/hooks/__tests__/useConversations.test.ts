@@ -70,11 +70,6 @@ describe('useConversations', () => {
       },
     ];
     const mockAllParticipants = [{ conversation_id: 'conv-1', user_id: 'user-456' }];
-    const mockLastMessages = [
-      { body: 'Hello!', sender_id: 'user-456', created_at: '2026-01-02T10:00:00Z' },
-    ];
-    const mockPhotos = [{ storage_path: 'items/item-1/photo.jpg' }];
-
     mockFetchPublicProfilesMap.mockResolvedValue(
       new Map([
         [
@@ -115,23 +110,32 @@ describe('useConversations', () => {
       }),
     };
 
-    // Call 4: messages .select().eq().order().limit()
+    // Call 4: messages batch .select().in().order()
     const mockCall4 = {
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({ data: mockLastMessages, error: null }),
+        in: jest.fn().mockReturnValue({
+          order: jest.fn().mockResolvedValue({
+            data: [
+              {
+                conversation_id: 'conv-1',
+                body: 'Hello!',
+                sender_id: 'user-456',
+                created_at: '2026-01-02T10:00:00Z',
+              },
+            ],
+            error: null,
           }),
         }),
       }),
     };
 
-    // Call 5: item_photos .select().eq().order().limit()
+    // Call 5: item_photos batch .select().in().order()
     const mockCall5 = {
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({ data: mockPhotos, error: null }),
+        in: jest.fn().mockReturnValue({
+          order: jest.fn().mockResolvedValue({
+            data: [{ item_id: 'item-1', storage_path: 'items/item-1/photo.jpg' }],
+            error: null,
           }),
         }),
       }),
@@ -191,13 +195,11 @@ describe('useConversations', () => {
         }),
       }),
     };
-    // Call 4: messages — no messages
+    // Call 4: messages batch — no messages
     mockFromChains[3] = {
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({ data: [], error: null }),
-          }),
+        in: jest.fn().mockReturnValue({
+          order: jest.fn().mockResolvedValue({ data: [], error: null }),
         }),
       }),
     };
@@ -264,28 +266,27 @@ describe('useConversations', () => {
         }),
       }),
     };
-    // Call 4: messages for conv-1 — older message
+    // Call 4: messages batch — both conversations' messages returned at once
+    // Ordered by created_at desc, so newest first
     mockFromChains[3] = {
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({
-              data: [{ body: 'Old', sender_id: 'user-456', created_at: '2026-01-01T12:00:00Z' }],
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    };
-    // Call 5: messages for conv-2 — newer message
-    mockFromChains[4] = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({
-              data: [{ body: 'New', sender_id: 'user-456', created_at: '2026-01-03T12:00:00Z' }],
-              error: null,
-            }),
+        in: jest.fn().mockReturnValue({
+          order: jest.fn().mockResolvedValue({
+            data: [
+              {
+                conversation_id: 'conv-2',
+                body: 'New',
+                sender_id: 'user-456',
+                created_at: '2026-01-03T12:00:00Z',
+              },
+              {
+                conversation_id: 'conv-1',
+                body: 'Old',
+                sender_id: 'user-456',
+                created_at: '2026-01-01T12:00:00Z',
+              },
+            ],
+            error: null,
           }),
         }),
       }),
