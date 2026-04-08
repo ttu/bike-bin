@@ -50,7 +50,6 @@ jobs:
       - uses: actions/upload-pages-artifact@v4
         with:
           path: sites/marketing/dist
-          include-hidden-files: true
 
   deploy:
     environment:
