@@ -19,6 +19,7 @@ export function useOfflineQueue() {
   const { isOnline } = useNetworkStatus();
   const [queue, setQueue] = useState<QueuedMutation[]>([]);
   const replayHandlersRef = useRef<Map<string, (variables: unknown) => Promise<void>>>(new Map());
+  const isReplayingRef = useRef(false);
 
   // Load queue from storage on mount
   useEffect(() => {
@@ -41,9 +42,10 @@ export function useOfflineQueue() {
 
   // Replay queue when coming back online
   useEffect(() => {
-    if (!isOnline || queue.length === 0) return;
+    if (!isOnline || queue.length === 0 || isReplayingRef.current) return;
 
     const replay = async () => {
+      isReplayingRef.current = true;
       const remaining: QueuedMutation[] = [];
 
       for (const mutation of queue) {
@@ -61,6 +63,7 @@ export function useOfflineQueue() {
         }
       }
 
+      isReplayingRef.current = false;
       setQueue(remaining);
     };
 
