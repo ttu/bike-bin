@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +15,10 @@ interface ItemGalleryTileProps {
   onPress?: (item: Item) => void;
 }
 
-export function ItemGalleryTile({ item, onPress }: ItemGalleryTileProps) {
+export const ItemGalleryTile = memo(function ItemGalleryTile({
+  item,
+  onPress,
+}: ItemGalleryTileProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const thumbnailUri = getItemThumbnailPublicUrl(item.thumbnailStoragePath);
@@ -65,7 +69,7 @@ export function ItemGalleryTile({ item, onPress }: ItemGalleryTileProps) {
       </View>
     </AnimatedPressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

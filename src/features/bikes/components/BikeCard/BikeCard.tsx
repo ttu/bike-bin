@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -13,7 +14,7 @@ interface BikeCardProps {
   onPress?: (bike: Bike) => void;
 }
 
-export function BikeCard({ bike, onPress }: BikeCardProps) {
+export const BikeCard = memo(function BikeCard({ bike, onPress }: BikeCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
 
@@ -71,7 +72,7 @@ export function BikeCard({ bike, onPress }: BikeCardProps) {
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

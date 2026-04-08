@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -19,7 +20,7 @@ interface ItemCardProps {
   compact?: boolean;
 }
 
-export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
+export const ItemCard = memo(function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
 
@@ -150,7 +151,7 @@ export function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
       </View>
     </AnimatedPressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

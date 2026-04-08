@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
@@ -14,7 +15,10 @@ interface ConversationCardProps {
   onPress?: (conversation: ConversationListItem) => void;
 }
 
-export function ConversationCard({ conversation, onPress }: ConversationCardProps) {
+export const ConversationCard = memo(function ConversationCard({
+  conversation,
+  onPress,
+}: ConversationCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('messages');
 
@@ -115,7 +119,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
       </View>
     </AnimatedPressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
