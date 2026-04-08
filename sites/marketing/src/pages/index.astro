@@ -34,6 +34,7 @@ const rawViewportH = 932;
       <nav class="nav-links" aria-label="Primary">
         <a href="#how-it-works">How it works</a>
         <a href="#features">Features</a>
+        <a href="#open-source">Open source</a>
         <a class="nav-cta" href="https://app.bikebin.app">Open app</a>
       </nav>
     </div>
@@ -198,6 +199,25 @@ const rawViewportH = 932;
             <h3>Locations</h3>
             <p>Pickup areas without exposing full street addresses by default.</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="open-source"
+      class="section section-band section-band--alt open-source-section"
+      aria-labelledby="open-source-heading"
+    >
+      <div class="section-inner open-source-inner reveal">
+        <p class="eyebrow">Community</p>
+        <h2 id="open-source-heading">Open source</h2>
+        <p class="section-lead muted open-source-copy">
+          Bike Bin is open source. On GitHub you can suggest feature requests, report bugs, and contribute improvements
+          to the app - whether that is code, docs, or ideas.
+        </p>
+        <div class="open-source-actions">
+          <a class="btn btn-primary" href="https://github.com/ttu/bike-bin">Repository</a>
+          <a class="btn btn-secondary" href="https://github.com/ttu/bike-bin/issues">Issues</a>
         </div>
       </div>
     </section>
@@ -741,6 +761,20 @@ const rawViewportH = 932;
 
   .features-section {
     padding-bottom: clamp(2rem, 5vw, 3rem);
+  }
+
+  .open-source-inner {
+    max-width: 640px;
+  }
+
+  .open-source-copy {
+    margin: 0 0 1.35rem;
+  }
+
+  .open-source-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
   }
 
   .sustain-copy {
