@@ -5,11 +5,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { timingSafeEqual } from 'https://deno.land/std@0.224.0/crypto/timing_safe_equal.ts';
 
-interface SanctionRequest {
-  userId: string;
-  reason?: string;
-  relatedReportIds?: string[];
-}
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Maximum IDs per Supabase `.in()` call to stay within URL length limits */
+const IN_CHUNK_SIZE = 500;
 
 interface PurgeCounts {
   itemPhotos: number;
@@ -83,15 +82,54 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body: SanctionRequest = await req.json();
-    const { userId, reason, relatedReportIds } = body;
-
-    if (!userId || typeof userId !== 'string') {
-      return new Response(JSON.stringify({ error: 'userId is required' }), {
+    // Parse and validate request body
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    if (!body || typeof body !== 'object') {
+      return new Response(JSON.stringify({ error: 'Request body must be a JSON object' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { userId, reason, relatedReportIds } = body as Record<string, unknown>;
+
+    if (!userId || typeof userId !== 'string' || !UUID_RE.test(userId)) {
+      return new Response(
+        JSON.stringify({ error: 'userId is required and must be a valid UUID' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+
+    if (reason !== undefined && typeof reason !== 'string') {
+      return new Response(JSON.stringify({ error: 'reason must be a string when provided' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (relatedReportIds !== undefined) {
+      if (
+        !Array.isArray(relatedReportIds) ||
+        !relatedReportIds.every((id) => typeof id === 'string' && UUID_RE.test(id))
+      ) {
+        return new Response(
+          JSON.stringify({ error: 'relatedReportIds must be an array of valid UUIDs' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+    }
+
+    const validatedReason = reason as string | undefined;
+    const validatedReportIds = relatedReportIds as string[] | undefined;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -148,7 +186,7 @@ Deno.serve(async (req) => {
         {
           provider: identity.provider,
           provider_user_id: identity.identity_data?.sub ?? identity.id,
-          notes: reason ?? null,
+          notes: validatedReason ?? null,
         },
         { onConflict: 'provider,provider_user_id' },
       );
@@ -264,12 +302,13 @@ Deno.serve(async (req) => {
     const ownedMessageIds = (ownedMessages ?? []).map((m) => m.id);
 
     const contentIds = [...ownedItemIds, ...ownedItemPhotoIds, ...ownedMessageIds];
-    if (contentIds.length > 0) {
+    for (let i = 0; i < contentIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = contentIds.slice(i, i + IN_CHUNK_SIZE);
       const { data: closedContentReports, error: closeContentErr } = await supabase
         .from('reports')
         .update({ status: 'closed' })
         .in('target_type', ['item', 'item_photo', 'message'])
-        .in('target_id', contentIds)
+        .in('target_id', chunk)
         .select('id');
       assertNoError(closeContentErr, 'close reports targeting user content');
       counts.reportsClosed += closedContentReports?.length ?? 0;
@@ -386,8 +425,8 @@ Deno.serve(async (req) => {
     // 8. Log enforcement action before deleting the auth user
     const { error: logError } = await supabase.from('moderation_enforcement_log').insert({
       sanctioned_user_id: userId,
-      reason: reason ?? null,
-      report_ids: relatedReportIds ?? null,
+      reason: validatedReason ?? null,
+      report_ids: validatedReportIds ?? null,
     });
     assertNoError(logError, 'insert moderation_enforcement_log');
 
