@@ -68,6 +68,13 @@ One **EAS project** is enough. Hosting gives:
 
 Details: [EAS Hosting — deployments and aliases](https://docs.expo.dev/eas/hosting/deployments-and-aliases/).
 
+### E2E against deployed web
+
+- **Staging** (after `deploy-web-staging`): CI runs **read-only** Playwright smoke tests (`npm run test:e2e:remote-smoke`) against the staging URL — no database reset on the runner. Optional repo variable **`E2E_STAGING_BASE_URL`** if deploy JSON has no `url`.
+- **PR preview** (`ci.yml` → `e2e-remote-preview`): runs **`test:e2e:remote-full`** by default (no `global-setup`; backend must be seeded or disposable). Set environment variable **`E2E_REMOTE_SUITE=smoke`** on GitHub Environment **preview** when the PR app points at **shared staging** Supabase so CI matches staging (smoke only).
+
+See [testing.md](testing.md) § E2E.
+
 ---
 
 ## 5. Supabase deployments and configuration

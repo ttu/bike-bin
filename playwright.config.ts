@@ -1,5 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
+import { e2eBlocks } from './e2e/playwright-e2e-blocks';
+
 // Read env here (not from a separate module) so port/baseURL always match this process.
 const webPort = process.env.PLAYWRIGHT_WEB_PORT ?? '8090';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${webPort}`;
@@ -12,39 +14,6 @@ function resolveWorkers(): number {
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n >= 1 ? n : 4;
 }
-
-/**
- * Disjoint spec groups so the runner can schedule work across multiple workers.
- * Each file appears in exactly one project (see e2e/*.spec.ts).
- */
-const e2eBlocks = {
-  'e2e-auth-smoke': [
-    'smoke.spec.ts',
-    'auth.spec.ts',
-    'accessibility.spec.ts',
-    'responsive.spec.ts',
-  ],
-  'e2e-search-inventory': [
-    'search.spec.ts',
-    'search-authenticated.spec.ts',
-    'inventory.spec.ts',
-    'inventory-authenticated.spec.ts',
-    'inventory-gallery.spec.ts',
-  ],
-  'e2e-inventory-bikes': [
-    'inventory-crud.spec.ts',
-    'inventory-status.spec.ts',
-    'bikes-crud.spec.ts',
-  ],
-  'e2e-messaging-borrow': [
-    'messaging.spec.ts',
-    'messaging-actions.spec.ts',
-    'messages-authenticated.spec.ts',
-    'borrow.spec.ts',
-    'borrow-lifecycle.spec.ts',
-    'profile-authenticated.spec.ts',
-  ],
-} as const;
 
 export default defineConfig({
   testDir: './e2e',

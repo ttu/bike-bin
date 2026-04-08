@@ -104,6 +104,8 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 
 **Playwright (web):** Specs live under `e2e/` (TypeScript). Run them with **`npm run test:e2e`** (do not invoke Playwright via `npx` from the shell; the npm script is the supported entry point). **`npm run capture:media`** uses a separate config (`playwright.media.config.ts`) and `e2e/media/store-assets.spec.ts` to export 1290×2796 PNGs (6.7" portrait), framed variants for the marketing site, and a short WebM; install **`ffmpeg`** locally if you want automatic GIF conversion. Outputs are documented in `sites/marketing/public/captures/README.md`. The bundled Expo web server uses **port 8090** by default (`e2e/playwright-web-env.ts`); `playwright.config.ts` sets **`RCT_METRO_PORT`** so Metro does not fall back to **8081** (which would clash with `npm run dev`). Override with **`PLAYWRIGHT_WEB_PORT`** or **`PLAYWRIGHT_BASE_URL`**. Isolated E2E defaults to **8091** and **`PLAYWRIGHT_ISOLATED=1`** (`BIKE_BIN_ISOLATED_PLAYWRIGHT_PORT` to change the port). Requires browser install per Playwright docs. `e2e/global-setup.ts` re-seeds Postgres via `psql`, then runs **`scripts/seed-images.mjs`** so inventory/bike thumbnails exist in Storage (same as `npm run db:seed` after SQL). It uses **`BIKE_BIN_TEST_PG_URL`** / **`BIKE_BIN_TEST_SUPABASE_URL`** / **`EXPO_PUBLIC_SUPABASE_URL`** from the environment, or reads those keys from **`.env.local`**. Default DB URL is `postgresql://postgres:postgres@127.0.0.1:54322/postgres`. Requires **`supabase/seed-images/`** image files (see `scripts/seed-images.mjs`). After changing local auth redirect URLs in `supabase/config.toml`, restart Supabase (`db:stop` / `db:start` or `db reset`). For a DB isolated from your dev Supabase, use `npm run test:e2e:isolated`.
 
+**Deployed web (CI / manual):** For an already-hosted Expo web bundle, set **`PLAYWRIGHT_BASE_URL`** to the HTTPS deployment URL. **`npm run test:e2e:remote-smoke`** runs only `e2e/smoke.spec.ts` — unauthenticated flows, **no** `global-setup` (no local `psql` truncate/seed). Use this against **shared staging** where the database is not reset after each deploy. **`npm run test:e2e:remote-full`** runs the same spec groups as local E2E but still **without** `global-setup`; it is intended for **preview** environments with a disposable or seeded backend. Spec groupings live in `e2e/playwright-e2e-blocks.ts`.
+
 **Maestro (mobile):** CI installs Maestro for mobile-flow testing. The CI `e2e` job runs `npm run test:e2e` (Playwright) after installing Maestro — both toolchains are available in the pipeline. See `.github/workflows/ci.yml` for the canonical setup.
 
 ---
@@ -116,7 +118,10 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 - **type-check** — `tsc --noEmit`
 - **test** — `test:coverage` + Codecov upload
 - **build** — `expo export --platform web`
-- Optional / non-blocking jobs may include a11y, E2E, SonarCloud, visual placeholders
+- **deploy-web-preview** / **e2e-remote-preview** (same-repo PRs) — after EAS preview deploy, Playwright against the preview URL. GitHub Environment **preview** variable **`E2E_REMOTE_SUITE`**: omit or set to **`full`** for the full remote suite; set to **`smoke`** when the PR build uses shared staging Supabase (same read-only smoke as staging deploy).
+- Optional / non-blocking jobs may include a11y, macOS Playwright+Maestro (`test:e2e` with local Metro + global setup), SonarCloud, visual placeholders
+
+**Deploy web staging** (`.github/workflows/deploy-web-staging.yml`) runs **`test:e2e:remote-smoke`** after `eas deploy --alias staging`. Optional repository variable **`E2E_STAGING_BASE_URL`** if `eas deploy --json` does not expose `url`.
 
 If a script is referenced in CI but not in `package.json`, add the script locally so developers can reproduce CI steps.
 

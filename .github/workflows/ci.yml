@@ -114,6 +114,8 @@ jobs:
     needs: [build]
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
     environment: preview
+    outputs:
+      deployment_url: ${{ steps.deploy_preview.outputs.url }}
     permissions:
       contents: read
       pull-requests: write
@@ -174,7 +176,16 @@ jobs:
           EXPO_PUBLIC_ENV: preview
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
       - name: Deploy to EAS Hosting (preview)
-        run: eas deploy --non-interactive --json | tee deploy-result.json
+        id: deploy_preview
+        run: |
+          set -euo pipefail
+          eas deploy --non-interactive --json > deploy-result.json
+          URL="$(node -p "String(JSON.parse(require('node:fs').readFileSync('deploy-result.json','utf8')).url || '')")"
+          if [ -z "$URL" ]; then
+            echo "::error::eas deploy JSON missing url"
+            exit 1
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Comment PR with web preview URL
         uses: actions/github-script@v7
@@ -222,6 +233,38 @@ jobs:
                 body,
               });
             }
+
+  # Full Playwright suite against the preview URL (no local psql seed). Use GitHub Environment **preview**
+  # variable `E2E_REMOTE_SUITE=smoke` when the PR build targets shared staging Supabase (same constraints as staging deploy).
+  e2e-remote-preview:
+    runs-on: ubuntu-latest
+    needs: [deploy-web-preview]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    environment: preview
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Remote E2E against preview deployment
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ needs.deploy-web-preview.outputs.deployment_url }}
+          REMOTE_SUITE: ${{ vars.E2E_REMOTE_SUITE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PLAYWRIGHT_BASE_URL}" ]; then
+            echo "::error::Missing deployment_url from deploy-web-preview"
+            exit 1
+          fi
+          SUITE="${REMOTE_SUITE:-full}"
+          if [ "$SUITE" = "smoke" ]; then
+            npm run test:e2e:remote-smoke
+          else
+            npm run test:e2e:remote-full
+          fi
 
   marketing:
     runs-on: ubuntu-latest
