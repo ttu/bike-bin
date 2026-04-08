@@ -91,6 +91,28 @@ The app reads these `EXPO_PUBLIC_*` variables (see `src/shared/api/supabase.ts` 
 
 Set these in an `.env` file at the project root or via your shell. Expo loads `EXPO_PUBLIC_*` vars automatically.
 
+### Google sign-in (OAuth)
+
+The app uses Supabase Auth for Google OAuth. Client code lives in `src/features/auth/utils/signInWithOAuthProvider.ts` (web redirect + native in-app browser / deep link).
+
+**1. Google Cloud Console**
+
+- Create (or open) a project → **APIs & Services** → **Credentials** → **Create credentials** → **OAuth client ID**.
+- Application type: **Web application** (Supabase exchanges the code with Google server-side).
+- Under **Authorized redirect URIs**, add:
+  - **Local Supabase:** `http://127.0.0.1:54321/auth/v1/callback`
+  - **Hosted Supabase:** `https://<your-project-ref>.supabase.co/auth/v1/callback` (from the Supabase project settings)
+
+**2. Secrets**
+
+- **Local:** Create `supabase/.env` (gitignored) with `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` matching that Web client. `supabase/config.toml` reads them via `env(GOOGLE_CLIENT_ID)` / `env(GOOGLE_CLIENT_SECRET)`. Run `supabase stop && supabase start` (or `npm run db:start`) after changing this file.
+- **Hosted:** In the Supabase Dashboard → **Authentication** → **Providers** → **Google**, enable the provider and paste the same client ID and secret.
+
+**3. Redirect URLs (Supabase)**
+
+- **Local:** `supabase/config.toml` already lists Expo web ports and `bike-bin://**` / `exp://**` for native / Expo Go. Adjust if you change the app `scheme` in `app.json`.
+- **Hosted:** [URL configuration](https://supabase.com/dashboard/project/_/auth/url-configuration) — set **Site URL** to your app origin (e.g. production web: `https://app.bikebin.app`; local web often `http://127.0.0.1:8081`). Add the same patterns under **Additional Redirect URLs** as needed (`bike-bin://**`, `exp://**`, and your deployed web origins). See [Redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls) and [Google login](https://supabase.com/docs/guides/auth/social-login/auth-google).
+
 **Git worktrees:** Each worktree is its own root — copy or symlink `.env.local` from the primary clone into the worktree (see [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) bootstrap steps), then run `npm install` there. When you finish a branch, push with **`git push -u origin <branch>`** (or **`git branch -u origin/<branch>`** if the remote already exists) so your editor shows a proper upstream; then open a **PR** to `main` — see the worktree “Finishing a Feature” section in those files.
 
 ## Web production (EAS Hosting)
