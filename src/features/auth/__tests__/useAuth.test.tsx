@@ -5,6 +5,11 @@ import { useAuth } from '../hooks/useAuth';
 import { supabase } from '@/shared/api/supabase';
 import { PaperProvider } from 'react-native-paper';
 import { lightTheme } from '@/shared/theme';
+import { signInWithOAuthProvider } from '../utils/signInWithOAuthProvider';
+
+jest.mock('../utils/signInWithOAuthProvider', () => ({
+  signInWithOAuthProvider: jest.fn().mockResolvedValue(undefined),
+}));
 
 // Mock supabase
 jest.mock('@/shared/api/supabase', () => {
@@ -76,7 +81,7 @@ describe('useAuth', () => {
     expect(supabase.auth.signOut).toHaveBeenCalled();
   });
 
-  it('signInWithGoogle calls signInWithOAuth with google provider', async () => {
+  it('signInWithGoogle delegates to signInWithOAuthProvider', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     await act(async () => {});
 
@@ -84,12 +89,10 @@ describe('useAuth', () => {
       await result.current.signInWithGoogle();
     });
 
-    expect(supabase.auth.signInWithOAuth).toHaveBeenCalledWith({
-      provider: 'google',
-    });
+    expect(signInWithOAuthProvider).toHaveBeenCalledWith('google');
   });
 
-  it('signInWithApple calls signInWithOAuth with apple provider', async () => {
+  it('signInWithApple delegates to signInWithOAuthProvider', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     await act(async () => {});
 
@@ -97,9 +100,7 @@ describe('useAuth', () => {
       await result.current.signInWithApple();
     });
 
-    expect(supabase.auth.signInWithOAuth).toHaveBeenCalledWith({
-      provider: 'apple',
-    });
+    expect(signInWithOAuthProvider).toHaveBeenCalledWith('apple');
   });
 
   it('updates session when auth state changes', async () => {

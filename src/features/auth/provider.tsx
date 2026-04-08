@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/shared/api/supabase';
 import { AuthContext } from './context';
+import { signInWithOAuthProvider } from './utils/signInWithOAuthProvider';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -23,11 +24,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google' });
+    await signInWithOAuthProvider('google');
   }, []);
 
   const signInWithApple = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'apple' });
+    await signInWithOAuthProvider('apple');
   }, []);
 
   const signOut = useCallback(async () => {

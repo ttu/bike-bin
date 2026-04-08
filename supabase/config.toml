@@ -41,6 +41,9 @@ additional_redirect_urls = [
   "http://localhost:8090",
   "http://127.0.0.1:8091",
   "http://localhost:8091",
+  # Expo app scheme + Expo Go (see src/features/auth/utils/signInWithOAuthProvider.ts)
+  "bike-bin://**",
+  "exp://**",
 ]
 jwt_expiry = 3600
 enable_signup = true
