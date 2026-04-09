@@ -34,6 +34,7 @@ export default function NewItemScreen() {
   const { atLimit, limit, isReady } = useInventoryRowCapacity();
   const { atLimit: atPhotoLimit, isReady: photoCapacityReady } = usePhotoRowCapacity();
   const [limitSnackbarVisible, setLimitSnackbarVisible] = useState(false);
+  const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
   const { category } = useLocalSearchParams<{ category?: string }>();
   const initialCategory = Object.values(ItemCategory).includes(category as ItemCategory)
     ? (category as ItemCategory)
@@ -69,7 +70,8 @@ export default function NewItemScreen() {
                 router.push(`/(tabs)/inventory/${item.id}?photoLimitWarning=1`);
                 return;
               }
-              throw pe;
+              setErrorSnackbarVisible(true);
+              return;
             }
           }
         } catch (e) {
@@ -77,7 +79,8 @@ export default function NewItemScreen() {
             setLimitSnackbarVisible(true);
             return;
           }
-          throw e;
+          setErrorSnackbarVisible(true);
+          return;
         }
       } else {
         await addItem({
@@ -153,6 +156,14 @@ export default function NewItemScreen() {
         action={{ label: tCommon('actions.close'), onPress: () => setLimitSnackbarVisible(false) }}
       >
         {t('limit.saveSnackbar')}
+      </Snackbar>
+      <Snackbar
+        visible={errorSnackbarVisible}
+        onDismiss={() => setErrorSnackbarVisible(false)}
+        duration={5000}
+        action={{ label: tCommon('actions.close'), onPress: () => setErrorSnackbarVisible(false) }}
+      >
+        {t('limit.saveFailed')}
       </Snackbar>
     </View>
   );

@@ -107,6 +107,7 @@
     "reachedFabA11y": "Cannot add item, inventory limit reached",
     "saveSnackbar": "Could not save — inventory limit reached.",
     "saveSnackbarPhoto": "Could not add photos — plan photo limit reached.",
+    "saveFailed": "Something went wrong while saving. Please try again.",
     "maxPhotosPerEntity": "Maximum {{max}} photos per item."
   },
   "addItem": "Add item",
