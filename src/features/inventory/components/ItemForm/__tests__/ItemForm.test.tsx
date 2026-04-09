@@ -164,7 +164,9 @@ describe('ItemForm', () => {
   });
 
   it('shows brand and model combined in the name field when the title is blank', () => {
-    const { getByTestId, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
+    const { getByTestId, getByPlaceholderText } = renderWithProviders(
+      <ItemForm {...defaultProps} />,
+    );
 
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano'), 'Shimano');
     expect(getByTestId('item-form-name-input').props.value).toBe('Shimano');
