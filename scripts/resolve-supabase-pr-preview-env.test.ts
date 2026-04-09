@@ -8,6 +8,7 @@ import {
   findBranchForPr,
   NoPreviewBranchForPrError,
   pickPublishableAnonKey,
+  pickServiceRoleKey,
   resolvePreviewSupabaseEnv,
   selectStagingOrFallbackForNoPreviewBranch,
   writeBikeBinCiSupabaseMetadata,
@@ -37,6 +38,20 @@ describe('buildPreviewApiUrl', () => {
 
   it('throws on empty ref', () => {
     expect(() => buildPreviewApiUrl('')).toThrow('empty project_ref');
+  });
+});
+
+describe('pickServiceRoleKey', () => {
+  it('returns service_role when present', () => {
+    const keys: SupabaseApiKeyRow[] = [
+      { name: 'anon', api_key: 'anon-jwt' },
+      { name: 'service_role', api_key: 'svc-jwt' },
+    ];
+    expect(pickServiceRoleKey(keys)).toBe('svc-jwt');
+  });
+
+  it('returns undefined when missing', () => {
+    expect(pickServiceRoleKey([{ name: 'anon', api_key: 'a' }])).toBeUndefined();
   });
 });
 
@@ -90,7 +105,11 @@ describe('resolvePreviewSupabaseEnv', () => {
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
-        text: async () => JSON.stringify([{ name: 'anon', api_key: 'eyJhbGciOiJIUzI1NiJ9.test' }]),
+        text: async () =>
+          JSON.stringify([
+            { name: 'anon', api_key: 'eyJhbGciOiJIUzI1NiJ9.test' },
+            { name: 'service_role', api_key: 'eyJhbGciOiJIUzI1NiJ9.service' },
+          ]),
       });
 
     const out = await resolvePreviewSupabaseEnv({
@@ -101,6 +120,7 @@ describe('resolvePreviewSupabaseEnv', () => {
 
     expect(out.url).toBe('https://preview99.supabase.co');
     expect(out.anonKey).toBe('eyJhbGciOiJIUzI1NiJ9.test');
+    expect(out.serviceRoleKey).toBe('eyJhbGciOiJIUzI1NiJ9.service');
     expect(out.previewProjectRef).toBe('preview99');
 
     expect(global.fetch).toHaveBeenCalledTimes(2);

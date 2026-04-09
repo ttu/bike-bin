@@ -161,18 +161,20 @@ jobs:
           echo "preview_project_ref=$PREVIEW_REF" >> "$GITHUB_OUTPUT"
           echo "Default remote E2E suite (from resolver): $SUITE"
           echo "Preview project ref for seed (if any): ${PREVIEW_REF:-<none>}"
+      - run: npm ci
       - uses: supabase/setup-cli@v1
         if: ${{ steps.supabase_e2e.outputs.preview_project_ref != '' }}
         with:
           version: latest
-      - name: Seed preview Supabase branch (SQL)
+      - name: Seed preview Supabase branch (SQL + images)
         if: ${{ steps.supabase_e2e.outputs.preview_project_ref != '' }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          # Prefer service role from Management API (GITHUB_ENV from resolve step); else preview secret.
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PROJECT_REF: ${{ steps.supabase_e2e.outputs.preview_project_ref }}
-        run: bash scripts/seed-remote-sql.sh
-      - run: npm ci
+        run: npm run db:seed:remote
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest

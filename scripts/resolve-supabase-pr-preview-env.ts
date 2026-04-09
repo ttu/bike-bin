@@ -169,6 +169,18 @@ export function buildPreviewApiUrl(projectRef: string): string {
  * Only accept legacy `anon`, new publishable keys, or `sb_publishable_*` secrets.
  * Rejects unknown names/types so we never embed arbitrary API keys in the client bundle.
  */
+/** Service role key for Storage / admin API (seed images on preview branches). */
+export function pickServiceRoleKey(keys: SupabaseApiKeyRow[]): string | undefined {
+  if (!Array.isArray(keys) || keys.length === 0) {
+    return undefined;
+  }
+  const row = keys.find(
+    (k) => k.name === 'service_role' && typeof k.api_key === 'string' && k.api_key.length > 0,
+  );
+  const key = row?.api_key;
+  return typeof key === 'string' && key.length > 0 ? key : undefined;
+}
+
 export function pickPublishableAnonKey(keys: SupabaseApiKeyRow[]): string | undefined {
   if (!Array.isArray(keys) || keys.length === 0) {
     return undefined;
@@ -244,7 +256,12 @@ export async function resolvePreviewSupabaseEnv(options: {
   accessToken: string;
   stagingProjectRef: string;
   prNumber: number;
-}): Promise<{ url: string; anonKey: string; previewProjectRef: string }> {
+}): Promise<{
+  url: string;
+  anonKey: string;
+  serviceRoleKey: string | undefined;
+  previewProjectRef: string;
+}> {
   const { accessToken, stagingProjectRef, prNumber } = options;
   const parent = encodeURIComponent(stagingProjectRef.trim());
 
@@ -290,7 +307,9 @@ export async function resolvePreviewSupabaseEnv(options: {
     );
   }
 
-  return { url, anonKey, previewProjectRef: previewRef };
+  const serviceRoleKey = pickServiceRoleKey(keys as SupabaseApiKeyRow[]);
+
+  return { url, anonKey, serviceRoleKey, previewProjectRef: previewRef };
 }
 
 function appendGithubEnv(githubEnvPath: string, name: string, value: string): void {
@@ -360,9 +379,17 @@ async function main(): Promise<void> {
     if (githubEnv) {
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
+      if (resolved.serviceRoleKey) {
+        appendGithubEnv(githubEnv, 'SUPABASE_SERVICE_ROLE_KEY', resolved.serviceRoleKey);
+      }
       console.log(
         `resolve-supabase-pr-preview-env: OK → preview project ${resolved.previewProjectRef} (PR #${prNumber}).`,
       );
+      if (!resolved.serviceRoleKey) {
+        console.log(
+          'resolve-supabase-pr-preview-env: no service_role in API keys response; set GitHub secret SUPABASE_SERVICE_ROLE_KEY on preview or ensure token can read service_role.',
+        );
+      }
     } else {
       console.log(
         JSON.stringify(

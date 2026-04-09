@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Apply supabase/seed.sql to a linked hosted Supabase project (staging or preview branch).
-# Used by CI and locally: PROJECT_REF=xxx SUPABASE_ACCESS_TOKEN=... SUPABASE_DB_PASSWORD=... npm run db:seed:remote
+# `npm run db:seed:remote` also runs `seed-remote-images.mjs` when SUPABASE_SERVICE_ROLE_KEY is set (uploads seed images).
+# Used by CI and locally: PROJECT_REF=xxx SUPABASE_ACCESS_TOKEN=... SUPABASE_DB_PASSWORD=... [SUPABASE_SERVICE_ROLE_KEY=...] npm run db:seed:remote
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
