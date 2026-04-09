@@ -1,0 +1,58 @@
+# Delete EAS Hosting preview deployment when a PR to main is closed (merged or not).
+# deploy-web-preview (ci.yml) comments include <!-- bike-bin-eas-deployment-id:... --> for this job.
+
+name: Close EAS web preview
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  delete-eas-web-preview:
+    name: Delete EAS Hosting PR preview
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.fork == false
+    environment: preview
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Load web preview comment from PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- bike-bin-web-preview -->';
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+            });
+            const existing = comments.find(
+              (c) => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker),
+            );
+            fs.writeFileSync('pr-preview-comment.md', existing?.body ?? '');
+
+      - name: Resolve EAS deployment id from comment
+        id: resolve
+        run: node --experimental-strip-types ./scripts/ciResolveEasPreviewDeploymentId.ts
+
+      - uses: expo/expo-github-action@v8
+        if: steps.resolve.outputs.has_deployment_id == 'true'
+        with:
+          eas-version: latest
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Delete EAS Hosting deployment
+        if: steps.resolve.outputs.has_deployment_id == 'true'
+        env:
+          DEPLOYMENT_ID: ${{ steps.resolve.outputs.deployment_id }}
+        run: eas deploy:delete "$DEPLOYMENT_ID" --non-interactive

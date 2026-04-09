@@ -144,6 +144,7 @@ Uses production build env from your machine (e.g. `.env.local`). For CI, workflo
 ### Automated deploy (CI)
 
 - **Pull requests** to `main`: the **CI** workflow runs **`deploy-web-preview`** after the **`build`** job succeeds (every push to the PR, including new commits). Same-repo branches only — `eas deploy --non-interactive --json` with `EXPO_PUBLIC_ENV=preview`; the job **comments on the PR** with the EAS Hosting preview URL (updates the same comment on each push). Fork PRs skip this job (no deploy).
+- **PR closed** (merged or not): **Close EAS web preview** (`.github/workflows/close-eas-web-preview.yml`) runs **`eas deploy:delete`** for that PR’s preview deployment so the hosted preview is removed.
 - **Push to `main`**: **Deploy web staging** (`.github/workflows/deploy-web-staging.yml`) runs after the **CI** workflow completes successfully — `eas deploy --alias staging --non-interactive` and `EXPO_PUBLIC_ENV=staging`.
 
 - **Version tags** (`v*`, e.g. `v1.2.3`): **Deploy web production** (`.github/workflows/deploy-web-production.yml`) runs on the tag push — `eas deploy --prod --non-interactive` and `EXPO_PUBLIC_ENV=production`.

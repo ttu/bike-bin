@@ -68,6 +68,8 @@ One **EAS project** is enough. Hosting gives:
 
 Details: [EAS Hosting — deployments and aliases](https://docs.expo.dev/eas/hosting/deployments-and-aliases/).
 
+When a PR to `main` is **closed**, **`.github/workflows/close-eas-web-preview.yml`** runs `eas deploy:delete` for the deployment id stored in the bot’s PR comment (from `eas deploy --json` `identifier`), so preview bundles do not linger after the PR ends.
+
 ### E2E against deployed web
 
 - **Staging** (`deploy-web-staging`): after deploy, CI runs **read-only** remote smoke (`npm run test:e2e:remote-smoke`) against the **per-deployment URL** from `eas deploy --json`, after polling until it returns HTTP success (no alias-only fallback).
@@ -199,7 +201,9 @@ If you also use the **Supabase GitHub integration** “deploy to production on `
 | File                                               | Role                                                                      |
 | -------------------------------------------------- | ------------------------------------------------------------------------- |
 | `.github/workflows/ci.yml`                         | Lint/test/build; `deploy-web-preview` (Supabase PR preview resolve + EAS) |
+| `.github/workflows/close-eas-web-preview.yml`      | PR closed → `eas deploy:delete` for that PR’s EAS preview                  |
 | `scripts/resolve-supabase-pr-preview-env.ts`       | Management API: PR branch → `EXPO_PUBLIC_*` for preview export            |
+| `scripts/easPreviewDeploymentIdFromPrComment.ts`   | Parse deployment id from preview PR comment (CI teardown)                 |
 | `.github/workflows/deploy-web-staging.yml`         | Staging after CI on `main`                                                |
 | `.github/workflows/deploy-web-production.yml`      | Production on tag `v*`                                                    |
 | `.github/workflows/deploy-supabase-staging.yml`    | Staging: `db push` + Edge Functions on `main`                             |

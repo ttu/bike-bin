@@ -226,8 +226,14 @@ jobs:
               core.setFailed('eas deploy JSON missing url');
               return;
             }
+            const identifier = data.identifier;
+            if (!identifier || typeof identifier !== 'string') {
+              core.setFailed('eas deploy JSON missing identifier');
+              return;
+            }
             const marker = '<!-- bike-bin-web-preview -->';
-            const lines = [marker, '', '### Web preview', '', `**URL:** ${url}`];
+            const idMarker = `<!-- bike-bin-eas-deployment-id:${identifier} -->`;
+            const lines = [marker, idMarker, '', '### Web preview', '', `**URL:** ${url}`];
             if (data.dashboardUrl) {
               lines.push('', `[Hosting dashboard](${data.dashboardUrl})`);
             }
