@@ -8,8 +8,7 @@ export function easPreviewDeploymentIdFromPrComment(body: string): string | unde
     return undefined;
   }
 
-  const tagged =
-    /<!--\s*bike-bin-eas-deployment-id:([a-zA-Z0-9_-]+)\s*-->/.exec(trimmed);
+  const tagged = /<!--\s*bike-bin-eas-deployment-id:([a-zA-Z0-9_-]+)\s*-->/.exec(trimmed);
   if (tagged?.[1]) {
     return tagged[1];
   }

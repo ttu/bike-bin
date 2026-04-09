@@ -201,7 +201,7 @@ If you also use the **Supabase GitHub integration** “deploy to production on `
 | File                                               | Role                                                                      |
 | -------------------------------------------------- | ------------------------------------------------------------------------- |
 | `.github/workflows/ci.yml`                         | Lint/test/build; `deploy-web-preview` (Supabase PR preview resolve + EAS) |
-| `.github/workflows/close-eas-web-preview.yml`      | PR closed → `eas deploy:delete` for that PR’s EAS preview                  |
+| `.github/workflows/close-eas-web-preview.yml`      | PR closed → `eas deploy:delete` for that PR’s EAS preview                 |
 | `scripts/resolve-supabase-pr-preview-env.ts`       | Management API: PR branch → `EXPO_PUBLIC_*` for preview export            |
 | `scripts/easPreviewDeploymentIdFromPrComment.ts`   | Parse deployment id from preview PR comment (CI teardown)                 |
 | `.github/workflows/deploy-web-staging.yml`         | Staging after CI on `main`                                                |
