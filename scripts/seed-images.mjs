@@ -12,6 +12,7 @@
  *
  * Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars,
  * or defaults to local Supabase (http://127.0.0.1:54321 + default service key).
+ * Hosted preview/staging: run after `seed-remote-sql.sh` via `npm run db:seed:remote` (see `seed-remote-images.mjs`).
  */
 
 import { createClient } from '@supabase/supabase-js';

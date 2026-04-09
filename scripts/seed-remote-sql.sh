@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Apply supabase/seed.sql to a linked hosted Supabase project (staging or preview branch).
-# Used by CI and locally: PROJECT_REF=xxx SUPABASE_ACCESS_TOKEN=... SUPABASE_DB_PASSWORD=... npm run db:seed:remote
+# `npm run db:seed:remote` runs `seed-remote-images.mjs` unconditionally after this script; that step uploads seed images when
+# SUPABASE_SERVICE_ROLE_KEY is set (required for uploads in CI). On GitHub Actions without the key it exits with an error
+# and blocks the chain; locally without the key it logs and exits successfully so the chain continues. The key is required
+# for image uploads in CI but optional locally.
+# Used by CI and locally: PROJECT_REF=xxx SUPABASE_ACCESS_TOKEN=... SUPABASE_DB_PASSWORD=... [SUPABASE_SERVICE_ROLE_KEY=...] npm run db:seed:remote
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

@@ -1,5 +1,5 @@
 # Push migrations + seed.sql + Edge Functions to staging Supabase (GitHub Environment: staging).
-# Repo secret: SUPABASE_ACCESS_TOKEN. Environment "staging": variable SUPABASE_PROJECT_REF, secret SUPABASE_DB_PASSWORD.
+# Repo secret: SUPABASE_ACCESS_TOKEN. Environment "staging": variable SUPABASE_PROJECT_REF; secrets SUPABASE_DB_PASSWORD, SUPABASE_SERVICE_ROLE_KEY (SQL + seed images).
 
 name: Deploy Supabase staging
 
@@ -9,7 +9,12 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'supabase/seed.sql'
+      - 'supabase/seed-images/**'
       - 'supabase/functions/**'
+      - 'scripts/seed-remote-sql.sh'
+      - 'scripts/seed-remote-images.mjs'
+      - 'scripts/hostedSupabaseUrl.cjs'
+      - 'scripts/seed-images.mjs'
       - '.github/workflows/deploy-supabase-staging.yml'
   workflow_dispatch:
 
@@ -31,6 +36,7 @@ jobs:
         env:
           TOKEN_SET: ${{ secrets.SUPABASE_ACCESS_TOKEN != '' }}
           DB_PASSWORD_SET: ${{ secrets.SUPABASE_DB_PASSWORD != '' }}
+          SERVICE_ROLE_SET: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}
           PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
         run: |
           if [ "$TOKEN_SET" != "true" ]; then
@@ -48,6 +54,18 @@ jobs:
             echo "Settings → Environments → staging → Environment secrets"
             exit 1
           fi
+          if [ "$SERVICE_ROLE_SET" != "true" ]; then
+            echo "Missing GitHub Environment \"staging\" secret SUPABASE_SERVICE_ROLE_KEY (required to upload seed images after SQL seed)."
+            echo "Settings → Project Settings → API → service_role key"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
 
       - uses: supabase/setup-cli@v1
         with:
@@ -66,12 +84,13 @@ jobs:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: supabase db push --linked
 
-      - name: Seed database (test data)
+      - name: Seed database and seed images (test data)
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
-        run: bash scripts/seed-remote-sql.sh
+        run: npm run db:seed:remote
 
       - name: Deploy Edge Functions
         env:
