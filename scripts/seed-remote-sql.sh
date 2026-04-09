@@ -16,5 +16,10 @@ if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
   echo "seed-remote-sql.sh: SUPABASE_DB_PASSWORD is required for supabase link to hosted Postgres" >&2
   exit 1
 fi
+SEED_FILE="$ROOT/supabase/seed.sql"
+if [ ! -f "$SEED_FILE" ]; then
+  echo "seed-remote-sql.sh: seed file not found: supabase/seed.sql (expected at $SEED_FILE)" >&2
+  exit 1
+fi
 supabase link --project-ref "$PROJECT_REF" --yes
 supabase db query --linked -f supabase/seed.sql

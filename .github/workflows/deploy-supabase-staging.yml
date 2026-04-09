@@ -30,6 +30,7 @@ jobs:
       - name: Require Supabase credentials
         env:
           TOKEN_SET: ${{ secrets.SUPABASE_ACCESS_TOKEN != '' }}
+          DB_PASSWORD_SET: ${{ secrets.SUPABASE_DB_PASSWORD != '' }}
           PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
         run: |
           if [ "$TOKEN_SET" != "true" ]; then
@@ -40,6 +41,11 @@ jobs:
           if [ -z "$PROJECT_REF" ]; then
             echo "Missing GitHub Environment \"staging\" variable SUPABASE_PROJECT_REF (Supabase project ref from dashboard URL)."
             echo "Settings → Environments → staging → Environment variables"
+            exit 1
+          fi
+          if [ "$DB_PASSWORD_SET" != "true" ]; then
+            echo "Missing GitHub Environment \"staging\" secret SUPABASE_DB_PASSWORD (database password for supabase link / remote SQL)."
+            echo "Settings → Environments → staging → Environment secrets"
             exit 1
           fi
 

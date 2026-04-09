@@ -31,7 +31,7 @@ npm run dev              # Starts local Supabase, then Expo dev server
 | `npm run db:reset`         | Recreate DB from `supabase/migrations`                                                                                                                              |
 | `npm run db:seed`          | `db:reset` then image seed script (`scripts/seed-images.mjs`)                                                                                                       |
 | `npm run db:seed:remote`   | Apply `supabase/seed.sql` to a **hosted** Supabase project (env: `PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`; runs `scripts/seed-remote-sql.sh`) |
-| `npm run db:nuke`          | Harder reset: stop without backup, start, reset, seed images                                                                                                        |
+| `npm run db:nuke`          | Stop without backup, start local Supabase, then image seed (`scripts/seed-images.mjs`); does **not** run `supabase db reset`                                        |
 | `npm run db:status`        | Services, ports, API keys (for local env)                                                                                                                           |
 | `npm run db:enable-signup` | Toggles `enable_signup` in `supabase/config.toml` (macOS `sed` — adjust on Linux if needed)                                                                         |
 | `npm run dev:fresh`        | Enables signup, nuke/reset/seed, then `expo start` — use when you need a clean slate                                                                                |

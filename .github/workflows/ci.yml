@@ -162,6 +162,7 @@ jobs:
           echo "Default remote E2E suite (from resolver): $SUITE"
           echo "Preview project ref for seed (if any): ${PREVIEW_REF:-<none>}"
       - uses: supabase/setup-cli@v1
+        if: ${{ steps.supabase_e2e.outputs.preview_project_ref != '' }}
         with:
           version: latest
       - name: Seed preview Supabase branch (SQL)
