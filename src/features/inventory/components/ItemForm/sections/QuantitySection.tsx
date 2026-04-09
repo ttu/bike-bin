@@ -3,41 +3,41 @@ import { useTranslation } from 'react-i18next';
 import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
-interface NameSectionProps extends InputStyling {
-  nameFieldValue: ItemFormState['nameFieldValue'];
-  setName: ItemFormState['setName'];
+interface QuantitySectionProps extends InputStyling {
+  quantityStr: ItemFormState['quantityStr'];
+  setQuantityStr: ItemFormState['setQuantityStr'];
   errors: ItemFormState['errors'];
 }
 
-export function NameSection({
-  nameFieldValue,
-  setName,
+export function QuantitySection({
+  quantityStr,
+  setQuantityStr,
   errors,
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: NameSectionProps) {
+}: QuantitySectionProps) {
   const { t } = useTranslation('inventory');
 
   return (
     <>
       <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
-        {t('form.nameLabel')}
+        {t('form.quantityLabel')}
       </Text>
       <TextInput
         mode="flat"
-        testID="item-form-name-input"
-        value={nameFieldValue}
-        onChangeText={setName}
-        placeholder={t('form.namePlaceholder')}
-        error={!!errors.name}
+        value={quantityStr}
+        onChangeText={setQuantityStr}
+        placeholder={t('form.quantityPlaceholder')}
+        keyboardType="number-pad"
+        error={!!errors.quantity}
         style={softInputStyle}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
-      {errors.name && (
+      {errors.quantity && (
         <HelperText type="error" visible>
-          {errors.name}
+          <Text variant="bodySmall">{errors.quantity}</Text>
         </HelperText>
       )}
     </>

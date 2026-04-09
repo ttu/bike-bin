@@ -25,7 +25,10 @@ export interface InputStyling {
 
 export interface ItemFormState {
   // Basic fields
+  /** User-entered title; when blank, the name field shows brand + model (see `nameFieldValue`). */
   name: string;
+  /** Value for the name TextInput: explicit `name`, or combined brand/model when `name` is blank. */
+  nameFieldValue: string;
   setName: (v: string) => void;
   quantityStr: string;
   setQuantityStr: (v: string) => void;

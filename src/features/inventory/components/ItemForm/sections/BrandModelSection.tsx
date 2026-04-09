@@ -5,6 +5,7 @@ import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface BrandModelSectionProps extends InputStyling {
+  name: ItemFormState['name'];
   brand: ItemFormState['brand'];
   brandMenuVisible: ItemFormState['brandMenuVisible'];
   handleBrandFocus: ItemFormState['handleBrandFocus'];
@@ -18,6 +19,7 @@ interface BrandModelSectionProps extends InputStyling {
 }
 
 export function BrandModelSection({
+  name,
   brand,
   brandMenuVisible,
   handleBrandFocus,
@@ -33,13 +35,20 @@ export function BrandModelSection({
   activeUnderlineColor,
 }: BrandModelSectionProps) {
   const { t } = useTranslation('inventory');
+  const nameIsEmpty = name.trim().length === 0;
+  const brandPlaceholder = nameIsEmpty
+    ? t('form.brandPlaceholderWhenNameEmpty')
+    : t('form.brandPlaceholder');
+  const modelPlaceholder = nameIsEmpty
+    ? t('form.modelPlaceholderWhenNameEmpty')
+    : t('form.modelPlaceholder');
 
   return (
     <>
       <BrandAutocompleteInput
         label={t('form.brandLabel')}
         labelStyle={[styles.label, styles.sectionLabel]}
-        placeholder={t('form.brandPlaceholder')}
+        placeholder={brandPlaceholder}
         value={brand}
         filteredBrands={filteredBrands}
         menuVisible={brandMenuVisible}
@@ -60,7 +69,7 @@ export function BrandModelSection({
         mode="flat"
         value={model}
         onChangeText={setModel}
-        placeholder={t('form.modelPlaceholder')}
+        placeholder={modelPlaceholder}
         style={softInputStyle}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}

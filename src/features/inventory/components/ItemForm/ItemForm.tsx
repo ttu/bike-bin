@@ -8,6 +8,7 @@ import type { ItemFormProps, InputStyling } from './types';
 import { styles } from './styles';
 import {
   NameSection,
+  QuantitySection,
   CategorySection,
   ConditionSection,
   RemainingFractionSection,
@@ -50,8 +51,28 @@ export function ItemForm({
       {photoSection}
 
       <NameSection
-        name={state.name}
+        nameFieldValue={state.nameFieldValue}
         setName={state.setName}
+        errors={state.errors}
+        {...inputStyling}
+      />
+
+      <BrandModelSection
+        name={state.name}
+        brand={state.brand}
+        brandMenuVisible={state.brandMenuVisible}
+        handleBrandFocus={state.handleBrandFocus}
+        handleBrandBlur={state.handleBrandBlur}
+        cancelBrandBlurTimeout={state.cancelBrandBlurTimeout}
+        filteredBrands={state.filteredBrands}
+        model={state.model}
+        setModel={state.setModel}
+        handleBrandSelect={state.handleBrandSelect}
+        handleBrandInputChange={state.handleBrandInputChange}
+        {...inputStyling}
+      />
+
+      <QuantitySection
         quantityStr={state.quantityStr}
         setQuantityStr={state.setQuantityStr}
         errors={state.errors}
@@ -83,20 +104,6 @@ export function ItemForm({
           {...inputStyling}
         />
       )}
-
-      <BrandModelSection
-        brand={state.brand}
-        brandMenuVisible={state.brandMenuVisible}
-        handleBrandFocus={state.handleBrandFocus}
-        handleBrandBlur={state.handleBrandBlur}
-        cancelBrandBlurTimeout={state.cancelBrandBlurTimeout}
-        filteredBrands={state.filteredBrands}
-        model={state.model}
-        setModel={state.setModel}
-        handleBrandSelect={state.handleBrandSelect}
-        handleBrandInputChange={state.handleBrandInputChange}
-        {...inputStyling}
-      />
 
       <AvailabilitySection
         availabilityTypes={state.availabilityTypes}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 
+import { resolveItemFormName } from '../../utils/resolveItemFormName';
 import { validateItem } from '../../utils/validation';
 import type { ItemFormData, ItemFormErrors } from '../../utils/validation';
 import {
@@ -125,6 +126,12 @@ export function useItemFormState({
   const isSellable = availabilityTypes.includes(AvailabilityType.Sellable);
   const isBorrowable = availabilityTypes.includes(AvailabilityType.Borrowable);
 
+  /** When the user has not entered a title, the name field reflects brand + model as they change. */
+  const nameFieldValue = useMemo(
+    () => (name.trim() === '' ? resolveItemFormName('', brand, model) : name),
+    [name, brand, model],
+  );
+
   const filteredTagSuggestions = useMemo(() => {
     if (!userTags || !tagInput.trim()) return [];
     const q = tagInput.toLowerCase();
@@ -202,8 +209,10 @@ export function useItemFormState({
 
     const parsedQuantity = parseInt(quantityStr.trim(), 10);
 
+    const resolvedName = resolveItemFormName(name, brand, model);
+
     const formData: ItemFormData = {
-      name,
+      name: resolvedName,
       quantity: Number.isNaN(parsedQuantity) ? undefined : parsedQuantity,
       category,
       subcategory: subcategory || undefined,
@@ -265,6 +274,7 @@ export function useItemFormState({
 
   return {
     name,
+    nameFieldValue,
     setName,
     quantityStr,
     setQuantityStr,
