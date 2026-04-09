@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 
 // Capture mock functions outside jest.mock for test access
 let mockGetItemFn: jest.Mock;
@@ -147,27 +147,30 @@ describe('useOfflineQueue', () => {
 
     const { result } = renderHook(() => useOfflineQueue());
 
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => {
+      expect(mockGetItemFn).toHaveBeenCalledWith('offline-mutation-queue');
     });
 
     await act(async () => {
       result.current.registerHandler('createItem', mockHandler);
       result.current.enqueue('createItem', { name: 'First' });
-      await new Promise((resolve) => setTimeout(resolve, 80));
     });
 
-    expect(mockHandler).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
 
     await act(async () => {
       result.current.enqueue('createItem', { name: 'Second' });
       releaseFirst();
-      await new Promise((resolve) => setTimeout(resolve, 150));
     });
 
-    expect(mockHandler).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(mockHandler).toHaveBeenCalledTimes(2);
+      expect(result.current.pendingCount).toBe(0);
+    });
+
     expect(mockHandler).toHaveBeenNthCalledWith(2, { name: 'Second' });
-    expect(result.current.pendingCount).toBe(0);
   });
 
   it('replays queued mutations when online and handler is registered', async () => {

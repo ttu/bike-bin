@@ -1,14 +1,17 @@
 import '@testing-library/react-native/matchers';
 
 // Avoid loading native WebBrowser / auth-session in Jest (pulls in via auth → OAuth helpers).
+// Default mocks must return the same shapes as the Expo APIs when awaited (see signInWithOAuthProvider).
 jest.mock('expo-web-browser', () => ({
   __esModule: true,
-  openAuthSessionAsync: jest.fn(),
-  dismissBrowser: jest.fn(),
-  openBrowserAsync: jest.fn(),
-  maybeCompleteAuthSession: jest.fn(),
-  warmUpAsync: jest.fn(),
-  coolDownAsync: jest.fn(),
+  openAuthSessionAsync: jest
+    .fn()
+    .mockResolvedValue({ type: 'success', url: 'https://example.com/callback' }),
+  dismissBrowser: jest.fn().mockResolvedValue(undefined),
+  openBrowserAsync: jest.fn().mockResolvedValue({ type: 'cancel' }),
+  maybeCompleteAuthSession: jest.fn().mockReturnValue(true),
+  warmUpAsync: jest.fn().mockResolvedValue(undefined),
+  coolDownAsync: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('expo-auth-session', () => ({
