@@ -51,7 +51,7 @@ export function ItemForm({
       {photoSection}
 
       <NameSection
-        name={state.name}
+        nameFieldValue={state.nameFieldValue}
         setName={state.setName}
         errors={state.errors}
         {...inputStyling}

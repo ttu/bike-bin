@@ -163,11 +163,21 @@ describe('ItemForm', () => {
     });
   });
 
+  it('shows brand and model combined in the name field when the title is blank', () => {
+    const { getByTestId, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Shimano'), 'Shimano');
+    expect(getByTestId('item-form-name-input').props.value).toBe('Shimano');
+
+    fireEvent.changeText(getByPlaceholderText('e.g. XTR 1500'), 'XTR 1500');
+    expect(getByTestId('item-form-name-input').props.value).toBe('Shimano XTR 1500');
+  });
+
   it('derives name from brand and model when the name field is blank', async () => {
     const { getByText, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
 
-    fireEvent.changeText(getByPlaceholderText('Shimano'), 'Shimano');
-    fireEvent.changeText(getByPlaceholderText('XTR 1500'), 'XTR 1500');
+    fireEvent.changeText(getByPlaceholderText('e.g. Shimano'), 'Shimano');
+    fireEvent.changeText(getByPlaceholderText('e.g. XTR 1500'), 'XTR 1500');
     fireEvent.press(getByText('Components'));
     fireEvent.press(getByText('Good'));
     fireEvent.press(getByText('Save'));

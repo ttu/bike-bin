@@ -126,6 +126,12 @@ export function useItemFormState({
   const isSellable = availabilityTypes.includes(AvailabilityType.Sellable);
   const isBorrowable = availabilityTypes.includes(AvailabilityType.Borrowable);
 
+  /** When the user has not entered a title, the name field reflects brand + model as they change. */
+  const nameFieldValue = useMemo(
+    () => (name.trim() === '' ? resolveItemFormName('', brand, model) : name),
+    [name, brand, model],
+  );
+
   const filteredTagSuggestions = useMemo(() => {
     if (!userTags || !tagInput.trim()) return [];
     const q = tagInput.toLowerCase();
@@ -268,6 +274,7 @@ export function useItemFormState({
 
   return {
     name,
+    nameFieldValue,
     setName,
     quantityStr,
     setQuantityStr,

@@ -4,13 +4,13 @@ import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface NameSectionProps extends InputStyling {
-  name: ItemFormState['name'];
+  nameFieldValue: ItemFormState['nameFieldValue'];
   setName: ItemFormState['setName'];
   errors: ItemFormState['errors'];
 }
 
 export function NameSection({
-  name,
+  nameFieldValue,
   setName,
   errors,
   softInputStyle,
@@ -26,7 +26,8 @@ export function NameSection({
       </Text>
       <TextInput
         mode="flat"
-        value={name}
+        testID="item-form-name-input"
+        value={nameFieldValue}
         onChangeText={setName}
         placeholder={t('form.namePlaceholder')}
         error={!!errors.name}
