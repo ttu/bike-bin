@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 
+import { resolveItemFormName } from '../../utils/resolveItemFormName';
 import { validateItem } from '../../utils/validation';
 import type { ItemFormData, ItemFormErrors } from '../../utils/validation';
 import {
@@ -202,8 +203,10 @@ export function useItemFormState({
 
     const parsedQuantity = parseInt(quantityStr.trim(), 10);
 
+    const resolvedName = resolveItemFormName(name, brand, model);
+
     const formData: ItemFormData = {
-      name,
+      name: resolvedName,
       quantity: Number.isNaN(parsedQuantity) ? undefined : parsedQuantity,
       category,
       subcategory: subcategory || undefined,

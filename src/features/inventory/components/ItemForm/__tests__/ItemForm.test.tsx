@@ -163,6 +163,26 @@ describe('ItemForm', () => {
     });
   });
 
+  it('derives name from brand and model when the name field is blank', async () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
+
+    fireEvent.changeText(getByPlaceholderText('Shimano'), 'Shimano');
+    fireEvent.changeText(getByPlaceholderText('XTR 1500'), 'XTR 1500');
+    fireEvent.press(getByText('Components'));
+    fireEvent.press(getByText('Good'));
+    fireEvent.press(getByText('Save'));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Shimano XTR 1500',
+          brand: 'Shimano',
+          model: 'XTR 1500',
+        }),
+      );
+    });
+  });
+
   it('submits optional bought and mounted dates from More details', async () => {
     const { getByText, getByPlaceholderText, getAllByPlaceholderText } = renderWithProviders(
       <ItemForm {...defaultProps} />,

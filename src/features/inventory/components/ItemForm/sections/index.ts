@@ -1,4 +1,5 @@
 export { NameSection } from './NameSection';
+export { QuantitySection } from './QuantitySection';
 export { CategorySection } from './CategorySection';
 export { ConditionSection } from './ConditionSection';
 export { RemainingFractionSection } from './RemainingFractionSection';
