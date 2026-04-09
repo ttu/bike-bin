@@ -34,8 +34,13 @@ function main() {
     process.exit(0);
   }
 
+  process.env.SUPABASE_SERVICE_ROLE_KEY = serviceRole;
+
   const explicitUrl = process.env.SUPABASE_URL?.trim();
   const projectRef = process.env.PROJECT_REF?.trim();
+  if (projectRef) {
+    process.env.PROJECT_REF = projectRef;
+  }
 
   if (!explicitUrl) {
     if (!projectRef) {
@@ -43,6 +48,8 @@ function main() {
       process.exit(1);
     }
     process.env.SUPABASE_URL = supabaseHostedProjectUrl(projectRef);
+  } else {
+    process.env.SUPABASE_URL = explicitUrl;
   }
 
   const script = path.join(__dirname, 'seed-images.mjs');

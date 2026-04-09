@@ -152,7 +152,9 @@ You can also run **Deploy web staging** manually from the Actions tab (**workflo
 
 ### Supabase staging (migrations + Edge Functions + seed on `main`)
 
-When **`supabase/migrations/**`**, **`supabase/seed.sql`**, **`supabase/seed-images/**`**, or **`supabase/functions/**`** changes on **`main`**, **Deploy Supabase staging** (`.github/workflows/deploy-supabase-staging.yml`) runs **`supabase db push`**, applies **`supabase/seed.sql`** and uploads **seed images** to Storage (same as local), then deploys all Edge Functions under `supabase/functions/`. The job uses GitHub Environment **`staging`** (`SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`, **`SUPABASE_SERVICE_ROLE_KEY`**) plus repository **`SUPABASE_ACCESS_TOKEN`\*\*.
+When **`supabase/migrations/**`**, **`supabase/seed.sql`**, **`supabase/seed-images/**`**, or **`supabase/functions/**`** changes on **`main`**, **Deploy Supabase staging** (`.github/workflows/deploy-supabase-staging.yml`) runs **`supabase db push`**, applies **`supabase/seed.sql`** and uploads **seed images** to Storage (same as local), then deploys all Edge Functions under `supabase/functions/`.
+
+The job uses GitHub Environment **`staging`** (`SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`, **`SUPABASE_SERVICE_ROLE_KEY`**) plus repository **`SUPABASE_ACCESS_TOKEN`**.
 
 **PR web previews:** when CI resolves a Supabase **preview branch** for the PR (see [testing.md](testing.md) remote E2E), **`deploy-web-preview`** runs **`db:seed:remote`** (SQL + images) against that branch before `eas deploy` so Dev Login, inventory, and thumbnails match local. The **`preview`** environment needs **`SUPABASE_DB_PASSWORD`** so `supabase link` can reach the preview project’s Postgres (use the branch project’s database password from the Supabase dashboard if it differs from staging), and **`SUPABASE_SERVICE_ROLE_KEY`** for the preview branch project (or the same key scope your pipeline uses) so Storage uploads succeed.
 

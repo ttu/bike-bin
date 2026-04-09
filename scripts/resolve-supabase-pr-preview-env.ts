@@ -317,6 +317,11 @@ function appendGithubEnv(githubEnvPath: string, name: string, value: string): vo
   appendFileSync(githubEnvPath, line, 'utf8');
 }
 
+/** Register a value for GitHub Actions log masking before writing it to `GITHUB_ENV`. */
+function appendGithubMask(value: string): void {
+  console.log(`::add-mask::${value}`);
+}
+
 function writeFallback(
   githubEnv: string | undefined,
   fallbackUrl: string,
@@ -380,6 +385,7 @@ async function main(): Promise<void> {
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
       if (resolved.serviceRoleKey) {
+        appendGithubMask(resolved.serviceRoleKey);
         appendGithubEnv(githubEnv, 'SUPABASE_SERVICE_ROLE_KEY', resolved.serviceRoleKey);
       }
       console.log(
