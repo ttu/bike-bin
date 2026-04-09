@@ -118,7 +118,7 @@ Row-Level Security tests verify that Supabase RLS policies correctly restrict da
 - **type-check** — `tsc --noEmit`
 - **test** — `test:coverage` + Codecov upload
 - **build** — `expo export --platform web`
-- **deploy-web-preview** / **e2e-remote-preview** (same-repo PRs) — after EAS preview deploy, Playwright against the preview URL. Default suite comes from **`.bike-bin-ci-supabase.json`** written by `ci:resolve-supabase-pr-preview` (**`full`** if a Supabase preview branch was resolved, **`smoke`** if staging/fallback credentials were used). Override with GitHub Environment **preview** variable **`E2E_REMOTE_SUITE`** (`smoke` or `full`).
+- **deploy-web-preview** / **e2e-remote-preview** (same-repo PRs) — when a preview branch is resolved, CI applies **`supabase/seed.sql`** to that branch before `eas deploy`; after deploy, Playwright runs against the preview URL. Default suite comes from **`.bike-bin-ci-supabase.json`** written by `ci:resolve-supabase-pr-preview` (**`full`** if a Supabase preview branch was resolved, **`smoke`** if staging/fallback credentials were used; metadata may include **`previewProjectRef`** for the seed step). Override with GitHub Environment **preview** variable **`E2E_REMOTE_SUITE`** (`smoke` or `full`).
 - **Deploy web staging** (`.github/workflows/deploy-web-staging.yml`) runs **`test:e2e:remote-smoke`** after `eas deploy --alias staging`, using the **per-deployment `url`** from `eas deploy --json` (polls until that URL responds — no stable-alias fallback, which could serve stale content).
 - Optional / non-blocking jobs may include a11y, macOS Playwright+Maestro (`test:e2e` with local Metro + global setup), SonarCloud, visual placeholders
 

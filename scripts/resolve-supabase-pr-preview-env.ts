@@ -7,7 +7,8 @@
  * - GET /v1/projects/{preview_ref}/api-keys?reveal=true → anon / publishable key
  *
  * Writes to GITHUB_ENV when set; otherwise prints JSON (for local debugging without secrets).
- * Always writes **.bike-bin-ci-supabase.json** in the cwd with `{ "e2eRemoteSuite": "full" | "smoke" }`
+ * Always writes **.bike-bin-ci-supabase.json** in the cwd with
+ * `{ "e2eRemoteSuite": "full" | "smoke", "previewProjectRef"?: string }`
  * so CI can default Playwright remote E2E (`full` only for isolated preview branches; `smoke` for staging/fallback).
  *
  * Env (CI):
@@ -32,6 +33,12 @@ export const BIKE_BIN_CI_SUPABASE_METADATA_FILENAME = '.bike-bin-ci-supabase.jso
 
 export type BikeBinCiSupabaseE2eRemoteSuite = 'full' | 'smoke';
 
+export type BikeBinCiSupabaseMetadata = {
+  e2eRemoteSuite: BikeBinCiSupabaseE2eRemoteSuite;
+  /** Set when `e2eRemoteSuite` is `full` — Supabase preview branch project ref (for CI SQL seed). */
+  previewProjectRef?: string;
+};
+
 /**
  * `full` — Management API resolved a Supabase **preview branch** for this PR (disposable DB).
  * `smoke` — static fallback / staging credentials (shared DB; do not run mutating remote E2E).
@@ -39,9 +46,15 @@ export type BikeBinCiSupabaseE2eRemoteSuite = 'full' | 'smoke';
 export function writeBikeBinCiSupabaseMetadata(
   e2eRemoteSuite: BikeBinCiSupabaseE2eRemoteSuite,
   cwd: string = process.cwd(),
+  options?: { previewProjectRef?: string },
 ): void {
   const path = join(cwd, BIKE_BIN_CI_SUPABASE_METADATA_FILENAME);
-  writeFileSync(path, `${JSON.stringify({ e2eRemoteSuite })}\n`, 'utf8');
+  const payload: BikeBinCiSupabaseMetadata = { e2eRemoteSuite };
+  const ref = options?.previewProjectRef?.trim();
+  if (ref) {
+    payload.previewProjectRef = ref;
+  }
+  writeFileSync(path, `${JSON.stringify(payload)}\n`, 'utf8');
 }
 
 const API_BASE = 'https://api.supabase.com/v1';
@@ -341,7 +354,9 @@ async function main(): Promise<void> {
       prNumber,
     });
 
-    writeBikeBinCiSupabaseMetadata('full');
+    writeBikeBinCiSupabaseMetadata('full', process.cwd(), {
+      previewProjectRef: resolved.previewProjectRef,
+    });
     if (githubEnv) {
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
       appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);

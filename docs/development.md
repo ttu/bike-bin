@@ -24,16 +24,17 @@ npm run dev              # Starts local Supabase, then Expo dev server
 
 ## Database scripts
 
-| Script                     | Description                                                                                 |
-| -------------------------- | ------------------------------------------------------------------------------------------- |
-| `npm run db:start`         | Start local Supabase (Postgres, Auth, Storage, Studio, …)                                   |
-| `npm run db:stop`          | Stop Supabase containers                                                                    |
-| `npm run db:reset`         | Recreate DB from `supabase/migrations`                                                      |
-| `npm run db:seed`          | `db:reset` then image seed script (`scripts/seed-images.mjs`)                               |
-| `npm run db:nuke`          | Harder reset: stop without backup, start, reset, seed images                                |
-| `npm run db:status`        | Services, ports, API keys (for local env)                                                   |
-| `npm run db:enable-signup` | Toggles `enable_signup` in `supabase/config.toml` (macOS `sed` — adjust on Linux if needed) |
-| `npm run dev:fresh`        | Enables signup, nuke/reset/seed, then `expo start` — use when you need a clean slate        |
+| Script                     | Description                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run db:start`         | Start local Supabase (Postgres, Auth, Storage, Studio, …)                                                                                                           |
+| `npm run db:stop`          | Stop Supabase containers                                                                                                                                            |
+| `npm run db:reset`         | Recreate DB from `supabase/migrations`                                                                                                                              |
+| `npm run db:seed`          | `db:reset` then image seed script (`scripts/seed-images.mjs`)                                                                                                       |
+| `npm run db:seed:remote`   | Apply `supabase/seed.sql` to a **hosted** Supabase project (env: `PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`; runs `scripts/seed-remote-sql.sh`) |
+| `npm run db:nuke`          | Stop without backup, start local Supabase, then image seed (`scripts/seed-images.mjs`); does **not** run `supabase db reset`                                        |
+| `npm run db:status`        | Services, ports, API keys (for local env)                                                                                                                           |
+| `npm run db:enable-signup` | Toggles `enable_signup` in `supabase/config.toml` (macOS `sed` — adjust on Linux if needed)                                                                         |
+| `npm run dev:fresh`        | Enables signup, nuke/reset/seed, then `expo start` — use when you need a clean slate                                                                                |
 
 ### Local Supabase ports (default)
 
@@ -128,7 +129,7 @@ The Expo web app is deployed to **[EAS Hosting](https://docs.expo.dev/eas/hostin
 3. **GitHub** — see [deployments.md](deployments.md) §7 for the full list. In short:
    - **Repository → Settings → Environments:** create **`preview`**, **`staging`**, **`production`**.
    - In **each** environment, add secrets **`EXPO_PUBLIC_SUPABASE_URL`**, **`EXPO_PUBLIC_SUPABASE_ANON_KEY`** (and optional **`EXPO_PUBLIC_SENTRY_DSN`**) with values for **that** Supabase project (or, for **`preview`**, as **fallback** when per-PR resolve is unavailable).
-   - On **`preview`**, add variable **`SUPABASE_STAGING_PROJECT_REF`** (staging parent project ref) so CI can resolve each PR’s Supabase preview branch URL and anon key via the Management API. If a preview branch does not exist for the PR, CI uses optional secrets **`STAGING_EXPO_PUBLIC_SUPABASE_URL`** / **`STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY`**, or the **`preview`** **`EXPO_PUBLIC_*`** secrets (often the same as staging) as fallback.
+   - On **`preview`**, add variable **`SUPABASE_STAGING_PROJECT_REF`** (staging parent project ref) so CI can resolve each PR’s Supabase preview branch URL and anon key via the Management API. If a preview branch does not exist for the PR, CI uses optional secrets **`STAGING_EXPO_PUBLIC_SUPABASE_URL`** / **`STAGING_EXPO_PUBLIC_SUPABASE_ANON_KEY`**, or the **`preview`** **`EXPO_PUBLIC_*`** secrets (often the same as staging) as fallback. Add secret **`SUPABASE_DB_PASSWORD`** on **`preview`** so CI can apply **`supabase/seed.sql`** to a resolved preview branch (`db:seed:remote`); use the branch project’s database password from the Supabase dashboard when it differs from staging.
    - In **`staging`** and **`production`**, add variable **`SUPABASE_PROJECT_REF`** and optional secret **`SUPABASE_DB_PASSWORD`** for Supabase CLI deploys.
    - **Repository → Secrets and variables → Actions → Secrets:** **`EXPO_TOKEN`**, **`SUPABASE_ACCESS_TOKEN`** (shared by all deploy jobs).
 
@@ -149,9 +150,11 @@ Uses production build env from your machine (e.g. `.env.local`). For CI, workflo
 
 You can also run **Deploy web staging** manually from the Actions tab (**workflow_dispatch** on `main`).
 
-### Supabase staging (migrations + Edge Functions on `main`)
+### Supabase staging (migrations + Edge Functions + seed on `main`)
 
-When **`supabase/migrations/**`or`supabase/functions/**`** changes on **`main`**, **Deploy Supabase staging** (`.github/workflows/deploy-supabase-staging.yml`) runs **`supabase db push`** and deploys all Edge Functions under `supabase/functions/`. The job uses GitHub Environment **`staging`** (`SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`) plus repository **`SUPABASE_ACCESS_TOKEN`**.
+When **`supabase/migrations/**`**, **`supabase/seed.sql`**, or **`supabase/functions/**`** changes on **`main`**, **Deploy Supabase staging** (`.github/workflows/deploy-supabase-staging.yml`) runs **`supabase db push`**, applies **`supabase/seed.sql`** to the staging database (test users `@bikebin.dev`, inventory, etc.), then deploys all Edge Functions under `supabase/functions/`. The job uses GitHub Environment **`staging`** (`SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`) plus repository **`SUPABASE_ACCESS_TOKEN`**.
+
+**PR web previews:** when CI resolves a Supabase **preview branch** for the PR (see [testing.md](testing.md) remote E2E), **`deploy-web-preview`** runs the same SQL seed against that branch before `eas deploy` so Dev Login and seeded data work on the preview URL. The **`preview`** environment needs **`SUPABASE_DB_PASSWORD`** so `supabase link` can reach the preview project’s Postgres (use the branch project’s database password from the Supabase dashboard if it differs from staging).
 
 ### Supabase production (migrations + Edge Functions on release tag)
 

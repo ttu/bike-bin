@@ -152,12 +152,26 @@ jobs:
           set -euo pipefail
           test -f .bike-bin-ci-supabase.json
           SUITE="$(node -p "JSON.parse(require('node:fs').readFileSync('.bike-bin-ci-supabase.json','utf8')).e2eRemoteSuite")"
+          PREVIEW_REF="$(node -p "String(JSON.parse(require('node:fs').readFileSync('.bike-bin-ci-supabase.json','utf8')).previewProjectRef || '')")"
           if [ "$SUITE" != "smoke" ] && [ "$SUITE" != "full" ]; then
             echo "::error::Invalid e2eRemoteSuite in .bike-bin-ci-supabase.json: $SUITE"
             exit 1
           fi
           echo "e2e_remote_suite=$SUITE" >> "$GITHUB_OUTPUT"
+          echo "preview_project_ref=$PREVIEW_REF" >> "$GITHUB_OUTPUT"
           echo "Default remote E2E suite (from resolver): $SUITE"
+          echo "Preview project ref for seed (if any): ${PREVIEW_REF:-<none>}"
+      - uses: supabase/setup-cli@v1
+        if: ${{ steps.supabase_e2e.outputs.preview_project_ref != '' }}
+        with:
+          version: latest
+      - name: Seed preview Supabase branch (SQL)
+        if: ${{ steps.supabase_e2e.outputs.preview_project_ref != '' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROJECT_REF: ${{ steps.supabase_e2e.outputs.preview_project_ref }}
+        run: bash scripts/seed-remote-sql.sh
       - run: npm ci
       - uses: expo/expo-github-action@v8
         with:
