@@ -138,9 +138,12 @@ export function useDeleteBike() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
-      queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
+    onSuccess: (_data, bikeId) => {
+      queryClient.invalidateQueries({ queryKey: ['bikes', bikeId] });
+      if (user?.id !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ['bikes', user.id] });
+        queryClient.invalidateQueries({ queryKey: ['items', user.id] });
+      }
     },
   });
 }

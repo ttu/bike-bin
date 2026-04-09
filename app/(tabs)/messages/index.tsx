@@ -1,4 +1,6 @@
+import { useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
+import type { ListRenderItem } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,9 +20,17 @@ export default function MessagesScreen() {
 
   const { data: conversations, isLoading } = useConversations();
 
-  const handleConversationPress = (conversation: ConversationListItem) => {
-    router.push(`/messages/${conversation.id}`);
-  };
+  const handleConversationPress = useCallback(
+    (conversation: ConversationListItem) => {
+      router.push(`/messages/${conversation.id}`);
+    },
+    [router],
+  );
+
+  const renderConversationItem = useCallback<ListRenderItem<ConversationListItem>>(
+    ({ item }) => <ConversationCard conversation={item} onPress={handleConversationPress} />,
+    [handleConversationPress],
+  );
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -62,9 +72,7 @@ export default function MessagesScreen() {
         <FlatList
           data={conversations}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ConversationCard conversation={item} onPress={handleConversationPress} />
-          )}
+          renderItem={renderConversationItem}
           contentContainerStyle={styles.listContent}
         />
       )}

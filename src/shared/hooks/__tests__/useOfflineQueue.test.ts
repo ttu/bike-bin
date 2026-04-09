@@ -135,6 +135,41 @@ describe('useOfflineQueue', () => {
     expect(mockHandler).not.toHaveBeenCalled();
   });
 
+  it('preserves mutations enqueued while an earlier mutation is still replaying', async () => {
+    mockIsOnline = true;
+    let releaseFirst: () => void = () => undefined;
+    const firstReplayBlocking = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const mockHandler = jest.fn().mockImplementation(async () => {
+      await firstReplayBlocking;
+    });
+
+    const { result } = renderHook(() => useOfflineQueue());
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    await act(async () => {
+      result.current.registerHandler('createItem', mockHandler);
+      result.current.enqueue('createItem', { name: 'First' });
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    });
+
+    expect(mockHandler).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      result.current.enqueue('createItem', { name: 'Second' });
+      releaseFirst();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    });
+
+    expect(mockHandler).toHaveBeenCalledTimes(2);
+    expect(mockHandler).toHaveBeenNthCalledWith(2, { name: 'Second' });
+    expect(result.current.pendingCount).toBe(0);
+  });
+
   it('replays queued mutations when online and handler is registered', async () => {
     // Start online so the replay effect runs after enqueue
     mockIsOnline = true;

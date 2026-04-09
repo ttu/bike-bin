@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
@@ -21,6 +21,40 @@ export const ConversationCard = memo(function ConversationCard({
 }: ConversationCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('messages');
+
+  const themedStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        containerSurface: {
+          backgroundColor: theme.colors.surface,
+          shadowColor: theme.colors.onSurface,
+        },
+        avatarIcon: {
+          backgroundColor: theme.colors.surfaceVariant,
+        },
+        unreadDot: {
+          backgroundColor: theme.colors.primary,
+          borderColor: theme.colors.background,
+        },
+        name: {
+          color: theme.colors.onSurface,
+        },
+        timestamp: {
+          color: theme.colors.onSurfaceVariant,
+        },
+        itemName: {
+          color: theme.colors.primary,
+        },
+        preview: {
+          color: theme.colors.onSurfaceVariant,
+        },
+        previewUnread: {
+          fontWeight: '600',
+          color: theme.colors.onSurface,
+        },
+      }),
+    [theme],
+  );
 
   const isCompleted =
     conversation.itemStatus === ItemStatus.Sold || conversation.itemStatus === ItemStatus.Donated;
@@ -47,14 +81,7 @@ export const ConversationCard = memo(function ConversationCard({
   return (
     <AnimatedPressable
       onPress={() => onPress?.(conversation)}
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.colors.surface,
-          shadowColor: theme.colors.onSurface,
-        },
-        isCompleted && styles.dimmed,
-      ]}
+      style={[styles.container, themedStyles.containerSurface, isCompleted && styles.dimmed]}
       accessibilityLabel={conversation.otherParticipantName || t('conversation.anonymousUser')}
       accessibilityRole="button"
     >
@@ -63,34 +90,20 @@ export const ConversationCard = memo(function ConversationCard({
         {conversation.otherParticipantAvatarUrl ? (
           <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={44} />
         ) : (
-          <Avatar.Icon
-            size={44}
-            icon="account"
-            style={{ backgroundColor: theme.colors.surfaceVariant }}
-          />
+          <Avatar.Icon size={44} icon="account" style={themedStyles.avatarIcon} />
         )}
         {conversation.unreadCount > 0 && (
-          <View
-            style={[
-              styles.unreadDot,
-              { backgroundColor: theme.colors.primary, borderColor: theme.colors.background },
-            ]}
-            testID="unread-dot"
-          />
+          <View style={[styles.unreadDot, themedStyles.unreadDot]} testID="unread-dot" />
         )}
       </View>
 
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.topRow}>
-          <Text
-            variant="titleSmall"
-            numberOfLines={1}
-            style={[styles.name, { color: theme.colors.onSurface }]}
-          >
+          <Text variant="titleSmall" numberOfLines={1} style={[styles.name, themedStyles.name]}>
             {conversation.otherParticipantName || t('conversation.anonymousUser')}
           </Text>
-          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+          <Text variant="labelSmall" style={themedStyles.timestamp}>
             {timestamp}
           </Text>
         </View>
@@ -99,7 +112,7 @@ export const ConversationCard = memo(function ConversationCard({
           <Text
             variant="bodySmall"
             numberOfLines={1}
-            style={[styles.itemName, { color: theme.colors.primary }]}
+            style={[styles.itemName, themedStyles.itemName]}
           >
             {itemLabel}
           </Text>
@@ -110,8 +123,7 @@ export const ConversationCard = memo(function ConversationCard({
           numberOfLines={1}
           style={[
             styles.preview,
-            { color: theme.colors.onSurfaceVariant },
-            conversation.unreadCount > 0 && { fontWeight: '600', color: theme.colors.onSurface },
+            conversation.unreadCount > 0 ? themedStyles.previewUnread : themedStyles.preview,
           ]}
         >
           {lastMessagePreview}

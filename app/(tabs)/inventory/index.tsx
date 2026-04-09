@@ -60,7 +60,10 @@ export default function InventoryScreen() {
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
 
-  const items = isAuthenticated ? (serverItems ?? []) : localItems;
+  const items = useMemo(
+    () => (isAuthenticated ? (serverItems ?? []) : localItems),
+    [isAuthenticated, serverItems, localItems],
+  );
   const isLoading = isAuthenticated ? serverLoading : localLoading;
 
   const filteredItems = useMemo(() => {

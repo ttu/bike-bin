@@ -60,11 +60,22 @@ export function useConversations() {
 
       if (apError) throw apError;
 
+      const participantsByConversationId = new Map<
+        string,
+        { conversation_id: string; user_id: string }
+      >();
+      for (const row of allParticipants ?? []) {
+        const cid = row.conversation_id as string;
+        if (!participantsByConversationId.has(cid)) {
+          participantsByConversationId.set(cid, row);
+        }
+      }
+
       const otherUserIds = [
         ...new Set(
           conversations
             .map((c) => {
-              const p = allParticipants?.find((x) => x.conversation_id === c.id);
+              const p = participantsByConversationId.get(c.id as string);
               return p?.user_id as string | undefined;
             })
             .filter((id): id is string => Boolean(id)),
@@ -73,11 +84,13 @@ export function useConversations() {
       const profileByUserId = await fetchPublicProfilesMap(otherUserIds);
 
       // Batch-fetch latest messages for all conversations (avoids N+1)
-      const { data: allMessages } = await supabase
+      const { data: allMessages, error: allMessagesError } = await supabase
         .from('messages')
         .select('conversation_id, body, sender_id, created_at')
         .in('conversation_id', conversationIds)
         .order('created_at', { ascending: false });
+
+      if (allMessagesError) throw allMessagesError;
 
       const lastMessageByConvId = new Map<
         string,
@@ -97,11 +110,13 @@ export function useConversations() {
       const itemIds = conversations.map((c) => c.item_id).filter((id): id is string => Boolean(id));
       const photoByItemId = new Map<string, string>();
       if (itemIds.length > 0) {
-        const { data: allPhotos } = await supabase
+        const { data: allPhotos, error: allPhotosError } = await supabase
           .from('item_photos')
           .select('item_id, storage_path')
           .in('item_id', itemIds)
           .order('sort_order', { ascending: true });
+
+        if (allPhotosError) throw allPhotosError;
 
         for (const photo of allPhotos ?? []) {
           if (!photoByItemId.has(photo.item_id as string)) {
@@ -111,7 +126,7 @@ export function useConversations() {
       }
 
       const results: ConversationListItem[] = conversations.map((conv) => {
-        const otherParticipant = allParticipants?.find((p) => p.conversation_id === conv.id);
+        const otherParticipant = participantsByConversationId.get(conv.id as string);
         const lastMsg = lastMessageByConvId.get(conv.id as string);
 
         let otherName: string | undefined;

@@ -48,7 +48,7 @@ export function useCreateBorrowRequest() {
         queryKey: ['items'],
       });
       void queryClient.invalidateQueries({
-        queryKey: ['searchItems'],
+        queryKey: ['search', 'items'],
       });
     },
   });

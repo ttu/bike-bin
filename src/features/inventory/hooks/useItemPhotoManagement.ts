@@ -31,6 +31,7 @@ export function useSwapItemPhotoOrder() {
     },
     onSuccess: (_data, { itemId }) => {
       queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
+      queryClient.invalidateQueries({ queryKey: ['items', itemId] });
       queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
     },
   });
@@ -55,6 +56,7 @@ export function useRemoveItemPhoto() {
     },
     onSuccess: (_data, { itemId }) => {
       queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
+      queryClient.invalidateQueries({ queryKey: ['items', itemId] });
       queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
     },
   });
