@@ -37,7 +37,7 @@ export function QuantitySection({
       />
       {errors.quantity && (
         <HelperText type="error" visible>
-          {errors.quantity}
+          <Text variant="bodySmall">{errors.quantity}</Text>
         </HelperText>
       )}
     </>

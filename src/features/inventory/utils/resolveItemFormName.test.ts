@@ -9,6 +9,11 @@ describe('resolveItemFormName', () => {
     expect(resolveItemFormName('', 'Shimano', 'XTR 1500')).toBe('Shimano XTR 1500');
   });
 
+  it('treats whitespace-only name as empty and joins brand and model', () => {
+    expect(resolveItemFormName('   ', 'Shimano', 'XTR 1500')).toBe('Shimano XTR 1500');
+    expect(resolveItemFormName('\t  \n', '', 'XTR')).toBe('XTR');
+  });
+
   it('uses only brand when model is empty', () => {
     expect(resolveItemFormName('', 'Shimano', '')).toBe('Shimano');
   });
