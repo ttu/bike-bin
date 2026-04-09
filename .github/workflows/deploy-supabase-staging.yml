@@ -1,4 +1,4 @@
-# Push migrations + Edge Functions to staging Supabase (GitHub Environment: staging).
+# Push migrations + seed.sql + Edge Functions to staging Supabase (GitHub Environment: staging).
 # Repo secret: SUPABASE_ACCESS_TOKEN. Environment "staging": variable SUPABASE_PROJECT_REF, secret SUPABASE_DB_PASSWORD.
 
 name: Deploy Supabase staging
@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'supabase/migrations/**'
+      - 'supabase/seed.sql'
       - 'supabase/functions/**'
       - '.github/workflows/deploy-supabase-staging.yml'
   workflow_dispatch:
@@ -58,6 +59,13 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: supabase db push --linked
+
+      - name: Seed database (test data)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: bash scripts/seed-remote-sql.sh
 
       - name: Deploy Edge Functions
         env:

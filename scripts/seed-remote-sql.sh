@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Apply supabase/seed.sql to a linked hosted Supabase project (staging or preview branch).
+# Used by CI and locally: PROJECT_REF=xxx SUPABASE_ACCESS_TOKEN=... SUPABASE_DB_PASSWORD=... npm run db:seed:remote
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+if [ -z "${PROJECT_REF:-}" ]; then
+  echo "seed-remote-sql.sh: PROJECT_REF is required (Supabase project ref)" >&2
+  exit 1
+fi
+if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
+  echo "seed-remote-sql.sh: SUPABASE_ACCESS_TOKEN is required" >&2
+  exit 1
+fi
+if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
+  echo "seed-remote-sql.sh: SUPABASE_DB_PASSWORD is required for supabase link to hosted Postgres" >&2
+  exit 1
+fi
+supabase link --project-ref "$PROJECT_REF" --yes
+supabase db query --linked -f supabase/seed.sql

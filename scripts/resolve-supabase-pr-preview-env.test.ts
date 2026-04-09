@@ -167,6 +167,11 @@ describe('writeBikeBinCiSupabaseMetadata', () => {
       expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({ e2eRemoteSuite: 'smoke' });
       writeBikeBinCiSupabaseMetadata('full', dir);
       expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({ e2eRemoteSuite: 'full' });
+      writeBikeBinCiSupabaseMetadata('full', dir, { previewProjectRef: 'preview-ref-99' });
+      expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({
+        e2eRemoteSuite: 'full',
+        previewProjectRef: 'preview-ref-99',
+      });
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
