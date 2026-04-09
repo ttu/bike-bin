@@ -16,6 +16,13 @@ describe('easPreviewDeploymentIdFromPrComment', () => {
     expect(easPreviewDeploymentIdFromPrComment(body)).toBe('or1170q9ix');
   });
 
+  it('parses deployment id with hyphens from expo.app hostname', () => {
+    const body = `<!-- bike-bin-web-preview -->
+### Web preview
+**URL:** https://my-app--ab-cd12ef.expo.app/`;
+    expect(easPreviewDeploymentIdFromPrComment(body)).toBe('ab-cd12ef');
+  });
+
   it('returns undefined when no marker or parseable URL', () => {
     expect(easPreviewDeploymentIdFromPrComment('')).toBeUndefined();
     expect(easPreviewDeploymentIdFromPrComment('no structured comment')).toBeUndefined();

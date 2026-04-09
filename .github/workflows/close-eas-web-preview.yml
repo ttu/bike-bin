@@ -35,10 +35,20 @@ jobs:
               repo: context.repo.repo,
               issue_number,
             });
-            const existing = comments.find(
-              (c) => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker),
-            );
+            // listComments is oldest-first; if multiple marker comments exist, use the latest.
+            let existing;
+            for (let i = comments.length - 1; i >= 0; i -= 1) {
+              const c = comments[i];
+              if (c.user?.login === 'github-actions[bot]' && c.body?.includes(marker)) {
+                existing = c;
+                break;
+              }
+            }
             fs.writeFileSync('pr-preview-comment.md', existing?.body ?? '');
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
 
       - name: Resolve EAS deployment id from comment
         id: resolve
