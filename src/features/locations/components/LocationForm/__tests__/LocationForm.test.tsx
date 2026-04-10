@@ -86,6 +86,22 @@ describe('LocationForm', () => {
     });
   });
 
+  it('shows geocode error when postcode lookup fails on blur', async () => {
+    mockGeocodePostcode.mockRejectedValue(new Error('network'));
+
+    const { getByPlaceholderText, getByText } = renderWithProviders(
+      <LocationForm {...defaultProps} />,
+    );
+
+    const postcodeInput = getByPlaceholderText('Enter your postcode');
+    fireEvent.changeText(postcodeInput, 'INVALID');
+    fireEvent(postcodeInput, 'blur');
+
+    await waitFor(() => {
+      expect(getByText('Could not find that postcode. Please check and try again.')).toBeTruthy();
+    });
+  });
+
   it('shows area preview after successful geocode', async () => {
     mockGeocodePostcode.mockResolvedValue({
       lat: 51.5,

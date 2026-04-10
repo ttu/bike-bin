@@ -32,7 +32,7 @@ const DEFAULT_RPC_DATA = { id: 'req-1' };
 const DEFAULT_SUPABASE_ERROR = { message: 'fail' };
 
 function setupChain(data?: unknown) {
-  const resolvedData = data ?? DEFAULT_RPC_DATA;
+  const resolvedData = data === undefined ? DEFAULT_RPC_DATA : data;
   mockSingle.mockResolvedValue({ data: resolvedData, error: null });
   mockSelect.mockReturnValue({ single: mockSingle });
   mockEq.mockReturnValue({ select: mockSelect, error: null, data: null });
@@ -41,15 +41,18 @@ function setupChain(data?: unknown) {
 }
 
 function setupRpc(data?: unknown) {
-  mockRpc.mockResolvedValue({ data: data ?? DEFAULT_RPC_DATA, error: null });
+  const resolvedData = data === undefined ? DEFAULT_RPC_DATA : data;
+  mockRpc.mockResolvedValue({ data: resolvedData, error: null });
 }
 
 function setupRpcError(error?: unknown) {
-  mockRpc.mockResolvedValue({ data: null, error: error ?? DEFAULT_SUPABASE_ERROR });
+  const resolvedError = error === undefined ? DEFAULT_SUPABASE_ERROR : error;
+  mockRpc.mockResolvedValue({ data: null, error: resolvedError });
 }
 
 function setupChainError(error?: unknown) {
-  mockSingle.mockResolvedValue({ data: null, error: error ?? DEFAULT_SUPABASE_ERROR });
+  const resolvedError = error === undefined ? DEFAULT_SUPABASE_ERROR : error;
+  mockSingle.mockResolvedValue({ data: null, error: resolvedError });
   mockSelect.mockReturnValue({ single: mockSingle });
   mockEq.mockReturnValue({ select: mockSelect });
   mockInsert.mockReturnValue({ select: mockSelect });

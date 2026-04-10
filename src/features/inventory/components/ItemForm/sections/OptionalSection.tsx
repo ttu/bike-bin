@@ -334,7 +334,7 @@ function UsageField({
           value={usage}
           onChangeText={setUsage}
           placeholder={t('form.usagePlaceholder')}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           style={[softInputStyle, styles.usageInput]}
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}

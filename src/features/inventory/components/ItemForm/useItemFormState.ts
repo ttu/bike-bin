@@ -228,7 +228,13 @@ export function useItemFormState({
       borrowDuration: isBorrowable && borrowDuration ? borrowDuration : undefined,
       storageLocation: storageLocation || undefined,
       age: age || undefined,
-      usageKm: usage ? displayUnitToKm(Number.parseInt(usage, 10), distanceUnit) : undefined,
+      usageKm: (() => {
+        const raw = usage.trim();
+        if (!raw) return undefined;
+        const n = Number.parseFloat(raw.replace(',', '.'));
+        if (!Number.isFinite(n)) return undefined;
+        return displayUnitToKm(n, distanceUnit);
+      })(),
       remainingFraction: parsedRemaining,
       purchaseDate: purchaseDate.trim() || undefined,
       mountedDate: mountedDate.trim() || undefined,

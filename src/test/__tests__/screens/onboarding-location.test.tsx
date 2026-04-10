@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import LocationSetupScreen from '../../../../app/(onboarding)/location';
 
@@ -32,12 +32,13 @@ jest.mock('@/features/auth', () => ({
 }));
 
 const mockMutateAsync = jest.fn();
+const mockGeocodePostcode = jest.fn();
 jest.mock('@/features/locations', () => ({
   useCreateLocation: () => ({
     mutateAsync: mockMutateAsync,
     isPending: false,
   }),
-  geocodePostcode: jest.fn(),
+  geocodePostcode: (...args: unknown[]) => mockGeocodePostcode(...args),
   GeocodeError: class GeocodeError extends Error {},
 }));
 
@@ -84,5 +85,17 @@ describe('Location setup screen', () => {
     const { getByText } = renderWithProviders(<LocationSetupScreen />);
     fireEvent.press(getByText('Skip for now'));
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/inventory');
+  });
+
+  it('shows geocode error when postcode lookup fails on blur', async () => {
+    mockGeocodePostcode.mockRejectedValue(new Error('fail'));
+    const { getByPlaceholderText, getByText } = renderWithProviders(<LocationSetupScreen />);
+    const postcodeInput = getByPlaceholderText('Enter your postcode');
+    fireEvent.changeText(postcodeInput, 'INVALID');
+    fireEvent(postcodeInput, 'blur');
+
+    await waitFor(() => {
+      expect(getByText('Could not find that postcode. Please check and try again.')).toBeTruthy();
+    });
   });
 });

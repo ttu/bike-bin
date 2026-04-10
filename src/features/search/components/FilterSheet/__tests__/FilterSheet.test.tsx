@@ -86,6 +86,42 @@ describe('FilterSheet', () => {
     expect(queryByText('Price range')).toBeNull();
   });
 
+  it('calls onFiltersChange with parsed price min when min input changes', () => {
+    const props = createDefaultProps();
+    props.filters.offerTypes = ['sellable'] as AvailabilityType[];
+    const { getAllByPlaceholderText } = renderWithProviders(<FilterSheet {...props} />);
+    const [minInput] = getAllByPlaceholderText('\u2014');
+    fireEvent.changeText(minInput, '10.5');
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ priceMin: 10.5 });
+  });
+
+  it('calls onFiltersChange with undefined price min when min input is not a number', () => {
+    const props = createDefaultProps();
+    props.filters.offerTypes = ['sellable'] as AvailabilityType[];
+    const { getAllByPlaceholderText } = renderWithProviders(<FilterSheet {...props} />);
+    const [minInput] = getAllByPlaceholderText('\u2014');
+    fireEvent.changeText(minInput, 'not-a-number');
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ priceMin: undefined });
+  });
+
+  it('calls onFiltersChange with parsed price max when max input changes', () => {
+    const props = createDefaultProps();
+    props.filters.offerTypes = ['sellable'] as AvailabilityType[];
+    const { getAllByPlaceholderText } = renderWithProviders(<FilterSheet {...props} />);
+    const [, maxInput] = getAllByPlaceholderText('\u2014');
+    fireEvent.changeText(maxInput, '99');
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ priceMax: 99 });
+  });
+
+  it('calls onFiltersChange with undefined price max when max input is not a number', () => {
+    const props = createDefaultProps();
+    props.filters.offerTypes = ['sellable'] as AvailabilityType[];
+    const { getAllByPlaceholderText } = renderWithProviders(<FilterSheet {...props} />);
+    const [, maxInput] = getAllByPlaceholderText('\u2014');
+    fireEvent.changeText(maxInput, '');
+    expect(props.onFiltersChange).toHaveBeenCalledWith({ priceMax: undefined });
+  });
+
   it('calls onReset when reset button pressed', () => {
     const props = createDefaultProps();
     const { getByText } = renderWithProviders(<FilterSheet {...props} />);
