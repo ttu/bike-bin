@@ -244,7 +244,10 @@ function SearchScreenContent() {
           {/* Result count + sort */}
           {showResults && (
             <View style={styles.resultHeader}>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text
+                variant="bodySmall"
+                style={[styles.resultCount, { color: theme.colors.onSurfaceVariant }]}
+              >
                 {t('results.count', {
                   count: results.length,
                   distance: filters.maxDistanceKm,
@@ -252,7 +255,7 @@ function SearchScreenContent() {
               </Text>
               <Text
                 variant="labelSmall"
-                style={{ color: theme.colors.primary }}
+                style={[styles.sortControl, { color: theme.colors.primary }]}
                 onPress={cycleSortBy}
               >
                 {sortLabel}
@@ -339,6 +342,9 @@ const styles = StyleSheet.create({
   },
   quickFilters: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    alignContent: 'flex-start',
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
@@ -348,10 +354,20 @@ const styles = StyleSheet.create({
   },
   resultHeader: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.xs,
     paddingHorizontal: spacing.base,
     paddingBottom: spacing.sm,
+  },
+  resultCount: {
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  sortControl: {
+    flexShrink: 0,
   },
   centered: {
     flex: 1,
