@@ -125,8 +125,10 @@ const styles = StyleSheet.create({
   },
   locationRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.xs,
     paddingVertical: spacing.sm,
   },
   locationLeft: {
@@ -134,10 +136,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     flex: 1,
+    minWidth: 0,
   },
   distanceButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
+    flexShrink: 0,
   },
 });

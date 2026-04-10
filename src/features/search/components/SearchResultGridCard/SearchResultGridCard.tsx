@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -10,10 +10,11 @@ import { formatDistance } from '@/shared/utils';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import type { SearchResultItem } from '../../types';
-
-const COLUMN_GAP = spacing.sm;
-const CARD_WIDTH = (Dimensions.get('window').width - spacing.base * 2 - COLUMN_GAP) / 2;
-const IMAGE_HEIGHT = CARD_WIDTH * 0.75;
+import {
+  getSearchResultGridCardWidth,
+  getSearchResultGridImageHeight,
+  SEARCH_GRID_COLUMN_GAP,
+} from '../../utils/searchGridDimensions';
 
 interface SearchResultGridCardProps {
   item: SearchResultItem;
@@ -25,20 +26,31 @@ export const SearchResultGridCard = memo(function SearchResultGridCard({
   onPress,
 }: SearchResultGridCardProps) {
   const theme = useTheme<AppTheme>();
+  const { width: windowWidth } = useWindowDimensions();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
   const distanceText = formatDistance(item.distanceMeters);
+  const cardWidth = useMemo(() => getSearchResultGridCardWidth(windowWidth), [windowWidth]);
+  const imageHeight = useMemo(() => getSearchResultGridImageHeight(cardWidth), [cardWidth]);
 
   return (
     <AnimatedPressable
       onPress={() => onPress?.(item)}
-      style={[styles.container, themed.surfaceBg, themed.shadow]}
+      style={[
+        styles.container,
+        { width: cardWidth, marginBottom: SEARCH_GRID_COLUMN_GAP },
+        themed.surfaceBg,
+        themed.shadow,
+      ]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
       <View style={styles.cardBody}>
         {[
-          <View key="image" style={[styles.imageContainer, themed.surfaceVariantBg]}>
+          <View
+            key="image"
+            style={[styles.imageContainer, themed.surfaceVariantBg, { height: imageHeight }]}
+          >
             {item.thumbnailStoragePath ? (
               <CachedListThumbnail
                 uri={
@@ -123,17 +135,14 @@ function useThemedStyles(theme: AppTheme) {
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     borderRadius: borderRadius.md,
     overflow: 'hidden',
-    marginBottom: COLUMN_GAP,
   },
   cardBody: {
     width: '100%',
   },
   imageContainer: {
     width: '100%',
-    height: IMAGE_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },
