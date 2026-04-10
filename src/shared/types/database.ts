@@ -1304,6 +1304,10 @@ export type Database = {
       };
       geomfromewkt: { Args: { '': string }; Returns: unknown };
       get_user_tags: { Args: never; Returns: string[] };
+      get_my_bike_limit: { Args: never; Returns: number };
+      get_my_inventory_item_limit: { Args: never; Returns: number };
+      get_my_photo_count: { Args: never; Returns: number };
+      get_my_photo_limit: { Args: never; Returns: number };
       gettransactionid: { Args: never; Returns: unknown };
       is_conversation_participant: {
         Args: { p_conversation_id: string; p_user_id: string };

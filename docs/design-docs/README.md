@@ -23,11 +23,12 @@ Comprehensive feature-level design documentation for Bike Bin. Each doc covers a
 
 ## Cross-Cutting Docs
 
-| #   | Topic                           | Doc                                          |
-| --- | ------------------------------- | -------------------------------------------- |
-| 015 | Design System (Kinetic Curator) | [015-design-system.md](015-design-system.md) |
-| 016 | RLS & Security                  | [016-rls-security.md](016-rls-security.md)   |
-| 017 | Data Export (GDPR)              | [017-data-export.md](017-data-export.md)     |
+| #   | Topic                           | Doc                                                      |
+| --- | ------------------------------- | -------------------------------------------------------- |
+| 015 | Design System (Kinetic Curator) | [015-design-system.md](015-design-system.md)             |
+| 016 | RLS & Security                  | [016-rls-security.md](016-rls-security.md)               |
+| 017 | Data Export (GDPR)              | [017-data-export.md](017-data-export.md)                 |
+| 018 | Subscription Limits             | [018-subscription-limits.md](018-subscription-limits.md) |
 
 ## Related Documents
 

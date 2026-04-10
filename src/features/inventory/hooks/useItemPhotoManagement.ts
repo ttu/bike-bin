@@ -58,6 +58,7 @@ export function useRemoveItemPhoto() {
       queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
       queryClient.invalidateQueries({ queryKey: ['items', itemId] });
       queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
+      queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user!.id] });
     },
   });
 }

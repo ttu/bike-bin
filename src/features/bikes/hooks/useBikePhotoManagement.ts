@@ -23,6 +23,7 @@ export function useRemoveBikePhoto() {
     onSuccess: (_data, { bikeId }) => {
       queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
       queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
+      queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user!.id] });
     },
   });
 }

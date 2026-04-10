@@ -20,6 +20,15 @@ jest.mock('@/shared/utils/compressImageForMobileUpload', () => ({
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
+    rpc: jest.fn((name: string) => {
+      if (name === 'get_my_photo_limit') {
+        return Promise.resolve({ data: 10_000, error: null });
+      }
+      if (name === 'get_my_photo_count') {
+        return Promise.resolve({ data: 0, error: null });
+      }
+      return Promise.resolve({ data: null, error: null });
+    }),
     storage: {
       from: jest.fn(() => ({
         upload: jest.fn().mockResolvedValue({ error: null }),

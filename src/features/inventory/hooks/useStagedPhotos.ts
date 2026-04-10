@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
+import { supabase } from '@/shared/api/supabase';
 import { uploadPhoto } from '@/shared/utils/uploadPhoto';
+import { PhotoLimitExceededError } from '@/shared/utils/subscriptionLimitErrors';
 import type { ItemId } from '@/shared/types';
 import type { PickerPhoto } from '../components/PhotoPicker/PhotoPicker';
 
@@ -39,6 +41,22 @@ export function useStagedPhotos(): UseStagedPhotosReturn {
 
       setIsUploading(true);
       try {
+        const [limRes, cntRes] = await Promise.all([
+          supabase.rpc('get_my_photo_limit'),
+          supabase.rpc('get_my_photo_count'),
+        ]);
+        if (limRes.error) {
+          throw limRes.error;
+        }
+        if (cntRes.error) {
+          throw cntRes.error;
+        }
+        const lim = limRes.data;
+        const cnt = cntRes.data;
+        if (lim != null && cnt != null && cnt + photos.length > lim) {
+          throw new PhotoLimitExceededError();
+        }
+
         for (let i = 0; i < photos.length; i++) {
           const photo = photos[i];
           const storagePath = `items/${user.id}/${itemId}/${photo.fileName}`;
@@ -56,6 +74,7 @@ export function useStagedPhotos(): UseStagedPhotosReturn {
 
         queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
         queryClient.invalidateQueries({ queryKey: ['items'] });
+        queryClient.invalidateQueries({ queryKey: ['photo-row-capacity'] });
       } finally {
         setIsUploading(false);
       }

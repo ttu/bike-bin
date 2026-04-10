@@ -4,6 +4,13 @@
   "editBike": "Edit Bike",
   "noBikes": "No bikes yet",
   "noBikesDescription": "Add your first bike to start tracking mounted parts.",
+  "limit": {
+    "reachedBanner": "You've reached your plan limit of {{limit}} bikes. Remove one or upgrade to add more.",
+    "emptyStateDescription": "You've reached your plan limit of {{limit}} bikes. Remove a bike to add a new one.",
+    "reachedFabA11y": "Cannot add bike, bike limit reached",
+    "saveSnackbar": "Could not save — bike limit reached.",
+    "maxPhotosPerEntity": "Maximum {{max}} photos per bike."
+  },
   "bikeType": {
     "road": "Road",
     "gravel": "Gravel",

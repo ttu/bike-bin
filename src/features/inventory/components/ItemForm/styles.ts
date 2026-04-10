@@ -69,6 +69,9 @@ export const styles = StyleSheet.create({
   optionalSection: {
     marginTop: spacing.sm,
   },
+  limitBanner: {
+    marginTop: spacing.lg,
+  },
   saveButton: {
     marginTop: spacing.xl,
   },

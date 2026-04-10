@@ -36,6 +36,8 @@ interface PhotoPickerProps {
   onRemove?: (photoId: string) => void;
   onSetPrimary?: (photoId: string) => void;
   isUploading: boolean;
+  /** When true, hides add tile (account-wide photo row cap reached). */
+  accountPhotoLimitReached?: boolean;
 }
 
 export function PhotoPicker({
@@ -44,10 +46,11 @@ export function PhotoPicker({
   onRemove,
   onSetPrimary,
   isUploading,
+  accountPhotoLimitReached = false,
 }: PhotoPickerProps) {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
-  const canAdd = photos.length < MAX_PHOTOS;
+  const canAdd = photos.length < MAX_PHOTOS && !accountPhotoLimitReached;
 
   return (
     <View>

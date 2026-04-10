@@ -85,7 +85,7 @@ The app uses a **5-tab layout**:
 
 Subscription state is stored **per user** in the database (`subscriptions` table: plan, lifecycle status, optional billing period end, optional payment-provider references). Details: [datamodel.md](datamodel.md).
 
-- **Free tier (default):** If the user has **no** subscription row in an entitled status (`trialing`, `active`, or `past_due`), product logic treats them as **free** (e.g. lower inventory limits, ads — when those product rules exist).
+- **Free tier (default):** If the user has **no** subscription row in an entitled status (`trialing`, `active`, or `past_due`), product logic treats them as **free** (e.g. lower inventory limits, ads — when those product rules exist). **Enforced row limits** (items, bikes, and photos) are enforced in the database and surfaced in the app (see [datamodel.md](datamodel.md)).
 - **Paid / upgraded:** Rows are created or updated by **trusted server-side automation** (e.g. checkout or payment-provider webhooks using the Supabase **service role**) or **manually** by operators in the Supabase SQL editor / dashboard. End users **cannot** change their own subscription through the normal app API (enforced with RLS).
 - The app may **read** the current user’s subscription data to drive UI and limits.
 

@@ -26,5 +26,8 @@
   },
   "privacy": {
     "deletedUser": "[Deleted user]"
+  },
+  "errors": {
+    "uploadFailed": "Upload failed. Please try again."
   }
 }

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Bike } from '@/shared/types';
-import { useBikes } from '@/features/bikes';
+import { useBikes, useBikeRowCapacity } from '@/features/bikes';
 import { BikeCard } from '@/features/bikes/components/BikeCard/BikeCard';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { spacing } from '@/shared/theme';
@@ -15,14 +15,20 @@ export default function BikesScreen() {
   const { t } = useTranslation('bikes');
   const insets = useSafeAreaInsets();
   const { data: bikes = [], isLoading } = useBikes();
+  const { atLimit, limit, isReady: capacityReady } = useBikeRowCapacity();
+
+  const blockNewBikes = capacityReady && atLimit && limit !== undefined;
 
   const handleBikePress = useCallback((bike: Bike) => {
     router.push(`/(tabs)/bikes/${bike.id}`);
   }, []);
 
   const handleAddPress = useCallback(() => {
+    if (blockNewBikes) {
+      return;
+    }
     router.push('/(tabs)/bikes/new');
-  }, []);
+  }, [blockNewBikes]);
 
   const renderItem = useCallback(
     ({ item }: { item: Bike }) => <BikeCard bike={item} onPress={handleBikePress} />,
@@ -46,9 +52,14 @@ export default function BikesScreen() {
         <EmptyState
           icon="bicycle"
           title={t('noBikes')}
-          description={t('noBikesDescription')}
+          description={
+            blockNewBikes && limit !== undefined
+              ? t('limit.emptyStateDescription', { limit })
+              : t('noBikesDescription')
+          }
           ctaLabel={t('addBike')}
           onCtaPress={handleAddPress}
+          ctaDisabled={blockNewBikes}
         />
       ) : (
         <FlatList
@@ -65,7 +76,8 @@ export default function BikesScreen() {
           style={[styles.fab, { backgroundColor: theme.colors.primary }]}
           color={theme.colors.onPrimary}
           onPress={handleAddPress}
-          accessibilityLabel={t('addBike')}
+          disabled={blockNewBikes}
+          accessibilityLabel={blockNewBikes ? t('limit.reachedFabA11y') : t('addBike')}
         />
       )}
     </View>

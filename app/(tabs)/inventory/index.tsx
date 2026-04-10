@@ -17,7 +17,7 @@ import type { Item, ItemCategory } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { SyncBanner } from '@/features/auth/components/SyncBanner/SyncBanner';
 import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory';
-import { useItems, useUserTags } from '@/features/inventory';
+import { useItems, useUserTags, useInventoryRowCapacity } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { ItemGalleryTile } from '@/features/inventory/components/ItemGalleryTile/ItemGalleryTile';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
@@ -59,6 +59,7 @@ export default function InventoryScreen() {
 
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
+  const { atLimit, limit, isReady: capacityReady } = useInventoryRowCapacity();
 
   const items = useMemo(
     () => (isAuthenticated ? (serverItems ?? []) : localItems),
@@ -101,13 +102,18 @@ export default function InventoryScreen() {
     router.push(`/(tabs)/inventory/${item.id}`);
   }, []);
 
+  const blockNewItems = isAuthenticated && capacityReady && atLimit;
+
   const handleAddPress = useCallback(() => {
+    if (blockNewItems) {
+      return;
+    }
     if (selectedCategory) {
       router.push(`/(tabs)/inventory/new?category=${selectedCategory}`);
     } else {
       router.push('/(tabs)/inventory/new');
     }
-  }, [selectedCategory]);
+  }, [blockNewItems, selectedCategory]);
 
   const toggleTag = useCallback((tag: string) => {
     setSelectedTags((prev) =>
@@ -259,9 +265,12 @@ export default function InventoryScreen() {
         <EmptyState
           icon="package-variant"
           title={t('empty.title')}
-          description={t('empty.description')}
+          description={
+            blockNewItems ? t('limit.emptyStateDescription', { limit }) : t('empty.description')
+          }
           ctaLabel={t('empty.cta')}
           onCtaPress={handleAddPress}
+          ctaDisabled={blockNewItems}
         />
       ) : (
         <FlatList
@@ -301,7 +310,8 @@ export default function InventoryScreen() {
           ]}
           color={theme.colors.onPrimary}
           onPress={handleAddPress}
-          accessibilityLabel={t('addItem')}
+          disabled={blockNewItems}
+          accessibilityLabel={blockNewItems ? t('limit.reachedFabA11y') : t('addItem')}
         />
       )}
     </View>

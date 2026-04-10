@@ -10,6 +10,7 @@ interface ActionsSectionProps {
   isSubmitting: boolean;
   isEditMode: boolean;
   onDelete?: () => void;
+  saveDisabled?: boolean;
 }
 
 export function ActionsSection({
@@ -17,6 +18,7 @@ export function ActionsSection({
   isSubmitting,
   isEditMode,
   onDelete,
+  saveDisabled = false,
 }: ActionsSectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -26,7 +28,7 @@ export function ActionsSection({
       <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
-        disabled={isSubmitting}
+        disabled={isSubmitting || saveDisabled}
         icon={isEditMode ? 'check-circle-outline' : undefined}
         style={styles.saveButton}
       >

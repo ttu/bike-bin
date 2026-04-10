@@ -2,6 +2,26 @@ import { renderHook, act } from '@testing-library/react-native';
 import { mockAuthModule } from '@/test/authMocks';
 import type { BikeId } from '@/shared/types';
 
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, opts?: { max?: number; limit?: number }) => {
+      if (key === 'limit.maxPhotosPerEntity') {
+        return `Maximum ${opts?.max ?? '?'} photos per bike.`;
+      }
+      if (key === 'limit.photoAccountFull') {
+        return `Photo account full (${opts?.limit})`;
+      }
+      if (key === 'limit.saveSnackbarPhoto') {
+        return 'Could not add photos — plan photo limit reached.';
+      }
+      if (key === 'errors.uploadFailed') {
+        return 'Upload failed. Please try again.';
+      }
+      return key;
+    },
+  }),
+}));
+
 // Mock expo-image-picker
 const mockRequestPermissions = jest.fn();
 const mockLaunchLibrary = jest.fn();
@@ -23,6 +43,15 @@ const mockSelect = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
+    rpc: jest.fn((name: string) => {
+      if (name === 'get_my_photo_limit') {
+        return Promise.resolve({ data: 10_000, error: null });
+      }
+      if (name === 'get_my_photo_count') {
+        return Promise.resolve({ data: 0, error: null });
+      }
+      return Promise.resolve({ data: null, error: null });
+    }),
     storage: {
       from: jest.fn(() => ({ upload: mockUpload })),
     },
@@ -150,7 +179,36 @@ describe('useBikePhotoUpload', () => {
     });
 
     expect(returnValue).toBeUndefined();
-    expect(result.current.error).toBe('Maximum 5 photos allowed');
+    expect(result.current.error).toBe('Maximum 5 photos per bike.');
+  });
+
+  it('returns account-limit message when insert hits photo row cap', async () => {
+    mockRequestPermissions.mockResolvedValue({ granted: true });
+    mockLaunchLibrary.mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: 'file:///photo.jpg' }],
+    });
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
+    mockUpload.mockResolvedValue({ error: null });
+    mockSelect.mockReturnValue({
+      eq: mockSelectEq.mockResolvedValue({ data: [{ id: 'p1' }], error: null }),
+    });
+    mockInsert.mockResolvedValue({
+      error: { code: '23514', message: 'check constraint photo_limit_exceeded' },
+    });
+
+    const { result } = renderHook(() => useBikePhotoUpload(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    let returnValue: string | undefined;
+    await act(async () => {
+      returnValue = await result.current.pickAndUpload('bike-1' as BikeId);
+    });
+
+    expect(returnValue).toBeUndefined();
+    expect(result.current.error).toBe('Could not add photos — plan photo limit reached.');
+    expect(result.current.isUploading).toBe(false);
   });
 
   it('handles upload error', async () => {
@@ -172,7 +230,7 @@ describe('useBikePhotoUpload', () => {
       await result.current.pickAndUpload('bike-1' as BikeId);
     });
 
-    expect(result.current.error).toBe('Storage full');
+    expect(result.current.error).toBe('Upload failed. Please try again.');
     expect(result.current.isUploading).toBe(false);
   });
 });

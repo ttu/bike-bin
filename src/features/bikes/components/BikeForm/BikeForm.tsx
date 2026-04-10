@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
-import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
+import { Banner, Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { BrandAutocompleteInput } from '@/shared/components/BrandAutocompleteInput';
@@ -43,6 +43,7 @@ interface BikeFormProps {
   onDelete?: () => void;
   isSubmitting: boolean;
   isEditMode?: boolean;
+  submitBlockedMessage?: string;
 }
 
 interface BikeFormErrors {
@@ -68,6 +69,7 @@ export function BikeForm({
   onDelete,
   isSubmitting,
   isEditMode = false,
+  submitBlockedMessage,
 }: BikeFormProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
@@ -371,10 +373,16 @@ export function BikeForm({
         activeUnderlineColor={activeUnderlineColor}
       />
 
+      {submitBlockedMessage ? (
+        <Banner visible icon="information" style={styles.limitBanner}>
+          <Text variant="bodyMedium">{submitBlockedMessage}</Text>
+        </Banner>
+      ) : null}
+
       <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
-        disabled={isSubmitting}
+        disabled={isSubmitting || Boolean(submitBlockedMessage)}
         icon={isEditMode ? 'check-circle-outline' : undefined}
         style={styles.saveButton}
       >
@@ -444,6 +452,9 @@ const styles = StyleSheet.create({
   notesInput: {
     minHeight: 96,
     paddingTop: spacing.sm,
+  },
+  limitBanner: {
+    marginTop: spacing.lg,
   },
   saveButton: {
     marginTop: spacing.xl,

@@ -21,6 +21,7 @@ jest.mock('@/features/bikes', () => ({
     mutate: jest.fn(),
     isPending: false,
   }),
+  useBikeRowCapacity: () => ({ atLimit: false, bikeRowCount: 0, limit: undefined, isReady: true }),
 }));
 
 jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({

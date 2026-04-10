@@ -5,14 +5,22 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing } from '@/shared/theme';
 
 interface EmptyStateProps {
-  icon: string;
-  title: string;
-  description: string;
-  ctaLabel?: string;
-  onCtaPress?: () => void;
+  readonly icon: string;
+  readonly title: string;
+  readonly description: string;
+  readonly ctaLabel?: string;
+  readonly onCtaPress?: () => void;
+  readonly ctaDisabled?: boolean;
 }
 
-export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  ctaLabel,
+  onCtaPress,
+  ctaDisabled = false,
+}: Readonly<EmptyStateProps>) {
   const theme = useTheme();
 
   return (
@@ -34,7 +42,7 @@ export function EmptyState({ icon, title, description, ctaLabel, onCtaPress }: E
         {description}
       </Text>
       {ctaLabel !== undefined && onCtaPress !== undefined && (
-        <GradientButton onPress={onCtaPress} style={styles.button}>
+        <GradientButton onPress={onCtaPress} disabled={ctaDisabled} style={styles.button}>
           {ctaLabel}
         </GradientButton>
       )}
