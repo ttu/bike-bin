@@ -119,9 +119,15 @@ jest.mock('@/features/borrow', () => ({
   useCreateBorrowRequest: () => ({ mutate: jest.fn() }),
 }));
 
+const mockReportMutate = jest.fn();
+jest.mock('@/shared/hooks/useReport', () => ({
+  useReport: () => ({ mutate: mockReportMutate, isPending: false }),
+}));
+
 describe('ListingDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockReportMutate.mockReset();
     mockShowSnackbarAlert.mockClear();
     mockCanDismiss.mockReturnValue(true);
   });
@@ -213,5 +219,57 @@ describe('ListingDetailScreen', () => {
     });
 
     reactQuery.useQuery = originalUseQuery;
+  });
+
+  it('opens report dialog on photo long-press when not own item', () => {
+    const { getByLabelText, getByText } = renderWithProviders(<ListingDetailScreen />);
+
+    // Long-press the photo (PhotoGallery renders with accessibilityLabel 'Photo <id>')
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
+
+    // ReportDialog should appear
+    expect(getByText('Report')).toBeTruthy();
+  });
+
+  it('submits photo report and shows success snackbar', () => {
+    mockReportMutate.mockImplementation((_input: unknown, opts: { onSuccess?: () => void }) => {
+      opts.onSuccess?.();
+    });
+
+    const { getByLabelText, getByText } = renderWithProviders(<ListingDetailScreen />);
+
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
+    fireEvent.press(getByText('Spam'));
+    fireEvent.press(getByText('Submit Report'));
+
+    expect(mockReportMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reporterId: 'user-123',
+        targetType: 'item_photo',
+        targetId: 'photo-1',
+        reason: 'spam',
+      }),
+      expect.any(Object),
+    );
+
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'success' }),
+    );
+  });
+
+  it('shows error snackbar when photo report fails', () => {
+    mockReportMutate.mockImplementation((_input: unknown, opts: { onError?: () => void }) => {
+      opts.onError?.();
+    });
+
+    const { getByLabelText, getByText } = renderWithProviders(<ListingDetailScreen />);
+
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
+    fireEvent.press(getByText('Spam'));
+    fireEvent.press(getByText('Submit Report'));
+
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'error' }),
+    );
   });
 });

@@ -11,6 +11,7 @@ import {
 import { Image } from 'expo-image';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
 /** Minimal photo shape needed for gallery display. */
 interface GalleryPhoto {
   id: string;
@@ -30,6 +31,8 @@ interface PhotoGalleryProps {
   photos: GalleryPhoto[];
   /** When set, caps gallery width (defaults to 500). Use on wide layouts for a larger hero. */
   maxGalleryWidth?: number;
+  /** Called when a photo is long-pressed. Used to open report dialog. */
+  onPhotoLongPress?: (photo: GalleryPhoto) => void;
 }
 
 function ParallaxPhoto({
@@ -38,12 +41,14 @@ function ParallaxPhoto({
   scrollX,
   themed,
   galleryWidth,
+  onLongPress,
 }: {
   photo: GalleryPhoto;
   index: number;
   scrollX: Animated.Value;
   themed: ReturnType<typeof useThemedStyles>;
   galleryWidth: number;
+  onLongPress?: (photo: GalleryPhoto) => void;
 }) {
   const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
 
@@ -55,29 +60,47 @@ function ParallaxPhoto({
   });
 
   const galleryHeight = galleryWidth * ASPECT_RATIO;
+  const { t } = useTranslation('common');
+
+  const containerStyle = [
+    styles.photoContainer,
+    themed.surfaceVariantBg,
+    { width: galleryWidth, height: galleryHeight },
+  ];
+
+  const image = (
+    <AnimatedCachedGalleryImage
+      accessible={false}
+      source={{ uri: data.publicUrl, cacheKey: photo.storagePath }}
+      style={[styles.photo, { transform: [{ translateX }] }]}
+      contentFit="cover"
+      cachePolicy="memory-disk"
+      recyclingKey={photo.storagePath}
+    />
+  );
+
+  if (onLongPress) {
+    return (
+      <Pressable
+        key={photo.id}
+        onLongPress={() => onLongPress(photo)}
+        delayLongPress={400}
+        accessibilityLabel={t('photo.label', { index: index + 1 })}
+        style={containerStyle}
+      >
+        {image}
+      </Pressable>
+    );
+  }
 
   return (
-    <View
-      key={photo.id}
-      style={[
-        styles.photoContainer,
-        themed.surfaceVariantBg,
-        { width: galleryWidth, height: galleryHeight },
-      ]}
-    >
-      <AnimatedCachedGalleryImage
-        accessible={false}
-        source={{ uri: data.publicUrl, cacheKey: photo.storagePath }}
-        style={[styles.photo, { transform: [{ translateX }] }]}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        recyclingKey={photo.storagePath}
-      />
+    <View key={photo.id} style={containerStyle}>
+      {image}
     </View>
   );
 }
 
-export function PhotoGallery({ photos, maxGalleryWidth }: PhotoGalleryProps) {
+export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: PhotoGalleryProps) {
   const theme = useTheme<AppTheme>();
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -143,6 +166,7 @@ export function PhotoGallery({ photos, maxGalleryWidth }: PhotoGalleryProps) {
             scrollX={scrollX}
             themed={themed}
             galleryWidth={galleryWidth}
+            onLongPress={onPhotoLongPress}
           />
         ))}
       </Animated.ScrollView>

@@ -80,7 +80,15 @@ User feedback: subject, body, optional screenshot path, app metadata, `status`.
 
 ### `reports` → `Report`
 
-Moderation: reporter, target type/id, reason, `status`.
+Moderation: reporter, target type/id, reason, `status`. Target type is `report_target_type` enum: `item`, `user`, `item_photo`, `message`.
+
+### `blocked_oauth_identities`
+
+Admin-only table recording OAuth identities blocked during moderation enforcement. Columns: `provider`, `provider_user_id` (composite PK), optional `notes`, `created_at`. Checked by the `check_blocked_identity` auth hook to prevent re-registration.
+
+### `moderation_enforcement_log`
+
+Audit log of admin enforcement actions. Columns: `id` (uuid PK), `sanctioned_user_id` (uuid, NOT NULL — not a foreign key, since the auth user is deleted), optional `reason`, optional `report_ids` (uuid array), `created_at`.
 
 ### `geocode_cache`
 
@@ -103,7 +111,7 @@ Each enum is created with its feature migration (e.g. `subscription_*` in `00002
 | `borrow_request_status` | `pending`, `accepted`, `rejected`, `returned`, `cancelled`               |
 | `transaction_type`      | `borrow`, `donate`, `sell`                                               |
 | `support_status`        | `open`, `closed`                                                         |
-| `report_target_type`    | `item`, `user`                                                           |
+| `report_target_type`    | `item`, `user`, `item_photo`, `message`                                  |
 | `report_status`         | `open`, `reviewed`, `closed`                                             |
 | `subscription_plan`     | `free`, `paid`                                                           |
 | `subscription_status`   | `trialing`, `active`, `past_due`, `canceled`, `expired`                  |
@@ -124,6 +132,9 @@ Image buckets (e.g. item and bike photos) are created and secured in migrations 
 ## RPC and helpers
 
 Migrations may define **SECURITY DEFINER** functions (e.g. tag autocomplete, search/distance helpers). Prefer calling these via Supabase client `.rpc()` where exposed.
+
+- **`find_empty_conversations()`** — returns conversations with zero participants and zero messages; used by the `admin-enforce-sanction` Edge Function to clean up orphaned conversations after enforcement.
+- **`check_blocked_identity(event jsonb)`** — Before Sign-In auth hook (SECURITY DEFINER). Looks up `blocked_oauth_identities` for the signing-in identity; returns a decision JSON that blocks login if a match is found.
 
 ---
 

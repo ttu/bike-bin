@@ -1,3 +1,4 @@
+import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import type { MessageWithSender } from '../../types';
 import type { ConversationId, MessageId, UserId } from '@/shared/types';
@@ -46,6 +47,16 @@ describe('ChatBubble', () => {
     const { getByLabelText } = renderWithProviders(<ChatBubble message={msg} />);
     // Component renders successfully for incoming message
     expect(getByLabelText(msg.body)).toBeTruthy();
+  });
+
+  it('calls onLongPress with the message when long-pressed', () => {
+    const onLongPress = jest.fn();
+    const msg = createMessage({ body: 'Report me' });
+    const { getByLabelText } = renderWithProviders(
+      <ChatBubble message={msg} onLongPress={onLongPress} />,
+    );
+    fireEvent(getByLabelText('Report me'), 'longPress');
+    expect(onLongPress).toHaveBeenCalledWith(msg);
   });
 
   it('renders outgoing message (own)', () => {

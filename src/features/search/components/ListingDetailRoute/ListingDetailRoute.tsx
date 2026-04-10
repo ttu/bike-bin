@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,13 +12,15 @@ import {
 } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { AppTheme } from '@/shared/theme';
-import { LoadingScreen } from '@/shared/components';
+import { LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { ListingDetail } from '@/features/search/components/ListingDetail/ListingDetail';
 import { useListingDetail } from '@/features/search/hooks/useListingDetail';
 import { useCreateConversation } from '@/features/messaging';
 import { useCreateBorrowRequest } from '@/features/borrow';
 import { useAuth } from '@/features/auth';
+import { useReport } from '@/shared/hooks/useReport';
+import type { ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
 
 export type ListingDetailRouteProps = {
   listingId: string | undefined;
@@ -37,11 +40,14 @@ export function ListingDetailRoute({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const { t: tBorrow } = useTranslation('borrow');
+  const { t: tProfile } = useTranslation('profile');
   const router = useRouter();
   const { mutate: createConversation } = useCreateConversation();
   const { mutate: createBorrowRequest } = useCreateBorrowRequest();
   const { user } = useAuth();
   const { showSnackbarAlert } = useSnackbarAlerts();
+  const reportMutation = useReport();
+  const [reportPhotoId, setReportPhotoId] = useState<ItemPhotoId | undefined>(undefined);
 
   const { item, photos, isLoading } = useListingDetail(listingId);
 
@@ -113,6 +119,40 @@ export function ListingDetailRoute({
     );
   };
 
+  const handlePhotoLongPress = (photo: ItemPhoto) => {
+    if (isOwnItem) return;
+    setReportPhotoId(photo.id);
+  };
+
+  const handleReportSubmit = (reason: ReportReason, text: string | undefined) => {
+    if (!user || !reportPhotoId) return;
+    reportMutation.mutate(
+      {
+        reporterId: user.id as UserId,
+        targetType: 'item_photo',
+        targetId: reportPhotoId,
+        reason,
+        text,
+      },
+      {
+        onSuccess: () => {
+          setReportPhotoId(undefined);
+          showSnackbarAlert({
+            message: tProfile('report.successMessage'),
+            variant: 'success',
+          });
+        },
+        onError: () => {
+          showSnackbarAlert({
+            message: tProfile('report.errorMessage'),
+            variant: 'error',
+            duration: 'long',
+          });
+        },
+      },
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
@@ -126,6 +166,14 @@ export function ListingDetailRoute({
         onContact={isOwnItem ? undefined : handleContact}
         onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
         onOwnerPress={handleOwnerPress}
+        onPhotoLongPress={isOwnItem || !user ? undefined : handlePhotoLongPress}
+      />
+
+      <ReportDialog
+        visible={reportPhotoId !== undefined}
+        onDismiss={() => setReportPhotoId(undefined)}
+        onSubmit={handleReportSubmit}
+        loading={reportMutation.isPending}
       />
     </SafeAreaView>
   );
