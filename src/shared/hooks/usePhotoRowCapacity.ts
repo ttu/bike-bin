@@ -34,7 +34,7 @@ export function usePhotoRowCapacity(): PhotoRowCapacity {
       }
       return { limit: limRes.data, count: cntRes.data };
     },
-    enabled: !!user,
+    enabled: isAuthenticated && !!user,
   });
 
   if (!isAuthenticated || !user) {

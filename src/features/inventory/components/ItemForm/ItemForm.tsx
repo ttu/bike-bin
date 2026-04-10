@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native';
-import { Banner, useTheme } from 'react-native-paper';
+import { Banner, Text, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { ItemCategory } from '@/shared/types';
 
@@ -169,7 +169,7 @@ export function ItemForm({
 
       {submitBlockedMessage !== undefined && submitBlockedMessage.length > 0 ? (
         <Banner visible icon="information" style={styles.limitBanner}>
-          {submitBlockedMessage}
+          <Text variant="bodyMedium">{submitBlockedMessage}</Text>
         </Banner>
       ) : null}
 

@@ -56,65 +56,68 @@ export default function NewItemScreen() {
       ? t('limit.reachedBanner', { limit })
       : undefined;
 
+  const saveAuthenticated = async (data: ItemFormData) => {
+    const item = await createItem.mutateAsync(data);
+    if (stagedPhotos.length > 0) {
+      await uploadAll(item.id).catch((error: unknown) => {
+        if (isPhotoLimitExceededError(error)) {
+          router.push(`/(tabs)/inventory/${item.id}?photoLimitWarning=1`);
+        } else {
+          setErrorSnackbarVisible(true);
+        }
+        throw error;
+      });
+    }
+  };
+
+  const saveLocal = async (data: ItemFormData) => {
+    await addItem({
+      id: crypto.randomUUID() as ItemId,
+      ownerId: LOCAL_USER_ID,
+      bikeId: undefined,
+      name: data.name,
+      category: data.category!,
+      subcategory: data.subcategory,
+      condition: data.condition!,
+      quantity: data.quantity ?? 1,
+      status: ItemStatus.Stored,
+      availabilityTypes: data.availabilityTypes,
+      brand: data.brand,
+      model: data.model,
+      description: data.description,
+      price: data.price,
+      deposit: data.deposit,
+      borrowDuration: (data.borrowDuration as BorrowDuration) || undefined,
+      storageLocation: data.storageLocation,
+      age: data.age,
+      usageKm: data.usageKm,
+      remainingFraction: data.remainingFraction,
+      purchaseDate: data.purchaseDate,
+      mountedDate: data.mountedDate,
+      pickupLocationId: data.pickupLocationId,
+      visibility: data.visibility ?? Visibility.Private,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      tags: [],
+      thumbnailStoragePath: undefined,
+    });
+  };
+
   const handleSave = async (data: ItemFormData) => {
     setIsSaving(true);
     try {
       if (isAuthenticated) {
-        try {
-          const item = await createItem.mutateAsync(data);
-          if (stagedPhotos.length > 0) {
-            try {
-              await uploadAll(item.id);
-            } catch (pe) {
-              if (isPhotoLimitExceededError(pe)) {
-                router.push(`/(tabs)/inventory/${item.id}?photoLimitWarning=1`);
-                return;
-              }
-              setErrorSnackbarVisible(true);
-              return;
-            }
-          }
-        } catch (e) {
-          if (isInventoryLimitExceededError(e)) {
-            setLimitSnackbarVisible(true);
-            return;
-          }
-          setErrorSnackbarVisible(true);
-          return;
-        }
+        await saveAuthenticated(data);
       } else {
-        await addItem({
-          id: crypto.randomUUID() as ItemId,
-          ownerId: LOCAL_USER_ID,
-          bikeId: undefined,
-          name: data.name,
-          category: data.category!,
-          subcategory: data.subcategory,
-          condition: data.condition!,
-          quantity: data.quantity ?? 1,
-          status: ItemStatus.Stored,
-          availabilityTypes: data.availabilityTypes,
-          brand: data.brand,
-          model: data.model,
-          description: data.description,
-          price: data.price,
-          deposit: data.deposit,
-          borrowDuration: (data.borrowDuration as BorrowDuration) || undefined,
-          storageLocation: data.storageLocation,
-          age: data.age,
-          usageKm: data.usageKm,
-          remainingFraction: data.remainingFraction,
-          purchaseDate: data.purchaseDate,
-          mountedDate: data.mountedDate,
-          pickupLocationId: data.pickupLocationId,
-          visibility: data.visibility ?? Visibility.Private,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          tags: [],
-          thumbnailStoragePath: undefined,
-        });
+        await saveLocal(data);
       }
       tabScopedBack('/(tabs)/inventory');
+    } catch (error: unknown) {
+      if (isInventoryLimitExceededError(error)) {
+        setLimitSnackbarVisible(true);
+      } else if (!isPhotoLimitExceededError(error)) {
+        setErrorSnackbarVisible(true);
+      }
     } finally {
       setIsSaving(false);
     }

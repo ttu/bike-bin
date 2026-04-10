@@ -89,7 +89,7 @@ export function useEntityPhotoUpload<TEntityId extends string>(
         if (parentQueryKey) {
           queryClient.invalidateQueries({ queryKey: [parentQueryKey] });
         }
-        queryClient.invalidateQueries({ queryKey: ['photo-row-capacity'] });
+        queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user.id] });
 
         return result;
       } catch (err) {

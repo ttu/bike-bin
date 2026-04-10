@@ -35,7 +35,7 @@ describe('useRemoveBikePhoto', () => {
     });
 
     await act(async () => {
-      result.current.mutate({
+      await result.current.mutateAsync({
         bikeId: 'bike-1' as BikeId,
         photoId: 'photo-1',
         storagePath: 'bikes/user-123/bike-1/photo.jpg',
@@ -43,5 +43,6 @@ describe('useRemoveBikePhoto', () => {
     });
 
     expect(mockStorageRemove).toHaveBeenCalledWith(['bikes/user-123/bike-1/photo.jpg']);
+    expect(mockEq).toHaveBeenCalledWith('id', 'photo-1');
   });
 });

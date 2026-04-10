@@ -16,7 +16,7 @@ A user has an "entitled paid" subscription when `subscriptions.plan = 'paid'` AN
 
 ## Architecture
 
-```
+```text
 supabase/migrations/
 └── 00015_inventory_item_subscription_limit.sql  # All DB functions + triggers
 
@@ -38,19 +38,19 @@ src/shared/utils/
 
 ### Database Layer
 
-**Limit functions** — `SECURITY DEFINER`, `STABLE`, `search_path = public`:
+**Limit functions** — `SECURITY DEFINER`, `search_path = public` (most are `STABLE`; photo-count helpers are `VOLATILE`):
 
-| Function                               | Returns | Purpose                                    |
-| -------------------------------------- | ------- | ------------------------------------------ |
-| `subscription_has_entitled_paid(uuid)` | boolean | Check if user has active paid subscription |
-| `inventory_item_limit_for_user(uuid)`  | integer | Item cap for a given user                  |
-| `bike_limit_for_user(uuid)`            | integer | Bike cap for a given user                  |
-| `photo_limit_for_user(uuid)`           | integer | Photo cap for a given user                 |
-| `user_photo_count(uuid)`               | bigint  | Combined item_photos + bike_photos count   |
-| `get_my_inventory_item_limit()`        | integer | Authenticated wrapper (client-callable)    |
-| `get_my_bike_limit()`                  | integer | Authenticated wrapper (client-callable)    |
-| `get_my_photo_limit()`                 | integer | Authenticated wrapper (client-callable)    |
-| `get_my_photo_count()`                 | integer | Authenticated wrapper (client-callable)    |
+| Function                               | Returns | Purpose                                               |
+| -------------------------------------- | ------- | ----------------------------------------------------- |
+| `subscription_has_entitled_paid(uuid)` | boolean | Check if user has active paid subscription            |
+| `inventory_item_limit_for_user(uuid)`  | integer | Item cap for a given user                             |
+| `bike_limit_for_user(uuid)`            | integer | Bike cap for a given user                             |
+| `photo_limit_for_user(uuid)`           | integer | Photo cap for a given user                            |
+| `user_photo_count(uuid)`               | bigint  | Combined item_photos + bike_photos count (`VOLATILE`) |
+| `get_my_inventory_item_limit()`        | integer | Authenticated wrapper (client-callable)               |
+| `get_my_bike_limit()`                  | integer | Authenticated wrapper (client-callable)               |
+| `get_my_photo_limit()`                 | integer | Authenticated wrapper (client-callable)               |
+| `get_my_photo_count()`                 | integer | Authenticated wrapper (client-callable, `VOLATILE`)   |
 
 Internal functions (`*_for_user`, `user_photo_count`) are `REVOKE ALL FROM PUBLIC`. Client-callable `get_my_*` functions are granted to `authenticated` role only.
 

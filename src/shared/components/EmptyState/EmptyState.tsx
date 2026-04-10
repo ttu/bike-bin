@@ -5,12 +5,12 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing } from '@/shared/theme';
 
 interface EmptyStateProps {
-  icon: string;
-  title: string;
-  description: string;
-  ctaLabel?: string;
-  onCtaPress?: () => void;
-  ctaDisabled?: boolean;
+  readonly icon: string;
+  readonly title: string;
+  readonly description: string;
+  readonly ctaLabel?: string;
+  readonly onCtaPress?: () => void;
+  readonly ctaDisabled?: boolean;
 }
 
 export function EmptyState({
@@ -20,7 +20,7 @@ export function EmptyState({
   ctaLabel,
   onCtaPress,
   ctaDisabled = false,
-}: EmptyStateProps) {
+}: Readonly<EmptyStateProps>) {
   const theme = useTheme();
 
   return (
