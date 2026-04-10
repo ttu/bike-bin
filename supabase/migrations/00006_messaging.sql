@@ -116,6 +116,51 @@ CREATE POLICY "messages_insert"
   );
 
 -- ============================================================
+-- RPC: conversation list batch (DISTINCT ON; item_photos exists in 00004)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.latest_messages_for_conversations(p_conversation_ids uuid[])
+RETURNS TABLE (
+  conversation_id uuid,
+  body text,
+  sender_id uuid,
+  created_at timestamptz
+)
+LANGUAGE sql
+STABLE
+SET search_path TO public
+AS $$
+  SELECT DISTINCT ON (m.conversation_id)
+    m.conversation_id,
+    m.body,
+    m.sender_id,
+    m.created_at
+  FROM public.messages m
+  WHERE m.conversation_id = ANY(p_conversation_ids)
+  ORDER BY m.conversation_id, m.created_at DESC;
+$$;
+
+CREATE OR REPLACE FUNCTION public.primary_photos_for_items(p_item_ids uuid[])
+RETURNS TABLE (
+  item_id uuid,
+  storage_path text
+)
+LANGUAGE sql
+STABLE
+SET search_path TO public
+AS $$
+  SELECT DISTINCT ON (p.item_id)
+    p.item_id,
+    p.storage_path
+  FROM public.item_photos p
+  WHERE p.item_id = ANY(p_item_ids)
+  ORDER BY p.item_id, p.sort_order ASC;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.latest_messages_for_conversations(uuid[]) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.primary_photos_for_items(uuid[]) TO authenticated;
+
+-- ============================================================
 -- Realtime: replicate messages to Supabase Realtime clients
 -- ============================================================
 

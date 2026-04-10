@@ -83,45 +83,39 @@ export function useConversations() {
       ];
       const profileByUserId = await fetchPublicProfilesMap(otherUserIds);
 
-      // Batch-fetch latest messages for all conversations (avoids N+1)
-      const { data: allMessages, error: allMessagesError } = await supabase
-        .from('messages')
-        .select('conversation_id, body, sender_id, created_at')
-        .in('conversation_id', conversationIds)
-        .order('created_at', { ascending: false });
+      // Latest message per conversation (DISTINCT ON in SQL via RPC; avoids fetching all messages)
+      const { data: lastMessageRows, error: lastMessagesError } = await supabase.rpc(
+        'latest_messages_for_conversations',
+        { p_conversation_ids: conversationIds },
+      );
 
-      if (allMessagesError) throw allMessagesError;
+      if (lastMessagesError) throw lastMessagesError;
 
       const lastMessageByConvId = new Map<
         string,
         { body: string; sender_id: string; created_at: string }
       >();
-      for (const msg of allMessages ?? []) {
-        if (!lastMessageByConvId.has(msg.conversation_id as string)) {
-          lastMessageByConvId.set(msg.conversation_id as string, {
-            body: msg.body as string,
-            sender_id: msg.sender_id as string,
-            created_at: msg.created_at as string,
-          });
-        }
+      for (const msg of lastMessageRows ?? []) {
+        lastMessageByConvId.set(msg.conversation_id as string, {
+          body: msg.body as string,
+          sender_id: msg.sender_id as string,
+          created_at: msg.created_at as string,
+        });
       }
 
-      // Batch-fetch primary photos for all items (avoids N+1)
+      // Primary photo per item (DISTINCT ON in SQL via RPC; avoids fetching all photos)
       const itemIds = conversations.map((c) => c.item_id).filter((id): id is string => Boolean(id));
       const photoByItemId = new Map<string, string>();
       if (itemIds.length > 0) {
-        const { data: allPhotos, error: allPhotosError } = await supabase
-          .from('item_photos')
-          .select('item_id, storage_path')
-          .in('item_id', itemIds)
-          .order('sort_order', { ascending: true });
+        const { data: primaryPhotoRows, error: primaryPhotosError } = await supabase.rpc(
+          'primary_photos_for_items',
+          { p_item_ids: itemIds },
+        );
 
-        if (allPhotosError) throw allPhotosError;
+        if (primaryPhotosError) throw primaryPhotosError;
 
-        for (const photo of allPhotos ?? []) {
-          if (!photoByItemId.has(photo.item_id as string)) {
-            photoByItemId.set(photo.item_id as string, photo.storage_path as string);
-          }
+        for (const photo of primaryPhotoRows ?? []) {
+          photoByItemId.set(photo.item_id as string, photo.storage_path as string);
         }
       }
 
