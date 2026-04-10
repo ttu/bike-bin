@@ -40,7 +40,6 @@ describe('ItemForm', () => {
     expect(getByText('Name')).toBeTruthy();
     expect(getByText('Quantity')).toBeTruthy();
     expect(getByText('Category')).toBeTruthy();
-    fireEvent.press(getByText('Components'));
     expect(getByText('Condition')).toBeTruthy();
   });
 
@@ -52,9 +51,9 @@ describe('ItemForm', () => {
   });
 
   it('renders condition chips as single-select', () => {
-    const { getByText } = renderWithProviders(<ItemForm {...defaultProps} />);
-    fireEvent.press(getByText('Components'));
-    expect(getByText('New')).toBeTruthy();
+    const { getByText, getAllByText } = renderWithProviders(<ItemForm {...defaultProps} />);
+    // Default condition is New: label appears in header and on the chip
+    expect(getAllByText('New').length).toBeGreaterThanOrEqual(1);
     expect(getByText('Good')).toBeTruthy();
     expect(getByText('Worn')).toBeTruthy();
     expect(getByText('Broken')).toBeTruthy();
@@ -124,7 +123,6 @@ describe('ItemForm', () => {
     // We verify this by checking the form submits with visibility: 'private'
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Test Item');
     fireEvent.press(getByText('Components'));
-    fireEvent.press(getByText('Good'));
     fireEvent.press(getByText('Save'));
   });
 
@@ -142,10 +140,9 @@ describe('ItemForm', () => {
   it('calls onSave with form data when valid', async () => {
     const { getByText, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
 
-    // Fill required fields
+    // Fill required fields (condition defaults to New)
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'My Cassette');
     fireEvent.press(getByText('Components'));
-    fireEvent.press(getByText('Good'));
 
     fireEvent.press(getByText('Save'));
 
@@ -155,7 +152,7 @@ describe('ItemForm', () => {
           name: 'My Cassette',
           quantity: 1,
           category: ItemCategory.Component,
-          condition: ItemCondition.Good,
+          condition: ItemCondition.New,
           availabilityTypes: [AvailabilityType.Private],
           visibility: 'private',
         }),
@@ -181,7 +178,6 @@ describe('ItemForm', () => {
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano'), 'Shimano');
     fireEvent.changeText(getByPlaceholderText('e.g. XTR 1500'), 'XTR 1500');
     fireEvent.press(getByText('Components'));
-    fireEvent.press(getByText('Good'));
     fireEvent.press(getByText('Save'));
 
     await waitFor(() => {
@@ -202,7 +198,6 @@ describe('ItemForm', () => {
 
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Dated part');
     fireEvent.press(getByText('Components'));
-    fireEvent.press(getByText('Good'));
     fireEvent.press(getByText('More details'));
 
     const dateFields = getAllByPlaceholderText('YYYY-MM-DD');
@@ -234,6 +229,15 @@ describe('ItemForm', () => {
     );
 
     expect(getByDisplayValue('Existing Item')).toBeTruthy();
+  });
+
+  it('hides condition section when Consumable is selected', () => {
+    const { getByText, queryByText } = renderWithProviders(
+      <ItemForm {...defaultProps} initialCategory={ItemCategory.Consumable} />,
+    );
+
+    expect(getByText('Chain Lube')).toBeTruthy();
+    expect(queryByText('Condition')).toBeNull();
   });
 
   it('pre-selects category from initialCategory prop', () => {

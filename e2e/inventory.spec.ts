@@ -42,11 +42,11 @@ test.describe('Add item flow', () => {
     await navigateToInventory(page);
     await page.getByRole('button', { name: /add item/i }).click();
 
-    // Verify add item form fields are visible (condition appears after a non-consumable category)
+    // Verify add item form fields are visible (condition is shown before category selection)
     await expect(page.getByText('Name')).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Category')).toBeVisible();
-    await page.getByRole('button', { name: /^Components$/ }).click();
     await expect(page.getByText('Condition')).toBeVisible();
+    await page.getByRole('button', { name: /^Components$/ }).click();
   });
 
   test('shows validation errors when submitting empty form', async ({ page }) => {

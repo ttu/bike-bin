@@ -91,7 +91,7 @@ export function ItemForm({
         errors={state.errors}
       />
 
-      {state.category && state.category !== ItemCategory.Consumable && (
+      {state.category !== ItemCategory.Consumable && (
         <ConditionSection
           condition={state.condition}
           setCondition={state.setCondition}

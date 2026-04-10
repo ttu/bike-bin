@@ -41,7 +41,9 @@ export function useItemFormState({
     initialData?.category ?? initialCategory,
   );
   const [subcategory, setSubcategory] = useState(initialData?.subcategory ?? '');
-  const [condition, setCondition] = useState<ItemCondition | undefined>(initialData?.condition);
+  const [condition, setCondition] = useState<ItemCondition | undefined>(
+    initialData?.condition ?? ItemCondition.New,
+  );
   const [brand, setBrand] = useState(initialData?.brand ?? '');
   const [model, setModel] = useState(initialData?.model ?? '');
   const {
