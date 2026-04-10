@@ -29,12 +29,13 @@ describe('blocked_oauth_identities RLS', () => {
   });
 
   it('authenticated user cannot select (RLS hides rows)', async () => {
-    await adminClient
+    const { error: seedErr } = await adminClient
       .from('blocked_oauth_identities')
       .upsert(
         { provider: 'google', provider_user_id: 'rls-test-select' },
         { onConflict: 'provider,provider_user_id' },
       );
+    expect(seedErr).toBeNull();
 
     const { data } = await userA.client.from('blocked_oauth_identities').select('*');
     expect(data).toEqual([]);
@@ -59,12 +60,13 @@ describe('blocked_oauth_identities RLS', () => {
   });
 
   it('unique constraint on (provider, provider_user_id)', async () => {
-    await adminClient
+    const { error: seedErr } = await adminClient
       .from('blocked_oauth_identities')
       .upsert(
         { provider: 'google', provider_user_id: 'rls-test-unique' },
         { onConflict: 'provider,provider_user_id' },
       );
+    expect(seedErr).toBeNull();
     // Insert without upsert to trigger conflict
     const { error } = await adminClient
       .from('blocked_oauth_identities')
@@ -83,10 +85,11 @@ describe('moderation_enforcement_log RLS', () => {
   });
 
   it('authenticated user cannot select', async () => {
-    await adminClient.from('moderation_enforcement_log').insert({
+    const { error: seedErr } = await adminClient.from('moderation_enforcement_log').insert({
       sanctioned_user_id: userB.id,
       reason: 'rls-test',
     });
+    expect(seedErr).toBeNull();
 
     const { data } = await userA.client.from('moderation_enforcement_log').select('*');
     expect(data).toEqual([]);

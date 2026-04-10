@@ -28,8 +28,7 @@ import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
-import { ConfirmDialog, LoadingScreen, ReportDialog } from '@/shared/components';
-import type { ReportReason } from '@/shared/components/ReportDialog/ReportDialog';
+import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import type { MessageId, UserId } from '@/shared/types';
@@ -314,7 +313,7 @@ export default function ConversationDetailScreen() {
           renderItem={({ item: listItem }) => (
             <ChatBubble
               message={listItem}
-              onLongPress={listItem.isOwn ? undefined : handleMessageLongPress}
+              onLongPress={user && !listItem.isOwn ? handleMessageLongPress : undefined}
             />
           )}
           inverted

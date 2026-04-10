@@ -12,8 +12,7 @@ import {
 } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { AppTheme } from '@/shared/theme';
-import { LoadingScreen, ReportDialog } from '@/shared/components';
-import type { ReportReason } from '@/shared/components/ReportDialog/ReportDialog';
+import { LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { ListingDetail } from '@/features/search/components/ListingDetail/ListingDetail';
 import { useListingDetail } from '@/features/search/hooks/useListingDetail';

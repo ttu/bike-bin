@@ -185,7 +185,7 @@ Deno.serve(async (req) => {
       const { error: blockError } = await supabase.from('blocked_oauth_identities').upsert(
         {
           provider: identity.provider,
-          provider_user_id: identity.identity_id,
+          provider_user_id: identity.provider_id,
           notes: validatedReason ?? null,
         },
         { onConflict: 'provider,provider_user_id' },
