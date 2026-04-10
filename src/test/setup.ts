@@ -26,17 +26,6 @@ jest.mock('expo-blur', () => {
   return { BlurView: View };
 });
 
-// Mock expo-web-browser (native modules unavailable in jest environment).
-jest.mock('expo-web-browser', () => ({
-  openAuthSessionAsync: jest.fn(() => Promise.resolve({ type: 'cancel' })),
-  maybeCompleteAuthSession: jest.fn(),
-}));
-
-// Mock expo-auth-session used alongside expo-web-browser for OAuth flows.
-jest.mock('expo-auth-session', () => ({
-  makeRedirectUri: jest.fn(() => 'exp://localhost:19000'),
-}));
-
 // Global mock for AsyncStorage (used by theme preference, supabase, etc.)
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(() => Promise.resolve(null)),

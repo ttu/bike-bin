@@ -24,6 +24,10 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
+}));
+
 import type { ItemId } from '@/shared/types';
 import { useSwapItemPhotoOrder, useRemoveItemPhoto } from '../useItemPhotoManagement';
 

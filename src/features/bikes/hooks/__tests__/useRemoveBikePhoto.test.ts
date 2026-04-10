@@ -19,6 +19,10 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({ user: { id: 'user-123' }, isAuthenticated: true }),
+}));
+
 import type { BikeId } from '@/shared/types';
 import { useRemoveBikePhoto } from '../useBikePhotoManagement';
 
