@@ -40,6 +40,8 @@ describe('BikeForm', () => {
     expect(getByText('Road')).toBeTruthy();
     expect(getByText('Gravel')).toBeTruthy();
     expect(getByText('Mountain')).toBeTruthy();
+    expect(getByText('XC')).toBeTruthy();
+    expect(getByText('Enduro')).toBeTruthy();
     expect(getByText('City')).toBeTruthy();
   });
 
@@ -56,9 +58,11 @@ describe('BikeForm', () => {
   });
 
   it('shows error for invalid distance', async () => {
-    const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
+    const { getByText, getByTestId, getByPlaceholderText } = renderWithProviders(
+      <BikeForm {...defaultProps} />,
+    );
 
-    fireEvent.changeText(getByPlaceholderText('e.g. My Road Bike'), 'X');
+    fireEvent.changeText(getByTestId('bike-form-name-input'), 'X');
     fireEvent.press(getByText('Gravel'));
     fireEvent.changeText(getByPlaceholderText('e.g. 3200'), 'not-a-number');
     fireEvent.press(getByText('Save Bike'));
@@ -70,9 +74,11 @@ describe('BikeForm', () => {
   });
 
   it('selects a suggested brand from the autocomplete list', async () => {
-    const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
+    const { getByText, getByTestId, getByPlaceholderText } = renderWithProviders(
+      <BikeForm {...defaultProps} />,
+    );
 
-    fireEvent.changeText(getByPlaceholderText('e.g. My Road Bike'), 'My Bike');
+    fireEvent.changeText(getByTestId('bike-form-name-input'), 'My Bike');
     fireEvent.press(getByText('Road'));
     fireEvent.changeText(getByPlaceholderText('e.g. Canyon'), 'Tre');
     expect(getByText('Trek')).toBeTruthy();
@@ -90,9 +96,11 @@ describe('BikeForm', () => {
   });
 
   it('calls onSave with form data when valid', async () => {
-    const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
+    const { getByText, getByTestId, getByPlaceholderText } = renderWithProviders(
+      <BikeForm {...defaultProps} />,
+    );
 
-    fireEvent.changeText(getByPlaceholderText('e.g. My Road Bike'), 'Canyon Grail');
+    fireEvent.changeText(getByTestId('bike-form-name-input'), 'Canyon Grail');
     fireEvent.press(getByText('Gravel'));
     fireEvent.changeText(getByPlaceholderText('e.g. Canyon'), 'Canyon');
     fireEvent.changeText(getByPlaceholderText('e.g. Endurace CF 7'), 'Grail');
@@ -116,6 +124,27 @@ describe('BikeForm', () => {
         condition: ItemCondition.Worn,
         notes: 'Tubeless',
       });
+    });
+  });
+
+  it('derives name from brand and model when name field is empty', async () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(<BikeForm {...defaultProps} />);
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Trek'), 'Canyon');
+    fireEvent.changeText(getByPlaceholderText('e.g. Fuel EX'), 'Grail');
+    fireEvent.press(getByText('Gravel'));
+    fireEvent.press(getByText('Save Bike'));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Canyon Grail',
+          brand: 'Canyon',
+          model: 'Grail',
+          type: BikeType.Gravel,
+          condition: ItemCondition.New,
+        }),
+      );
     });
   });
 

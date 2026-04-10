@@ -1212,7 +1212,19 @@ export type Database = {
       };
     };
     Enums: {
-      bike_type: 'road' | 'gravel' | 'mtb' | 'city' | 'touring' | 'other';
+      bike_type:
+        | 'road'
+        | 'gravel'
+        | 'mtb'
+        | 'cyclo'
+        | 'enduro'
+        | 'xc'
+        | 'downhill'
+        | 'bmx'
+        | 'fatbike'
+        | 'city'
+        | 'touring'
+        | 'other';
       borrow_request_status: 'pending' | 'accepted' | 'rejected' | 'returned' | 'cancelled';
       export_request_status: 'pending' | 'processing' | 'completed' | 'failed';
       group_role: 'admin' | 'member';
@@ -1354,7 +1366,20 @@ export const Constants = {
   },
   public: {
     Enums: {
-      bike_type: ['road', 'gravel', 'mtb', 'city', 'touring', 'other'],
+      bike_type: [
+        'road',
+        'gravel',
+        'mtb',
+        'cyclo',
+        'enduro',
+        'xc',
+        'downhill',
+        'bmx',
+        'fatbike',
+        'city',
+        'touring',
+        'other',
+      ],
       borrow_request_status: ['pending', 'accepted', 'rejected', 'returned', 'cancelled'],
       export_request_status: ['pending', 'processing', 'completed', 'failed'],
       group_role: ['admin', 'member'],

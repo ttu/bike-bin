@@ -11,13 +11,20 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
+import { resolveBikeFormName } from '../../utils/resolveBikeFormName';
 
 const BIKE_TYPES = [
   BikeType.Road,
   BikeType.Gravel,
   BikeType.MTB,
+  BikeType.XC,
+  BikeType.Enduro,
+  BikeType.Downhill,
+  BikeType.Cyclo,
   BikeType.City,
   BikeType.Touring,
+  BikeType.BMX,
+  BikeType.Fatbike,
   BikeType.Other,
 ];
 
@@ -108,14 +115,28 @@ export function BikeForm({
     initialData?.usageHours != null ? String(initialData.usageHours) : '',
   );
   const [bikeCondition, setBikeCondition] = useState<ItemCondition>(
-    initialData?.condition ?? ItemCondition.Good,
+    initialData?.condition ?? ItemCondition.New,
   );
   const [notes, setNotes] = useState(initialData?.notes ?? '');
   const [errors, setErrors] = useState<BikeFormErrors>({});
 
+  const nameFieldValue = useMemo(
+    () => (name.trim() === '' ? resolveBikeFormName('', brand, model) : name),
+    [name, brand, model],
+  );
+
+  const nameIsEmpty = name.trim().length === 0;
+  const brandPlaceholder = nameIsEmpty
+    ? t('form.brandPlaceholderWhenNameEmpty')
+    : t('form.brandPlaceholder');
+  const modelPlaceholder = nameIsEmpty
+    ? t('form.modelPlaceholderWhenNameEmpty')
+    : t('form.modelPlaceholder');
+
   const handleSubmit = useCallback(() => {
     const validationErrors: BikeFormErrors = {};
-    if (!name.trim()) {
+    const resolvedName = resolveBikeFormName(name, brand, model);
+    if (!resolvedName.trim()) {
       validationErrors.name = t('form.nameRequired');
     }
     if (!bikeType) {
@@ -139,7 +160,7 @@ export function BikeForm({
     }
 
     onSave({
-      name: name.trim(),
+      name: resolvedName.trim(),
       brand: brand.trim() || undefined,
       model: model.trim() || undefined,
       type: bikeType,
@@ -169,15 +190,46 @@ export function BikeForm({
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      {headerComponent}
       {photoSection}
+      {headerComponent}
+
+      <BrandAutocompleteInput
+        label={t('form.brandLabel')}
+        labelStyle={[styles.label, styles.sectionLabel]}
+        placeholder={brandPlaceholder}
+        value={brand}
+        filteredBrands={filteredBrands}
+        menuVisible={brandMenuVisible}
+        onChangeText={handleBrandInputChange}
+        onSelectBrand={handleBrandSelect}
+        onFocus={handleBrandFocus}
+        onBlur={handleBrandBlur}
+        onSuggestionPressIn={cancelBrandBlurTimeout}
+        softInputStyle={softInputStyles.softInput}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
+
+      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
+        {t('form.modelLabel')}
+      </Text>
+      <TextInput
+        mode="flat"
+        value={model}
+        onChangeText={setModel}
+        placeholder={modelPlaceholder}
+        style={softInputStyles.softInput}
+        underlineColor={underlineColor}
+        activeUnderlineColor={activeUnderlineColor}
+      />
 
       <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.nameLabel')}
       </Text>
       <TextInput
+        testID="bike-form-name-input"
         mode="flat"
-        value={name}
+        value={nameFieldValue}
         onChangeText={setName}
         placeholder={t('form.namePlaceholder')}
         error={!!errors.name}
@@ -273,36 +325,6 @@ export function BikeForm({
           );
         })}
       </View>
-
-      <BrandAutocompleteInput
-        label={t('form.brandLabel')}
-        labelStyle={[styles.label, styles.sectionLabel]}
-        placeholder={t('form.brandPlaceholder')}
-        value={brand}
-        filteredBrands={filteredBrands}
-        menuVisible={brandMenuVisible}
-        onChangeText={handleBrandInputChange}
-        onSelectBrand={handleBrandSelect}
-        onFocus={handleBrandFocus}
-        onBlur={handleBrandBlur}
-        onSuggestionPressIn={cancelBrandBlurTimeout}
-        softInputStyle={softInputStyles.softInput}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
-      />
-
-      <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
-        {t('form.modelLabel')}
-      </Text>
-      <TextInput
-        mode="flat"
-        value={model}
-        onChangeText={setModel}
-        placeholder={t('form.modelPlaceholder')}
-        style={softInputStyles.softInput}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
-      />
 
       <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
         {t('form.yearLabel')}

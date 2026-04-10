@@ -16,12 +16,31 @@ jest.mock('@/shared/utils/tabScopedBack', () => ({
   tabScopedBack: jest.fn(),
 }));
 
+jest.mock('@/features/inventory/hooks/usePhotoPicker', () => ({
+  usePhotoPicker: () => ({ pickPhoto: jest.fn(), isPicking: false }),
+}));
+
+jest.mock('@/shared/hooks/usePhotoRowCapacity', () => ({
+  usePhotoRowCapacity: () => ({ atLimit: false, isReady: true }),
+}));
+
 jest.mock('@/features/bikes', () => ({
   useCreateBike: () => ({
     mutate: jest.fn(),
+    mutateAsync: jest.fn(),
     isPending: false,
   }),
+  useDeleteBike: () => ({
+    mutateAsync: jest.fn(),
+  }),
   useBikeRowCapacity: () => ({ atLimit: false, bikeRowCount: 0, limit: undefined, isReady: true }),
+  useStagedBikePhotos: () => ({
+    stagedPhotos: [],
+    addStaged: jest.fn(),
+    removeStaged: jest.fn(),
+    uploadAll: jest.fn(),
+    isUploading: false,
+  }),
 }));
 
 jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({
