@@ -10,6 +10,7 @@ jest.mock('@/shared/api/fetchPublicProfile', () => ({
 // Counter-based mock for multiple sequential supabase.from() calls
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
+const mockRpc = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -18,6 +19,7 @@ jest.mock('@/shared/api/supabase', () => ({
       mockCallCount++;
       return chain;
     }),
+    rpc: (...args: unknown[]) => mockRpc(...args),
   },
 }));
 
@@ -31,6 +33,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockCallCount = 0;
   mockFromChains = [];
+  mockRpc.mockReset();
   mockFetchPublicProfilesMap.mockResolvedValue(new Map());
 });
 
@@ -70,11 +73,6 @@ describe('useConversations', () => {
       },
     ];
     const mockAllParticipants = [{ conversation_id: 'conv-1', user_id: 'user-456' }];
-    const mockLastMessages = [
-      { body: 'Hello!', sender_id: 'user-456', created_at: '2026-01-02T10:00:00Z' },
-    ];
-    const mockPhotos = [{ storage_path: 'items/item-1/photo.jpg' }];
-
     mockFetchPublicProfilesMap.mockResolvedValue(
       new Map([
         [
@@ -115,29 +113,24 @@ describe('useConversations', () => {
       }),
     };
 
-    // Call 4: messages .select().eq().order().limit()
-    const mockCall4 = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({ data: mockLastMessages, error: null }),
-          }),
-        }),
-      }),
-    };
+    mockRpc
+      .mockResolvedValueOnce({
+        data: [
+          {
+            conversation_id: 'conv-1',
+            body: 'Hello!',
+            sender_id: 'user-456',
+            created_at: '2026-01-02T10:00:00Z',
+          },
+        ],
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: [{ item_id: 'item-1', storage_path: 'items/item-1/photo.jpg' }],
+        error: null,
+      });
 
-    // Call 5: item_photos .select().eq().order().limit()
-    const mockCall5 = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({ data: mockPhotos, error: null }),
-          }),
-        }),
-      }),
-    };
-
-    mockFromChains = [mockCall1, mockCall2, mockCall3, mockCall4, mockCall5];
+    mockFromChains = [mockCall1, mockCall2, mockCall3];
 
     const { result } = renderHook(() => useConversations(), {
       wrapper: createQueryClientHookWrapper(),
@@ -191,16 +184,7 @@ describe('useConversations', () => {
         }),
       }),
     };
-    // Call 4: messages — no messages
-    mockFromChains[3] = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({ data: [], error: null }),
-          }),
-        }),
-      }),
-    };
+    mockRpc.mockResolvedValueOnce({ data: [], error: null });
 
     const { result } = renderHook(() => useConversations(), {
       wrapper: createQueryClientHookWrapper(),
@@ -264,32 +248,23 @@ describe('useConversations', () => {
         }),
       }),
     };
-    // Call 4: messages for conv-1 — older message
-    mockFromChains[3] = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({
-              data: [{ body: 'Old', sender_id: 'user-456', created_at: '2026-01-01T12:00:00Z' }],
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    };
-    // Call 5: messages for conv-2 — newer message
-    mockFromChains[4] = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({
-              data: [{ body: 'New', sender_id: 'user-456', created_at: '2026-01-03T12:00:00Z' }],
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    };
+    mockRpc.mockResolvedValueOnce({
+      data: [
+        {
+          conversation_id: 'conv-2',
+          body: 'New',
+          sender_id: 'user-456',
+          created_at: '2026-01-03T12:00:00Z',
+        },
+        {
+          conversation_id: 'conv-1',
+          body: 'Old',
+          sender_id: 'user-456',
+          created_at: '2026-01-01T12:00:00Z',
+        },
+      ],
+      error: null,
+    });
 
     const { result } = renderHook(() => useConversations(), {
       wrapper: createQueryClientHookWrapper(),

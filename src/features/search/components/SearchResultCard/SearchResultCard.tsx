@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -17,7 +17,11 @@ interface SearchResultCardProps {
   onOwnerPress?: (ownerId: string) => void;
 }
 
-export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCardProps) {
+export const SearchResultCard = memo(function SearchResultCard({
+  item,
+  onPress,
+  onOwnerPress,
+}: SearchResultCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
@@ -107,7 +111,7 @@ export function SearchResultCard({ item, onPress, onOwnerPress }: SearchResultCa
       </View>
     </AnimatedPressable>
   );
-}
+});
 
 function useThemedStyles(theme: AppTheme) {
   return useMemo(

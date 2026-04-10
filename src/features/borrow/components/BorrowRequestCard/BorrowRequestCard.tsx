@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Button, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
@@ -21,7 +22,7 @@ interface BorrowRequestCardProps {
   onPress?: (request: BorrowRequestWithDetails) => void;
 }
 
-export function BorrowRequestCard({
+export const BorrowRequestCard = memo(function BorrowRequestCard({
   request,
   currentUserId,
   onAccept,
@@ -184,7 +185,7 @@ export function BorrowRequestCard({
       )}
     </View>
   );
-}
+});
 
 function getStatusColor(
   status: BorrowRequestStatus,

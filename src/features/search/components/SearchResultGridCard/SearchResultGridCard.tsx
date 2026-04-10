@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -20,7 +20,10 @@ interface SearchResultGridCardProps {
   onPress?: (item: SearchResultItem) => void;
 }
 
-export function SearchResultGridCard({ item, onPress }: SearchResultGridCardProps) {
+export const SearchResultGridCard = memo(function SearchResultGridCard({
+  item,
+  onPress,
+}: SearchResultGridCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
@@ -96,7 +99,7 @@ export function SearchResultGridCard({ item, onPress }: SearchResultGridCardProp
       </View>
     </AnimatedPressable>
   );
-}
+});
 
 function useThemedStyles(theme: AppTheme) {
   return useMemo(

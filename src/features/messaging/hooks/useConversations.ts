@@ -60,11 +60,22 @@ export function useConversations() {
 
       if (apError) throw apError;
 
+      const participantsByConversationId = new Map<
+        string,
+        { conversation_id: string; user_id: string }
+      >();
+      for (const row of allParticipants ?? []) {
+        const cid = row.conversation_id as string;
+        if (!participantsByConversationId.has(cid)) {
+          participantsByConversationId.set(cid, row);
+        }
+      }
+
       const otherUserIds = [
         ...new Set(
           conversations
             .map((c) => {
-              const p = allParticipants?.find((x) => x.conversation_id === c.id);
+              const p = participantsByConversationId.get(c.id as string);
               return p?.user_id as string | undefined;
             })
             .filter((id): id is string => Boolean(id)),
@@ -72,21 +83,45 @@ export function useConversations() {
       ];
       const profileByUserId = await fetchPublicProfilesMap(otherUserIds);
 
-      // Get latest message for each conversation
-      const results: ConversationListItem[] = [];
+      // Latest message per conversation (DISTINCT ON in SQL via RPC; avoids fetching all messages)
+      const { data: lastMessageRows, error: lastMessagesError } = await supabase.rpc(
+        'latest_messages_for_conversations',
+        { p_conversation_ids: conversationIds },
+      );
 
-      for (const conv of conversations) {
-        const otherParticipant = allParticipants?.find((p) => p.conversation_id === conv.id);
+      if (lastMessagesError) throw lastMessagesError;
 
-        // Get last message
-        const { data: lastMessages } = await supabase
-          .from('messages')
-          .select('body, sender_id, created_at')
-          .eq('conversation_id', conv.id)
-          .order('created_at', { ascending: false })
-          .limit(1);
+      const lastMessageByConvId = new Map<
+        string,
+        { body: string; sender_id: string; created_at: string }
+      >();
+      for (const msg of lastMessageRows ?? []) {
+        lastMessageByConvId.set(msg.conversation_id as string, {
+          body: msg.body as string,
+          sender_id: msg.sender_id as string,
+          created_at: msg.created_at as string,
+        });
+      }
 
-        const lastMsg = lastMessages?.[0];
+      // Primary photo per item (DISTINCT ON in SQL via RPC; avoids fetching all photos)
+      const itemIds = conversations.map((c) => c.item_id).filter((id): id is string => Boolean(id));
+      const photoByItemId = new Map<string, string>();
+      if (itemIds.length > 0) {
+        const { data: primaryPhotoRows, error: primaryPhotosError } = await supabase.rpc(
+          'primary_photos_for_items',
+          { p_item_ids: itemIds },
+        );
+
+        if (primaryPhotosError) throw primaryPhotosError;
+
+        for (const photo of primaryPhotoRows ?? []) {
+          photoByItemId.set(photo.item_id as string, photo.storage_path as string);
+        }
+      }
+
+      const results: ConversationListItem[] = conversations.map((conv) => {
+        const otherParticipant = participantsByConversationId.get(conv.id as string);
+        const lastMsg = lastMessageByConvId.get(conv.id as string);
 
         let otherName: string | undefined;
         let otherAvatar: string | undefined;
@@ -94,18 +129,6 @@ export function useConversations() {
           const profile = profileByUserId.get(otherParticipant.user_id as string);
           otherName = profile?.displayName;
           otherAvatar = profile?.avatarUrl;
-        }
-
-        // Get primary photo for item
-        let itemPhotoPath: string | undefined;
-        if (conv.item_id) {
-          const { data: photos } = await supabase
-            .from('item_photos')
-            .select('storage_path')
-            .eq('item_id', conv.item_id)
-            .order('sort_order', { ascending: true })
-            .limit(1);
-          itemPhotoPath = (photos?.[0]?.storage_path as string) ?? undefined;
         }
 
         const item = (Array.isArray(conv.items) ? conv.items[0] : conv.items) as {
@@ -116,24 +139,24 @@ export function useConversations() {
           availability_types: string[];
         } | null;
 
-        results.push({
+        return {
           id: conv.id as ConversationId,
           itemId: (conv.item_id as ItemId) ?? undefined,
           itemOwnerId: (item?.owner_id as UserId) ?? undefined,
           itemName: (item?.name as string) ?? undefined,
           itemStatus: (item?.status as string) ?? undefined,
           itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
-          itemPhotoPath,
+          itemPhotoPath: conv.item_id ? photoByItemId.get(conv.item_id as string) : undefined,
           otherParticipantId: (otherParticipant?.user_id ?? '') as UserId,
           otherParticipantName: otherName,
           otherParticipantAvatarUrl: otherAvatar,
-          lastMessageBody: (lastMsg?.body as string) ?? undefined,
+          lastMessageBody: lastMsg?.body ?? undefined,
           lastMessageSenderId: (lastMsg?.sender_id as UserId) ?? undefined,
-          lastMessageAt: (lastMsg?.created_at as string) ?? undefined,
+          lastMessageAt: lastMsg?.created_at ?? undefined,
           unreadCount: 0, // Implemented separately in useUnreadCount
           createdAt: conv.created_at as string,
-        });
-      }
+        };
+      });
 
       // Sort by last message timestamp (most recent first)
       results.sort((a, b) => {

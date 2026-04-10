@@ -1,4 +1,4 @@
-import { useState, useCallback, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -72,10 +72,16 @@ export function BikeForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
 
-  const softInputStyle = {
-    backgroundColor: theme.customColors.surfaceContainerHighest,
-    borderRadius: 12,
-  };
+  const softInputStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        softInput: {
+          backgroundColor: theme.customColors.surfaceContainerHighest,
+          borderRadius: borderRadius.md,
+        },
+      }),
+    [theme],
+  );
   const underlineColor = theme.colors.outlineVariant + '26';
   const activeUnderlineColor = theme.colors.primary;
 
@@ -173,7 +179,7 @@ export function BikeForm({
         onChangeText={setName}
         placeholder={t('form.namePlaceholder')}
         error={!!errors.name}
-        style={softInputStyle}
+        style={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
@@ -278,7 +284,7 @@ export function BikeForm({
         onFocus={handleBrandFocus}
         onBlur={handleBrandBlur}
         onSuggestionPressIn={cancelBrandBlurTimeout}
-        softInputStyle={softInputStyle}
+        softInputStyle={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
@@ -291,7 +297,7 @@ export function BikeForm({
         value={model}
         onChangeText={setModel}
         placeholder={t('form.modelPlaceholder')}
-        style={softInputStyle}
+        style={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
@@ -305,7 +311,7 @@ export function BikeForm({
         onChangeText={setYear}
         placeholder={t('form.yearPlaceholder')}
         keyboardType="numeric"
-        style={softInputStyle}
+        style={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
@@ -320,7 +326,7 @@ export function BikeForm({
         placeholder={t('form.distancePlaceholder')}
         keyboardType="decimal-pad"
         error={!!errors.distanceKm}
-        style={softInputStyle}
+        style={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
@@ -340,7 +346,7 @@ export function BikeForm({
         placeholder={t('form.hoursPlaceholder')}
         keyboardType="decimal-pad"
         error={!!errors.usageHours}
-        style={softInputStyle}
+        style={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
@@ -360,7 +366,7 @@ export function BikeForm({
         placeholder={t('form.notesPlaceholder')}
         multiline
         numberOfLines={4}
-        style={[softInputStyle, styles.notesInput]}
+        style={[softInputStyles.softInput, styles.notesInput]}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />

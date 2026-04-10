@@ -1,4 +1,12 @@
-import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useColorScheme as useSystemColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -40,10 +48,13 @@ export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
   const effectiveTheme: EffectiveTheme =
     preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference;
 
+  const value = useMemo(
+    () => ({ preference, effectiveTheme, setPreference }),
+    [preference, effectiveTheme, setPreference],
+  );
+
   return (
-    <ThemePreferenceContext.Provider value={{ preference, effectiveTheme, setPreference }}>
-      {children}
-    </ThemePreferenceContext.Provider>
+    <ThemePreferenceContext.Provider value={value}>{children}</ThemePreferenceContext.Provider>
   );
 }
 

@@ -60,7 +60,10 @@ export default function InventoryScreen() {
   const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
 
-  const items = isAuthenticated ? (serverItems ?? []) : localItems;
+  const items = useMemo(
+    () => (isAuthenticated ? (serverItems ?? []) : localItems),
+    [isAuthenticated, serverItems, localItems],
+  );
   const isLoading = isAuthenticated ? serverLoading : localLoading;
 
   const filteredItems = useMemo(() => {
@@ -112,6 +115,14 @@ export default function InventoryScreen() {
     );
   }, []);
 
+  const toggleViewMode = useCallback(() => {
+    setViewMode((mode) => (mode === 'list' ? 'gallery' : 'list'));
+  }, []);
+
+  const toggleTerminal = useCallback(() => {
+    setShowTerminal((prev) => !prev);
+  }, []);
+
   const renderItem = useCallback(
     ({ item }: { item: Item }) =>
       viewMode === 'gallery' ? (
@@ -149,7 +160,7 @@ export default function InventoryScreen() {
         </View>
         {!isLoading && filteredItems.length > 0 && (
           <Pressable
-            onPress={() => setViewMode((mode) => (mode === 'list' ? 'gallery' : 'list'))}
+            onPress={toggleViewMode}
             accessibilityRole="switch"
             accessibilityLabel={t('viewMode.toggleA11y')}
             accessibilityState={{ checked: viewMode === 'gallery' }}
@@ -233,7 +244,7 @@ export default function InventoryScreen() {
         <View style={styles.terminalChipRow}>
           <Chip
             selected={showTerminal}
-            onPress={() => setShowTerminal((prev) => !prev)}
+            onPress={toggleTerminal}
             showSelectedCheck={false}
             style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
             textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}

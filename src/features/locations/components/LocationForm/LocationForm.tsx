@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
   Text,
@@ -41,10 +41,16 @@ export function LocationForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('locations');
 
-  const softInputStyle = {
-    backgroundColor: theme.customColors.surfaceContainerHighest,
-    borderRadius: 12,
-  };
+  const softInputStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        softInput: {
+          backgroundColor: theme.customColors.surfaceContainerHighest,
+          borderRadius: 12,
+        },
+      }),
+    [theme],
+  );
   const underlineColor = theme.colors.outlineVariant + '26';
   const activeUnderlineColor = theme.colors.primary;
 
@@ -121,7 +127,7 @@ export function LocationForm({
           }}
           placeholder={t('form.postcodePlaceholder')}
           error={!!errors.postcode}
-          style={[softInputStyle, styles.postcodeInput]}
+          style={[softInputStyles.softInput, styles.postcodeInput]}
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}
           onBlur={handleGeocodePostcode}
@@ -165,7 +171,7 @@ export function LocationForm({
         onChangeText={setLabel}
         placeholder={t('form.labelPlaceholder')}
         error={!!errors.label}
-        style={softInputStyle}
+        style={softInputStyles.softInput}
         underlineColor={underlineColor}
         activeUnderlineColor={activeUnderlineColor}
       />
