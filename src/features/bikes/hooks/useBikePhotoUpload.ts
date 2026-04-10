@@ -24,7 +24,7 @@ function translate(
   if (error.kind === 'account-limit') {
     return tInv('limit.saveSnackbarPhoto');
   }
-  return error.message || tCommon('errors.uploadFailed');
+  return tCommon('errors.uploadFailed');
 }
 
 export function useBikePhotoUpload(): UseBikePhotoUploadReturn {

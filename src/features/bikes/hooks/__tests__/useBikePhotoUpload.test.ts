@@ -230,7 +230,7 @@ describe('useBikePhotoUpload', () => {
       await result.current.pickAndUpload('bike-1' as BikeId);
     });
 
-    expect(result.current.error).toBe('Storage full');
+    expect(result.current.error).toBe('Upload failed. Please try again.');
     expect(result.current.isUploading).toBe(false);
   });
 });

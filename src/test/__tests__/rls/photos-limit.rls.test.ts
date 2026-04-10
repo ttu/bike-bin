@@ -99,10 +99,14 @@ describe('item_photos — account photo row limit', () => {
 
 describe('bike_photos — cross-table photo row limit', () => {
   beforeAll(async () => {
-    await adminClient
+    const { error } = await adminClient
       .from('item_photos')
       .delete()
       .eq('storage_path', `test/photo-limit-after-paid-${limitUser.id}.jpg`);
+
+    if (error) {
+      throw new Error(`Failed to clean up paid-path photo: ${error.message}`);
+    }
   });
 
   it('blocks bike_photos insert when item_photos already at free-tier cap', async () => {
