@@ -4,6 +4,7 @@ import { act, waitFor } from '@testing-library/react-native';
 import NewItemScreen from '../new';
 
 const mockMutateAsync = jest.fn();
+const mockDeleteMutateAsync = jest.fn();
 const mockUploadAll = jest.fn();
 const mockAddItem = jest.fn();
 const mockRouterPush = jest.fn();
@@ -53,6 +54,7 @@ jest.mock('@/features/auth', () => ({
 
 jest.mock('@/features/inventory', () => ({
   useCreateItem: () => ({ mutateAsync: mockMutateAsync, isPending: false }),
+  useDeleteItem: () => ({ mutateAsync: mockDeleteMutateAsync }),
   useInventoryRowCapacity: () => ({
     atLimit: mockAtLimit,
     itemRowCount: 0,
@@ -211,7 +213,8 @@ describe('NewItemScreen', () => {
 
   it('shows error snackbar on unexpected photo upload error', async () => {
     mockStagedPhotos = [{ uri: 'file://photo.jpg', fileName: 'photo.jpg' }];
-    mockMutateAsync.mockResolvedValue({ id: 'item-1' });
+    mockMutateAsync.mockResolvedValue({ id: 'item-1', status: 'stored' });
+    mockDeleteMutateAsync.mockResolvedValue(undefined);
     mockUploadAll.mockRejectedValue(new Error('network'));
     const { getByText } = renderWithProviders(<NewItemScreen />);
 
@@ -219,6 +222,7 @@ describe('NewItemScreen', () => {
       capturedOnSave!(formData);
     });
 
+    expect(mockDeleteMutateAsync).toHaveBeenCalledWith({ id: 'item-1', status: 'stored' });
     expect(mockTabScopedBack).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(getByText('Something went wrong while saving. Please try again.')).toBeTruthy();

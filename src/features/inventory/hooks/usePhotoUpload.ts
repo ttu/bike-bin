@@ -23,7 +23,10 @@ function translate(
   if (error.kind === 'account-limit') {
     return t('limit.saveSnackbarPhoto');
   }
-  return error.message || tCommon('errors.uploadFailed');
+  if (error.kind === 'unknown') {
+    console.warn('Photo upload error:', error.message);
+  }
+  return tCommon('errors.uploadFailed');
 }
 
 export function usePhotoUpload(): UsePhotoUploadReturn {

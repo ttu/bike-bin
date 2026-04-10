@@ -98,6 +98,13 @@ describe('item_photos — account photo row limit', () => {
 });
 
 describe('bike_photos — cross-table photo row limit', () => {
+  beforeAll(async () => {
+    await adminClient
+      .from('item_photos')
+      .delete()
+      .eq('storage_path', `test/photo-limit-after-paid-${limitUser.id}.jpg`);
+  });
+
   it('blocks bike_photos insert when item_photos already at free-tier cap', async () => {
     // item_photos already has 100 rows from beforeAll; remove any paid subscription
     await adminClient.from('subscriptions').delete().eq('user_id', limitUser.id);

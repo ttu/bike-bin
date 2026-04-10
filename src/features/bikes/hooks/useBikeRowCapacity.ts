@@ -11,7 +11,7 @@ export type BikeRowCapacity = {
 
 export function useBikeRowCapacity(): BikeRowCapacity {
   const { isAuthenticated, user } = useAuth();
-  const { data: bikes, isLoading: bikesLoading } = useBikes();
+  const { data: bikes, isLoading: bikesLoading, isError: bikesError } = useBikes();
   const { data: limit, isLoading: limitLoading } = useMyBikeLimit();
 
   if (!isAuthenticated || !user) {
@@ -23,8 +23,9 @@ export function useBikeRowCapacity(): BikeRowCapacity {
     };
   }
 
-  const bikeRowCount = bikes?.length ?? 0;
-  const isReady = !bikesLoading && !limitLoading && limit !== undefined;
+  const bikesResolved = !bikesLoading && !bikesError && bikes !== undefined;
+  const bikeRowCount = bikesResolved ? bikes.length : 0;
+  const isReady = bikesResolved && !limitLoading && limit !== undefined;
   const atLimit = isReady && bikeRowCount >= limit;
 
   return {

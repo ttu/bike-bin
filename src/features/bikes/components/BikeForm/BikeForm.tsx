@@ -375,7 +375,7 @@ export function BikeForm({
 
       {submitBlockedMessage ? (
         <Banner visible icon="information" style={styles.limitBanner}>
-          {submitBlockedMessage}
+          <Text variant="bodyMedium">{submitBlockedMessage}</Text>
         </Banner>
       ) : null}
 

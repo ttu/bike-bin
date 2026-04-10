@@ -7,6 +7,7 @@ import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useAuth } from '@/features/auth';
 import {
   useCreateItem,
+  useDeleteItem,
   useInventoryRowCapacity,
   isInventoryLimitExceededError,
   isPhotoLimitExceededError,
@@ -30,6 +31,7 @@ export default function NewItemScreen() {
   const { t: tCommon } = useTranslation('common');
   const { isAuthenticated } = useAuth();
   const createItem = useCreateItem();
+  const deleteItem = useDeleteItem();
   const { addItem } = useLocalInventory();
   const { atLimit, limit, isReady } = useInventoryRowCapacity();
   const { atLimit: atPhotoLimit, isReady: photoCapacityReady } = usePhotoRowCapacity();
@@ -59,14 +61,16 @@ export default function NewItemScreen() {
   const saveAuthenticated = async (data: ItemFormData) => {
     const item = await createItem.mutateAsync(data);
     if (stagedPhotos.length > 0) {
-      await uploadAll(item.id).catch((error: unknown) => {
+      try {
+        await uploadAll(item.id);
+      } catch (error: unknown) {
         if (isPhotoLimitExceededError(error)) {
           router.push(`/(tabs)/inventory/${item.id}?photoLimitWarning=1`);
         } else {
-          setErrorSnackbarVisible(true);
+          await deleteItem.mutateAsync({ id: item.id, status: item.status });
         }
         throw error;
-      });
+      }
     }
   };
 

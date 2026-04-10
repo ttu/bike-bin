@@ -182,6 +182,35 @@ describe('useBikePhotoUpload', () => {
     expect(result.current.error).toBe('Maximum 5 photos per bike.');
   });
 
+  it('returns account-limit message when insert hits photo row cap', async () => {
+    mockRequestPermissions.mockResolvedValue({ granted: true });
+    mockLaunchLibrary.mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: 'file:///photo.jpg' }],
+    });
+    mockCompress.mockResolvedValue({ uri: 'file:///compressed.jpg' });
+    mockUpload.mockResolvedValue({ error: null });
+    mockSelect.mockReturnValue({
+      eq: mockSelectEq.mockResolvedValue({ data: [{ id: 'p1' }], error: null }),
+    });
+    mockInsert.mockResolvedValue({
+      error: { code: '23514', message: 'check constraint photo_limit_exceeded' },
+    });
+
+    const { result } = renderHook(() => useBikePhotoUpload(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    let returnValue: string | undefined;
+    await act(async () => {
+      returnValue = await result.current.pickAndUpload('bike-1' as BikeId);
+    });
+
+    expect(returnValue).toBeUndefined();
+    expect(result.current.error).toBe('Could not add photos — plan photo limit reached.');
+    expect(result.current.isUploading).toBe(false);
+  });
+
   it('handles upload error', async () => {
     mockRequestPermissions.mockResolvedValue({ granted: true });
     mockLaunchLibrary.mockResolvedValue({
