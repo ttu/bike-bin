@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { StyleSheet } from 'react-native';
 import { Portal, Snackbar, Text, useTheme } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { AppTheme } from '@/shared/theme';
 import { SnackbarAlertsContext } from './context';
 import type { ShowSnackbarAlertOptions, SnackbarAlertVariant } from './types';
@@ -19,8 +21,16 @@ const initialState: SnackbarState = {
   durationMs: Snackbar.DURATION_MEDIUM,
 };
 
+/**
+ * Vertical space above the home indicator so the snackbar clears the custom
+ * absolute tab bar (`app/(tabs)/_layout.tsx` GlassTabBar: icons + labels + padding).
+ * Without this, the bar sits on top of the snackbar and hides the message.
+ */
+const BOTTOM_TAB_BAR_CLEARANCE_DP = 56;
+
 export function SnackbarAlertsProvider({ children }: { children: ReactNode }) {
   const theme = useTheme<AppTheme>();
+  const insets = useSafeAreaInsets();
   const [state, setState] = useState<SnackbarState>(initialState);
 
   const dismiss = useCallback(() => {
@@ -54,6 +64,15 @@ export function SnackbarAlertsProvider({ children }: { children: ReactNode }) {
       }
     : undefined;
 
+  /** Overrides Paper's wrapper padding so the toast sits above the tab bar, not under it. */
+  const snackbarWrapperStyle = useMemo(
+    () => [
+      styles.snackbarAboveTabBar,
+      { paddingBottom: insets.bottom + BOTTOM_TAB_BAR_CLEARANCE_DP },
+    ],
+    [insets.bottom],
+  );
+
   return (
     <SnackbarAlertsContext.Provider value={value}>
       {children}
@@ -63,6 +82,7 @@ export function SnackbarAlertsProvider({ children }: { children: ReactNode }) {
           onDismiss={dismiss}
           duration={state.durationMs}
           action={snackbarAction}
+          wrapperStyle={snackbarWrapperStyle}
           style={{ backgroundColor }}
         >
           <Text variant="bodyMedium" style={{ color: textColor }}>
@@ -73,6 +93,13 @@ export function SnackbarAlertsProvider({ children }: { children: ReactNode }) {
     </SnackbarAlertsContext.Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  snackbarAboveTabBar: {
+    zIndex: 10000,
+    elevation: 24,
+  },
+});
 
 function snackbarColors(theme: AppTheme, variant: SnackbarAlertVariant) {
   switch (variant) {
