@@ -9,6 +9,15 @@
 -- =============================================================
 
 -- Clean up existing test data (idempotent re-seed)
+-- Conversations have no FK to profiles/auth.users so they survive user deletion;
+-- delete them explicitly (cascades to conversation_participants + messages).
+DELETE FROM conversations WHERE id IN (
+  'f0000001-0001-4000-8000-000000000001',
+  'f0000001-0002-4000-8000-000000000001',
+  'f0000001-0003-4000-8000-000000000001',
+  'f0000001-0004-4000-8000-000000000001',
+  'f0000001-0005-4000-8000-000000000001'
+);
 DELETE FROM auth.identities WHERE user_id IN (SELECT id FROM auth.users WHERE email LIKE '%@bikebin.dev');
 DELETE FROM auth.users WHERE email LIKE '%@bikebin.dev';
 
