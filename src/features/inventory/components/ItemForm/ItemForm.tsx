@@ -53,13 +53,6 @@ export function ItemForm({
       {headerComponent}
       {photoSection}
 
-      <NameSection
-        nameFieldValue={state.nameFieldValue}
-        setName={state.setName}
-        errors={state.errors}
-        {...inputStyling}
-      />
-
       <BrandModelSection
         name={state.name}
         brand={state.brand}
@@ -72,6 +65,13 @@ export function ItemForm({
         setModel={state.setModel}
         handleBrandSelect={state.handleBrandSelect}
         handleBrandInputChange={state.handleBrandInputChange}
+        {...inputStyling}
+      />
+
+      <NameSection
+        nameFieldValue={state.nameFieldValue}
+        setName={state.setName}
+        errors={state.errors}
         {...inputStyling}
       />
 
