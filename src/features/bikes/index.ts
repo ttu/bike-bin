@@ -15,6 +15,7 @@ export {
 export { useMyBikeLimit } from './hooks/useMyBikeLimit';
 export { useBikeRowCapacity } from './hooks/useBikeRowCapacity';
 export { useBikePhotoUpload } from './hooks/useBikePhotoUpload';
+export { useStagedBikePhotos } from './hooks/useStagedBikePhotos';
 export { useRemoveBikePhoto } from './hooks/useBikePhotoManagement';
 export { useMountedParts } from './hooks/useMountedParts';
 export { useAttachPart } from './hooks/useAttachPart';

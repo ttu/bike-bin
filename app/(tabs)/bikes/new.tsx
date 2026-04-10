@@ -1,39 +1,89 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import type { Href } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { useCreateBike, useBikeRowCapacity } from '@/features/bikes';
-import { isBikeLimitExceededError } from '@/shared/utils/subscriptionLimitErrors';
+import {
+  useCreateBike,
+  useBikeRowCapacity,
+  useDeleteBike,
+  useStagedBikePhotos,
+} from '@/features/bikes';
+import {
+  isBikeLimitExceededError,
+  isPhotoLimitExceededError,
+} from '@/shared/utils/subscriptionLimitErrors';
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
+import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
+import { usePhotoPicker } from '@/features/inventory/hooks/usePhotoPicker';
+import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
+import { spacing } from '@/shared/theme';
 
 export default function NewBikeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('bikes');
   const { t: tCommon } = useTranslation('common');
   const createBike = useCreateBike();
+  const deleteBike = useDeleteBike();
   const { atLimit, limit, isReady } = useBikeRowCapacity();
+  const { atLimit: atPhotoLimit, isReady: photoCapacityReady } = usePhotoRowCapacity();
   const [limitSnackbarVisible, setLimitSnackbarVisible] = useState(false);
+  const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const { pickPhoto, isPicking } = usePhotoPicker();
+  const { stagedPhotos, addStaged, removeStaged, uploadAll, isUploading } = useStagedBikePhotos();
+
+  const handleAddPhoto = async () => {
+    const result = await pickPhoto();
+    if (result) {
+      addStaged(result.uri, result.fileName);
+    }
+  };
 
   const submitBlockedMessage =
     isReady && atLimit && limit !== undefined ? t('limit.reachedBanner', { limit }) : undefined;
 
-  const handleSave = useCallback(
-    (data: BikeFormData) => {
-      createBike.mutate(data, {
-        onSuccess: () => {
-          tabScopedBack('/(tabs)/bikes' as Href);
-        },
-        onError: (e) => {
-          if (isBikeLimitExceededError(e)) {
-            setLimitSnackbarVisible(true);
+  const handleSave = async (data: BikeFormData) => {
+    setIsSaving(true);
+    try {
+      const bike = await createBike.mutateAsync(data);
+      if (stagedPhotos.length > 0) {
+        try {
+          await uploadAll(bike.id);
+        } catch (error: unknown) {
+          if (isPhotoLimitExceededError(error)) {
+            router.push(`/(tabs)/bikes/${bike.id}?photoLimitWarning=1` as Href);
+            return;
           }
-        },
-      });
-    },
-    [createBike],
+          await deleteBike.mutateAsync(bike.id);
+          throw error;
+        }
+      }
+      tabScopedBack('/(tabs)/bikes' as Href);
+    } catch (error: unknown) {
+      if (isBikeLimitExceededError(error)) {
+        setLimitSnackbarVisible(true);
+      } else if (!isPhotoLimitExceededError(error)) {
+        setErrorSnackbarVisible(true);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const photoSection = (
+    <View style={styles.photoSection}>
+      <PhotoPicker
+        photos={stagedPhotos}
+        onAdd={handleAddPhoto}
+        onRemove={removeStaged}
+        isUploading={isPicking || isUploading}
+        accountPhotoLimitReached={photoCapacityReady && atPhotoLimit}
+      />
+    </View>
   );
 
   return (
@@ -48,8 +98,9 @@ export default function NewBikeScreen() {
       </Appbar.Header>
       <BikeForm
         onSave={handleSave}
-        isSubmitting={createBike.isPending}
+        isSubmitting={isSaving || createBike.isPending}
         submitBlockedMessage={submitBlockedMessage}
+        photoSection={photoSection}
       />
       <Snackbar
         visible={limitSnackbarVisible}
@@ -59,6 +110,14 @@ export default function NewBikeScreen() {
       >
         {t('limit.saveSnackbar')}
       </Snackbar>
+      <Snackbar
+        visible={errorSnackbarVisible}
+        onDismiss={() => setErrorSnackbarVisible(false)}
+        duration={5000}
+        action={{ label: tCommon('actions.close'), onPress: () => setErrorSnackbarVisible(false) }}
+      >
+        {t('limit.saveFailed')}
+      </Snackbar>
     </View>
   );
 }
@@ -66,5 +125,8 @@ export default function NewBikeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  photoSection: {
+    marginTop: spacing.md,
   },
 });

@@ -79,7 +79,7 @@ export function useCreateBike() {
           year: formData.year,
           distance_km: formData.distanceKm,
           usage_hours: formData.usageHours,
-          condition: formData.condition ?? ItemCondition.Good,
+          condition: formData.condition ?? ItemCondition.New,
           notes: formData.notes?.trim() || null,
         })
         .select()
@@ -110,7 +110,7 @@ export function useUpdateBike() {
           year: formData.year,
           distance_km: formData.distanceKm,
           usage_hours: formData.usageHours,
-          condition: formData.condition ?? ItemCondition.Good,
+          condition: formData.condition ?? ItemCondition.New,
           notes: formData.notes?.trim() || null,
         })
         .eq('id', id)

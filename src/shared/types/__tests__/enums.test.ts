@@ -109,13 +109,19 @@ describe('BikeType', () => {
     expect(BikeType.Road).toBe('road');
     expect(BikeType.Gravel).toBe('gravel');
     expect(BikeType.MTB).toBe('mtb');
+    expect(BikeType.Cyclo).toBe('cyclo');
+    expect(BikeType.Enduro).toBe('enduro');
+    expect(BikeType.XC).toBe('xc');
+    expect(BikeType.Downhill).toBe('downhill');
+    expect(BikeType.BMX).toBe('bmx');
+    expect(BikeType.Fatbike).toBe('fatbike');
     expect(BikeType.City).toBe('city');
     expect(BikeType.Touring).toBe('touring');
     expect(BikeType.Other).toBe('other');
   });
 
-  it('has exactly 6 entries', () => {
-    expect(Object.keys(BikeType)).toHaveLength(6);
+  it('has exactly 12 entries', () => {
+    expect(Object.keys(BikeType)).toHaveLength(12);
   });
 });
 
