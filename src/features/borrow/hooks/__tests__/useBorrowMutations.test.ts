@@ -28,24 +28,28 @@ import { useDeclineBorrowRequest } from '../useDeclineBorrowRequest';
 import { useMarkReturned } from '../useMarkReturned';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
-function setupChain(data: unknown = { id: 'req-1' }) {
-  mockSingle.mockResolvedValue({ data, error: null });
+const DEFAULT_RPC_DATA = { id: 'req-1' };
+const DEFAULT_SUPABASE_ERROR = { message: 'fail' };
+
+function setupChain(data?: unknown) {
+  const resolvedData = data ?? DEFAULT_RPC_DATA;
+  mockSingle.mockResolvedValue({ data: resolvedData, error: null });
   mockSelect.mockReturnValue({ single: mockSingle });
   mockEq.mockReturnValue({ select: mockSelect, error: null, data: null });
   mockInsert.mockReturnValue({ select: mockSelect });
   mockUpdate.mockReturnValue({ eq: mockEq });
 }
 
-function setupRpc(data: unknown = { id: 'req-1' }) {
-  mockRpc.mockResolvedValue({ data, error: null });
+function setupRpc(data?: unknown) {
+  mockRpc.mockResolvedValue({ data: data ?? DEFAULT_RPC_DATA, error: null });
 }
 
-function setupRpcError(error = { message: 'fail' }) {
-  mockRpc.mockResolvedValue({ data: null, error });
+function setupRpcError(error?: unknown) {
+  mockRpc.mockResolvedValue({ data: null, error: error ?? DEFAULT_SUPABASE_ERROR });
 }
 
-function setupChainError(error = { message: 'fail' }) {
-  mockSingle.mockResolvedValue({ data: null, error });
+function setupChainError(error?: unknown) {
+  mockSingle.mockResolvedValue({ data: null, error: error ?? DEFAULT_SUPABASE_ERROR });
   mockSelect.mockReturnValue({ single: mockSingle });
   mockEq.mockReturnValue({ select: mockSelect });
   mockInsert.mockReturnValue({ select: mockSelect });

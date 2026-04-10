@@ -117,7 +117,7 @@ export function useItemFormState({
     const locations = existingItems
       .map((item) => item.storageLocation)
       .filter((loc): loc is string => !!loc);
-    return [...new Set(locations)].sort();
+    return [...new Set(locations)].sort((a, b) => a.localeCompare(b));
   }, [existingItems]);
 
   const currentSubcategories = useMemo(() => {
@@ -209,7 +209,7 @@ export function useItemFormState({
         ? parseRemainingPercentInput(remainingPercentStr)
         : undefined;
 
-    const parsedQuantity = parseInt(quantityStr.trim(), 10);
+    const parsedQuantity = Number.parseInt(quantityStr.trim(), 10);
 
     const resolvedName = resolveItemFormName(name, brand, model);
 
@@ -223,12 +223,12 @@ export function useItemFormState({
       model: model || undefined,
       description: description || undefined,
       availabilityTypes,
-      price: isSellable && price ? parseFloat(price) : undefined,
-      deposit: isBorrowable && deposit ? parseFloat(deposit) : undefined,
+      price: isSellable && price ? Number.parseFloat(price) : undefined,
+      deposit: isBorrowable && deposit ? Number.parseFloat(deposit) : undefined,
       borrowDuration: isBorrowable && borrowDuration ? borrowDuration : undefined,
       storageLocation: storageLocation || undefined,
       age: age || undefined,
-      usageKm: usage ? displayUnitToKm(parseInt(usage, 10), distanceUnit) : undefined,
+      usageKm: usage ? displayUnitToKm(Number.parseInt(usage, 10), distanceUnit) : undefined,
       remainingFraction: parsedRemaining,
       purchaseDate: purchaseDate.trim() || undefined,
       mountedDate: mountedDate.trim() || undefined,

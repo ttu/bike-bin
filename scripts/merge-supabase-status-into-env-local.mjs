@@ -24,7 +24,7 @@ const exportsPath = join(worktreeRoot, '.bike-bin-isolated-exports.sh');
 
 /** Safe single-quoted literal for POSIX sh. */
 function shellSingleQuote(value) {
-  return `'${String(value).replace(/'/g, `'\\''`)}'`;
+  return `'${String(value).replaceAll("'", `'\\''`)}'`;
 }
 
 let statusOut;

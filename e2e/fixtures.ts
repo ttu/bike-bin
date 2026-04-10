@@ -11,7 +11,7 @@ import { test as base, expect, type Page } from '@playwright/test';
  * Custom fixture that provides a page already logged in as the main test user.
  */
 export const test = base.extend<{ loggedInPage: Page }>({
-  loggedInPage: async ({ page }, use) => {
+  loggedInPage: async ({ page }, provideFixture) => {
     await page.goto('/');
     await page.waitForURL(/\/login/);
 
@@ -21,7 +21,7 @@ export const test = base.extend<{ loggedInPage: Page }>({
     // Wait for redirect to inventory after successful login
     await page.waitForURL(/\/inventory/, { timeout: 15000 });
 
-    await use(page);
+    await provideFixture(page);
   },
 });
 

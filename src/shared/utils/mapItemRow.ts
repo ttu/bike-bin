@@ -14,7 +14,7 @@ import type {
 export function mapItemRow(row: ItemRow): Item {
   const usageKm = (row.usage_km as number | null) ?? undefined;
   const remainingFraction = (row.remaining_fraction as number | null) ?? undefined;
-  const rawQty = (row.quantity as number | null) ?? NaN;
+  const rawQty = (row.quantity as number | null) ?? Number.NaN;
   const quantity = Number.isNaN(rawQty) ? 1 : Math.max(1, rawQty);
 
   return {

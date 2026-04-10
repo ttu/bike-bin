@@ -50,7 +50,9 @@ export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
     displayName: faker.person.fullName(),
     avatarUrl: faker.image.avatar(),
     distanceUnit: faker.helpers.arrayElement(['km', 'mi']),
-    ratingAvg: parseFloat(faker.number.float({ min: 1, max: 5, fractionDigits: 2 }).toFixed(2)),
+    ratingAvg: Number.parseFloat(
+      faker.number.float({ min: 1, max: 5, fractionDigits: 2 }).toFixed(2),
+    ),
     ratingCount: faker.number.int({ min: 0, max: 100 }),
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),

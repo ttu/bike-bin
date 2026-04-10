@@ -14,7 +14,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
-import { geocodePostcode, GeocodeError } from '../../utils/geocoding';
+import { geocodePostcode } from '../../utils/geocoding';
 import type { GeocodeResult } from '../../utils/geocoding';
 
 export interface LocationFormData {
@@ -75,12 +75,8 @@ export function LocationForm({
     try {
       const result = await geocodePostcode(postcode);
       setGeocoded(result);
-    } catch (e) {
-      if (e instanceof GeocodeError) {
-        setErrors((prev) => ({ ...prev, geocode: t('errors.geocodeFailed') }));
-      } else {
-        setErrors((prev) => ({ ...prev, geocode: t('errors.geocodeFailed') }));
-      }
+    } catch {
+      setErrors((prev) => ({ ...prev, geocode: t('errors.geocodeFailed') }));
     } finally {
       setIsGeocoding(false);
     }

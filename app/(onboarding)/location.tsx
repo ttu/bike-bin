@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ProgressDots } from '@/features/onboarding/components/ProgressDots';
 import { useAuth } from '@/features/auth';
-import { useCreateLocation, geocodePostcode, GeocodeError } from '@/features/locations';
+import { useCreateLocation, geocodePostcode } from '@/features/locations';
 import type { GeocodeResult } from '@/features/locations';
 import { spacing, borderRadius } from '@/shared/theme';
 
@@ -34,12 +34,8 @@ export default function LocationSetupScreen() {
     try {
       const result = await geocodePostcode(postcode);
       setGeocoded(result);
-    } catch (e) {
-      if (e instanceof GeocodeError) {
-        setGeocodeError(tLocations('errors.geocodeFailed'));
-      } else {
-        setGeocodeError(tLocations('errors.geocodeFailed'));
-      }
+    } catch {
+      setGeocodeError(tLocations('errors.geocodeFailed'));
     } finally {
       setIsGeocoding(false);
     }

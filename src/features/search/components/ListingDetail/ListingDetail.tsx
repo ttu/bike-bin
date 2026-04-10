@@ -180,7 +180,7 @@ export function ListingDetail({
       </View>
 
       {/* Location + distance */}
-      {(item.areaName || distanceText) && (
+      {Boolean(item.areaName || distanceText) && (
         <View style={[styles.section, styles.locationRow]} testID="location-row">
           <MaterialCommunityIcons
             name="map-marker-outline"
