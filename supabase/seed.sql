@@ -148,24 +148,31 @@ INSERT INTO items (id, owner_id, bike_id, name, category, subcategory, brand, mo
   ('d0000001-0004-4000-8000-000000000007', 'a1b2c3d4-0007-4000-8000-000000000007', 'c0000001-0002-4000-8000-000000000007', 'OneUp Components Dropper Post','component', 'seatposts_saddles', 'OneUp',        'Dropper Post V2 180mm',  'Internal routing, 180mm travel. Smooth action. Selling with bike upgrade.',                 'good',  'stored',  '{sellable,borrowable}',     90,   25,   '2_weeks',      'Garage',       '1_to_2_years', 2500, (now() - interval '350 days')::date, 'b0000001-0001-4000-8000-000000000007', 'all', now() - interval '8 days', now() - interval '3 days');
 
 -- ── Groups ──────────────────────────────────────────────────
+-- ON CONFLICT: remote re-seed deletes auth users (profiles cascade) but groups rows persist (no FK from groups to users).
 INSERT INTO groups (id, name, description, is_public, created_at) VALUES
   ('e0000001-0001-4000-8000-000000000001', 'Berlin Bike Co-op', 'Community bike parts exchange for Berlin cyclists. Share tools, swap components, help each other out.', true, now() - interval '365 days'),
-  ('e0000001-0002-4000-8000-000000000001', 'Berlin MTB Crew',   'Mountain bikers in Berlin. Trail info, group rides, parts sharing.', true, now() - interval '200 days');
+  ('e0000001-0002-4000-8000-000000000001', 'Berlin MTB Crew',   'Mountain bikers in Berlin. Trail info, group rides, parts sharing.', true, now() - interval '200 days')
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  is_public = EXCLUDED.is_public;
 
 INSERT INTO group_members (group_id, user_id, role, joined_at) VALUES
   ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'admin',  now() - interval '365 days'),
   ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'member', now() - interval '300 days'),
   ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003', 'member', now() - interval '250 days'),
   ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004', 'member', now() - interval '200 days'),
-  ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0005-4000-8000-000000000005', 'member', now() - interval '150 days');
-
-INSERT INTO group_members (group_id, user_id, role, joined_at) VALUES
+  ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0005-4000-8000-000000000005', 'member', now() - interval '150 days'),
   ('e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'admin',  now() - interval '200 days'),
   ('e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'member', now() - interval '180 days'),
-  ('e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'member', now() - interval '160 days');
+  ('e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'member', now() - interval '160 days')
+ON CONFLICT (group_id, user_id) DO UPDATE SET
+  role = EXCLUDED.role,
+  joined_at = EXCLUDED.joined_at;
 
 INSERT INTO item_groups (item_id, group_id) VALUES
-  ('d0000001-0004-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001');
+  ('d0000001-0004-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001')
+ON CONFLICT (item_id, group_id) DO NOTHING;
 
 -- ── Consumable Remaining Fractions ─────────────────────────
 UPDATE items SET remaining_fraction = 0.5  WHERE id = 'd0000001-0008-4000-8000-000000000001'; -- Muc-Off Chain Lube: ~half bottle
