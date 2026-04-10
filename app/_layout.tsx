@@ -20,10 +20,15 @@ import { AuthProvider } from '@/features/auth';
 import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
 import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
+import { APP_ENV } from '@/shared/utils/env';
 
-Sentry.init({
-  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-});
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+if (typeof sentryDsn === 'string' && sentryDsn.trim().length > 0) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: APP_ENV,
+  });
+}
 
 SplashScreen.preventAutoHideAsync();
 

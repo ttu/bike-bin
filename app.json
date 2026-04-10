@@ -52,7 +52,15 @@
       "expo-localization",
       "@sentry/react-native",
       "expo-font",
-      "expo-image"
+      "expo-image",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "bike-bin",
+          "organization": "ttu-iz"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

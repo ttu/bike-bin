@@ -20,3 +20,5 @@ supabase/.temp/
 expo-env.d.ts
 # @end expo-cli
 .worktrees/
+
+.env.local
