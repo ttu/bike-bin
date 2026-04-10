@@ -28,7 +28,30 @@
     "deletedUser": "[Deleted user]"
   },
   "errors": {
-    "uploadFailed": "Upload failed. Please try again."
+    "uploadFailed": "Upload failed. Please try again.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "feedback": {
+    "itemAdded": "Item added.",
+    "itemUpdated": "Item updated.",
+    "itemDeleted": "Item removed.",
+    "bikeAdded": "Bike added.",
+    "bikeUpdated": "Bike updated.",
+    "bikeDeleted": "Bike removed.",
+    "messageSent": "Message sent.",
+    "markedDonated": "Marked as donated.",
+    "markedSold": "Marked as sold.",
+    "statusUpdated": "Status updated.",
+    "returned": "Marked as returned.",
+    "saved": "Saved.",
+    "deleted": "Deleted.",
+    "groupCreated": "Group created.",
+    "groupJoined": "Joined group.",
+    "locationSaved": "Location saved.",
+    "locationDeleted": "Location removed.",
+    "borrowAccepted": "Borrow request accepted.",
+    "borrowDeclined": "Borrow request declined.",
+    "borrowCancelled": "Borrow request cancelled."
   },
   "photo": {
     "label": "Photo {{index}}"

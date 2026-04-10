@@ -24,11 +24,13 @@ import type { BorrowDuration } from '@/shared/types';
 import { spacing } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 import { LOCAL_USER_ID } from '@/shared/types';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 
 export default function NewItemScreen() {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
   const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const { isAuthenticated } = useAuth();
   const createItem = useCreateItem();
   const deleteItem = useDeleteItem();
@@ -115,6 +117,10 @@ export default function NewItemScreen() {
       } else {
         await saveLocal(data);
       }
+      showSnackbarAlert({
+        message: tCommon('feedback.itemAdded'),
+        variant: 'success',
+      });
       tabScopedBack('/(tabs)/inventory');
     } catch (error: unknown) {
       if (isInventoryLimitExceededError(error)) {

@@ -93,6 +93,8 @@ const conversationQueryState = { data: mockConversation as ConversationListItem 
 
 const mockMessages: MessageWithSender[] = [];
 
+const mockSendMutate = jest.fn();
+
 jest.mock('@/features/messaging', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
@@ -107,7 +109,7 @@ jest.mock('@/features/messaging', () => {
       hasNextPage: false,
       isFetchingNextPage: false,
     }),
-    useSendMessage: () => ({ mutate: jest.fn(), isPending: false }),
+    useSendMessage: () => ({ mutate: mockSendMutate, isPending: false }),
     useRealtimeMessages: jest.fn(),
     ChatBubble: ({
       message,
@@ -142,6 +144,21 @@ describe('ConversationDetailScreen', () => {
     jest.clearAllMocks();
     conversationQueryState.data = mockConversation;
     mockMessages.length = 0;
+    mockSendMutate.mockImplementation(
+      (_vars: unknown, opts: { onSuccess?: () => void; onError?: () => void }) => {
+        opts.onSuccess?.();
+      },
+    );
+  });
+
+  it('shows success snackbar after sending a message', () => {
+    const { getByLabelText } = renderWithProviders(<ConversationDetailScreen />);
+    fireEvent.changeText(getByLabelText('Type a message...'), 'Hello');
+    fireEvent.press(getByLabelText('Send'));
+    expect(mockSendMutate).toHaveBeenCalled();
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'success' }),
+    );
   });
 
   it('navigates to the other participant profile when the header is pressed', () => {

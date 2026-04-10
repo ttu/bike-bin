@@ -17,6 +17,7 @@ import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetail';
 import { RemoveFromInventoryDialog } from '@/features/inventory/components/RemoveFromInventoryDialog/RemoveFromInventoryDialog';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { ItemStatus } from '@/shared/types';
 import type { ItemId } from '@/shared/types';
@@ -27,6 +28,7 @@ export default function ItemDetailScreen() {
   const { t: tInv } = useTranslation('inventory');
   const { t: tBorrow } = useTranslation('borrow');
   const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const params = useLocalSearchParams<{
     id: string;
     fromBike?: string | string[];
@@ -70,8 +72,26 @@ export default function ItemDetailScreen() {
       cancelLabel: t('confirm.donate.cancel'),
       confirmLabel: t('confirm.donate.confirm'),
       onConfirm: () => {
-        closeConfirm();
-        markDonated.mutate({ itemId: item.id });
+        markDonated.mutate(
+          { itemId: item.id },
+          {
+            onSuccess: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('feedback.markedDonated'),
+                variant: 'success',
+              });
+            },
+            onError: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('errors.generic'),
+                variant: 'error',
+                duration: 'long',
+              });
+            },
+          },
+        );
       },
     });
   };
@@ -83,8 +103,26 @@ export default function ItemDetailScreen() {
       cancelLabel: t('confirm.sell.cancel'),
       confirmLabel: t('confirm.sell.confirm'),
       onConfirm: () => {
-        closeConfirm();
-        markSold.mutate({ itemId: item.id });
+        markSold.mutate(
+          { itemId: item.id },
+          {
+            onSuccess: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('feedback.markedSold'),
+                variant: 'success',
+              });
+            },
+            onError: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('errors.generic'),
+                variant: 'error',
+                duration: 'long',
+              });
+            },
+          },
+        );
       },
     });
   };
@@ -96,8 +134,26 @@ export default function ItemDetailScreen() {
       cancelLabel: tInv('confirm.archive.cancel'),
       confirmLabel: tInv('confirm.archive.confirm'),
       onConfirm: () => {
-        closeConfirm();
-        void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Archived });
+        updateStatus.mutate(
+          { id: item.id, status: ItemStatus.Archived },
+          {
+            onSuccess: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('feedback.statusUpdated'),
+                variant: 'success',
+              });
+            },
+            onError: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('errors.generic'),
+                variant: 'error',
+                duration: 'long',
+              });
+            },
+          },
+        );
       },
     });
   };
@@ -109,8 +165,26 @@ export default function ItemDetailScreen() {
       cancelLabel: tInv('confirm.unarchive.cancel'),
       confirmLabel: tInv('confirm.unarchive.confirm'),
       onConfirm: () => {
-        closeConfirm();
-        void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
+        updateStatus.mutate(
+          { id: item.id, status: ItemStatus.Stored },
+          {
+            onSuccess: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('feedback.statusUpdated'),
+                variant: 'success',
+              });
+            },
+            onError: () => {
+              closeConfirm();
+              showSnackbarAlert({
+                message: tCommon('errors.generic'),
+                variant: 'error',
+                duration: 'long',
+              });
+            },
+          },
+        );
       },
     });
   };
@@ -123,9 +197,22 @@ export default function ItemDetailScreen() {
       confirmLabel: tInv('confirm.delete.confirm'),
       destructive: true,
       onConfirm: async () => {
-        closeConfirm();
-        await deleteItem.mutateAsync({ id: item.id, status: item.status });
-        tabScopedBack('/(tabs)/inventory');
+        try {
+          await deleteItem.mutateAsync({ id: item.id, status: item.status });
+          closeConfirm();
+          showSnackbarAlert({
+            message: tCommon('feedback.itemDeleted'),
+            variant: 'success',
+          });
+          tabScopedBack('/(tabs)/inventory');
+        } catch {
+          closeConfirm();
+          showSnackbarAlert({
+            message: tCommon('errors.generic'),
+            variant: 'error',
+            duration: 'long',
+          });
+        }
       },
     });
   };
@@ -135,12 +222,20 @@ export default function ItemDetailScreen() {
   const showRemoveFromBin = canArchive || itemDeletable;
 
   const handleMarkReturned = () => {
-    const run = () => {
-      if (acceptedBorrowRequestId != null) {
-        markReturned.mutate({ requestId: acceptedBorrowRequestId, itemId: item.id });
-      } else {
-        void updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
-      }
+    const onDone = () => {
+      closeConfirm();
+      showSnackbarAlert({
+        message: tCommon('feedback.returned'),
+        variant: 'success',
+      });
+    };
+    const onFail = () => {
+      closeConfirm();
+      showSnackbarAlert({
+        message: tCommon('errors.generic'),
+        variant: 'error',
+        duration: 'long',
+      });
     };
 
     openConfirm({
@@ -149,8 +244,20 @@ export default function ItemDetailScreen() {
       cancelLabel: tBorrow('confirm.markReturned.cancel'),
       confirmLabel: tBorrow('confirm.markReturned.confirm'),
       onConfirm: () => {
-        closeConfirm();
-        run();
+        if (acceptedBorrowRequestId != null) {
+          markReturned.mutate(
+            { requestId: acceptedBorrowRequestId, itemId: item.id },
+            {
+              onSuccess: onDone,
+              onError: onFail,
+            },
+          );
+        } else {
+          void updateStatus
+            .mutateAsync({ id: item.id, status: ItemStatus.Stored })
+            .then(onDone)
+            .catch(onFail);
+        }
       },
     });
   };
@@ -207,7 +314,16 @@ export default function ItemDetailScreen() {
             : undefined
         }
       />
-      <ConfirmDialog {...confirmDialogProps} />
+      <ConfirmDialog
+        {...confirmDialogProps}
+        loading={
+          markDonated.isPending ||
+          markSold.isPending ||
+          updateStatus.isPending ||
+          deleteItem.isPending ||
+          markReturned.isPending
+        }
+      />
       <Snackbar
         visible={photoLimitSnackbarVisible}
         onDismiss={() => setPhotoLimitSnackbarVisible(false)}

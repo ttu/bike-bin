@@ -6,6 +6,7 @@ import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { spacing } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { ConfirmDialog } from '@/shared/components';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useAuth } from '@/features/auth';
 import {
@@ -25,6 +26,8 @@ type Tab = 'incoming' | 'outgoing' | 'active';
 export default function BorrowRequestsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('borrow');
+  const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
 
   const { user } = useAuth();
   const userId = (user?.id ?? '') as UserId;
@@ -81,12 +84,30 @@ export default function BorrowRequestsScreen() {
         cancelLabel: t('confirm.accept.cancel'),
         confirmLabel: t('confirm.accept.confirm'),
         onConfirm: () => {
-          closeConfirm();
-          acceptRequest.mutate({ requestId: request.id, itemId: request.itemId });
+          acceptRequest.mutate(
+            { requestId: request.id, itemId: request.itemId },
+            {
+              onSuccess: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('feedback.borrowAccepted'),
+                  variant: 'success',
+                });
+              },
+              onError: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('errors.generic'),
+                  variant: 'error',
+                  duration: 'long',
+                });
+              },
+            },
+          );
         },
       });
     },
-    [acceptRequest, t, openConfirm, closeConfirm],
+    [acceptRequest, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon],
   );
 
   const handleDecline = useCallback(
@@ -98,12 +119,30 @@ export default function BorrowRequestsScreen() {
         confirmLabel: t('confirm.decline.confirm'),
         destructive: true,
         onConfirm: () => {
-          closeConfirm();
-          declineRequest.mutate({ requestId: request.id, itemId: request.itemId });
+          declineRequest.mutate(
+            { requestId: request.id, itemId: request.itemId },
+            {
+              onSuccess: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('feedback.borrowDeclined'),
+                  variant: 'success',
+                });
+              },
+              onError: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('errors.generic'),
+                  variant: 'error',
+                  duration: 'long',
+                });
+              },
+            },
+          );
         },
       });
     },
-    [declineRequest, t, openConfirm, closeConfirm],
+    [declineRequest, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon],
   );
 
   const handleCancel = useCallback(
@@ -115,12 +154,30 @@ export default function BorrowRequestsScreen() {
         confirmLabel: t('confirm.cancel.confirm'),
         destructive: true,
         onConfirm: () => {
-          closeConfirm();
-          cancelRequest.mutate({ requestId: request.id, itemId: request.itemId });
+          cancelRequest.mutate(
+            { requestId: request.id, itemId: request.itemId },
+            {
+              onSuccess: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('feedback.borrowCancelled'),
+                  variant: 'success',
+                });
+              },
+              onError: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('errors.generic'),
+                  variant: 'error',
+                  duration: 'long',
+                });
+              },
+            },
+          );
         },
       });
     },
-    [cancelRequest, t, openConfirm, closeConfirm],
+    [cancelRequest, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon],
   );
 
   const handleMarkReturned = useCallback(
@@ -131,12 +188,30 @@ export default function BorrowRequestsScreen() {
         cancelLabel: t('confirm.markReturned.cancel'),
         confirmLabel: t('confirm.markReturned.confirm'),
         onConfirm: () => {
-          closeConfirm();
-          markReturned.mutate({ requestId: request.id, itemId: request.itemId });
+          markReturned.mutate(
+            { requestId: request.id, itemId: request.itemId },
+            {
+              onSuccess: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('feedback.returned'),
+                  variant: 'success',
+                });
+              },
+              onError: () => {
+                closeConfirm();
+                showSnackbarAlert({
+                  message: tCommon('errors.generic'),
+                  variant: 'error',
+                  duration: 'long',
+                });
+              },
+            },
+          );
         },
       });
     },
-    [markReturned, t, openConfirm, closeConfirm],
+    [markReturned, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon],
   );
 
   const renderItem = useCallback(
@@ -231,7 +306,15 @@ export default function BorrowRequestsScreen() {
         />
       )}
 
-      <ConfirmDialog {...confirmDialogProps} />
+      <ConfirmDialog
+        {...confirmDialogProps}
+        loading={
+          acceptRequest.isPending ||
+          declineRequest.isPending ||
+          cancelRequest.isPending ||
+          markReturned.isPending
+        }
+      />
     </View>
   );
 }

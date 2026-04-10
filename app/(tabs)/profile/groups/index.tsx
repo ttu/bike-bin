@@ -28,6 +28,7 @@ type ScreenMode = 'list' | 'create' | 'search';
 export default function GroupsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('groups');
+  const { t: tCommon } = useTranslation('common');
   const { showSnackbarAlert } = useSnackbarAlerts();
   const [mode, setMode] = useState<ScreenMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,21 +79,29 @@ export default function GroupsScreen() {
         description: description.trim() || undefined,
         isPublic,
       });
+      showSnackbarAlert({
+        message: tCommon('feedback.groupCreated'),
+        variant: 'success',
+      });
       setMode('list');
     } catch {
       showSnackbarAlert({ message: t('errors.createFailed'), variant: 'error', duration: 'long' });
     }
-  }, [name, description, isPublic, createGroup, showSnackbarAlert, t]);
+  }, [name, description, isPublic, createGroup, showSnackbarAlert, t, tCommon]);
 
   const handleJoinGroup = useCallback(
     async (groupId: GroupId) => {
       try {
         await joinGroup.mutateAsync(groupId);
+        showSnackbarAlert({
+          message: tCommon('feedback.groupJoined'),
+          variant: 'success',
+        });
       } catch {
         showSnackbarAlert({ message: t('errors.joinFailed'), variant: 'error', duration: 'long' });
       }
     },
-    [joinGroup, showSnackbarAlert, t],
+    [joinGroup, showSnackbarAlert, t, tCommon],
   );
 
   const handleGroupPress = useCallback((group: GroupWithRole) => {

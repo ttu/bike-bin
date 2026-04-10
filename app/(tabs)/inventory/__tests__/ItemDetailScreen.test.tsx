@@ -54,6 +54,17 @@ jest.mock('@/shared/api/supabase', () => ({
 
 const mockDeleteMutateAsync = jest.fn();
 const mockUpdateStatusMutateAsync = jest.fn();
+const mockUpdateStatusMutate = jest.fn(
+  (
+    vars: { id: ItemId; status: ItemStatus },
+    opts?: { onSuccess?: () => void; onError?: () => void },
+  ) => {
+    void Promise.resolve(mockUpdateStatusMutateAsync(vars)).then(
+      () => opts?.onSuccess?.(),
+      () => opts?.onError?.(),
+    );
+  },
+);
 
 const mockStoredItem = createMockItem({
   id: 'item-123' as ItemId,
@@ -82,7 +93,10 @@ jest.mock('@/features/inventory', () => {
       isLoading: false,
     }),
     useItemPhotos: () => ({ data: [] }),
-    useUpdateItemStatus: () => ({ mutateAsync: mockUpdateStatusMutateAsync }),
+    useUpdateItemStatus: () => ({
+      mutateAsync: mockUpdateStatusMutateAsync,
+      mutate: mockUpdateStatusMutate,
+    }),
     useDeleteItem: () => ({ mutateAsync: mockDeleteMutateAsync }),
   };
 });

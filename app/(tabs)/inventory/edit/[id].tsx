@@ -19,6 +19,7 @@ import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { canDelete } from '@/features/inventory';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -28,6 +29,8 @@ import type { ItemId } from '@/shared/types';
 export default function EditItemScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const { id } = useLocalSearchParams<{ id: string }>();
   const itemId = id as ItemId;
 
@@ -42,8 +45,20 @@ export default function EditItemScreen() {
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
   const handleSave = async (data: ItemFormData) => {
-    await updateItem.mutateAsync({ ...data, id: itemId });
-    tabScopedBack('/(tabs)/inventory');
+    try {
+      await updateItem.mutateAsync({ ...data, id: itemId });
+      showSnackbarAlert({
+        message: tCommon('feedback.itemUpdated'),
+        variant: 'success',
+      });
+      tabScopedBack('/(tabs)/inventory');
+    } catch {
+      showSnackbarAlert({
+        message: tCommon('errors.generic'),
+        variant: 'error',
+        duration: 'long',
+      });
+    }
   };
 
   const handleAddPhoto = useCallback(() => {
@@ -101,9 +116,22 @@ export default function EditItemScreen() {
       confirmLabel: t('confirm.delete.confirm'),
       destructive: true,
       onConfirm: async () => {
-        closeConfirm();
-        await deleteItem.mutateAsync({ id: item.id, status: item.status });
-        tabScopedBack('/(tabs)/inventory');
+        try {
+          await deleteItem.mutateAsync({ id: item.id, status: item.status });
+          closeConfirm();
+          showSnackbarAlert({
+            message: tCommon('feedback.itemDeleted'),
+            variant: 'success',
+          });
+          tabScopedBack('/(tabs)/inventory');
+        } catch {
+          closeConfirm();
+          showSnackbarAlert({
+            message: tCommon('errors.generic'),
+            variant: 'error',
+            duration: 'long',
+          });
+        }
       },
     });
   };
@@ -211,7 +239,10 @@ export default function EditItemScreen() {
         headerComponent={heroSection}
         photoSection={photoSection}
       />
-      <ConfirmDialog {...confirmDialogProps} />
+      <ConfirmDialog
+        {...confirmDialogProps}
+        loading={removePhoto.isPending || swapPhotoOrder.isPending || deleteItem.isPending}
+      />
     </View>
   );
 }
