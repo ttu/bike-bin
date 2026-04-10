@@ -33,6 +33,8 @@ export function ItemForm({
   const theme = useTheme<AppTheme>();
   const state = useItemFormState({ initialData, initialCategory, onSave });
 
+  const hasSubmitBlock = Boolean(submitBlockedMessage && submitBlockedMessage.length > 0);
+
   const inputStyling: InputStyling = {
     softInputStyle: {
       backgroundColor: theme.customColors.surfaceContainerHighest,
@@ -167,7 +169,7 @@ export function ItemForm({
         {...inputStyling}
       />
 
-      {submitBlockedMessage !== undefined && submitBlockedMessage.length > 0 ? (
+      {hasSubmitBlock ? (
         <Banner visible icon="information" style={styles.limitBanner}>
           <Text variant="bodyMedium">{submitBlockedMessage}</Text>
         </Banner>
@@ -178,7 +180,7 @@ export function ItemForm({
         isSubmitting={isSubmitting}
         isEditMode={isEditMode}
         onDelete={onDelete}
-        saveDisabled={Boolean(submitBlockedMessage)}
+        saveDisabled={hasSubmitBlock}
       />
     </ScrollView>
   );

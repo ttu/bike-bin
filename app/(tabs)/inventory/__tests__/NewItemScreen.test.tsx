@@ -15,8 +15,15 @@ let mockIsInventoryLimitError = false;
 let mockIsPhotoLimitError = false;
 let mockStagedPhotos: { uri: string; fileName: string }[] = [];
 let mockAtLimit = false;
+let mockPhotoAtLimit = false;
 let mockLimit: number | undefined;
 let capturedOnSave: ((data: Record<string, unknown>) => void) | undefined;
+
+const mockPhotoPicker = jest.fn((_props: Record<string, unknown>) => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native');
+  return <Text testID="photo-picker-placeholder">PhotoPicker</Text>;
+});
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -58,7 +65,7 @@ jest.mock('@/features/inventory', () => ({
 
 jest.mock('@/shared/hooks/usePhotoRowCapacity', () => ({
   usePhotoRowCapacity: () => ({
-    atLimit: false,
+    atLimit: mockPhotoAtLimit,
     photoRowCount: 0,
     limit: undefined,
     isReady: true,
@@ -84,20 +91,24 @@ jest.mock('@/features/inventory/hooks/useStagedPhotos', () => ({
 }));
 
 jest.mock('@/features/inventory/components/ItemForm/ItemForm', () => ({
-  ItemForm: (props: { onSave: (data: Record<string, unknown>) => void }) => {
+  ItemForm: (props: {
+    onSave: (data: Record<string, unknown>) => void;
+    photoSection?: React.ReactNode;
+  }) => {
     capturedOnSave = props.onSave;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Text } = require('react-native');
-    return <Text testID="item-form-placeholder">ItemForm</Text>;
+    const { View, Text } = require('react-native');
+    return (
+      <View testID="item-form-mock">
+        {props.photoSection}
+        <Text testID="item-form-placeholder">ItemForm</Text>
+      </View>
+    );
   },
 }));
 
 jest.mock('@/features/inventory/components/PhotoPicker/PhotoPicker', () => ({
-  PhotoPicker: () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Text } = require('react-native');
-    return <Text testID="photo-picker-placeholder">PhotoPicker</Text>;
-  },
+  PhotoPicker: (props: Record<string, unknown>) => mockPhotoPicker(props),
 }));
 
 const formData = { name: 'Test Item', category: 'component', condition: 'good' };
@@ -110,7 +121,9 @@ beforeEach(() => {
   mockIsPhotoLimitError = false;
   mockStagedPhotos = [];
   mockAtLimit = false;
+  mockPhotoAtLimit = false;
   mockLimit = undefined;
+  mockPhotoPicker.mockClear();
 });
 
 describe('NewItemScreen', () => {
@@ -118,6 +131,26 @@ describe('NewItemScreen', () => {
     const { getByText, getByTestId } = renderWithProviders(<NewItemScreen />);
     expect(getByText('Add item')).toBeTruthy();
     expect(getByTestId('item-form-placeholder')).toBeTruthy();
+    expect(mockPhotoPicker).toHaveBeenCalledWith(
+      expect.objectContaining({ accountPhotoLimitReached: false }),
+    );
+  });
+
+  it('passes accountPhotoLimitReached true when authenticated and photo row capacity is at limit', () => {
+    mockPhotoAtLimit = true;
+    renderWithProviders(<NewItemScreen />);
+    expect(mockPhotoPicker).toHaveBeenCalledWith(
+      expect.objectContaining({ accountPhotoLimitReached: true }),
+    );
+  });
+
+  it('passes accountPhotoLimitReached false when not authenticated even if photo capacity is at limit', () => {
+    mockIsAuthenticated = false;
+    mockPhotoAtLimit = true;
+    renderWithProviders(<NewItemScreen />);
+    expect(mockPhotoPicker).toHaveBeenCalledWith(
+      expect.objectContaining({ accountPhotoLimitReached: false }),
+    );
   });
 
   it('creates item and navigates back on successful save', async () => {
