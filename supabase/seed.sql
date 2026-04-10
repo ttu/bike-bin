@@ -155,8 +155,7 @@ INSERT INTO groups (id, name, description, is_public, created_at) VALUES
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
-  is_public = EXCLUDED.is_public,
-  created_at = EXCLUDED.created_at;
+  is_public = EXCLUDED.is_public;
 
 INSERT INTO group_members (group_id, user_id, role, joined_at) VALUES
   ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'admin',  now() - interval '365 days'),
