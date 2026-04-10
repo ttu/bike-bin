@@ -312,7 +312,10 @@ export default function ConversationDetailScreen() {
           data={messages}
           keyExtractor={(listItem) => listItem.id}
           renderItem={({ item: listItem }) => (
-            <ChatBubble message={listItem} onLongPress={handleMessageLongPress} />
+            <ChatBubble
+              message={listItem}
+              onLongPress={listItem.isOwn ? undefined : handleMessageLongPress}
+            />
           )}
           inverted
           contentContainerStyle={styles.messagesContent}

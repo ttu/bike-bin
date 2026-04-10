@@ -11,6 +11,7 @@ import {
 import { Image } from 'expo-image';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
 /** Minimal photo shape needed for gallery display. */
 interface GalleryPhoto {
   id: string;
@@ -59,28 +60,43 @@ function ParallaxPhoto({
   });
 
   const galleryHeight = galleryWidth * ASPECT_RATIO;
+  const { t } = useTranslation('common');
+
+  const containerStyle = [
+    styles.photoContainer,
+    themed.surfaceVariantBg,
+    { width: galleryWidth, height: galleryHeight },
+  ];
+
+  const image = (
+    <AnimatedCachedGalleryImage
+      accessible={false}
+      source={{ uri: data.publicUrl, cacheKey: photo.storagePath }}
+      style={[styles.photo, { transform: [{ translateX }] }]}
+      contentFit="cover"
+      cachePolicy="memory-disk"
+      recyclingKey={photo.storagePath}
+    />
+  );
+
+  if (onLongPress) {
+    return (
+      <Pressable
+        key={photo.id}
+        onLongPress={() => onLongPress(photo)}
+        delayLongPress={400}
+        accessibilityLabel={t('photo.label', { index: index + 1 })}
+        style={containerStyle}
+      >
+        {image}
+      </Pressable>
+    );
+  }
 
   return (
-    <Pressable
-      key={photo.id}
-      onLongPress={onLongPress ? () => onLongPress(photo) : undefined}
-      delayLongPress={400}
-      accessibilityLabel={`Photo ${photo.id}`}
-      style={[
-        styles.photoContainer,
-        themed.surfaceVariantBg,
-        { width: galleryWidth, height: galleryHeight },
-      ]}
-    >
-      <AnimatedCachedGalleryImage
-        accessible={false}
-        source={{ uri: data.publicUrl, cacheKey: photo.storagePath }}
-        style={[styles.photo, { transform: [{ translateX }] }]}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        recyclingKey={photo.storagePath}
-      />
-    </Pressable>
+    <View key={photo.id} style={containerStyle}>
+      {image}
+    </View>
   );
 }
 

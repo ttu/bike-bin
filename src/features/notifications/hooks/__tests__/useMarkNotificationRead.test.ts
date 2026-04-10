@@ -2,6 +2,9 @@ import { renderHook, waitFor } from '@testing-library/react-native';
 import { mockUpdate, mockEq, mockSupabase } from '@/test/supabaseMocks';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
+jest.mock('@/features/auth', () => ({
+  useAuth: () => ({ user: { id: 'user-1' } }),
+}));
 
 // Import after mocks
 import { useMarkNotificationRead } from '../useMarkNotificationRead';

@@ -215,7 +215,7 @@ describe('ListingDetail', () => {
     const { getByLabelText } = renderWithProviders(
       <ListingDetail item={item} photos={photos} onPhotoLongPress={onPhotoLongPress} />,
     );
-    fireEvent(getByLabelText('Photo p1'), 'longPress');
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
     expect(onPhotoLongPress).toHaveBeenCalledWith(photos[0]);
   });
 });

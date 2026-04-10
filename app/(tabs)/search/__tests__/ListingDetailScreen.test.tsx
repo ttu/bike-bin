@@ -127,6 +127,7 @@ jest.mock('@/shared/hooks/useReport', () => ({
 describe('ListingDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockReportMutate.mockReset();
     mockShowSnackbarAlert.mockClear();
     mockCanDismiss.mockReturnValue(true);
   });
@@ -224,7 +225,7 @@ describe('ListingDetailScreen', () => {
     const { getByLabelText, getByText } = renderWithProviders(<ListingDetailScreen />);
 
     // Long-press the photo (PhotoGallery renders with accessibilityLabel 'Photo <id>')
-    fireEvent(getByLabelText('Photo photo-1'), 'longPress');
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
 
     // ReportDialog should appear
     expect(getByText('Report')).toBeTruthy();
@@ -237,7 +238,7 @@ describe('ListingDetailScreen', () => {
 
     const { getByLabelText, getByText } = renderWithProviders(<ListingDetailScreen />);
 
-    fireEvent(getByLabelText('Photo photo-1'), 'longPress');
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
     fireEvent.press(getByText('Spam'));
     fireEvent.press(getByText('Submit Report'));
 
@@ -263,7 +264,7 @@ describe('ListingDetailScreen', () => {
 
     const { getByLabelText, getByText } = renderWithProviders(<ListingDetailScreen />);
 
-    fireEvent(getByLabelText('Photo photo-1'), 'longPress');
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
     fireEvent.press(getByText('Spam'));
     fireEvent.press(getByText('Submit Report'));
 

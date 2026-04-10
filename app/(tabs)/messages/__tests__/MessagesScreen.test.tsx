@@ -50,10 +50,29 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@/features/messaging', () => ({
-  ...jest.requireActual('@/features/messaging'),
-  useConversations: jest.fn(),
-}));
+jest.mock('@/features/messaging', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text, Pressable } = require('react-native');
+  return {
+    useConversations: jest.fn(),
+    ConversationCard: ({
+      conversation,
+      onPress,
+    }: {
+      conversation: { otherParticipantName: string };
+      onPress?: (c: unknown) => void;
+    }) => (
+      <Pressable
+        onPress={() => onPress?.(conversation)}
+        accessibilityLabel={conversation.otherParticipantName}
+      >
+        <View>
+          <Text>{conversation.otherParticipantName}</Text>
+        </View>
+      </Pressable>
+    ),
+  };
+});
 
 const mockUseConversations = jest.mocked(useConversations);
 

@@ -29,5 +29,8 @@
   },
   "errors": {
     "uploadFailed": "Upload failed. Please try again."
+  },
+  "photo": {
+    "label": "Photo {{index}}"
   }
 }

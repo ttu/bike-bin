@@ -88,7 +88,7 @@ describe('PhotoGallery', () => {
     const { getByLabelText } = renderWithProviders(
       <PhotoGallery photos={photos} onPhotoLongPress={onPhotoLongPress} />,
     );
-    fireEvent(getByLabelText('Photo p1'), 'longPress');
+    fireEvent(getByLabelText('Photo 1'), 'longPress');
     expect(onPhotoLongPress).toHaveBeenCalledWith(photos[0]);
   });
 
