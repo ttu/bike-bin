@@ -205,9 +205,10 @@ A secret-protected Edge Function (`supabase/functions/admin-enforce-sanction/ind
 2. Upsert `blocked_oauth_identities` (prevents re-registration)
 3. Collect storage paths (avatars, item photos, bike photos, data exports)
 4. Delete storage objects (grouped by bucket, 404s handled gracefully)
-5. Data purge: item_photos → items → bike_photos → bikes → messages (DELETE, not anonymize) → conversation_participants → empty conversations (via `find_empty_conversations()` RPC) → ratings → borrow_requests → export_requests → subscriptions → support_requests → saved_locations → group_members → notifications → close reports targeting user → delete reports filed by user → delete profile
-6. Insert `moderation_enforcement_log` row
-7. Delete auth user (`auth.admin.deleteUser()`)
+5. Close reports targeting user and their content (items, item_photos, messages) — must run before data purge while target rows still exist
+6. Data purge: item_photos → items → bike_photos → bikes → messages (DELETE, not anonymize) → conversation_participants → empty conversations (via `find_empty_conversations()` RPC) → ratings → borrow_requests → export_requests → subscriptions → support_requests → saved_locations → group_members → notifications → delete reports filed by user → delete profile
+7. Insert `moderation_enforcement_log` row
+8. Delete auth user (`auth.admin.deleteUser()`)
 
 **Distinction from GDPR delete-account:** GDPR self-delete anonymizes messages (preserves conversation for other party). Admin enforcement **hard-deletes** messages and blocks re-registration via OAuth identity blocklist.
 
