@@ -1,9 +1,10 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import type { BikeId } from '@/shared/types';
 import { PhotoLimitExceededError } from '@/shared/utils/subscriptionLimitErrors';
 
 const mockUploadPhoto = jest.fn();
 const mockRpc = jest.fn();
+const mockStorageRemove = jest.fn().mockResolvedValue({ data: [], error: null });
 
 jest.mock('@/shared/utils/uploadPhoto', () => ({
   uploadPhoto: (...args: unknown[]) => mockUploadPhoto(...args),
@@ -12,6 +13,11 @@ jest.mock('@/shared/utils/uploadPhoto', () => ({
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     rpc: (...args: unknown[]) => mockRpc(...args),
+    storage: {
+      from: () => ({
+        remove: (...args: unknown[]) => mockStorageRemove(...args),
+      }),
+    },
   },
 }));
 
@@ -33,6 +39,8 @@ import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 describe('useStagedBikePhotos', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUploadPhoto.mockReset();
+    mockStorageRemove.mockResolvedValue({ data: [], error: null });
     authState.user = { id: 'user-123' };
     mockRpc.mockImplementation((fn: string) => {
       if (fn === 'get_my_photo_limit') {
@@ -64,6 +72,7 @@ describe('useStagedBikePhotos', () => {
 
     expect(result.current.stagedPhotos).toHaveLength(1);
     expect(result.current.stagedPhotos[0].localUri).toBe('file:///photo.jpg');
+    expect(result.current.stagedPhotos[0].id).toMatch(/^staged-/);
   });
 
   it('removes a staged photo', () => {
@@ -120,6 +129,8 @@ describe('useStagedBikePhotos', () => {
 
     act(() => {
       result.current.addStaged('file:///a.jpg', 'a.jpg');
+    });
+    act(() => {
       result.current.addStaged('file:///b.jpg', 'b.jpg');
     });
 
@@ -262,5 +273,36 @@ describe('useStagedBikePhotos', () => {
         await result.current.uploadAll('bike-1' as BikeId);
       }),
     ).rejects.toThrow('upload failed');
+  });
+
+  it('removes storage objects uploaded before a later upload failure', async () => {
+    mockUploadPhoto
+      .mockResolvedValueOnce('bikes/user-123/bike-2/a.jpg')
+      .mockRejectedValueOnce(new Error('second failed'));
+
+    const { result } = renderHook(() => useStagedBikePhotos(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    act(() => {
+      result.current.addStaged('file:///a.jpg', 'a.jpg');
+    });
+    act(() => {
+      result.current.addStaged('file:///b.jpg', 'b.jpg');
+    });
+
+    await waitFor(() => {
+      expect(result.current.stagedPhotos).toHaveLength(2);
+    });
+
+    let uploadAllPromise: Promise<void>;
+    act(() => {
+      uploadAllPromise = result.current.uploadAll('bike-2' as BikeId);
+    });
+
+    await expect(uploadAllPromise!).rejects.toThrow('second failed');
+
+    expect(mockUploadPhoto).toHaveBeenCalledTimes(2);
+    expect(mockStorageRemove).toHaveBeenCalledWith(['bikes/user-123/bike-2/a.jpg']);
   });
 });

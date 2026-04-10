@@ -9,11 +9,13 @@ const mockDeleteMutateAsync = jest.fn();
 const mockUploadAll = jest.fn();
 const mockRouterPush = jest.fn();
 const mockTabScopedBack = jest.fn();
-const mockPickPhoto = jest.fn();
-const mockAddStaged = jest.fn();
 let mockStagedPhotos: { id: string; storagePath: string; localUri?: string }[] = [];
 let mockAtLimit = false;
 let mockPhotoAtLimit = false;
+/** Mirrors usePhotoRowCapacity: row count vs subscription cap */
+let mockPhotoRowCount = 0;
+let mockPhotoLimitNum: number | undefined = 10_000;
+let mockPhotoCapacityReady = true;
 let mockLimit: number | undefined;
 let capturedOnSave: ((data: Record<string, unknown>) => void | Promise<void>) | undefined;
 let capturedSubmitBlocked: string | undefined;
@@ -52,7 +54,7 @@ jest.mock('@/features/bikes', () => ({
   }),
   useStagedBikePhotos: () => ({
     stagedPhotos: mockStagedPhotos,
-    addStaged: mockAddStaged,
+    addStaged: jest.fn(),
     removeStaged: jest.fn(),
     uploadAll: mockUploadAll,
     isUploading: false,
@@ -62,12 +64,14 @@ jest.mock('@/features/bikes', () => ({
 jest.mock('@/shared/hooks/usePhotoRowCapacity', () => ({
   usePhotoRowCapacity: () => ({
     atLimit: mockPhotoAtLimit,
-    isReady: true,
+    photoRowCount: mockPhotoRowCount,
+    limit: mockPhotoLimitNum,
+    isReady: mockPhotoCapacityReady,
   }),
 }));
 
 jest.mock('@/features/inventory/hooks/usePhotoPicker', () => ({
-  usePhotoPicker: () => ({ pickPhoto: mockPickPhoto, isPicking: false }),
+  usePhotoPicker: () => ({ pickPhoto: jest.fn(), isPicking: false }),
 }));
 
 jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({
@@ -106,6 +110,9 @@ beforeEach(() => {
   mockStagedPhotos = [];
   mockAtLimit = false;
   mockPhotoAtLimit = false;
+  mockPhotoRowCount = 0;
+  mockPhotoLimitNum = 10_000;
+  mockPhotoCapacityReady = true;
   mockLimit = undefined;
   mockPhotoPicker.mockClear();
 });
@@ -122,9 +129,21 @@ describe('NewBikeScreen', () => {
 
   it('passes accountPhotoLimitReached when photo row capacity is at limit', () => {
     mockPhotoAtLimit = true;
+    mockPhotoRowCount = 100;
+    mockPhotoLimitNum = 100;
+    mockPhotoCapacityReady = true;
     renderWithProviders(<NewBikeScreen />);
     expect(mockPhotoPicker).toHaveBeenCalledWith(
       expect.objectContaining({ accountPhotoLimitReached: true }),
+    );
+  });
+
+  it('does not pass accountPhotoLimitReached when photo capacity query is not ready', () => {
+    mockPhotoAtLimit = true;
+    mockPhotoCapacityReady = false;
+    renderWithProviders(<NewBikeScreen />);
+    expect(mockPhotoPicker).toHaveBeenCalledWith(
+      expect.objectContaining({ accountPhotoLimitReached: false }),
     );
   });
 

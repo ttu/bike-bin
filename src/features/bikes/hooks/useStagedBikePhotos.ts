@@ -7,6 +7,22 @@ import { PhotoLimitExceededError } from '@/shared/utils/subscriptionLimitErrors'
 import type { BikeId } from '@/shared/types';
 import type { PickerPhoto } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 
+const ITEM_PHOTOS_BUCKET = 'item-photos';
+
+function newStagedPhotoId(): string {
+  const c = globalThis.crypto;
+  if (c !== undefined && typeof c.randomUUID === 'function') {
+    return `staged-${c.randomUUID()}`;
+  }
+  return `staged-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+/** Best-effort removal of uploaded objects when a later upload fails (DB rows are removed with the bike). */
+async function removeStoragePathsBestEffort(bucket: string, paths: string[]): Promise<void> {
+  if (paths.length === 0) return;
+  await supabase.storage.from(bucket).remove(paths);
+}
+
 interface StagedPhoto {
   id: string;
   localUri: string;
@@ -28,7 +44,7 @@ export function useStagedBikePhotos(): UseStagedBikePhotosReturn {
   const queryClient = useQueryClient();
 
   const addStaged = useCallback((uri: string, fileName: string) => {
-    setPhotos((prev) => [...prev, { id: `staged-${Date.now()}`, localUri: uri, fileName }]);
+    setPhotos((prev) => [...prev, { id: newStagedPhotoId(), localUri: uri, fileName }]);
   }, []);
 
   const removeStaged = useCallback((id: string) => {
@@ -57,19 +73,26 @@ export function useStagedBikePhotos(): UseStagedBikePhotosReturn {
           throw new PhotoLimitExceededError();
         }
 
-        for (let i = 0; i < photos.length; i++) {
-          const photo = photos[i];
-          const storagePath = `bikes/${user.id}/${bikeId}/${photo.fileName}`;
+        const uploadedStoragePaths: string[] = [];
+        try {
+          for (let i = 0; i < photos.length; i++) {
+            const photo = photos[i];
+            const storagePath = `bikes/${user.id}/${bikeId}/${photo.fileName}`;
 
-          await uploadPhoto({
-            bucket: 'item-photos',
-            storagePath,
-            localUri: photo.localUri,
-            table: 'bike_photos',
-            entityIdColumn: 'bike_id',
-            entityId: bikeId,
-            sortOrder: i + 1,
-          });
+            const returnedPath = await uploadPhoto({
+              bucket: ITEM_PHOTOS_BUCKET,
+              storagePath,
+              localUri: photo.localUri,
+              table: 'bike_photos',
+              entityIdColumn: 'bike_id',
+              entityId: bikeId,
+              sortOrder: i + 1,
+            });
+            uploadedStoragePaths.push(returnedPath);
+          }
+        } catch (uploadError) {
+          await removeStoragePathsBestEffort(ITEM_PHOTOS_BUCKET, uploadedStoragePaths);
+          throw uploadError;
         }
 
         queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
