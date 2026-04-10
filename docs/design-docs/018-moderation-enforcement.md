@@ -27,7 +27,7 @@ src/shared/components/
 supabase/functions/
 └── admin-enforce-sanction/index.ts   # Secret-protected admin purge + block
 supabase/migrations/
-└── 00015_moderation.sql              # Schema: blocklist, enforcement log, auth hook
+└── 00016_moderation.sql              # Schema: blocklist, enforcement log, auth hook
 ```
 
 ## Data Model
