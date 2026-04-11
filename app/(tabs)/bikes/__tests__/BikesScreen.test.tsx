@@ -4,6 +4,7 @@ import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { BikeType } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
+import bikesEn from '@/i18n/en/bikes.json';
 import BikesScreen from '../index';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -18,6 +19,13 @@ jest.mock('@/shared/api/supabase', () => ({
 
 const mockRouterPush = jest.fn();
 const mockUseBikes = jest.fn();
+
+const mockBikeCapacityState = {
+  atLimit: false,
+  limit: undefined as number | undefined,
+  bikeRowCount: 0,
+  isReady: true,
+};
 
 jest.mock('expo-router', () => ({
   router: {
@@ -45,12 +53,21 @@ jest.mock('react-native-safe-area-context', () => {
 
 jest.mock('@/features/bikes', () => ({
   useBikes: () => mockUseBikes(),
-  useBikeRowCapacity: () => ({ atLimit: false, bikeRowCount: 0, limit: undefined, isReady: true }),
+  useBikeRowCapacity: () => ({
+    atLimit: mockBikeCapacityState.atLimit,
+    bikeRowCount: mockBikeCapacityState.bikeRowCount,
+    limit: mockBikeCapacityState.limit,
+    isReady: mockBikeCapacityState.isReady,
+  }),
 }));
 
 describe('BikesScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockBikeCapacityState.atLimit = false;
+    mockBikeCapacityState.limit = undefined;
+    mockBikeCapacityState.bikeRowCount = 0;
+    mockBikeCapacityState.isReady = true;
   });
 
   it('renders empty state and navigates to new bike from CTA', () => {
@@ -74,6 +91,24 @@ describe('BikesScreen', () => {
     const { getByText } = renderWithProviders(<BikesScreen />);
     fireEvent.press(getByText('Test Bike'));
     expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/bikes/bike-xyz');
+  });
+
+  it('does not navigate when add is pressed at bike limit', () => {
+    mockBikeCapacityState.atLimit = true;
+    mockBikeCapacityState.limit = 2;
+    mockBikeCapacityState.bikeRowCount = 2;
+    const bike = createMockBike({
+      id: 'bike-a' as BikeId,
+      name: 'Only Bike',
+      brand: 'B',
+      model: 'M',
+      type: BikeType.MTB,
+      year: 2022,
+    });
+    mockUseBikes.mockReturnValue({ data: [bike], isLoading: false });
+    const { getByLabelText } = renderWithProviders(<BikesScreen />);
+    fireEvent.press(getByLabelText(bikesEn.limit.reachedFabA11y));
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
   it('shows FAB to add bike when list is non-empty', () => {

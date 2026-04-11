@@ -1,10 +1,23 @@
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
-import type { GroupWithRole } from '@/features/groups';
+import type { GroupWithRole, SearchGroupResult } from '@/features/groups';
+import commonEn from '@/i18n/en/common.json';
+import groupsEn from '@/i18n/en/groups.json';
 import GroupsScreen from '../index';
+
+const mockShowSnackbarAlert = jest.fn();
+jest.mock('@/shared/components/SnackbarAlerts', () => {
+  const actual = jest.requireActual<typeof import('@/shared/components/SnackbarAlerts')>(
+    '@/shared/components/SnackbarAlerts',
+  );
+  return {
+    ...actual,
+    useSnackbarAlerts: () => ({ showSnackbarAlert: mockShowSnackbarAlert }),
+  };
+});
 
 const mockRouterPush = jest.fn();
 
@@ -38,12 +51,14 @@ jest.mock('react-native-safe-area-context', () => {
 
 const mockUseGroups = jest.fn();
 const mockUseSearchGroups = jest.fn();
+const mockCreateMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockJoinMutateAsync = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('@/features/groups', () => ({
   useGroups: () => mockUseGroups(),
   useSearchGroups: (query: string) => mockUseSearchGroups(query),
-  useCreateGroup: () => ({ mutateAsync: jest.fn(), isPending: false }),
-  useJoinGroup: () => ({ mutateAsync: jest.fn(), isPending: false }),
+  useCreateGroup: () => ({ mutateAsync: mockCreateMutateAsync, isPending: false }),
+  useJoinGroup: () => ({ mutateAsync: mockJoinMutateAsync, isPending: false }),
 }));
 
 describe('GroupsScreen', () => {
@@ -61,6 +76,8 @@ describe('GroupsScreen', () => {
     jest.clearAllMocks();
     mockUseGroups.mockReturnValue({ data: [sampleGroup], isLoading: false, refetch: jest.fn() });
     mockUseSearchGroups.mockReturnValue({ data: [], isLoading: false });
+    mockCreateMutateAsync.mockResolvedValue(undefined);
+    mockJoinMutateAsync.mockResolvedValue(undefined);
   });
 
   it('calls tabScopedBack when list back is pressed', () => {
@@ -73,5 +90,49 @@ describe('GroupsScreen', () => {
     const { getByText } = renderWithProviders(<GroupsScreen />);
     fireEvent.press(getByText('Test Group'));
     expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/profile/groups/group-abc');
+  });
+
+  it('completes create group flow on success', async () => {
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByLabelText(groupsEn.empty.cta));
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.create.namePlaceholder), 'New Crew');
+    const createGroupButtons = screen.getAllByText(groupsEn.create.save);
+    fireEvent.press(createGroupButtons[createGroupButtons.length - 1]);
+    await waitFor(() => {
+      expect(mockCreateMutateAsync).toHaveBeenCalledWith({
+        name: 'New Crew',
+        description: undefined,
+        isPublic: false,
+      });
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({ message: commonEn.feedback.groupCreated, variant: 'success' }),
+      );
+    });
+  });
+
+  it('completes join group from search on success', async () => {
+    const searchHit: SearchGroupResult = {
+      id: 'join-me' as GroupId,
+      name: 'Join Me',
+      description: undefined,
+      isPublic: true,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      memberCount: 2,
+      isMember: false,
+    };
+    mockUseSearchGroups.mockImplementation((q: string) => ({
+      data: q.length >= 2 ? [searchHit] : [],
+      isLoading: false,
+    }));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByTestId('groups-search-button'));
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'jo');
+    fireEvent.press(screen.getByText(groupsEn.detail.joinGroup));
+    await waitFor(() => {
+      expect(mockJoinMutateAsync).toHaveBeenCalledWith('join-me');
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({ message: commonEn.feedback.groupJoined, variant: 'success' }),
+      );
+    });
   });
 });

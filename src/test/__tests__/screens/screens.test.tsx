@@ -1,15 +1,21 @@
 import React from 'react';
-import { screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
+import searchEn from '@/i18n/en/search.json';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 import SearchScreen from '../../../../app/(tabs)/search/index';
 import MessagesScreen from '../../../../app/(tabs)/messages/index';
 import ProfileScreen from '../../../../app/(tabs)/profile/index';
 
+const mockRouterPush = jest.fn();
+
 jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
+  useRouter: () => ({
+    push: mockRouterPush,
+    replace: jest.fn(),
+  }),
   useLocalSearchParams: jest.fn(() => ({})),
-  router: { push: jest.fn() },
+  router: { push: mockRouterPush, replace: jest.fn() },
 }));
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -64,6 +70,10 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('Tab screens render visible content', () => {
+  beforeEach(() => {
+    mockRouterPush.mockClear();
+  });
+
   it('Inventory screen shows search bar', () => {
     renderWithProviders(<InventoryScreen />);
     expect(screen.getByPlaceholderText(/Search/)).toBeVisible();
@@ -72,6 +82,12 @@ describe('Tab screens render visible content', () => {
   it('Search screen shows guest sign-in prompt when unauthenticated', () => {
     renderWithProviders(<SearchScreen />);
     expect(screen.getByText('Sign in to search')).toBeVisible();
+  });
+
+  it('Search screen guest CTA navigates to login', () => {
+    renderWithProviders(<SearchScreen />);
+    fireEvent.press(screen.getByText(searchEn.authRequired.signIn));
+    expect(mockRouterPush).toHaveBeenCalledWith('/(auth)/login');
   });
 
   it('Messages screen shows heading', () => {
