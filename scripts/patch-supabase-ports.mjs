@@ -15,7 +15,7 @@ if (!configPath || !apiPortArg) {
   process.exit(1);
 }
 
-const apiPort = parseInt(apiPortArg, 10);
+const apiPort = Number.parseInt(apiPortArg, 10);
 if (!Number.isInteger(apiPort) || apiPort < 1024 || apiPort > 65535) {
   console.error('patch-supabase-ports: invalid apiPort');
   process.exit(1);

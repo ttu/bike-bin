@@ -159,8 +159,8 @@ Deno.serve(async (req) => {
 
     const topResult = results[0];
     const areaName = extractAreaName(topResult);
-    const lat = parseFloat(topResult.lat);
-    const lng = parseFloat(topResult.lon);
+    const lat = Number.parseFloat(topResult.lat);
+    const lng = Number.parseFloat(topResult.lon);
 
     // Cache the result
     await supabase.from('geocode_cache').upsert({

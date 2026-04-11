@@ -192,12 +192,7 @@ describe('useConversations', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(result.current.data).toHaveLength(1);
-    const conv = result.current.data![0];
-    expect(conv.otherParticipantId).toBe('');
-    expect(conv.otherParticipantName).toBeUndefined();
-    expect(conv.itemPhotoPath).toBeUndefined();
-    expect(conv.lastMessageBody).toBeUndefined();
+    expect(result.current.data).toHaveLength(0);
   });
 
   it('throws when the first supabase call returns an error', async () => {
@@ -240,11 +235,17 @@ describe('useConversations', () => {
         }),
       }),
     };
-    // Call 3: all participants
+    // Call 3: all participants — one other user per conversation (required for list inclusion)
     mockFromChains[2] = {
       select: jest.fn().mockReturnValue({
         in: jest.fn().mockReturnValue({
-          neq: jest.fn().mockResolvedValue({ data: [], error: null }),
+          neq: jest.fn().mockResolvedValue({
+            data: [
+              { conversation_id: 'conv-1', user_id: 'user-a' },
+              { conversation_id: 'conv-2', user_id: 'user-b' },
+            ],
+            error: null,
+          }),
         }),
       }),
     };

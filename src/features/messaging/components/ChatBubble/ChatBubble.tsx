@@ -6,8 +6,8 @@ import type { AppTheme } from '@/shared/theme';
 import type { MessageWithSender } from '../../types';
 
 interface ChatBubbleProps {
-  message: MessageWithSender;
-  onLongPress?: (message: MessageWithSender) => void;
+  readonly message: MessageWithSender;
+  readonly onLongPress?: (message: MessageWithSender) => void;
 }
 
 export function ChatBubble({ message, onLongPress }: ChatBubbleProps) {

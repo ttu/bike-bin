@@ -4,6 +4,19 @@ import { useNetworkStatus } from './useNetworkStatus';
 
 const QUEUE_STORAGE_KEY = 'offline-mutation-queue';
 
+function mergeQueueAfterReplay(
+  prev: QueuedMutation[],
+  snapshotIds: Set<string>,
+  remainingIds: Set<string>,
+): QueuedMutation[] {
+  return prev.filter((m) => {
+    if (!snapshotIds.has(m.id)) {
+      return true;
+    }
+    return remainingIds.has(m.id);
+  });
+}
+
 interface QueuedMutation {
   id: string;
   timestamp: number;
@@ -68,14 +81,7 @@ export function useOfflineQueue() {
       const remainingIds = new Set(remaining.map((m) => m.id));
 
       isReplayingRef.current = false;
-      setQueue((prev) =>
-        prev.filter((m) => {
-          if (!snapshotIds.has(m.id)) {
-            return true;
-          }
-          return remainingIds.has(m.id);
-        }),
-      );
+      setQueue((prev) => mergeQueueAfterReplay(prev, snapshotIds, remainingIds));
     };
 
     replay();

@@ -6,7 +6,7 @@ import { ItemCondition as ItemConditionValues } from '@/shared/types';
 
 function mapOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
-  const n = typeof value === 'number' ? value : parseFloat(String(value));
+  const n = typeof value === 'number' ? value : Number.parseFloat(String(value));
   return Number.isFinite(n) ? n : undefined;
 }
 

@@ -14,8 +14,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
 import { spacing } from '@/shared/theme';
-import { ItemStatus } from '@/shared/types';
-import type { ConversationId, ItemId } from '@/shared/types';
+import {
+  ItemStatus,
+  type ConversationId,
+  type ItemId,
+  type MessageId,
+  type UserId,
+} from '@/shared/types';
 import {
   useConversation,
   useMessages,
@@ -31,7 +36,6 @@ import { useAuth } from '@/features/auth';
 import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
-import type { MessageId, UserId } from '@/shared/types';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';

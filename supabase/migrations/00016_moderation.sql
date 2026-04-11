@@ -39,9 +39,14 @@ LANGUAGE sql
 SECURITY DEFINER
 SET search_path TO public
 AS $$
-  SELECT c.id FROM conversations c
-  WHERE NOT EXISTS (SELECT 1 FROM conversation_participants cp WHERE cp.conversation_id = c.id)
-    AND NOT EXISTS (SELECT 1 FROM messages m WHERE m.conversation_id = c.id);
+  SELECT c.id
+  FROM conversations c
+  WHERE NOT EXISTS (
+    SELECT 1 FROM conversation_participants cp WHERE cp.conversation_id = c.id
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM messages m WHERE m.conversation_id = c.id
+  );
 $$;
 
 -- Grant/revoke for find_empty_conversations (service-role only, not callable by app users)
@@ -60,12 +65,13 @@ AS $$
 DECLARE
   _identities jsonb;
   is_blocked boolean;
+  decision_continue jsonb := jsonb_build_object('decision', 'continue');
 BEGIN
   _identities := event->'user'->'identities';
 
   -- If no identities array, allow sign-in (don't block legitimate users)
   IF _identities IS NULL OR jsonb_array_length(_identities) = 0 THEN
-    RETURN jsonb_build_object('decision', 'continue');
+    RETURN decision_continue;
   END IF;
 
   -- Check if ANY identity matches a blocked entry
@@ -84,7 +90,7 @@ BEGIN
     );
   END IF;
 
-  RETURN jsonb_build_object('decision', 'continue');
+  RETURN decision_continue;
 END;
 $$;
 

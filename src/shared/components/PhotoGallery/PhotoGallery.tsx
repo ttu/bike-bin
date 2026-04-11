@@ -28,11 +28,11 @@ const ASPECT_RATIO = 0.75; // 4:3
 const PLACEHOLDER_MAX_HEIGHT = 280;
 
 interface PhotoGalleryProps {
-  photos: GalleryPhoto[];
+  readonly photos: GalleryPhoto[];
   /** When set, caps gallery width (defaults to 500). Use on wide layouts for a larger hero. */
-  maxGalleryWidth?: number;
+  readonly maxGalleryWidth?: number;
   /** Called when a photo is long-pressed. Used to open report dialog. */
-  onPhotoLongPress?: (photo: GalleryPhoto) => void;
+  readonly onPhotoLongPress?: (photo: GalleryPhoto) => void;
 }
 
 function ParallaxPhoto({

@@ -165,8 +165,8 @@ export function FilterSheet({ filters, onFiltersChange, onReset, onApply }: Filt
               <RNTextInput
                 value={filters.priceMin !== undefined ? String(filters.priceMin) : ''}
                 onChangeText={(text) => {
-                  const num = parseFloat(text);
-                  onFiltersChange({ priceMin: isNaN(num) ? undefined : num });
+                  const num = Number.parseFloat(text);
+                  onFiltersChange({ priceMin: Number.isNaN(num) ? undefined : num });
                 }}
                 keyboardType="numeric"
                 placeholder={'\u2014'}
@@ -183,8 +183,8 @@ export function FilterSheet({ filters, onFiltersChange, onReset, onApply }: Filt
               <RNTextInput
                 value={filters.priceMax !== undefined ? String(filters.priceMax) : ''}
                 onChangeText={(text) => {
-                  const num = parseFloat(text);
-                  onFiltersChange({ priceMax: isNaN(num) ? undefined : num });
+                  const num = Number.parseFloat(text);
+                  onFiltersChange({ priceMax: Number.isNaN(num) ? undefined : num });
                 }}
                 keyboardType="numeric"
                 placeholder={'\u2014'}

@@ -157,7 +157,7 @@ describe('useConversation', () => {
 
     const conv = result.current.data;
     expect(conv).toBeDefined();
-    expect(conv!.otherParticipantId).toBe('');
+    expect(conv!.otherParticipantId).toBeUndefined();
     expect(conv!.otherParticipantName).toBeUndefined();
     expect(conv!.otherParticipantAvatarUrl).toBeUndefined();
     expect(conv!.itemPhotoPath).toBeUndefined();

@@ -1,5 +1,6 @@
 import { renderWithProviders } from '@/test/utils';
 import { fireEvent, waitFor } from '@testing-library/react-native';
+import i18n from '@/shared/i18n/config';
 import { LocationForm } from '../LocationForm';
 
 const mockGeocodePostcode = jest.fn();
@@ -83,6 +84,22 @@ describe('LocationForm', () => {
 
     await waitFor(() => {
       expect(mockGeocodePostcode).toHaveBeenCalledWith('SW1A 1AA');
+    });
+  });
+
+  it('shows geocode error when postcode lookup fails on blur', async () => {
+    mockGeocodePostcode.mockRejectedValue(new Error('network'));
+
+    const { getByPlaceholderText, getByText } = renderWithProviders(
+      <LocationForm {...defaultProps} />,
+    );
+
+    const postcodeInput = getByPlaceholderText('Enter your postcode');
+    fireEvent.changeText(postcodeInput, 'INVALID');
+    fireEvent(postcodeInput, 'blur');
+
+    await waitFor(() => {
+      expect(getByText(i18n.t('errors.geocodeFailed', { ns: 'locations' }))).toBeTruthy();
     });
   });
 

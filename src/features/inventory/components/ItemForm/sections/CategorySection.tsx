@@ -95,7 +95,7 @@ export function CategorySection({
                     },
                   ]}
                 >
-                  {subIcon && (
+                  {Boolean(subIcon) && (
                     <MaterialCommunityIcons
                       name={subIcon as never}
                       size={22}

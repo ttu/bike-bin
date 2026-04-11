@@ -83,7 +83,8 @@ export function useConversation(conversationId: ConversationId | undefined) {
         itemStatus: (item?.status as string) ?? undefined,
         itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
         itemPhotoPath,
-        otherParticipantId: (otherParticipant?.user_id ?? '') as UserId,
+        otherParticipantId:
+          otherParticipant !== undefined ? (otherParticipant.user_id as UserId) : undefined,
         otherParticipantName: otherName,
         otherParticipantAvatarUrl: otherAvatar,
         lastMessageBody: undefined,

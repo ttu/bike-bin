@@ -12,6 +12,7 @@ import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
 import { resolveBikeFormName } from '../../utils/resolveBikeFormName';
+import { optionalNumberFromInput } from '../../utils/optionalNumberFromInput';
 
 const BIKE_TYPES = [
   BikeType.Road,
@@ -58,14 +59,6 @@ interface BikeFormErrors {
   type?: string;
   distanceKm?: string;
   usageHours?: string;
-}
-
-function optionalNumberFromInput(raw: string): { value: number | undefined; invalid: boolean } {
-  const t = raw.trim();
-  if (!t) return { value: undefined, invalid: false };
-  const n = parseFloat(t.replace(',', '.'));
-  if (!Number.isFinite(n) || n < 0) return { value: undefined, invalid: true };
-  return { value: n, invalid: false };
 }
 
 export function BikeForm({
@@ -164,7 +157,7 @@ export function BikeForm({
       brand: brand.trim() || undefined,
       model: model.trim() || undefined,
       type: bikeType,
-      year: year.trim() ? parseInt(year.trim(), 10) : undefined,
+      year: year.trim() ? Number.parseInt(year.trim(), 10) : undefined,
       distanceKm: distanceParsed.value,
       usageHours: hoursParsed.value,
       condition: bikeCondition,
