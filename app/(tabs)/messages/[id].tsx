@@ -9,7 +9,15 @@ import {
   Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Appbar, Avatar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Appbar,
+  Avatar,
+  Menu,
+  Text,
+  IconButton,
+  useTheme,
+} from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
@@ -59,6 +67,7 @@ export default function ConversationDetailScreen() {
   const reportMutation = useReport();
   const { showSnackbarAlert } = useSnackbarAlerts();
   const { t: tProfile } = useTranslation('profile');
+  const { t: tCommon } = useTranslation('common');
 
   const handleMessageLongPress = useCallback((msg: MessageWithSender) => {
     // Only allow reporting messages from other users
@@ -131,14 +140,28 @@ export default function ConversationDetailScreen() {
   const handleSend = useCallback(() => {
     const trimmed = messageText.trim();
     if (!trimmed || !conversationId) return;
+    const payload = trimmed;
 
     sendMessage(
-      { conversationId, body: trimmed },
+      { conversationId, body: payload },
       {
-        onSuccess: () => setMessageText(''),
+        onSuccess: () => {
+          setMessageText((prev) => (prev.trim() === payload ? '' : prev));
+          showSnackbarAlert({
+            message: tCommon('feedback.messageSent'),
+            variant: 'success',
+          });
+        },
+        onError: () => {
+          showSnackbarAlert({
+            message: tCommon('errors.generic'),
+            variant: 'error',
+            duration: 'long',
+          });
+        },
       },
     );
-  }, [messageText, conversationId, sendMessage]);
+  }, [messageText, conversationId, sendMessage, showSnackbarAlert, tCommon]);
 
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -199,16 +222,49 @@ export default function ConversationDetailScreen() {
   const handleConfirmExchange = useCallback(() => {
     if (!exchangeConfirm) return;
     if (exchangeConfirm.kind === 'donate') {
-      markDonated.mutate({
-        itemId: exchangeConfirm.itemId,
-      });
+      markDonated.mutate(
+        { itemId: exchangeConfirm.itemId },
+        {
+          onSuccess: () => {
+            setExchangeConfirm(null);
+            showSnackbarAlert({
+              message: tCommon('feedback.markedDonated'),
+              variant: 'success',
+            });
+          },
+          onError: () => {
+            setExchangeConfirm(null);
+            showSnackbarAlert({
+              message: tCommon('errors.generic'),
+              variant: 'error',
+              duration: 'long',
+            });
+          },
+        },
+      );
     } else {
-      markSold.mutate({
-        itemId: exchangeConfirm.itemId,
-      });
+      markSold.mutate(
+        { itemId: exchangeConfirm.itemId },
+        {
+          onSuccess: () => {
+            setExchangeConfirm(null);
+            showSnackbarAlert({
+              message: tCommon('feedback.markedSold'),
+              variant: 'success',
+            });
+          },
+          onError: () => {
+            setExchangeConfirm(null);
+            showSnackbarAlert({
+              message: tCommon('errors.generic'),
+              variant: 'error',
+              duration: 'long',
+            });
+          },
+        },
+      );
     }
-    setExchangeConfirm(null);
-  }, [exchangeConfirm, markDonated, markSold]);
+  }, [exchangeConfirm, markDonated, markSold, showSnackbarAlert, tCommon]);
 
   const exchangeDialogTitle =
     exchangeConfirm?.kind === 'donate'
@@ -353,17 +409,28 @@ export default function ConversationDetailScreen() {
               placeholderTextColor={theme.colors.onSurfaceVariant}
               multiline
               maxLength={2000}
+              editable={!isSending}
               accessibilityLabel={t('detail.inputPlaceholder')}
             />
-            <IconButton
-              icon="send"
-              iconColor={theme.colors.onPrimary}
-              containerColor={theme.colors.primary}
-              size={20}
-              onPress={handleSend}
-              disabled={!messageText.trim() || isSending}
-              accessibilityLabel={t('detail.send')}
-            />
+            {isSending ? (
+              <View
+                style={[styles.sendSpinnerWrap, { backgroundColor: theme.colors.primary }]}
+                accessibilityRole="progressbar"
+                accessibilityLabel={t('detail.send')}
+              >
+                <ActivityIndicator color={theme.colors.onPrimary} size="small" />
+              </View>
+            ) : (
+              <IconButton
+                icon="send"
+                iconColor={theme.colors.onPrimary}
+                containerColor={theme.colors.primary}
+                size={20}
+                onPress={handleSend}
+                disabled={!messageText.trim()}
+                accessibilityLabel={t('detail.send')}
+              />
+            )}
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -383,6 +450,7 @@ export default function ConversationDetailScreen() {
         confirmLabel={exchangeConfirmLabel}
         onDismiss={handleDismissExchangeConfirm}
         onConfirm={handleConfirmExchange}
+        loading={markDonated.isPending || markSold.isPending}
       />
     </View>
   );
@@ -426,5 +494,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     maxHeight: 100,
     fontSize: 16,
+  },
+  sendSpinnerWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

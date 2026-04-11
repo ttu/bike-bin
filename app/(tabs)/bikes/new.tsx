@@ -19,12 +19,14 @@ import type { BikeFormData } from '@/features/bikes';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { usePhotoPicker } from '@/features/inventory/hooks/usePhotoPicker';
 import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { spacing } from '@/shared/theme';
 
 export default function NewBikeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('bikes');
   const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const createBike = useCreateBike();
   const deleteBike = useDeleteBike();
   const { atLimit, limit, isReady } = useBikeRowCapacity();
@@ -62,6 +64,10 @@ export default function NewBikeScreen() {
           throw error;
         }
       }
+      showSnackbarAlert({
+        message: tCommon('feedback.bikeAdded'),
+        variant: 'success',
+      });
       tabScopedBack('/(tabs)/bikes' as Href);
     } catch (error: unknown) {
       if (isBikeLimitExceededError(error)) {

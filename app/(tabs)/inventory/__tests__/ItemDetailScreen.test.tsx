@@ -1,9 +1,10 @@
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
 import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import type { Item, ItemId } from '@/shared/types';
+import commonEn from '@/i18n/en/common.json';
 import ItemDetailScreen from '../[id]';
 
 const mockRouterReplace = jest.fn();
@@ -54,6 +55,17 @@ jest.mock('@/shared/api/supabase', () => ({
 
 const mockDeleteMutateAsync = jest.fn();
 const mockUpdateStatusMutateAsync = jest.fn();
+const mockUpdateStatusMutate = jest.fn(
+  (
+    vars: { id: ItemId; status: ItemStatus },
+    opts?: { onSuccess?: () => void; onError?: () => void },
+  ) => {
+    void Promise.resolve(mockUpdateStatusMutateAsync(vars)).then(
+      () => opts?.onSuccess?.(),
+      () => opts?.onError?.(),
+    );
+  },
+);
 
 const mockStoredItem = createMockItem({
   id: 'item-123' as ItemId,
@@ -82,7 +94,10 @@ jest.mock('@/features/inventory', () => {
       isLoading: false,
     }),
     useItemPhotos: () => ({ data: [] }),
-    useUpdateItemStatus: () => ({ mutateAsync: mockUpdateStatusMutateAsync }),
+    useUpdateItemStatus: () => ({
+      mutateAsync: mockUpdateStatusMutateAsync,
+      mutate: mockUpdateStatusMutate,
+    }),
     useDeleteItem: () => ({ mutateAsync: mockDeleteMutateAsync }),
   };
 });
@@ -174,7 +189,7 @@ describe('ItemDetailScreen confirmations', () => {
     expect(mockUpdateStatusMutateAsync).not.toHaveBeenCalled();
   });
 
-  it('archives item when archive is chosen and confirmation is accepted', () => {
+  it('archives item when archive is chosen and confirmation is accepted', async () => {
     const { getByText, getByTestId } = renderWithProviders(<ItemDetailScreen />);
 
     fireEvent.press(getByText('Remove from inventory'));
@@ -182,9 +197,17 @@ describe('ItemDetailScreen confirmations', () => {
 
     fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
-    expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
-      id: 'item-123',
-      status: ItemStatus.Archived,
+    await waitFor(() => {
+      expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
+        id: 'item-123',
+        status: ItemStatus.Archived,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.feedback.statusUpdated)).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('Archive Item')).toBeNull();
     });
   });
 });
@@ -209,7 +232,7 @@ describe('ItemDetailScreen archived item', () => {
     expect(queryByTestId('remove-inventory-archive')).toBeNull();
   });
 
-  it('restores item to stored when unarchive is confirmed', () => {
+  it('restores item to stored when unarchive is confirmed', async () => {
     const { getByText, getByTestId } = renderWithProviders(<ItemDetailScreen />);
 
     fireEvent.press(getByText('Restore to inventory'));
@@ -217,9 +240,17 @@ describe('ItemDetailScreen archived item', () => {
     expect(getByText('Restore Item')).toBeTruthy();
     fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
-    expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
-      id: 'item-123',
-      status: ItemStatus.Stored,
+    await waitFor(() => {
+      expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
+        id: 'item-123',
+        status: ItemStatus.Stored,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.feedback.statusUpdated)).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('Restore Item')).toBeNull();
     });
   });
 });

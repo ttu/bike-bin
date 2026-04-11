@@ -2,6 +2,7 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { mockAuthModule } from '@/test/authMocks';
+import commonEn from '@/i18n/en/common.json';
 import ConversationDetailScreen from '../[id]';
 import type { ConversationListItem, MessageWithSender } from '@/features/messaging/types';
 import type { ConversationId, ItemId, MessageId, UserId } from '@/shared/types';
@@ -93,6 +94,8 @@ const conversationQueryState = { data: mockConversation as ConversationListItem 
 
 const mockMessages: MessageWithSender[] = [];
 
+const mockSendMutate = jest.fn();
+
 jest.mock('@/features/messaging', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
@@ -107,7 +110,7 @@ jest.mock('@/features/messaging', () => {
       hasNextPage: false,
       isFetchingNextPage: false,
     }),
-    useSendMessage: () => ({ mutate: jest.fn(), isPending: false }),
+    useSendMessage: () => ({ mutate: mockSendMutate, isPending: false }),
     useRealtimeMessages: jest.fn(),
     ChatBubble: ({
       message,
@@ -142,6 +145,42 @@ describe('ConversationDetailScreen', () => {
     jest.clearAllMocks();
     conversationQueryState.data = mockConversation;
     mockMessages.length = 0;
+    mockSendMutate.mockImplementation(
+      (_vars: unknown, opts: { onSuccess?: () => void; onError?: () => void }) => {
+        opts.onSuccess?.();
+      },
+    );
+  });
+
+  it('shows success snackbar after sending a message', () => {
+    const { getByLabelText } = renderWithProviders(<ConversationDetailScreen />);
+    fireEvent.changeText(getByLabelText('Type a message...'), 'Hello');
+    fireEvent.press(getByLabelText('Send'));
+    expect(mockSendMutate).toHaveBeenCalled();
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'success',
+        message: commonEn.feedback.messageSent,
+      }),
+    );
+  });
+
+  it('shows error snackbar when send mutation fails', () => {
+    mockSendMutate.mockImplementationOnce(
+      (_vars: unknown, opts?: { onError?: (e: Error) => void }) => {
+        opts?.onError?.(new Error('send failed'));
+      },
+    );
+    const { getByLabelText } = renderWithProviders(<ConversationDetailScreen />);
+    fireEvent.changeText(getByLabelText('Type a message...'), 'Hello');
+    fireEvent.press(getByLabelText('Send'));
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'error',
+        message: commonEn.errors.generic,
+        duration: 'long',
+      }),
+    );
   });
 
   it('navigates to the other participant profile when the header is pressed', () => {

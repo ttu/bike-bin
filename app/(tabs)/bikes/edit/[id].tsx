@@ -22,10 +22,13 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 
 export default function EditBikeScreen() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
+  const { t: tCommon } = useTranslation('common');
+  const { showSnackbarAlert } = useSnackbarAlerts();
   const { id } = useLocalSearchParams<{ id: string }>();
   const bikeId = id as BikeId;
 
@@ -44,12 +47,23 @@ export default function EditBikeScreen() {
         { id: bikeId, ...data },
         {
           onSuccess: () => {
+            showSnackbarAlert({
+              message: tCommon('feedback.bikeUpdated'),
+              variant: 'success',
+            });
             tabScopedBack('/(tabs)/bikes' as Href);
+          },
+          onError: () => {
+            showSnackbarAlert({
+              message: tCommon('errors.generic'),
+              variant: 'error',
+              duration: 'long',
+            });
           },
         },
       );
     },
-    [updateBike, bikeId],
+    [updateBike, bikeId, showSnackbarAlert, tCommon],
   );
 
   const handleAddPhoto = useCallback(() => {
@@ -68,12 +82,18 @@ export default function EditBikeScreen() {
         confirmLabel: t('confirm.removePhoto.confirm'),
         destructive: true,
         onConfirm: () => {
-          closeConfirm();
-          removeBikePhoto.mutate({
-            bikeId,
-            photoId,
-            storagePath: photo.storagePath,
-          });
+          removeBikePhoto.mutate(
+            {
+              bikeId,
+              photoId,
+              storagePath: photo.storagePath,
+            },
+            {
+              onSettled: () => {
+                closeConfirm();
+              },
+            },
+          );
         },
       });
     },
@@ -88,15 +108,27 @@ export default function EditBikeScreen() {
       confirmLabel: t('confirm.delete.confirm'),
       destructive: true,
       onConfirm: () => {
-        closeConfirm();
         deleteBike.mutate(bikeId, {
           onSuccess: () => {
+            closeConfirm();
+            showSnackbarAlert({
+              message: tCommon('feedback.bikeDeleted'),
+              variant: 'success',
+            });
             router.navigate('/(tabs)/bikes' as Href);
+          },
+          onError: () => {
+            closeConfirm();
+            showSnackbarAlert({
+              message: tCommon('errors.generic'),
+              variant: 'error',
+              duration: 'long',
+            });
           },
         });
       },
     });
-  }, [deleteBike, bikeId, t, openConfirm, closeConfirm]);
+  }, [deleteBike, bikeId, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon]);
 
   if (isLoading || !bike) {
     return <LoadingScreen />;
@@ -178,7 +210,10 @@ export default function EditBikeScreen() {
         onDelete={handleDelete}
         isSubmitting={updateBike.isPending}
       />
-      <ConfirmDialog {...confirmDialogProps} />
+      <ConfirmDialog
+        {...confirmDialogProps}
+        loading={removeBikePhoto.isPending || deleteBike.isPending}
+      />
     </View>
   );
 }

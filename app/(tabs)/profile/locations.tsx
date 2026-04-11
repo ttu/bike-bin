@@ -33,6 +33,7 @@ export default function SavedLocationsScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('locations');
+  const { t: tCommon } = useTranslation('common');
   const { showSnackbarAlert } = useSnackbarAlerts();
   const [mode, setMode] = useState<ScreenMode>('list');
   const [editingLocation, setEditingLocation] = useState<SavedLocation | undefined>(undefined);
@@ -85,12 +86,16 @@ export default function SavedLocationsScreen() {
           label: data.label,
           isPrimary: data.isPrimary,
         });
+        showSnackbarAlert({
+          message: tCommon('feedback.locationSaved'),
+          variant: 'success',
+        });
         setMode('list');
       } catch {
         showSnackbarAlert({ message: t('errors.saveFailed'), variant: 'error' });
       }
     },
-    [createLocation, showSnackbarAlert, t],
+    [createLocation, showSnackbarAlert, t, tCommon],
   );
 
   const handleSaveEdit = useCallback(
@@ -109,13 +114,17 @@ export default function SavedLocationsScreen() {
           postcode: data.postcode,
           isPrimary: data.isPrimary,
         });
+        showSnackbarAlert({
+          message: tCommon('feedback.locationSaved'),
+          variant: 'success',
+        });
         setMode('list');
         setEditingLocation(undefined);
       } catch {
         showSnackbarAlert({ message: t('errors.saveFailed'), variant: 'error' });
       }
     },
-    [editingLocation, showSnackbarAlert, updateLocation, t],
+    [editingLocation, showSnackbarAlert, updateLocation, t, tCommon],
   );
 
   const handleDelete = useCallback((location: SavedLocation) => {
@@ -128,6 +137,10 @@ export default function SavedLocationsScreen() {
     setDeleteTarget(null);
     try {
       await deleteLocation.mutateAsync(targetId);
+      showSnackbarAlert({
+        message: tCommon('feedback.locationDeleted'),
+        variant: 'success',
+      });
     } catch (e) {
       if (e instanceof DeleteLocationError) {
         if (e.code === 'LAST_LOCATION') {
@@ -139,7 +152,7 @@ export default function SavedLocationsScreen() {
         showSnackbarAlert({ message: t('errors.deleteFailed'), variant: 'error' });
       }
     }
-  }, [deleteTarget, deleteLocation, showSnackbarAlert, t]);
+  }, [deleteTarget, deleteLocation, showSnackbarAlert, t, tCommon]);
 
   const renderItem = useCallback(
     ({ item }: { item: SavedLocation }) => (
