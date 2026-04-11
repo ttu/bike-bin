@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, useEffect, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Banner, Text, TextInput, Chip, Button, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -13,6 +13,8 @@ import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
 import { resolveBikeFormName } from '../../utils/resolveBikeFormName';
 import { optionalNumberFromInput } from '../../utils/optionalNumberFromInput';
+import { buildBikeFormDataFromFields } from '../../utils/buildBikeFormDataFromFields';
+import { areBikeFormDataEqual } from '../../utils/bikeFormDataEquality';
 
 const BIKE_TYPES = [
   BikeType.Road,
@@ -52,6 +54,7 @@ interface BikeFormProps {
   isSubmitting: boolean;
   isEditMode?: boolean;
   submitBlockedMessage?: string;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 interface BikeFormErrors {
@@ -70,6 +73,7 @@ export function BikeForm({
   isSubmitting,
   isEditMode = false,
   submitBlockedMessage,
+  onDirtyChange,
 }: BikeFormProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
@@ -118,6 +122,41 @@ export function BikeForm({
     [name, brand, model],
   );
 
+  const draftData = useMemo(
+    () =>
+      buildBikeFormDataFromFields({
+        name,
+        brand,
+        model,
+        bikeType,
+        year,
+        distanceKmStr,
+        usageHoursStr,
+        bikeCondition,
+        notes,
+      }),
+    [
+      name,
+      brand,
+      model,
+      bikeType,
+      year,
+      distanceKmStr,
+      usageHoursStr,
+      bikeCondition,
+      notes,
+    ],
+  );
+
+  const isDirty = useMemo(() => {
+    if (!initialData) return true;
+    return !areBikeFormDataEqual(initialData, draftData);
+  }, [initialData, draftData]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
   const nameIsEmpty = name.trim().length === 0;
   const brandPlaceholder = nameIsEmpty
     ? t('form.brandPlaceholderWhenNameEmpty')
@@ -152,17 +191,19 @@ export function BikeForm({
       return;
     }
 
-    onSave({
-      name: resolvedName.trim(),
-      brand: brand.trim() || undefined,
-      model: model.trim() || undefined,
-      type: bikeType,
-      year: year.trim() ? Number.parseInt(year.trim(), 10) : undefined,
-      distanceKm: distanceParsed.value,
-      usageHours: hoursParsed.value,
-      condition: bikeCondition,
-      notes: notes.trim() || undefined,
-    });
+    onSave(
+      buildBikeFormDataFromFields({
+        name,
+        brand,
+        model,
+        bikeType,
+        year,
+        distanceKmStr,
+        usageHoursStr,
+        bikeCondition,
+        notes,
+      }),
+    );
   }, [
     name,
     brand,
@@ -397,7 +438,11 @@ export function BikeForm({
       <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
-        disabled={isSubmitting || Boolean(submitBlockedMessage)}
+        disabled={
+          isSubmitting ||
+          Boolean(submitBlockedMessage) ||
+          (isEditMode && !isDirty)
+        }
         icon={isEditMode ? 'check-circle-outline' : undefined}
         style={styles.saveButton}
       >

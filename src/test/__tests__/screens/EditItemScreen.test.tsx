@@ -26,9 +26,13 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ id: 'item-edit-1' }),
-}));
+jest.mock('expo-router', () => {
+  const { mockExpoRouterNavigation } = require('@/test/routerMocks');
+  return {
+    ...mockExpoRouterNavigation,
+    useLocalSearchParams: () => ({ id: 'item-edit-1' }),
+  };
+});
 
 jest.mock('@/shared/utils/tabScopedBack', () => ({
   tabScopedBack: jest.fn(),

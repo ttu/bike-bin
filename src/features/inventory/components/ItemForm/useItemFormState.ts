@@ -3,19 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
 
-import { resolveItemFormName } from '../../utils/resolveItemFormName';
 import { validateItem } from '../../utils/validation';
 import type { ItemFormData, ItemFormErrors } from '../../utils/validation';
-import {
-  formatRemainingPercentField,
-  parseRemainingPercentInput,
-} from '../../utils/remainingFractionInput';
+import { buildItemFormDataFromState } from '../../utils/buildItemFormDataFromState';
+import { areItemFormDataEqual } from '../../utils/itemFormDataEquality';
+import { formatRemainingPercentField } from '../../utils/remainingFractionInput';
+import { resolveItemFormName } from '../../utils/resolveItemFormName';
 import { useUserTags } from '../../hooks/useUserTags';
 import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useItems } from '../../hooks/useItems';
 import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
 import { useDistanceUnit } from '@/features/profile';
-import { kmToDisplayUnit, displayUnitToKm } from '@/shared/utils/distanceConversion';
+import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 
 import type { ItemFormState } from './types';
@@ -196,6 +195,67 @@ export function useItemFormState({
   }, []);
 
   // ── Submit ───────────────────────────────────────────────────
+  const draftFormData: ItemFormData = useMemo(
+    () =>
+      buildItemFormDataFromState({
+        name,
+        quantityStr,
+        category,
+        subcategory,
+        condition,
+        brand,
+        model,
+        description,
+        availabilityTypes,
+        price,
+        deposit,
+        borrowDuration,
+        storageLocation,
+        age,
+        usage,
+        remainingPercentStr,
+        purchaseDate,
+        mountedDate,
+        visibility,
+        groupIds,
+        tags,
+        tagInput,
+        distanceUnit,
+        pickupLocationId: initialData?.pickupLocationId,
+      }),
+    [
+      name,
+      quantityStr,
+      category,
+      subcategory,
+      condition,
+      brand,
+      model,
+      description,
+      availabilityTypes,
+      price,
+      deposit,
+      borrowDuration,
+      storageLocation,
+      age,
+      usage,
+      remainingPercentStr,
+      purchaseDate,
+      mountedDate,
+      visibility,
+      groupIds,
+      tags,
+      tagInput,
+      distanceUnit,
+      initialData?.pickupLocationId,
+    ],
+  );
+
+  const isDirty = useMemo(() => {
+    if (!initialData) return true;
+    return !areItemFormDataEqual(initialData, draftFormData);
+  }, [initialData, draftFormData]);
+
   const handleSubmit = useCallback(() => {
     clearTagBlurCommitTimeout();
     const pendingTag = sanitizeTag(tagInput);
@@ -204,44 +264,32 @@ export function useItemFormState({
     setTagInput('');
     setTagSuggestionsVisible(false);
 
-    const parsedRemaining =
-      category === ItemCategory.Consumable
-        ? parseRemainingPercentInput(remainingPercentStr)
-        : undefined;
-
-    const parsedQuantity = Number.parseInt(quantityStr.trim(), 10);
-
-    const resolvedName = resolveItemFormName(name, brand, model);
-
-    const formData: ItemFormData = {
-      name: resolvedName,
-      quantity: Number.isNaN(parsedQuantity) ? undefined : parsedQuantity,
+    const formData = buildItemFormDataFromState({
+      name,
+      quantityStr,
       category,
-      subcategory: subcategory || undefined,
-      condition: category === ItemCategory.Consumable ? ItemCondition.Good : condition,
-      brand: brand || undefined,
-      model: model || undefined,
-      description: description || undefined,
+      subcategory,
+      condition,
+      brand,
+      model,
+      description,
       availabilityTypes,
-      price: isSellable && price ? Number.parseFloat(price) : undefined,
-      deposit: isBorrowable && deposit ? Number.parseFloat(deposit) : undefined,
-      borrowDuration: isBorrowable && borrowDuration ? borrowDuration : undefined,
-      storageLocation: storageLocation || undefined,
-      age: age || undefined,
-      usageKm: (() => {
-        const raw = usage.trim();
-        if (!raw) return undefined;
-        const n = Number.parseFloat(raw.replace(',', '.'));
-        if (!Number.isFinite(n)) return undefined;
-        return displayUnitToKm(n, distanceUnit);
-      })(),
-      remainingFraction: parsedRemaining,
-      purchaseDate: purchaseDate.trim() || undefined,
-      mountedDate: mountedDate.trim() || undefined,
+      price,
+      deposit,
+      borrowDuration,
+      storageLocation,
+      age,
+      usage,
+      remainingPercentStr,
+      purchaseDate,
+      mountedDate,
       visibility,
-      groupIds: visibility === Visibility.Groups ? groupIds : undefined,
+      groupIds,
       tags: tagsToSubmit,
-    };
+      tagInput: '',
+      distanceUnit,
+      pickupLocationId: initialData?.pickupLocationId,
+    });
 
     const validationErrors = validateItem(formData, t);
     setErrors(validationErrors);
@@ -274,10 +322,9 @@ export function useItemFormState({
     tags,
     tagInput,
     clearTagBlurCommitTimeout,
-    isSellable,
-    isBorrowable,
     onSave,
     t,
+    initialData?.pickupLocationId,
   ]);
 
   return {
@@ -353,5 +400,6 @@ export function useItemFormState({
     setShowOptional,
     errors,
     handleSubmit,
+    isDirty,
   };
 }

@@ -21,7 +21,19 @@ export const mockRouterBack = jest.fn();
 /** Mutable search params — modify in tests to change route params. */
 export const mockSearchParams: Record<string, string | string[] | undefined> = {};
 
+/**
+ * Include in `jest.mock('expo-router', () => ({ ... }))` when screens use `useNavigation`
+ * (e.g. `useUnsavedChangesExitGuard`).
+ */
+export const mockExpoRouterNavigation = {
+  useNavigation: () => ({
+    addListener: jest.fn(() => jest.fn()),
+    dispatch: jest.fn(),
+  }),
+};
+
 export const mockRouterModule = {
+  ...mockExpoRouterNavigation,
   useLocalSearchParams: () => mockSearchParams,
   useRouter: () => ({
     push: mockRouterPush,

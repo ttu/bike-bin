@@ -8,15 +8,19 @@ import EditBikeScreen from '../[id]';
 
 const mockRouterNavigate = jest.fn();
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ id: 'bike-123' }),
-  router: {
-    navigate: (...args: unknown[]) => mockRouterNavigate(...args),
-    canDismiss: () => true,
-    dismiss: jest.fn(),
-    replace: jest.fn(),
-  },
-}));
+jest.mock('expo-router', () => {
+  const { mockExpoRouterNavigation } = require('@/test/routerMocks');
+  return {
+    ...mockExpoRouterNavigation,
+    useLocalSearchParams: () => ({ id: 'bike-123' }),
+    router: {
+      navigate: (...args: unknown[]) => mockRouterNavigate(...args),
+      canDismiss: () => true,
+      dismiss: jest.fn(),
+      replace: jest.fn(),
+    },
+  };
+});
 
 jest.mock('react-native-safe-area-context', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

@@ -12,15 +12,19 @@ import {
 import type { ItemId } from '@/shared/types';
 import EditItemScreen from '../[id]';
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ id: 'item-123' }),
-  router: {
-    push: jest.fn(),
-    canDismiss: () => true,
-    dismiss: jest.fn(),
-    replace: jest.fn(),
-  },
-}));
+jest.mock('expo-router', () => {
+  const { mockExpoRouterNavigation } = require('@/test/routerMocks');
+  return {
+    ...mockExpoRouterNavigation,
+    useLocalSearchParams: () => ({ id: 'item-123' }),
+    router: {
+      push: jest.fn(),
+      canDismiss: () => true,
+      dismiss: jest.fn(),
+      replace: jest.fn(),
+    },
+  };
+});
 
 jest.mock('react-native-safe-area-context', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -68,8 +72,8 @@ const mockMutateAsync = jest.fn();
 
 jest.mock('@/features/inventory', () => ({
   ...jest.requireActual('@/features/inventory'),
-  useItem: () => ({ data: mockItem, isLoading: false }),
-  useItemPhotos: () => ({ data: [] }),
+  useItem: () => ({ data: mockItem, isLoading: false, isSuccess: true }),
+  useItemPhotos: () => ({ data: [], isSuccess: true }),
   useUpdateItem: () => ({ mutateAsync: mockMutateAsync, isPending: false }),
   useDeleteItem: () => ({ mutateAsync: jest.fn() }),
   usePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
@@ -108,15 +112,17 @@ describe('EditItemScreen', () => {
     expect(screen.getByText('11-speed')).toBeTruthy();
   });
 
-  it('includes saved subcategory when updating without changing category fields', () => {
+  it('includes saved subcategory in the payload when saving after an edit', () => {
     renderWithProviders(<EditItemScreen />);
 
+    fireEvent.changeText(screen.getByDisplayValue('1'), '2');
     fireEvent.press(screen.getByText('Update Inventory'));
 
     expect(mockMutateAsync).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'item-123',
         subcategory: 'drivetrain',
+        quantity: 2,
       }),
     );
   });
