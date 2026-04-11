@@ -191,32 +191,8 @@ export function BikeForm({
       return;
     }
 
-    onSave(
-      buildBikeFormDataFromFields({
-        name,
-        brand,
-        model,
-        bikeType,
-        year,
-        distanceKmStr,
-        usageHoursStr,
-        bikeCondition,
-        notes,
-      }),
-    );
-  }, [
-    name,
-    brand,
-    model,
-    bikeType,
-    year,
-    distanceKmStr,
-    usageHoursStr,
-    bikeCondition,
-    notes,
-    t,
-    onSave,
-  ]);
+    onSave(draftData);
+  }, [name, brand, model, bikeType, distanceKmStr, usageHoursStr, t, onSave, draftData]);
 
   return (
     <ScrollView

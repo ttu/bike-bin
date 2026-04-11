@@ -19,13 +19,17 @@ export function buildBikeFormDataFromFields(fields: BikeFormDraftFields): BikeFo
   const resolvedName = resolveBikeFormName(fields.name, fields.brand, fields.model);
   const distanceParsed = optionalNumberFromInput(fields.distanceKmStr);
   const hoursParsed = optionalNumberFromInput(fields.usageHoursStr);
+  const yearParsed = optionalNumberFromInput(fields.year);
 
   return {
     name: resolvedName.trim(),
     brand: fields.brand.trim() || undefined,
     model: fields.model.trim() || undefined,
     type: fields.bikeType,
-    year: fields.year.trim() ? Number.parseInt(fields.year.trim(), 10) : undefined,
+    year:
+      yearParsed.invalid || yearParsed.value === undefined
+        ? undefined
+        : Math.round(yearParsed.value),
     distanceKm: distanceParsed.invalid ? undefined : distanceParsed.value,
     usageHours: hoursParsed.invalid ? undefined : hoursParsed.value,
     condition: fields.bikeCondition,

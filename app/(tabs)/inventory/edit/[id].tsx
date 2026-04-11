@@ -47,11 +47,14 @@ export default function EditItemScreen() {
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
+  const photoIdsKey = useMemo(() => photos.map((p) => p.id).join('|'), [photos]);
+
   useEffect(() => {
-    if (!itemReady || !photosReady || photoBaseline !== undefined) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off photo order snapshot after queries succeed
-    setPhotoBaseline(photos.map((p) => p.id));
-  }, [itemReady, photosReady, photos, photoBaseline]);
+    if (!itemReady || !photosReady) return;
+    const ids = photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync baseline when photo query data or order changes
+    setPhotoBaseline(ids);
+  }, [itemReady, photosReady, photoIdsKey]);
 
   const photosDirty = useMemo(() => {
     if (photoBaseline === undefined) return false;
@@ -61,7 +64,7 @@ export default function EditItemScreen() {
 
   const isScreenDirty = formDirty || photosDirty;
 
-  useUnsavedChangesExitGuard({
+  const { bypassNextNavigation } = useUnsavedChangesExitGuard({
     isDirty: isScreenDirty,
     title: tCommon('unsavedChanges.title'),
     message: tCommon('unsavedChanges.message'),
@@ -78,6 +81,7 @@ export default function EditItemScreen() {
         message: tCommon('feedback.itemUpdated'),
         variant: 'success',
       });
+      bypassNextNavigation();
       tabScopedBack('/(tabs)/inventory');
     } catch {
       showSnackbarAlert({
@@ -156,6 +160,7 @@ export default function EditItemScreen() {
             message: tCommon('feedback.itemDeleted'),
             variant: 'success',
           });
+          bypassNextNavigation();
           tabScopedBack('/(tabs)/inventory');
         } catch {
           closeConfirm();

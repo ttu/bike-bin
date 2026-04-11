@@ -44,11 +44,14 @@ export default function EditBikeScreen() {
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
+  const photoIdsKey = useMemo(() => photos.map((p) => p.id).join('|'), [photos]);
+
   useEffect(() => {
-    if (!bikeReady || !photosReady || photoBaseline !== undefined) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off photo order snapshot after queries succeed
-    setPhotoBaseline(photos.map((p) => p.id));
-  }, [bikeReady, photosReady, photos, photoBaseline]);
+    if (!bikeReady || !photosReady) return;
+    const ids = photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync baseline when photo query data or order changes
+    setPhotoBaseline(ids);
+  }, [bikeReady, photosReady, photoIdsKey]);
 
   const photosDirty = useMemo(() => {
     if (photoBaseline === undefined) return false;
@@ -58,7 +61,7 @@ export default function EditBikeScreen() {
 
   const isScreenDirty = formDirty || photosDirty;
 
-  useUnsavedChangesExitGuard({
+  const { bypassNextNavigation } = useUnsavedChangesExitGuard({
     isDirty: isScreenDirty,
     title: tCommon('unsavedChanges.title'),
     message: tCommon('unsavedChanges.message'),
@@ -78,6 +81,7 @@ export default function EditBikeScreen() {
               message: tCommon('feedback.bikeUpdated'),
               variant: 'success',
             });
+            bypassNextNavigation();
             tabScopedBack('/(tabs)/bikes' as Href);
           },
           onError: () => {
@@ -90,7 +94,7 @@ export default function EditBikeScreen() {
         },
       );
     },
-    [updateBike, bikeId, showSnackbarAlert, tCommon],
+    [updateBike, bikeId, showSnackbarAlert, tCommon, bypassNextNavigation],
   );
 
   const handleAddPhoto = useCallback(() => {
@@ -142,6 +146,7 @@ export default function EditBikeScreen() {
               message: tCommon('feedback.bikeDeleted'),
               variant: 'success',
             });
+            bypassNextNavigation();
             router.navigate('/(tabs)/bikes' as Href);
           },
           onError: () => {
@@ -155,7 +160,7 @@ export default function EditBikeScreen() {
         });
       },
     });
-  }, [deleteBike, bikeId, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon]);
+  }, [deleteBike, bikeId, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon, bypassNextNavigation]);
 
   if (isLoading || !bike) {
     return <LoadingScreen />;

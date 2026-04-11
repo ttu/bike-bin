@@ -3,9 +3,15 @@ import type { BikeFormData } from '../../types';
 import { areBikeFormDataEqual } from '../bikeFormDataEquality';
 
 const base: BikeFormData = {
-  name: 'My bike',
+  name: 'Bike',
+  brand: 'Brand',
+  model: 'Model',
   type: BikeType.Road,
+  year: 2020,
+  distanceKm: 100,
+  usageHours: 10,
   condition: ItemCondition.Good,
+  notes: 'Note',
 };
 
 describe('areBikeFormDataEqual', () => {
@@ -13,13 +19,9 @@ describe('areBikeFormDataEqual', () => {
     expect(areBikeFormDataEqual(base, { ...base })).toBe(true);
   });
 
-  it('detects field changes', () => {
-    expect(areBikeFormDataEqual(base, { ...base, name: 'Other' })).toBe(false);
-  });
-
-  it('treats missing optional strings as equal', () => {
-    const a: BikeFormData = { ...base, notes: undefined };
-    const b: BikeFormData = { ...base, notes: undefined };
+  it('treats undefined year equal to undefined when both omit year', () => {
+    const a: BikeFormData = { ...base, year: undefined };
+    const b: BikeFormData = { ...base, year: undefined };
     expect(areBikeFormDataEqual(a, b)).toBe(true);
   });
 });

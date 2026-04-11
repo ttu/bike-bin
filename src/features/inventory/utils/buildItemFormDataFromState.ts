@@ -8,6 +8,13 @@ import { sanitizeTag, canAddTag } from './tagUtils';
 import { displayUnitToKm } from '@/shared/utils/distanceConversion';
 import type { ItemFormData } from './validation';
 
+function parseFiniteNumberFromInput(raw: string): number | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  const n = Number.parseFloat(trimmed.replaceAll(',', '.'));
+  return Number.isFinite(n) ? n : undefined;
+}
+
 export interface ItemFormDraftInput {
   name: string;
   quantityStr: string;
@@ -52,21 +59,31 @@ export function buildItemFormDataFromState(state: ItemFormDraftInput): ItemFormD
   const isSellable = state.availabilityTypes.includes(AvailabilityType.Sellable);
   const isBorrowable = state.availabilityTypes.includes(AvailabilityType.Borrowable);
 
+  const subcategoryTrimmed = state.subcategory.trim();
+  const brandTrimmed = state.brand.trim();
+  const modelTrimmed = state.model.trim();
+  const descriptionTrimmed = state.description.trim();
+  const storageLocationTrimmed = state.storageLocation.trim();
+  const ageTrimmed = state.age.trim();
+
+  const priceParsed = isSellable ? parseFiniteNumberFromInput(state.price) : undefined;
+  const depositParsed = isBorrowable ? parseFiniteNumberFromInput(state.deposit) : undefined;
+
   return {
     name: resolvedName,
     quantity: Number.isNaN(parsedQuantity) ? undefined : parsedQuantity,
     category: state.category,
-    subcategory: state.subcategory || undefined,
+    subcategory: subcategoryTrimmed || undefined,
     condition: state.category === ItemCategory.Consumable ? ItemCondition.Good : state.condition,
-    brand: state.brand || undefined,
-    model: state.model || undefined,
-    description: state.description || undefined,
+    brand: brandTrimmed || undefined,
+    model: modelTrimmed || undefined,
+    description: descriptionTrimmed || undefined,
     availabilityTypes: state.availabilityTypes,
-    price: isSellable && state.price ? Number.parseFloat(state.price) : undefined,
-    deposit: isBorrowable && state.deposit ? Number.parseFloat(state.deposit) : undefined,
+    price: priceParsed,
+    deposit: depositParsed,
     borrowDuration: isBorrowable && state.borrowDuration ? state.borrowDuration : undefined,
-    storageLocation: state.storageLocation || undefined,
-    age: state.age || undefined,
+    storageLocation: storageLocationTrimmed || undefined,
+    age: ageTrimmed || undefined,
     usageKm: (() => {
       const raw = state.usage.trim();
       if (!raw) return undefined;
