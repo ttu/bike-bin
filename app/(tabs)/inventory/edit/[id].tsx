@@ -94,12 +94,18 @@ export default function EditItemScreen() {
         confirmLabel: t('confirm.removePhoto.confirm'),
         destructive: true,
         onConfirm: () => {
-          closeConfirm();
-          removePhoto.mutate({
-            itemId,
-            photoId,
-            storagePath: photo.storagePath,
-          });
+          removePhoto.mutate(
+            {
+              itemId,
+              photoId,
+              storagePath: photo.storagePath,
+            },
+            {
+              onSettled: () => {
+                closeConfirm();
+              },
+            },
+          );
         },
       });
     },

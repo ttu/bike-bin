@@ -82,12 +82,18 @@ export default function EditBikeScreen() {
         confirmLabel: t('confirm.removePhoto.confirm'),
         destructive: true,
         onConfirm: () => {
-          closeConfirm();
-          removeBikePhoto.mutate({
-            bikeId,
-            photoId,
-            storagePath: photo.storagePath,
-          });
+          removeBikePhoto.mutate(
+            {
+              bikeId,
+              photoId,
+              storagePath: photo.storagePath,
+            },
+            {
+              onSettled: () => {
+                closeConfirm();
+              },
+            },
+          );
         },
       });
     },

@@ -140,12 +140,13 @@ export default function ConversationDetailScreen() {
   const handleSend = useCallback(() => {
     const trimmed = messageText.trim();
     if (!trimmed || !conversationId) return;
+    const payload = trimmed;
 
     sendMessage(
-      { conversationId, body: trimmed },
+      { conversationId, body: payload },
       {
         onSuccess: () => {
-          setMessageText('');
+          setMessageText((prev) => (prev.trim() === payload ? '' : prev));
           showSnackbarAlert({
             message: tCommon('feedback.messageSent'),
             variant: 'success',
@@ -408,6 +409,7 @@ export default function ConversationDetailScreen() {
               placeholderTextColor={theme.colors.onSurfaceVariant}
               multiline
               maxLength={2000}
+              editable={!isSending}
               accessibilityLabel={t('detail.inputPlaceholder')}
             />
             {isSending ? (
