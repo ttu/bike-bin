@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Text, Chip, useTheme, Portal, Modal, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -108,175 +108,6 @@ function SearchScreenContent() {
   const showEmpty = effectiveHasSearched && !effectiveIsLoading && results && results.length === 0;
   const showInitial = !effectiveHasSearched;
 
-  const listData = showResults && results ? results : [];
-
-  const listHeader = useMemo(
-    () => (
-      <>
-        <DemoBanner />
-
-        {effectiveHasSearched && (
-          <View style={styles.quickFilters}>
-            <Chip
-              selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
-              onPress={() => toggleQuickFilter(AvailabilityType.Borrowable)}
-              compact
-              showSelectedCheck={false}
-              textStyle={
-                filters.offerTypes.includes(AvailabilityType.Borrowable)
-                  ? { color: theme.colors.onPrimary }
-                  : undefined
-              }
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: filters.offerTypes.includes(AvailabilityType.Borrowable)
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('quickFilter.borrow')}
-            </Chip>
-            <Chip
-              selected={filters.offerTypes.includes(AvailabilityType.Donatable)}
-              onPress={() => toggleQuickFilter(AvailabilityType.Donatable)}
-              compact
-              showSelectedCheck={false}
-              textStyle={
-                filters.offerTypes.includes(AvailabilityType.Donatable)
-                  ? { color: theme.colors.onPrimary }
-                  : undefined
-              }
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: filters.offerTypes.includes(AvailabilityType.Donatable)
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('quickFilter.donate')}
-            </Chip>
-            <Chip
-              selected={filters.offerTypes.includes(AvailabilityType.Sellable)}
-              onPress={() => toggleQuickFilter(AvailabilityType.Sellable)}
-              compact
-              showSelectedCheck={false}
-              textStyle={
-                filters.offerTypes.includes(AvailabilityType.Sellable)
-                  ? { color: theme.colors.onPrimary }
-                  : undefined
-              }
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: filters.offerTypes.includes(AvailabilityType.Sellable)
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('quickFilter.sell')}
-            </Chip>
-            <Chip
-              icon={() => (
-                <MaterialCommunityIcons
-                  name="filter-variant"
-                  size={16}
-                  color={hasActiveFilters ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
-                />
-              )}
-              onPress={() => setFilterVisible(true)}
-              compact
-              showSelectedCheck={false}
-              textStyle={hasActiveFilters ? { color: theme.colors.onPrimary } : undefined}
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: hasActiveFilters
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('filter.title')}
-            </Chip>
-          </View>
-        )}
-
-        {showResults && results && (
-          <View style={styles.resultHeader}>
-            <Text
-              variant="bodySmall"
-              style={[styles.resultCount, { color: theme.colors.onSurfaceVariant }]}
-            >
-              {t('results.count', {
-                count: results.length,
-                distance: filters.maxDistanceKm,
-              })}
-            </Text>
-            <Text
-              variant="labelSmall"
-              style={[styles.sortControl, { color: theme.colors.primary }]}
-              onPress={cycleSortBy}
-            >
-              {sortLabel}
-            </Text>
-          </View>
-        )}
-      </>
-    ),
-    [
-      effectiveHasSearched,
-      filters.maxDistanceKm,
-      filters.offerTypes,
-      hasActiveFilters,
-      cycleSortBy,
-      results,
-      showResults,
-      sortLabel,
-      t,
-      theme.colors,
-      toggleQuickFilter,
-    ],
-  );
-
-  const listEmpty = useMemo(() => {
-    if (effectiveHasSearched && effectiveIsLoading) {
-      return (
-        <View style={styles.emptyLoading}>
-          <ActivityIndicator size="large" />
-        </View>
-      );
-    }
-    if (showEmpty) {
-      return (
-        <EmptyState
-          icon="magnify-close"
-          title={t('noResults.title')}
-          description={t('noResults.description')}
-        />
-      );
-    }
-    if (showInitial) {
-      return (
-        <EmptyState icon="magnify" title={t('empty.title')} description={t('empty.description')} />
-      );
-    }
-    return null;
-  }, [effectiveHasSearched, effectiveIsLoading, showEmpty, showInitial, t]);
-
-  const listContentContainerStyle = useMemo(
-    () => [
-      styles.list,
-      (showEmpty || showInitial || (effectiveHasSearched && effectiveIsLoading)) &&
-        styles.listContentGrow,
-    ],
-    [showEmpty, showInitial, effectiveHasSearched, effectiveIsLoading],
-  );
-
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
@@ -304,6 +135,7 @@ function SearchScreenContent() {
 
       {!showAuthSpinner && !showGuestWall && (
         <>
+          {/* Search bar */}
           <SearchBar
             query={filters.query}
             onQueryChange={handleQueryChange}
@@ -313,18 +145,162 @@ function SearchScreenContent() {
             onDistanceChange={(km) => updateFilters({ maxDistanceKm: km })}
           />
 
-          <FlatList
-            style={styles.resultsList}
-            data={listData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            columnWrapperStyle={styles.columnWrapper}
-            ListHeaderComponent={listHeader}
-            ListEmptyComponent={listEmpty}
-            contentContainerStyle={listContentContainerStyle}
-          />
+          <DemoBanner />
 
+          {/* Quick filter chips + Filters button */}
+          {effectiveHasSearched && (
+            <View style={styles.quickFilters}>
+              <Chip
+                selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
+                onPress={() => toggleQuickFilter(AvailabilityType.Borrowable)}
+                compact
+                showSelectedCheck={false}
+                textStyle={
+                  filters.offerTypes.includes(AvailabilityType.Borrowable)
+                    ? { color: theme.colors.onPrimary }
+                    : undefined
+                }
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: filters.offerTypes.includes(AvailabilityType.Borrowable)
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('quickFilter.borrow')}
+              </Chip>
+              <Chip
+                selected={filters.offerTypes.includes(AvailabilityType.Donatable)}
+                onPress={() => toggleQuickFilter(AvailabilityType.Donatable)}
+                compact
+                showSelectedCheck={false}
+                textStyle={
+                  filters.offerTypes.includes(AvailabilityType.Donatable)
+                    ? { color: theme.colors.onPrimary }
+                    : undefined
+                }
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: filters.offerTypes.includes(AvailabilityType.Donatable)
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('quickFilter.donate')}
+              </Chip>
+              <Chip
+                selected={filters.offerTypes.includes(AvailabilityType.Sellable)}
+                onPress={() => toggleQuickFilter(AvailabilityType.Sellable)}
+                compact
+                showSelectedCheck={false}
+                textStyle={
+                  filters.offerTypes.includes(AvailabilityType.Sellable)
+                    ? { color: theme.colors.onPrimary }
+                    : undefined
+                }
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: filters.offerTypes.includes(AvailabilityType.Sellable)
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('quickFilter.sell')}
+              </Chip>
+              <Chip
+                icon={() => (
+                  <MaterialCommunityIcons
+                    name="filter-variant"
+                    size={16}
+                    color={
+                      hasActiveFilters ? theme.colors.onPrimary : theme.colors.onSurfaceVariant
+                    }
+                  />
+                )}
+                onPress={() => setFilterVisible(true)}
+                compact
+                showSelectedCheck={false}
+                textStyle={hasActiveFilters ? { color: theme.colors.onPrimary } : undefined}
+                style={[
+                  styles.quickChip,
+                  {
+                    backgroundColor: hasActiveFilters
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+              >
+                {t('filter.title')}
+              </Chip>
+            </View>
+          )}
+
+          {/* Result count + sort */}
+          {showResults && (
+            <View style={styles.resultHeader}>
+              <Text
+                variant="bodySmall"
+                style={[styles.resultCount, { color: theme.colors.onSurfaceVariant }]}
+              >
+                {t('results.count', {
+                  count: results.length,
+                  distance: filters.maxDistanceKm,
+                })}
+              </Text>
+              <Text
+                variant="labelSmall"
+                style={[styles.sortControl, { color: theme.colors.primary }]}
+                onPress={cycleSortBy}
+              >
+                {sortLabel}
+              </Text>
+            </View>
+          )}
+
+          {/* Loading */}
+          {effectiveHasSearched && effectiveIsLoading && (
+            <View style={styles.centered}>
+              <ActivityIndicator size="large" />
+            </View>
+          )}
+
+          {/* Results list */}
+          {showResults && (
+            <FlatList
+              data={results}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              contentContainerStyle={styles.list}
+            />
+          )}
+
+          {/* Empty results */}
+          {showEmpty && (
+            <EmptyState
+              icon="magnify-close"
+              title={t('noResults.title')}
+              description={t('noResults.description')}
+            />
+          )}
+
+          {/* Initial state */}
+          {showInitial && (
+            <EmptyState
+              icon="magnify"
+              title={t('empty.title')}
+              description={t('empty.description')}
+            />
+          )}
+
+          {/* Filter bottom sheet (modal) */}
           <Portal>
             <Modal
               visible={filterVisible}
@@ -359,18 +335,6 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  resultsList: {
-    flex: 1,
-  },
-  listContentGrow: {
-    flexGrow: 1,
-  },
-  emptyLoading: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-    minHeight: 200,
   },
   header: {
     paddingHorizontal: spacing.base,
