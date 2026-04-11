@@ -245,6 +245,8 @@ const styles = StyleSheet.create({
   photoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    /** Prevents parallax translateX on adjacent slides from drawing into the visible page. */
+    overflow: 'hidden',
   },
   photo: {
     width: '100%',
