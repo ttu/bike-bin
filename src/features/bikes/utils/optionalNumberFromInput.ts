@@ -5,7 +5,8 @@ export function optionalNumberFromInput(raw: string): {
 } {
   const t = raw.trim();
   if (!t) return { value: undefined, invalid: false };
-  const n = Number.parseFloat(t.replace(',', '.'));
+  const tNormalized = t.replaceAll(',', '.');
+  const n = Number(tNormalized);
   if (!Number.isFinite(n) || n < 0) return { value: undefined, invalid: true };
   return { value: n, invalid: false };
 }

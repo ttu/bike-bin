@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
+import i18n from '@/shared/i18n/config';
 import LocationSetupScreen from '../../../../app/(onboarding)/location';
 
 const mockReplace = jest.fn();
@@ -95,7 +96,7 @@ describe('Location setup screen', () => {
     fireEvent(postcodeInput, 'blur');
 
     await waitFor(() => {
-      expect(getByText('Could not find that postcode. Please check and try again.')).toBeTruthy();
+      expect(getByText(i18n.t('errors.geocodeFailed', { ns: 'locations' }))).toBeTruthy();
     });
   });
 });

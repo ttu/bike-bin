@@ -15,5 +15,7 @@ describe('optionalNumberFromInput', () => {
   it('marks negative and non-finite as invalid', () => {
     expect(optionalNumberFromInput('-1')).toEqual({ value: undefined, invalid: true });
     expect(optionalNumberFromInput('x')).toEqual({ value: undefined, invalid: true });
+    expect(optionalNumberFromInput('Infinity')).toEqual({ value: undefined, invalid: true });
+    expect(optionalNumberFromInput('12abc')).toEqual({ value: undefined, invalid: true });
   });
 });

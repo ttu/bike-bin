@@ -1,5 +1,6 @@
 import { renderWithProviders } from '@/test/utils';
 import { fireEvent, waitFor } from '@testing-library/react-native';
+import i18n from '@/shared/i18n/config';
 import { LocationForm } from '../LocationForm';
 
 const mockGeocodePostcode = jest.fn();
@@ -98,7 +99,7 @@ describe('LocationForm', () => {
     fireEvent(postcodeInput, 'blur');
 
     await waitFor(() => {
-      expect(getByText('Could not find that postcode. Please check and try again.')).toBeTruthy();
+      expect(getByText(i18n.t('errors.geocodeFailed', { ns: 'locations' }))).toBeTruthy();
     });
   });
 
