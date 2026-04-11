@@ -2,8 +2,9 @@ import React from 'react';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
-import type { Item, ItemId } from '@/shared/types';
+import type { Item, ItemId, UserId } from '@/shared/types';
 import { ItemCategory, ItemStatus } from '@/shared/types';
+import inventoryEn from '@/i18n/en/inventory.json';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 
 const mockRouterPush = jest.fn();
@@ -57,7 +58,7 @@ const mockServerItems: Item[] = [
 
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
-    user: { id: 'user-1' },
+    user: { id: 'user-1' as UserId },
     isAuthenticated: true,
     session: null,
     isLoading: false,
@@ -118,14 +119,16 @@ describe('InventoryScreen (authenticated)', () => {
   it('filters by search, category, terminal toggle, opens item, and adds with category', () => {
     renderWithProviders(<InventoryScreen />);
 
-    fireEvent.changeText(screen.getByPlaceholderText(/Search/), 'UniqueBrandX');
-    fireEvent.press(screen.getByText('Components'));
-    fireEvent.press(screen.getByText(/Show inactive/));
+    const searchPlaceholder = inventoryEn.searchPlaceholder_one.replace('{{count}}', '1');
+
+    fireEvent.changeText(screen.getByPlaceholderText(searchPlaceholder), 'UniqueBrandX');
+    fireEvent.press(screen.getByText(inventoryEn.category.component));
+    fireEvent.press(screen.getByText(inventoryEn.filters.showInactive.replace('{{count}}', '1')));
 
     fireEvent.press(screen.getByText('Alpha Pedal'));
     expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/item-alpha');
 
-    fireEvent.press(screen.getByLabelText('Add item'));
+    fireEvent.press(screen.getByLabelText(inventoryEn.addItem));
     expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/new?category=component');
   });
 });

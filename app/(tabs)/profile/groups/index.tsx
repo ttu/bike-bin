@@ -166,6 +166,7 @@ export default function GroupsScreen() {
           </View>
 
           <Button
+            testID="groups-create-save"
             mode="contained"
             onPress={handleCreateSubmit}
             loading={createGroup.isPending}

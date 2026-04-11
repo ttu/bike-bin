@@ -112,6 +112,18 @@ describe('BorrowRequestsScreen', () => {
     expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
   });
 
+  it('sets RefreshControl refreshing when refetching and list is non-empty', () => {
+    mockBorrowHookState.isLoading = false;
+    mockBorrowHookState.isRefetching = true;
+    mockRequests = [createRequest()];
+    renderWithProviders(<BorrowRequestsScreen />);
+    const list = screen.getByTestId('borrow-requests-list');
+    const refreshControl = list.props.refreshControl as {
+      props: { refreshing?: boolean; onRefresh?: () => void };
+    };
+    expect(refreshControl.props.refreshing).toBe(true);
+  });
+
   it('renders title and tab labels', () => {
     renderWithProviders(<BorrowRequestsScreen />);
     expect(screen.getByText(borrowEn.title)).toBeTruthy();

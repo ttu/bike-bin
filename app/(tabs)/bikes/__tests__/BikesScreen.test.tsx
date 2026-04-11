@@ -5,6 +5,7 @@ import { createMockBike } from '@/test/factories';
 import { BikeType } from '@/shared/types';
 import type { BikeId } from '@/shared/types';
 import bikesEn from '@/i18n/en/bikes.json';
+import commonEn from '@/i18n/en/common.json';
 import BikesScreen from '../index';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -91,6 +92,17 @@ describe('BikesScreen', () => {
     const { getByText } = renderWithProviders(<BikesScreen />);
     fireEvent.press(getByText('Test Bike'));
     expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/bikes/bike-xyz');
+  });
+
+  it('shows centered loading when empty and loading even at capacity limit', () => {
+    mockBikeCapacityState.atLimit = true;
+    mockBikeCapacityState.limit = 2;
+    mockBikeCapacityState.bikeRowCount = 2;
+    mockUseBikes.mockReturnValue({ data: [], isLoading: true });
+    const { getByLabelText, queryByLabelText } = renderWithProviders(<BikesScreen />);
+    expect(getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+    expect(queryByLabelText(bikesEn.limit.reachedFabA11y)).toBeNull();
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
   it('does not navigate when add is pressed at bike limit', () => {

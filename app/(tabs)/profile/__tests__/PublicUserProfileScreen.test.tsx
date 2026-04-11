@@ -16,6 +16,7 @@ import { AvailabilityType, ItemCategory, ItemCondition, TransactionType } from '
 import type { RatingId, UserId, ItemId } from '@/shared/types';
 import type { PublicProfile, PublicListing } from '@/features/profile/types';
 import type { RatingWithReviewer } from '@/features/ratings/types';
+import commonEn from '@/i18n/en/common.json';
 import profileEn from '@/i18n/en/profile.json';
 import PublicUserProfileScreen from '../[userId]';
 
@@ -179,6 +180,7 @@ describe('PublicUserProfileScreen', () => {
 
   it('shows loading state while profile is loading', () => {
     renderWithProviders(<PublicUserProfileScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
     expect(screen.queryByText('Public User')).toBeNull();
     expect(screen.queryByText(profileEn.publicProfile.notFoundTitle)).toBeNull();
   });

@@ -96,8 +96,7 @@ describe('GroupsScreen', () => {
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByLabelText(groupsEn.empty.cta));
     fireEvent.changeText(screen.getByPlaceholderText(groupsEn.create.namePlaceholder), 'New Crew');
-    const createGroupButtons = screen.getAllByText(groupsEn.create.save);
-    fireEvent.press(createGroupButtons[createGroupButtons.length - 1]);
+    fireEvent.press(screen.getByTestId('groups-create-save'));
     await waitFor(() => {
       expect(mockCreateMutateAsync).toHaveBeenCalledWith({
         name: 'New Crew',
