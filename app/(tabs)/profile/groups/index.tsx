@@ -214,7 +214,12 @@ export default function GroupsScreen() {
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('title')} />
-        <Appbar.Action icon="magnify" onPress={handleSearchMode} />
+        <Appbar.Action
+          icon="magnify"
+          onPress={handleSearchMode}
+          testID="groups-search-button"
+          accessibilityLabel={t('search.placeholder')}
+        />
       </Appbar.Header>
 
       {!isLoading && (groups ?? []).length === 0 ? (

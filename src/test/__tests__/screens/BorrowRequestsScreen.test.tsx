@@ -1,11 +1,12 @@
 import React from 'react';
-import { FlatList } from 'react-native';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import type { BorrowRequestWithDetails } from '@/features/borrow/types';
 import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
 import { BorrowRequestStatus, ItemStatus, AvailabilityType } from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import borrowEn from '@/i18n/en/borrow.json';
+import commonEn from '@/i18n/en/common.json';
 import BorrowRequestsScreen from '../../../../app/(tabs)/profile/borrow-requests';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -98,10 +99,10 @@ describe('BorrowRequestsScreen', () => {
 
   it('renders title and tab labels', () => {
     renderWithProviders(<BorrowRequestsScreen />);
-    expect(screen.getByText('Borrow Requests')).toBeTruthy();
-    expect(screen.getByText(/Incoming/)).toBeTruthy();
-    expect(screen.getByText('Outgoing')).toBeTruthy();
-    expect(screen.getByText('Active')).toBeTruthy();
+    expect(screen.getByText(borrowEn.title)).toBeTruthy();
+    expect(screen.getByText(new RegExp(`^${borrowEn.tabs.incoming}`))).toBeTruthy();
+    expect(screen.getByText(borrowEn.tabs.outgoing)).toBeTruthy();
+    expect(screen.getByText(borrowEn.tabs.active)).toBeTruthy();
   });
 
   it('calls tabScopedBack when header back is pressed', () => {
@@ -113,14 +114,14 @@ describe('BorrowRequestsScreen', () => {
   it('shows pending count on incoming tab when there are pending requests', () => {
     mockRequests = [createRequest({ status: BorrowRequestStatus.Pending })];
     renderWithProviders(<BorrowRequestsScreen />);
-    expect(screen.getByText('Incoming (1)')).toBeTruthy();
+    expect(screen.getByText(`${borrowEn.tabs.incoming} (1)`)).toBeTruthy();
   });
 
   it('switches tabs and shows empty state copy for outgoing when empty', () => {
     mockRequests = [createRequest()];
     renderWithProviders(<BorrowRequestsScreen />);
-    fireEvent.press(screen.getByText('Outgoing'));
-    expect(screen.getByText('No outgoing requests')).toBeTruthy();
+    fireEvent.press(screen.getByText(borrowEn.tabs.outgoing));
+    expect(screen.getByText(borrowEn.empty.outgoing.title)).toBeTruthy();
   });
 
   it('lists incoming requests and completes accept flow', async () => {
@@ -153,7 +154,7 @@ describe('BorrowRequestsScreen', () => {
       }),
     ];
     renderWithProviders(<BorrowRequestsScreen />);
-    fireEvent.press(screen.getByText('Active'));
+    fireEvent.press(screen.getByText(borrowEn.tabs.active));
     fireEvent.press(screen.getByTestId('mark-returned-button'));
     fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
     await waitFor(() => {
@@ -170,7 +171,7 @@ describe('BorrowRequestsScreen', () => {
       }),
     ];
     renderWithProviders(<BorrowRequestsScreen />);
-    fireEvent.press(screen.getByText('Outgoing'));
+    fireEvent.press(screen.getByText(borrowEn.tabs.outgoing));
     fireEvent.press(screen.getByTestId('cancel-button'));
     fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
     await waitFor(() => {
@@ -180,10 +181,82 @@ describe('BorrowRequestsScreen', () => {
 
   it('refetches when pull-to-refresh fires', () => {
     mockRequests = [createRequest()];
-    const { UNSAFE_getByType } = renderWithProviders(<BorrowRequestsScreen />);
-    const flatList = UNSAFE_getByType(FlatList);
-    const refreshControl = flatList.props.refreshControl;
-    refreshControl.props.onRefresh();
+    renderWithProviders(<BorrowRequestsScreen />);
+    const list = screen.getByTestId('borrow-requests-list');
+    const refreshControl = list.props.refreshControl as {
+      props: { onRefresh?: () => void };
+    };
+    expect(refreshControl.props.onRefresh).toBeDefined();
+    refreshControl.props.onRefresh?.();
     expect(mockRefetch).toHaveBeenCalled();
+  });
+
+  it('shows generic error when accept fails', async () => {
+    mockAcceptMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    mockRequests = [createRequest({ status: BorrowRequestStatus.Pending })];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByTestId('accept-button'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when decline fails', async () => {
+    mockDeclineMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    mockRequests = [createRequest({ status: BorrowRequestStatus.Pending })];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByTestId('decline-button'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when cancel fails', async () => {
+    mockCancelMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    mockRequests = [
+      createRequest({
+        status: BorrowRequestStatus.Pending,
+        itemOwnerId: OTHER_USER_ID,
+        requesterId: CURRENT_USER_ID,
+      }),
+    ];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByText(borrowEn.tabs.outgoing));
+    fireEvent.press(screen.getByTestId('cancel-button'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when mark returned fails', async () => {
+    mockMarkReturnedMutate.mockImplementationOnce(
+      (_vars: unknown, opts?: { onError?: () => void }) => {
+        opts?.onError?.();
+      },
+    );
+    mockRequests = [
+      createRequest({
+        status: BorrowRequestStatus.Accepted,
+        itemOwnerId: CURRENT_USER_ID,
+        requesterId: OTHER_USER_ID,
+        itemStatus: ItemStatus.Loaned,
+      }),
+    ];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByText(borrowEn.tabs.active));
+    fireEvent.press(screen.getByTestId('mark-returned-button'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
   });
 });

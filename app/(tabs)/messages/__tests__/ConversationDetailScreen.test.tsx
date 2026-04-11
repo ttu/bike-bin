@@ -2,6 +2,7 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { mockAuthModule } from '@/test/authMocks';
+import commonEn from '@/i18n/en/common.json';
 import ConversationDetailScreen from '../[id]';
 import type { ConversationListItem, MessageWithSender } from '@/features/messaging/types';
 import type { ConversationId, ItemId, MessageId, UserId } from '@/shared/types';
@@ -157,7 +158,28 @@ describe('ConversationDetailScreen', () => {
     fireEvent.press(getByLabelText('Send'));
     expect(mockSendMutate).toHaveBeenCalled();
     expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: 'success' }),
+      expect.objectContaining({
+        variant: 'success',
+        message: commonEn.feedback.messageSent,
+      }),
+    );
+  });
+
+  it('shows error snackbar when send mutation fails', () => {
+    mockSendMutate.mockImplementationOnce(
+      (_vars: unknown, opts?: { onError?: (e: Error) => void }) => {
+        opts?.onError?.(new Error('send failed'));
+      },
+    );
+    const { getByLabelText } = renderWithProviders(<ConversationDetailScreen />);
+    fireEvent.changeText(getByLabelText('Type a message...'), 'Hello');
+    fireEvent.press(getByLabelText('Send'));
+    expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'error',
+        message: commonEn.errors.generic,
+        duration: 'long',
+      }),
     );
   });
 

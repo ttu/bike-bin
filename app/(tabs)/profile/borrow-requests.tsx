@@ -298,6 +298,7 @@ export default function BorrowRequestsScreen() {
         />
       ) : (
         <FlatList
+          testID="borrow-requests-list"
           data={currentList}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}

@@ -5,6 +5,7 @@ import { createMockItem } from '@/test/factories';
 import type { ItemId } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemCondition, ItemStatus } from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import commonEn from '@/i18n/en/common.json';
 import ItemDetailScreen from '../../../../app/(tabs)/inventory/[id]';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -22,7 +23,11 @@ jest.mock('@/shared/api/supabase', () => ({
 const mockReplace = jest.fn();
 const mockPush = jest.fn();
 
-let mockRouteParams: { id: string; fromBike?: string; photoLimitWarning?: string } = {
+let mockRouteParams: {
+  id: string;
+  fromBike?: string | string[];
+  photoLimitWarning?: string;
+} = {
   id: 'item-detail-1',
 };
 
@@ -260,6 +265,145 @@ describe('ItemDetailScreen', () => {
     fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
     await waitFor(() => {
       expect(mockUpdateMutateAsync).toHaveBeenCalled();
+    });
+  });
+
+  it('uses first fromBike value when param is a string array', () => {
+    mockRouteParams = { id: ITEM_ID, fromBike: ['bike-from-array'] };
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByLabelText('Back'));
+    expect(mockReplace).toHaveBeenCalledWith('/(tabs)/bikes/bike-from-array');
+  });
+
+  it('dismisses photo limit snackbar via action', async () => {
+    mockRouteParams = { id: ITEM_ID, photoLimitWarning: '1' };
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByText(commonEn.actions.close));
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/plan photo limit reached/i)).toBeNull();
+      },
+      { timeout: 4000 },
+    );
+  });
+
+  it('shows generic error when mark donated fails', async () => {
+    mockMarkDonatedMutate.mockImplementationOnce(
+      (_vars: unknown, opts?: { onError?: () => void }) => {
+        opts?.onError?.();
+      },
+    );
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-mark-donated'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when mark sold fails', async () => {
+    mockMarkSoldMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-mark-sold'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when archive status update fails', async () => {
+    mockUpdateMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-remove'));
+    fireEvent.press(screen.getByTestId('remove-inventory-archive'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('completes unarchive flow for archived items', async () => {
+    mockItem = createMockItem({
+      id: ITEM_ID,
+      status: ItemStatus.Archived,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-unarchive'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(mockUpdateMutate).toHaveBeenCalled();
+    });
+  });
+
+  it('shows generic error when unarchive fails', async () => {
+    mockItem = createMockItem({
+      id: ITEM_ID,
+      status: ItemStatus.Archived,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    mockUpdateMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-unarchive'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when delete fails', async () => {
+    mockDeleteMutateAsync.mockRejectedValueOnce(new Error('delete failed'));
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-remove'));
+    fireEvent.press(screen.getByTestId('remove-inventory-delete'));
+    await waitFor(() => expect(screen.getByTestId('confirm-dialog-confirm')).toBeTruthy());
+    const confirmButtons = screen.getAllByTestId('confirm-dialog-confirm');
+    fireEvent.press(confirmButtons[confirmButtons.length - 1]);
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when mark returned mutation fails', async () => {
+    mockItem = createMockItem({
+      id: ITEM_ID,
+      status: ItemStatus.Loaned,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    mockAcceptedBorrowRequestId = 'borrow-1';
+    mockMarkReturnedMutate.mockImplementationOnce(
+      (_vars: unknown, opts?: { onError?: () => void }) => {
+        opts?.onError?.();
+      },
+    );
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-mark-returned'));
+    const confirmButtons = screen.getAllByTestId('confirm-dialog-confirm');
+    fireEvent.press(confirmButtons[confirmButtons.length - 1]);
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('shows generic error when fallback return status update fails', async () => {
+    mockItem = createMockItem({
+      id: ITEM_ID,
+      status: ItemStatus.Loaned,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    mockAcceptedBorrowRequestId = undefined;
+    mockUpdateMutateAsync.mockRejectedValueOnce(new Error('status failed'));
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-mark-returned'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
     });
   });
 });
