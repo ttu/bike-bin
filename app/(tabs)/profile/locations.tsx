@@ -176,7 +176,10 @@ export default function SavedLocationsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.BackAction
+          testID="saved-locations-screen-back"
+          onPress={() => tabScopedBack('/(tabs)/profile')}
+        />
         <Appbar.Content title={t('title')} />
       </Appbar.Header>
 

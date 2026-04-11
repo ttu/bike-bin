@@ -71,8 +71,8 @@ describe('SavedLocationsScreen', () => {
   });
 
   it('calls tabScopedBack when list back is pressed', () => {
-    const { getByLabelText } = renderWithProviders(<SavedLocationsScreen />);
-    fireEvent.press(getByLabelText('Back'));
+    const { getByTestId } = renderWithProviders(<SavedLocationsScreen />);
+    fireEvent.press(getByTestId('saved-locations-screen-back'));
     expect(jest.mocked(tabScopedBack)).toHaveBeenCalledWith('/(tabs)/profile');
   });
 });

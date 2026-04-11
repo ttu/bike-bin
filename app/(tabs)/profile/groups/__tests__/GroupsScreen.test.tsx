@@ -64,8 +64,8 @@ describe('GroupsScreen', () => {
   });
 
   it('calls tabScopedBack when list back is pressed', () => {
-    const { getByLabelText } = renderWithProviders(<GroupsScreen />);
-    fireEvent.press(getByLabelText('Back'));
+    const { getByTestId } = renderWithProviders(<GroupsScreen />);
+    fireEvent.press(getByTestId('groups-screen-back'));
     expect(jest.mocked(tabScopedBack)).toHaveBeenCalledWith('/(tabs)/profile');
   });
 

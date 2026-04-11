@@ -211,7 +211,10 @@ export default function GroupsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.BackAction
+          testID="groups-screen-back"
+          onPress={() => tabScopedBack('/(tabs)/profile')}
+        />
         <Appbar.Content title={t('title')} />
         <Appbar.Action icon="magnify" onPress={handleSearchMode} />
       </Appbar.Header>
