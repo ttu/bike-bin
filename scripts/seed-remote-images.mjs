@@ -42,14 +42,13 @@ function main() {
     process.env.PROJECT_REF = projectRef;
   }
 
-  if (!explicitUrl) {
-    if (!projectRef) {
-      console.error('seed-remote-images: Set SUPABASE_URL or PROJECT_REF for hosted seed images.');
-      process.exit(1);
-    }
+  if (explicitUrl) {
+    process.env.SUPABASE_URL = explicitUrl;
+  } else if (projectRef) {
     process.env.SUPABASE_URL = supabaseHostedProjectUrl(projectRef);
   } else {
-    process.env.SUPABASE_URL = explicitUrl;
+    console.error('seed-remote-images: Set SUPABASE_URL or PROJECT_REF for hosted seed images.');
+    process.exit(1);
   }
 
   const script = path.join(__dirname, 'seed-images.mjs');

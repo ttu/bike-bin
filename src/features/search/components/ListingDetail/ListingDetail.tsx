@@ -12,6 +12,7 @@ import { useAuth } from '@/features/auth';
 import type { SearchResultItem } from '../../types';
 import type { ItemPhoto } from '@/shared/types';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
+import { listingAvailabilityLayout } from '../../utils/listingAvailabilityLayout';
 
 const CONDITION_ICONS: Record<string, string> = {
   new: 'shield-check',
@@ -20,14 +21,14 @@ const CONDITION_ICONS: Record<string, string> = {
   broken: 'close-circle-outline',
 };
 
-interface ListingDetailProps {
+type ListingDetailProps = Readonly<{
   item: SearchResultItem;
   photos: ItemPhoto[];
   onContact?: () => void;
   onRequestBorrow?: () => void;
   onOwnerPress?: () => void;
   onPhotoLongPress?: (photo: ItemPhoto) => void;
-}
+}>;
 
 export function ListingDetail({
   item,
@@ -49,15 +50,9 @@ export function ListingDetail({
       })
     : undefined;
 
-  const hasBorrowable = item.availabilityTypes.includes('borrowable' as never);
-  const hasDonatable = item.availabilityTypes.includes('donatable' as never);
-  const hasSellable = item.availabilityTypes.includes('sellable' as never);
-  const hasContactable = hasDonatable || hasSellable;
-
-  // Determine button layout per spec §3.12
-  const showBorrowOnly = hasBorrowable && !hasContactable;
-  const showContactOnly = hasContactable && !hasBorrowable;
-  const showBoth = hasBorrowable && hasContactable;
+  const { showBorrowOnly, showContactOnly, showBoth } = listingAvailabilityLayout(
+    item.availabilityTypes,
+  );
 
   const categoryBreadcrumb = [t(`category.${item.category}`), item.brand]
     .filter(Boolean)

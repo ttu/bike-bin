@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
-interface QuantitySectionProps extends InputStyling {
-  quantityStr: ItemFormState['quantityStr'];
-  setQuantityStr: ItemFormState['setQuantityStr'];
-  errors: ItemFormState['errors'];
-}
+type QuantitySectionProps = Readonly<
+  InputStyling & {
+    quantityStr: ItemFormState['quantityStr'];
+    setQuantityStr: ItemFormState['setQuantityStr'];
+    errors: ItemFormState['errors'];
+  }
+>;
 
 export function QuantitySection({
   quantityStr,

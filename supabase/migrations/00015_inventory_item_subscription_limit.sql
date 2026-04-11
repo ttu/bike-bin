@@ -172,6 +172,7 @@ SET search_path = public
 AS $$
 DECLARE
   r record;
+  err_rule_violation CONSTANT text := '23514';
 BEGIN
   FOR r IN
     SELECT owner_id, COUNT(*) AS batch_count
@@ -182,7 +183,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(hashtext('items_limit'), hashtext(r.owner_id::text));
     IF (SELECT COUNT(*) FROM public.items WHERE owner_id = r.owner_id) > public.inventory_item_limit_for_user(r.owner_id) THEN
       RAISE EXCEPTION 'inventory_limit_exceeded'
-        USING ERRCODE = '23514',
+        USING ERRCODE = err_rule_violation,
         HINT = 'Remove items or upgrade your subscription to add more.';
     END IF;
   END LOOP;
@@ -206,6 +207,7 @@ SET search_path = public
 AS $$
 DECLARE
   r record;
+  err_rule_violation CONSTANT text := '23514';
 BEGIN
   FOR r IN
     SELECT owner_id, COUNT(*) AS batch_count
@@ -216,7 +218,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(hashtext('bikes_limit'), hashtext(r.owner_id::text));
     IF (SELECT COUNT(*) FROM public.bikes WHERE owner_id = r.owner_id) > public.bike_limit_for_user(r.owner_id) THEN
       RAISE EXCEPTION 'bike_limit_exceeded'
-        USING ERRCODE = '23514',
+        USING ERRCODE = err_rule_violation,
         HINT = 'Remove bikes or upgrade your subscription to add more.';
     END IF;
   END LOOP;
@@ -240,6 +242,7 @@ SET search_path = public
 AS $$
 DECLARE
   r record;
+  err_rule_violation CONSTANT text := '23514';
 BEGIN
   FOR r IN
     SELECT DISTINCT i.owner_id
@@ -251,7 +254,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(r.owner_id::text));
     IF public.user_photo_count(r.owner_id) > public.photo_limit_for_user(r.owner_id) THEN
       RAISE EXCEPTION 'photo_limit_exceeded'
-        USING ERRCODE = '23514',
+        USING ERRCODE = err_rule_violation,
         HINT = 'Remove photos or upgrade your subscription to add more.';
     END IF;
   END LOOP;
@@ -275,6 +278,7 @@ SET search_path = public
 AS $$
 DECLARE
   r record;
+  err_rule_violation CONSTANT text := '23514';
 BEGIN
   FOR r IN
     SELECT DISTINCT b.owner_id
@@ -286,7 +290,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(hashtext('photo_limit'), hashtext(r.owner_id::text));
     IF public.user_photo_count(r.owner_id) > public.photo_limit_for_user(r.owner_id) THEN
       RAISE EXCEPTION 'photo_limit_exceeded'
-        USING ERRCODE = '23514',
+        USING ERRCODE = err_rule_violation,
         HINT = 'Remove photos or upgrade your subscription to add more.';
     END IF;
   END LOOP;

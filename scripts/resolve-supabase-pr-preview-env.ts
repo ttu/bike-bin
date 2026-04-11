@@ -76,7 +76,7 @@ function parseRetryAfterMs(header: string | null): number | undefined {
   if (!header) {
     return undefined;
   }
-  const seconds = parseInt(header.trim(), 10);
+  const seconds = Number.parseInt(header.trim(), 10);
   if (Number.isFinite(seconds) && seconds >= 0) {
     return Math.min(seconds * 1000, 60_000);
   }
@@ -275,7 +275,7 @@ export async function resolvePreviewSupabaseEnv(options: {
 
   const branches = branchesRes.json;
   if (!Array.isArray(branches)) {
-    throw new Error('List branches: expected JSON array');
+    throw new TypeError('List branches: expected JSON array');
   }
 
   const branch = findBranchForPr(branches as SupabaseBranchRow[], prNumber);
@@ -296,7 +296,7 @@ export async function resolvePreviewSupabaseEnv(options: {
 
   const keys = keysRes.json;
   if (!Array.isArray(keys)) {
-    throw new Error('List API keys: expected JSON array');
+    throw new TypeError('List API keys: expected JSON array');
   }
 
   const anonKey = pickPublishableAnonKey(keys as SupabaseApiKeyRow[]);
@@ -336,19 +336,66 @@ function writeFallback(
   console.log(`resolve-supabase-pr-preview-env: using fallback EXPO_PUBLIC_* (${reason}).`);
 }
 
-async function main(): Promise<void> {
-  const token = process.env.SUPABASE_ACCESS_TOKEN?.trim() ?? '';
-  const parentRef = process.env.SUPABASE_STAGING_PROJECT_REF?.trim() ?? '';
+function parsePrNumberFromEnv(): number {
   const prRaw = process.env.SUPABASE_PREVIEW_PR_NUMBER ?? '';
-  const prNumber = parseInt(prRaw, 10);
-  const githubEnv = process.env.GITHUB_ENV;
-  const fallbackUrl = process.env.FALLBACK_EXPO_PUBLIC_SUPABASE_URL?.trim() ?? '';
-  const fallbackKey = process.env.FALLBACK_EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? '';
+  return Number.parseInt(prRaw, 10);
+}
 
+function writeResolvedPreviewToOutputs(
+  resolved: Awaited<ReturnType<typeof resolvePreviewSupabaseEnv>>,
+  prNumber: number,
+  githubEnv: string | undefined,
+  cwd: string,
+): void {
+  writeBikeBinCiSupabaseMetadata('full', cwd, {
+    previewProjectRef: resolved.previewProjectRef,
+  });
+  if (githubEnv) {
+    appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
+    appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
+    if (resolved.serviceRoleKey) {
+      appendGithubMask(resolved.serviceRoleKey);
+      appendGithubEnv(githubEnv, 'SUPABASE_SERVICE_ROLE_KEY', resolved.serviceRoleKey);
+    }
+    console.log(
+      `resolve-supabase-pr-preview-env: OK → preview project ${resolved.previewProjectRef} (PR #${prNumber}).`,
+    );
+    if (!resolved.serviceRoleKey) {
+      console.log(
+        'resolve-supabase-pr-preview-env: no service_role in API keys response; set GitHub secret SUPABASE_SERVICE_ROLE_KEY on preview or ensure token can read service_role.',
+      );
+    }
+  } else {
+    console.log(
+      JSON.stringify(
+        {
+          url: resolved.url,
+          previewProjectRef: resolved.previewProjectRef,
+          prNumber,
+          source: 'management_api',
+          e2eRemoteSuite: 'full' as const,
+        },
+        null,
+        2,
+      ),
+    );
+  }
+}
+
+/** When credentials are missing, use FALLBACK_* if present; otherwise log and `process.exit(1)`. Returns true when handled (caller should stop). */
+function handleMissingStagingOrTokenWithOptionalFallback(options: {
+  parentRef: string;
+  token: string;
+  fallbackUrl: string;
+  fallbackKey: string;
+  githubEnv: string | undefined;
+}): boolean {
+  const { parentRef, token, fallbackUrl, fallbackKey, githubEnv } = options;
+  const canFallback = Boolean(fallbackUrl && fallbackKey);
   if (!parentRef) {
-    if (fallbackUrl && fallbackKey) {
+    if (canFallback) {
       writeFallback(githubEnv, fallbackUrl, fallbackKey, 'SUPABASE_STAGING_PROJECT_REF unset');
-      return;
+      return true;
     }
     console.error(
       'resolve-supabase-pr-preview-env: set Environment variable SUPABASE_STAGING_PROJECT_REF ' +
@@ -356,14 +403,35 @@ async function main(): Promise<void> {
     );
     process.exit(1);
   }
-
   if (!token) {
-    if (fallbackUrl && fallbackKey) {
+    if (canFallback) {
       writeFallback(githubEnv, fallbackUrl, fallbackKey, 'SUPABASE_ACCESS_TOKEN unset');
-      return;
+      return true;
     }
     console.error('resolve-supabase-pr-preview-env: missing SUPABASE_ACCESS_TOKEN.');
     process.exit(1);
+  }
+  return false;
+}
+
+async function main(): Promise<void> {
+  const token = process.env.SUPABASE_ACCESS_TOKEN?.trim() ?? '';
+  const parentRef = process.env.SUPABASE_STAGING_PROJECT_REF?.trim() ?? '';
+  const prNumber = parsePrNumberFromEnv();
+  const githubEnv = process.env.GITHUB_ENV;
+  const fallbackUrl = process.env.FALLBACK_EXPO_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  const fallbackKey = process.env.FALLBACK_EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? '';
+
+  if (
+    handleMissingStagingOrTokenWithOptionalFallback({
+      parentRef,
+      token,
+      fallbackUrl,
+      fallbackKey,
+      githubEnv,
+    })
+  ) {
+    return;
   }
 
   if (Number.isNaN(prNumber) || prNumber < 1) {
@@ -378,39 +446,7 @@ async function main(): Promise<void> {
       prNumber,
     });
 
-    writeBikeBinCiSupabaseMetadata('full', process.cwd(), {
-      previewProjectRef: resolved.previewProjectRef,
-    });
-    if (githubEnv) {
-      appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_URL', resolved.url);
-      appendGithubEnv(githubEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', resolved.anonKey);
-      if (resolved.serviceRoleKey) {
-        appendGithubMask(resolved.serviceRoleKey);
-        appendGithubEnv(githubEnv, 'SUPABASE_SERVICE_ROLE_KEY', resolved.serviceRoleKey);
-      }
-      console.log(
-        `resolve-supabase-pr-preview-env: OK → preview project ${resolved.previewProjectRef} (PR #${prNumber}).`,
-      );
-      if (!resolved.serviceRoleKey) {
-        console.log(
-          'resolve-supabase-pr-preview-env: no service_role in API keys response; set GitHub secret SUPABASE_SERVICE_ROLE_KEY on preview or ensure token can read service_role.',
-        );
-      }
-    } else {
-      console.log(
-        JSON.stringify(
-          {
-            url: resolved.url,
-            previewProjectRef: resolved.previewProjectRef,
-            prNumber,
-            source: 'management_api',
-            e2eRemoteSuite: 'full' as const,
-          },
-          null,
-          2,
-        ),
-      );
-    }
+    writeResolvedPreviewToOutputs(resolved, prNumber, githubEnv, process.cwd());
   } catch (err) {
     if (err instanceof NoPreviewBranchForPrError) {
       const pick = selectStagingOrFallbackForNoPreviewBranch(process.env);

@@ -7,7 +7,7 @@ export function buildFramedDeviceHtml(
   screenWidthPx: number,
   screenHeightPx: number,
 ): string {
-  const safeB64 = imageBase64Png.replace(/[^A-Za-z0-9+/=]/g, '');
+  const safeB64 = imageBase64Png.replaceAll(/[^A-Za-z0-9+/=]/g, '');
   const shellW = screenWidthPx + 88;
   const shellH = screenHeightPx + 160;
   const dataUrl = `data:image/png;base64,${safeB64}`;

@@ -8,20 +8,20 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
-if [ -z "${PROJECT_REF:-}" ]; then
+if [[ -z "${PROJECT_REF:-}" ]]; then
   echo "seed-remote-sql.sh: PROJECT_REF is required (Supabase project ref)" >&2
   exit 1
 fi
-if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
+if [[ -z "${SUPABASE_ACCESS_TOKEN:-}" ]]; then
   echo "seed-remote-sql.sh: SUPABASE_ACCESS_TOKEN is required" >&2
   exit 1
 fi
-if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
+if [[ -z "${SUPABASE_DB_PASSWORD:-}" ]]; then
   echo "seed-remote-sql.sh: SUPABASE_DB_PASSWORD is required for supabase link to hosted Postgres" >&2
   exit 1
 fi
 SEED_FILE="$ROOT/supabase/seed.sql"
-if [ ! -f "$SEED_FILE" ]; then
+if [[ ! -f "$SEED_FILE" ]]; then
   echo "seed-remote-sql.sh: seed file not found: supabase/seed.sql (expected at $SEED_FILE)" >&2
   exit 1
 fi
