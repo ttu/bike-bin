@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +42,20 @@ export default function SavedLocationsScreen() {
   const createLocation = useCreateLocation();
   const updateLocation = useUpdateLocation();
   const deleteLocation = useDeleteLocation();
+
+  const listModeDynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        contentContainer: {
+          paddingBottom: fabListScrollPaddingBottom(insets.bottom),
+        },
+        fabDynamic: {
+          backgroundColor: theme.colors.primary,
+          bottom: fabOffsetAboveTabBar(insets.bottom),
+        },
+      }),
+    [insets.bottom, theme.colors.primary],
+  );
 
   const handleAddPress = useCallback(() => {
     setEditingLocation(undefined);
@@ -197,7 +211,7 @@ export default function SavedLocationsScreen() {
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
-          contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
+          contentContainerStyle={listModeDynamicStyles.contentContainer}
           ListFooterComponent={
             <Pressable
               onPress={handleAddPress}
@@ -222,13 +236,7 @@ export default function SavedLocationsScreen() {
 
       <FAB
         icon="plus"
-        style={[
-          styles.fab,
-          {
-            backgroundColor: theme.colors.primary,
-            bottom: fabOffsetAboveTabBar(insets.bottom),
-          },
-        ]}
+        style={[styles.fab, listModeDynamicStyles.fabDynamic]}
         color={theme.colors.onPrimary}
         onPress={handleAddPress}
         accessibilityLabel={t('addLocation')}

@@ -39,7 +39,7 @@ jest.mock('react-native-safe-area-context', () => {
 const mockUseLocations = jest.fn();
 
 jest.mock('@/features/locations', () => {
-  const actual = jest.requireActual('@/features/locations');
+  const actual = jest.requireActual<typeof import('@/features/locations')>('@/features/locations');
   return {
     ...actual,
     useLocations: () => mockUseLocations(),
