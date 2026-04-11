@@ -151,6 +151,118 @@ export default function InventoryScreen() {
       ? t('searchPlaceholder', { count: filteredItems.length })
       : t('searchPlaceholderEmpty');
 
+  const listHeader = useMemo(
+    () => (
+      <>
+        <DemoBanner />
+        <SyncBanner />
+
+        <Text
+          variant="labelLarge"
+          style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
+        >
+          {t('categoriesLabel')}
+        </Text>
+        <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+
+        {userTags && userTags.length > 0 && (
+          <>
+            <Text
+              variant="labelLarge"
+              style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t('tagsLabel')}
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.tagFilterScroll}
+              contentContainerStyle={styles.tagFilterRow}
+            >
+              {userTags.map((tag) => {
+                const active = selectedTags.includes(tag);
+                return (
+                  <Chip
+                    key={tag}
+                    selected={active}
+                    onPress={() => toggleTag(tag)}
+                    showSelectedCheck={false}
+                    compact
+                    textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+                    style={[
+                      styles.tagFilterChip,
+                      {
+                        backgroundColor: active
+                          ? theme.colors.primary
+                          : theme.colors.secondaryContainer,
+                      },
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    {tag}
+                  </Chip>
+                );
+              })}
+            </ScrollView>
+          </>
+        )}
+
+        {hasTerminalItems && (
+          <View style={styles.terminalChipRow}>
+            <Chip
+              selected={showTerminal}
+              onPress={toggleTerminal}
+              showSelectedCheck={false}
+              style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
+              textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
+              compact
+            >
+              {t('filters.showInactive', { count: terminalCount })}
+            </Chip>
+          </View>
+        )}
+      </>
+    ),
+    [
+      theme.colors,
+      t,
+      userTags,
+      selectedTags,
+      selectedCategory,
+      hasTerminalItems,
+      terminalCount,
+      showTerminal,
+      toggleTag,
+      toggleTerminal,
+    ],
+  );
+
+  const listEmpty = useMemo(
+    () =>
+      !isLoading && filteredItems.length === 0 ? (
+        <EmptyState
+          icon="package-variant"
+          title={t('empty.title')}
+          description={
+            blockNewItems ? t('limit.emptyStateDescription', { limit }) : t('empty.description')
+          }
+          ctaLabel={t('empty.cta')}
+          onCtaPress={handleAddPress}
+          ctaDisabled={blockNewItems}
+        />
+      ) : null,
+    [isLoading, filteredItems.length, t, blockNewItems, limit, handleAddPress],
+  );
+
+  const listContentContainerStyle = useMemo(
+    () => [
+      { paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
+      !isLoading && filteredItems.length === 0 ? styles.listContentContainerEmpty : undefined,
+    ],
+    [insets.bottom, isLoading, filteredItems.length],
+  );
+
   return (
     <View
       style={[
@@ -197,114 +309,34 @@ export default function InventoryScreen() {
         )}
       </View>
 
-      <DemoBanner />
-      <SyncBanner />
-
-      <Text
-        variant="labelLarge"
-        style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
-      >
-        {t('categoriesLabel')}
-      </Text>
-      <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
-
-      {userTags && userTags.length > 0 && (
-        <>
-          <Text
-            variant="labelLarge"
-            style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
-          >
-            {t('tagsLabel')}
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.tagFilterScroll}
-            contentContainerStyle={styles.tagFilterRow}
-          >
-            {userTags.map((tag) => {
-              const active = selectedTags.includes(tag);
-              return (
-                <Chip
-                  key={tag}
-                  selected={active}
-                  onPress={() => toggleTag(tag)}
-                  showSelectedCheck={false}
-                  compact
-                  textStyle={active ? { color: theme.colors.onPrimary } : undefined}
-                  style={[
-                    styles.tagFilterChip,
-                    {
-                      backgroundColor: active
-                        ? theme.colors.primary
-                        : theme.colors.secondaryContainer,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                >
-                  {tag}
-                </Chip>
-              );
-            })}
-          </ScrollView>
-        </>
-      )}
-
-      {hasTerminalItems && (
-        <View style={styles.terminalChipRow}>
-          <Chip
-            selected={showTerminal}
-            onPress={toggleTerminal}
-            showSelectedCheck={false}
-            style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
-            textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
-            compact
-          >
-            {t('filters.showInactive', { count: terminalCount })}
-          </Chip>
-        </View>
-      )}
-
-      {!isLoading && filteredItems.length === 0 ? (
-        <EmptyState
-          icon="package-variant"
-          title={t('empty.title')}
-          description={
-            blockNewItems ? t('limit.emptyStateDescription', { limit }) : t('empty.description')
-          }
-          ctaLabel={t('empty.cta')}
-          onCtaPress={handleAddPress}
-          ctaDisabled={blockNewItems}
-        />
-      ) : (
-        <FlatList
-          key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
-          style={styles.listContainer}
-          data={filteredItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
-          columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
-          extraData={viewMode}
-          refreshControl={
-            isAuthenticated ? (
-              <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-            ) : undefined
-          }
-          contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
-          ListFooterComponent={
-            filteredItems.length > 0 ? (
-              <Text
-                variant="bodySmall"
-                style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
-              >
-                {t('showingItems', { count: filteredItems.length })}
-              </Text>
-            ) : undefined
-          }
-        />
-      )}
+      <FlatList
+        key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
+        style={styles.listContainer}
+        data={filteredItems}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
+        columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
+        extraData={viewMode}
+        ListHeaderComponent={listHeader}
+        ListEmptyComponent={listEmpty}
+        refreshControl={
+          isAuthenticated ? (
+            <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+          ) : undefined
+        }
+        contentContainerStyle={listContentContainerStyle}
+        ListFooterComponent={
+          filteredItems.length > 0 ? (
+            <Text
+              variant="bodySmall"
+              style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t('showingItems', { count: filteredItems.length })}
+            </Text>
+          ) : undefined
+        }
+      />
 
       {filteredItems.length > 0 && (
         <FAB
@@ -367,6 +399,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
+  },
+  listContentContainerEmpty: {
+    flexGrow: 1,
   },
   itemCount: {
     textAlign: 'center',
