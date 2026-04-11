@@ -27,6 +27,11 @@ CREATE POLICY "export_requests_insert_own"
   ON export_requests FOR INSERT
   WITH CHECK ((select auth.uid()) = user_id);
 
+CREATE TRIGGER trg_export_requests_set_updated_at
+  BEFORE UPDATE ON export_requests
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('data-exports', 'data-exports', false)
 ON CONFLICT (id) DO NOTHING;
