@@ -199,4 +199,9 @@ CREATE TRIGGER trg_borrow_requests_enforce_update_rules
   FOR EACH ROW
   EXECUTE FUNCTION borrow_requests_enforce_update_rules();
 
+CREATE TRIGGER trg_borrow_requests_set_updated_at
+  BEFORE UPDATE ON borrow_requests
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
 

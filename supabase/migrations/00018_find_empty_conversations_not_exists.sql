@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION find_empty_conversations()
 RETURNS TABLE(id uuid)
 LANGUAGE sql
 SECURITY DEFINER
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT c.id
   FROM conversations c

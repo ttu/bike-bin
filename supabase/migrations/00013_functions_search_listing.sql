@@ -39,7 +39,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
-SET search_path = public, extensions
+SET search_path TO public, extensions, pg_temp
 AS $$
 BEGIN
   RETURN QUERY
@@ -147,7 +147,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 STABLE
 SECURITY INVOKER
-SET search_path = public, extensions
+SET search_path TO public, extensions
 AS $$
 BEGIN
   IF (select auth.uid()) IS NULL THEN

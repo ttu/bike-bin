@@ -7,7 +7,7 @@ RETURNS boolean
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1
@@ -30,7 +30,7 @@ RETURNS integer
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT CASE
     WHEN public.subscription_has_entitled_paid(p_user_id) THEN 10000
@@ -48,7 +48,7 @@ RETURNS integer
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT CASE
     WHEN public.subscription_has_entitled_paid(p_user_id) THEN 10000
@@ -66,7 +66,7 @@ RETURNS integer
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT CASE
     WHEN public.subscription_has_entitled_paid(p_user_id) THEN 10000
@@ -84,7 +84,7 @@ RETURNS bigint
 LANGUAGE sql
 VOLATILE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT
     COALESCE(
@@ -114,7 +114,7 @@ RETURNS integer
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT public.inventory_item_limit_for_user(auth.uid());
 $$;
@@ -127,7 +127,7 @@ RETURNS integer
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT public.bike_limit_for_user(auth.uid());
 $$;
@@ -140,7 +140,7 @@ RETURNS integer
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT public.photo_limit_for_user(auth.uid());
 $$;
@@ -153,7 +153,7 @@ RETURNS integer
 LANGUAGE sql
 VOLATILE
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
   SELECT public.user_photo_count(auth.uid())::integer;
 $$;
@@ -168,7 +168,7 @@ CREATE OR REPLACE FUNCTION public.enforce_items_inventory_row_limit()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
 DECLARE
   r record;
@@ -203,7 +203,7 @@ CREATE OR REPLACE FUNCTION public.enforce_bikes_row_limit()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
 DECLARE
   r record;
@@ -238,7 +238,7 @@ CREATE OR REPLACE FUNCTION public.enforce_item_photos_account_limit()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
 DECLARE
   r record;
@@ -274,7 +274,7 @@ CREATE OR REPLACE FUNCTION public.enforce_bike_photos_account_limit()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path TO public, pg_temp
 AS $$
 DECLARE
   r record;

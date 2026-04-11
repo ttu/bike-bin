@@ -92,24 +92,34 @@ Deno.serve(async (req) => {
       });
     }
 
-    const normalizedPostcode = postcode.trim().toUpperCase();
-    const normalizedCountry = (country ?? '').trim().toLowerCase();
-    const cacheKey = normalizedCountry
-      ? `${normalizedPostcode}:${normalizedCountry}`
-      : normalizedPostcode;
+    const normalizedPostcode = postcode.trim().toLowerCase();
+
+    // Validate country as ISO 3166-1 alpha-2 (exactly two ASCII letters) or empty
+    const rawCountry = typeof country === 'string' ? country.trim() : '';
+    if (rawCountry !== '' && !/^[A-Za-z]{2}$/.test(rawCountry)) {
+      return new Response(
+        JSON.stringify({ error: 'Country must be an ISO 3166-1 alpha-2 code (e.g. "de", "gb")' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+    const normalizedCountry = rawCountry.toLowerCase();
 
     // Initialize Supabase client with service role for cache access
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check cache first
-    const { data: cached } = await supabase
+    // Check cache first (composite PK: postcode + country)
+    const { data: cached, error: cacheError } = await supabase
       .from('geocode_cache')
       .select('area_name, lat, lng')
-      .eq('postcode', cacheKey)
-      .single();
+      .eq('postcode', normalizedPostcode)
+      .eq('country', normalizedCountry)
+      .maybeSingle();
 
-    if (cached) {
+    if (cacheError) {
+      console.error('geocode_cache read error:', cacheError.message);
+      // Fall through to Nominatim lookup
+    } else if (cached) {
       const result: GeocodeResult = {
         areaName: cached.area_name,
         lat: cached.lat,
@@ -162,15 +172,19 @@ Deno.serve(async (req) => {
     const lat = Number.parseFloat(topResult.lat);
     const lng = Number.parseFloat(topResult.lon);
 
-    // Cache the result
-    await supabase.from('geocode_cache').upsert({
-      postcode: cacheKey,
+    // Cache the result (composite PK: postcode + country); don't fail the request on cache write errors
+    const { error: upsertError } = await supabase.from('geocode_cache').upsert({
+      postcode: normalizedPostcode,
       country: normalizedCountry,
       area_name: areaName,
       lat,
       lng,
       cached_at: new Date().toISOString(),
     });
+
+    if (upsertError) {
+      console.error('geocode_cache upsert error:', upsertError.message);
+    }
 
     const result: GeocodeResult = { areaName, lat, lng };
     return new Response(JSON.stringify(result), {

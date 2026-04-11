@@ -104,3 +104,8 @@ CREATE POLICY "bike_photos_delete_own"
       WHERE bikes.id = bike_photos.bike_id AND bikes.owner_id = (select auth.uid())
     )
   );
+
+CREATE TRIGGER trg_bikes_set_updated_at
+  BEFORE UPDATE ON bikes
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
