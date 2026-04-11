@@ -41,10 +41,12 @@ SET search_path TO public
 AS $$
   SELECT c.id
   FROM conversations c
-  LEFT JOIN conversation_participants cp ON cp.conversation_id = c.id
-  LEFT JOIN messages m ON m.conversation_id = c.id
-  GROUP BY c.id
-  HAVING COUNT(cp.conversation_id) = 0 AND COUNT(m.id) = 0;
+  WHERE NOT EXISTS (
+    SELECT 1 FROM conversation_participants cp WHERE cp.conversation_id = c.id
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM messages m WHERE m.conversation_id = c.id
+  );
 $$;
 
 -- Grant/revoke for find_empty_conversations (service-role only, not callable by app users)

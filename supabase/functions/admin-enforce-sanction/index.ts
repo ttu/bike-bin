@@ -55,12 +55,14 @@ function deleteCount(result: { data: unknown[] | null; error: unknown }, step: s
   return result.data?.length ?? 0;
 }
 
-function optionalValidatedString(value: unknown): string | undefined {
+/** Narrows already-validated JSON fields; invalid shapes must be rejected before calling (return 400). */
+function optionalNarrowString(value: unknown): string | undefined {
   if (value === undefined) return undefined;
   return typeof value === 'string' ? value : undefined;
 }
 
-function optionalValidatedUuidArray(value: unknown): string[] | undefined {
+/** Narrows already-validated UUID arrays; invalid shapes must be rejected before calling (return 400). */
+function optionalNarrowUuidArray(value: unknown): string[] | undefined {
   if (value === undefined) return undefined;
   if (!Array.isArray(value)) return undefined;
   const out: string[] = [];
@@ -145,13 +147,16 @@ async function purgeSanctionedUser(
   assertNoError(userItemsError, 'load user items for storage paths');
   if (userItems && userItems.length > 0) {
     const itemIds = userItems.map((i) => i.id);
-    const { data: itemPhotos, error: itemPhotosError } = await supabase
-      .from('item_photos')
-      .select('storage_path')
-      .in('item_id', itemIds);
-    assertNoError(itemPhotosError, 'load item photos for storage paths');
-    for (const p of itemPhotos ?? []) {
-      if (p.storage_path) storagePaths.push({ bucket: 'item-photos', path: p.storage_path });
+    for (let i = 0; i < itemIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = itemIds.slice(i, i + IN_CHUNK_SIZE);
+      const { data: itemPhotos, error: itemPhotosError } = await supabase
+        .from('item_photos')
+        .select('storage_path')
+        .in('item_id', chunk);
+      assertNoError(itemPhotosError, 'load item photos for storage paths');
+      for (const p of itemPhotos ?? []) {
+        if (p.storage_path) storagePaths.push({ bucket: 'item-photos', path: p.storage_path });
+      }
     }
   }
 
@@ -163,13 +168,16 @@ async function purgeSanctionedUser(
   assertNoError(userBikesError, 'load user bikes for storage paths');
   if (userBikes && userBikes.length > 0) {
     const bikeIds = userBikes.map((b) => b.id);
-    const { data: bikePhotos, error: bikePhotosError } = await supabase
-      .from('bike_photos')
-      .select('storage_path')
-      .in('bike_id', bikeIds);
-    assertNoError(bikePhotosError, 'load bike photos for storage paths');
-    for (const p of bikePhotos ?? []) {
-      if (p.storage_path) storagePaths.push({ bucket: 'item-photos', path: p.storage_path });
+    for (let i = 0; i < bikeIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = bikeIds.slice(i, i + IN_CHUNK_SIZE);
+      const { data: bikePhotos, error: bikePhotosError } = await supabase
+        .from('bike_photos')
+        .select('storage_path')
+        .in('bike_id', chunk);
+      assertNoError(bikePhotosError, 'load bike photos for storage paths');
+      for (const p of bikePhotos ?? []) {
+        if (p.storage_path) storagePaths.push({ bucket: 'item-photos', path: p.storage_path });
+      }
     }
   }
 
@@ -212,12 +220,15 @@ async function purgeSanctionedUser(
   const ownedItemIds = (userItems ?? []).map((i) => i.id);
   const ownedItemPhotoIds: string[] = [];
   if (ownedItemIds.length > 0) {
-    const { data: photoRows, error: photoIdsErr } = await supabase
-      .from('item_photos')
-      .select('id')
-      .in('item_id', ownedItemIds);
-    assertNoError(photoIdsErr, 'load item_photo ids for report closure');
-    for (const p of photoRows ?? []) ownedItemPhotoIds.push(p.id);
+    for (let i = 0; i < ownedItemIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = ownedItemIds.slice(i, i + IN_CHUNK_SIZE);
+      const { data: photoRows, error: photoIdsErr } = await supabase
+        .from('item_photos')
+        .select('id')
+        .in('item_id', chunk);
+      assertNoError(photoIdsErr, 'load item_photo ids for report closure');
+      for (const p of photoRows ?? []) ownedItemPhotoIds.push(p.id);
+    }
   }
 
   const { data: ownedMessages, error: ownedMsgErr } = await supabase
@@ -242,10 +253,15 @@ async function purgeSanctionedUser(
 
   if (userItems && userItems.length > 0) {
     const itemIds = userItems.map((i) => i.id);
-    counts.itemPhotos = deleteCount(
-      await supabase.from('item_photos').delete().in('item_id', itemIds).select('id'),
-      'delete item_photos',
-    );
+    let itemPhotosDeleted = 0;
+    for (let i = 0; i < itemIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = itemIds.slice(i, i + IN_CHUNK_SIZE);
+      itemPhotosDeleted += deleteCount(
+        await supabase.from('item_photos').delete().in('item_id', chunk).select('id'),
+        'delete item_photos',
+      );
+    }
+    counts.itemPhotos = itemPhotosDeleted;
   }
   counts.items = deleteCount(
     await supabase.from('items').delete().eq('owner_id', userId).select('id'),
@@ -254,10 +270,15 @@ async function purgeSanctionedUser(
 
   if (userBikes && userBikes.length > 0) {
     const bikeIds = userBikes.map((b) => b.id);
-    counts.bikePhotos = deleteCount(
-      await supabase.from('bike_photos').delete().in('bike_id', bikeIds).select('id'),
-      'delete bike_photos',
-    );
+    let bikePhotosDeleted = 0;
+    for (let i = 0; i < bikeIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = bikeIds.slice(i, i + IN_CHUNK_SIZE);
+      bikePhotosDeleted += deleteCount(
+        await supabase.from('bike_photos').delete().in('bike_id', chunk).select('id'),
+        'delete bike_photos',
+      );
+    }
+    counts.bikePhotos = bikePhotosDeleted;
   }
   counts.bikes = deleteCount(
     await supabase.from('bikes').delete().eq('owner_id', userId).select('id'),
@@ -280,10 +301,15 @@ async function purgeSanctionedUser(
   assertNoError(emptyConvosError, 'find empty conversations');
   if (emptyConvos && emptyConvos.length > 0) {
     const emptyIds = emptyConvos.map((c: { id: string }) => c.id);
-    counts.conversationsDeleted = deleteCount(
-      await supabase.from('conversations').delete().in('id', emptyIds).select('id'),
-      'delete empty conversations',
-    );
+    let conversationsDeleted = 0;
+    for (let i = 0; i < emptyIds.length; i += IN_CHUNK_SIZE) {
+      const chunk = emptyIds.slice(i, i + IN_CHUNK_SIZE);
+      conversationsDeleted += deleteCount(
+        await supabase.from('conversations').delete().in('id', chunk).select('id'),
+        'delete empty conversations',
+      );
+    }
+    counts.conversationsDeleted = conversationsDeleted;
   }
 
   counts.ratings = deleteCount(
@@ -424,8 +450,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    const validatedReason = optionalValidatedString(reason);
-    const validatedReportIds = optionalValidatedUuidArray(relatedReportIds);
+    const validatedReason = optionalNarrowString(reason);
+    const validatedReportIds = optionalNarrowUuidArray(relatedReportIds);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');

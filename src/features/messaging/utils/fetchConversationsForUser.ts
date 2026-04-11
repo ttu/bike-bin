@@ -56,9 +56,13 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
     }
   }
 
+  const conversationsWithOtherParticipant = conversations.filter((c) =>
+    participantsByConversationId.has(c.id as string),
+  );
+
   const otherUserIds = [
     ...new Set(
-      conversations
+      conversationsWithOtherParticipant
         .map((c) => {
           const p = participantsByConversationId.get(c.id as string);
           return p?.user_id as string | undefined;
@@ -87,7 +91,9 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
     });
   }
 
-  const itemIds = conversations.map((c) => c.item_id).filter((id): id is string => Boolean(id));
+  const itemIds = conversationsWithOtherParticipant
+    .map((c) => c.item_id)
+    .filter((id): id is string => Boolean(id));
   const photoByItemId = new Map<string, string>();
   if (itemIds.length > 0) {
     const { data: primaryPhotoRows, error: primaryPhotosError } = await supabase.rpc(
@@ -102,17 +108,13 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
     }
   }
 
-  const results: ConversationListItem[] = conversations.map((conv) => {
-    const otherParticipant = participantsByConversationId.get(conv.id as string);
+  const results: ConversationListItem[] = conversationsWithOtherParticipant.map((conv) => {
+    const otherParticipant = participantsByConversationId.get(conv.id as string)!;
     const lastMsg = lastMessageByConvId.get(conv.id as string);
 
-    let otherName: string | undefined;
-    let otherAvatar: string | undefined;
-    if (otherParticipant) {
-      const profile = profileByUserId.get(otherParticipant.user_id as string);
-      otherName = profile?.displayName;
-      otherAvatar = profile?.avatarUrl;
-    }
+    const profile = profileByUserId.get(otherParticipant.user_id as string);
+    const otherName = profile?.displayName;
+    const otherAvatar = profile?.avatarUrl;
 
     const item = (Array.isArray(conv.items) ? conv.items[0] : conv.items) as {
       id: string;
@@ -130,7 +132,7 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
       itemStatus: (item?.status as string) ?? undefined,
       itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
       itemPhotoPath: conv.item_id ? photoByItemId.get(conv.item_id as string) : undefined,
-      otherParticipantId: (otherParticipant?.user_id ?? '') as UserId,
+      otherParticipantId: otherParticipant.user_id as UserId,
       otherParticipantName: otherName,
       otherParticipantAvatarUrl: otherAvatar,
       lastMessageBody: lastMsg?.body ?? undefined,

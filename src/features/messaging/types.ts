@@ -11,7 +11,7 @@ export interface ConversationListItem {
   itemStatus: string | undefined;
   itemAvailabilityTypes: AvailabilityType[] | undefined;
   itemPhotoPath: string | undefined;
-  otherParticipantId: UserId;
+  otherParticipantId: UserId | undefined;
   otherParticipantName: string | undefined;
   otherParticipantAvatarUrl: string | undefined;
   lastMessageBody: string | undefined;
