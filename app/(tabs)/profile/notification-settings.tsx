@@ -4,6 +4,7 @@ import { Appbar, Text, Switch, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { spacing, borderRadius } from '@/shared/theme';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { useNotificationPreferences } from '@/features/notifications';
 import type { NotificationPreferences } from '@/features/notifications';
 
@@ -38,63 +39,69 @@ export default function NotificationSettingsScreen() {
         <Appbar.Content title={t('settings.title')} />
       </Appbar.Header>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text
-          variant="bodyMedium"
-          style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
-        >
-          {t('settings.description')}
-        </Text>
-
-        {CATEGORIES.map((category) => (
-          <View
-            key={category}
-            style={[styles.categoryCard, { backgroundColor: theme.colors.surface }]}
+      {isLoading ? (
+        <CenteredLoadingIndicator />
+      ) : (
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text
+            variant="bodyMedium"
+            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
           >
-            <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
-              {t(`settings.categories.${category}`)}
-            </Text>
-
-            <View style={styles.toggleRow}>
-              <Text
-                variant="bodyMedium"
-                style={[styles.toggleLabel, { color: theme.colors.onSurface }]}
-              >
-                {t('settings.channels.push')}
-              </Text>
-              <Switch
-                value={preferences[category].push}
-                onValueChange={(value) => handleToggle(category, 'push', value)}
-                disabled={isLoading || Platform.OS === 'web'}
-              />
-            </View>
-
-            <View style={styles.toggleRow}>
-              <Text
-                variant="bodyMedium"
-                style={[styles.toggleLabel, { color: theme.colors.onSurface }]}
-              >
-                {t('settings.channels.email')}
-              </Text>
-              <Switch
-                value={preferences[category].email}
-                onValueChange={(value) => handleToggle(category, 'email', value)}
-                disabled={isLoading}
-              />
-            </View>
-          </View>
-        ))}
-
-        <Text variant="bodySmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
-          {t('settings.inAppNote')}
-        </Text>
-
-        {Platform.OS === 'web' && (
-          <Text variant="bodySmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
-            {t('settings.pushNotAvailable')}
+            {t('settings.description')}
           </Text>
-        )}
-      </ScrollView>
+
+          {CATEGORIES.map((category) => (
+            <View
+              key={category}
+              style={[styles.categoryCard, { backgroundColor: theme.colors.surface }]}
+            >
+              <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+                {t(`settings.categories.${category}`)}
+              </Text>
+
+              <View style={styles.toggleRow}>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.toggleLabel, { color: theme.colors.onSurface }]}
+                >
+                  {t('settings.channels.push')}
+                </Text>
+                <Switch
+                  value={preferences[category].push}
+                  onValueChange={(value) => handleToggle(category, 'push', value)}
+                  disabled={Platform.OS === 'web'}
+                />
+              </View>
+
+              <View style={styles.toggleRow}>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.toggleLabel, { color: theme.colors.onSurface }]}
+                >
+                  {t('settings.channels.email')}
+                </Text>
+                <Switch
+                  value={preferences[category].email}
+                  onValueChange={(value) => handleToggle(category, 'email', value)}
+                />
+              </View>
+            </View>
+          ))}
+
+          <Text variant="bodySmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
+            {t('settings.inAppNote')}
+          </Text>
+
+          {Platform.OS === 'web' && (
+            <Text
+              variant="bodySmall"
+              style={[styles.note, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t('settings.pushNotAvailable')}
+            </Text>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 }

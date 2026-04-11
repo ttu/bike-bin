@@ -23,6 +23,7 @@ import { ItemGalleryTile } from '@/features/inventory/components/ItemGalleryTile
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { isTerminalStatus } from '@/features/inventory/utils/status';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { DemoBanner } from '@/features/demo';
 import {
   fabListScrollPaddingBottom,
@@ -62,7 +63,12 @@ export default function InventoryScreen() {
     [selectedTags, userTags],
   );
 
-  const { data: serverItems, isLoading: serverLoading, refetch } = useItems();
+  const {
+    data: serverItems,
+    isLoading: serverLoading,
+    isRefetching: serverRefetching,
+    refetch,
+  } = useItems();
   const { items: localItems, isLoading: localLoading } = useLocalInventory();
   const { atLimit, limit, isReady: capacityReady } = useInventoryRowCapacity();
 
@@ -240,7 +246,9 @@ export default function InventoryScreen() {
 
   const listEmpty = useMemo(
     () =>
-      !isLoading && filteredItems.length === 0 ? (
+      isLoading && filteredItems.length === 0 ? (
+        <CenteredLoadingIndicator />
+      ) : !isLoading && filteredItems.length === 0 ? (
         <EmptyState
           icon="package-variant"
           title={t('empty.title')}
@@ -322,7 +330,7 @@ export default function InventoryScreen() {
         ListEmptyComponent={listEmpty}
         refreshControl={
           isAuthenticated ? (
-            <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+            <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
           ) : undefined
         }
         contentContainerStyle={listContentContainerStyle}

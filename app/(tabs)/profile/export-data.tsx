@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { cacheDirectory, downloadAsync } from 'expo-file-system/legacy';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { spacing, borderRadius } from '@/shared/theme';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { useAuth } from '@/features/auth';
 import { useRequestExport, useLatestExport } from '@/features/profile';
 import { ExportRequestStatus } from '@/shared/types';
@@ -91,9 +92,7 @@ export default function ExportDataScreen() {
           <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
           <Appbar.Content title={t('export.title')} />
         </Appbar.Header>
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" />
-        </View>
+        <CenteredLoadingIndicator />
       </SafeAreaView>
     );
   }
@@ -194,11 +193,6 @@ export default function ExportDataScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   content: {
     padding: spacing.base,

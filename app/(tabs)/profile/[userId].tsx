@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LoadingScreen, ReportDialog } from '@/shared/components';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import type { ReportReason } from '@/shared/components';
@@ -52,8 +53,8 @@ export default function PublicUserProfileScreen() {
     refetch: refetchProfile,
     isFetching: profileFetching,
   } = usePublicProfile(userId);
-  const { data: listings } = usePublicListings(userId);
-  const { data: ratings } = useUserRatings(userId as string as UserId);
+  const { data: listings, isLoading: listingsLoading } = usePublicListings(userId);
+  const { data: ratings, isLoading: ratingsLoading } = useUserRatings(userId as string as UserId);
 
   if (profileLoading) {
     return <LoadingScreen />;
@@ -165,7 +166,9 @@ export default function PublicUserProfileScreen() {
             {t('profile.reviews')}
           </Text>
 
-          {ratings && ratings.length > 0 ? (
+          {ratingsLoading ? (
+            <CenteredLoadingIndicator fill={false} />
+          ) : ratings && ratings.length > 0 ? (
             ratings.map((rating) => (
               <ReviewCard
                 key={rating.id}
@@ -193,7 +196,9 @@ export default function PublicUserProfileScreen() {
             {t('profile.publicListings')}
           </Text>
 
-          {listings && listings.length > 0 ? (
+          {listingsLoading ? (
+            <CenteredLoadingIndicator fill={false} />
+          ) : listings && listings.length > 0 ? (
             listings.map((listing) => (
               <Pressable
                 key={listing.id}

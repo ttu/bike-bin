@@ -15,6 +15,7 @@ import type { UserId } from '@/shared/types';
 import type { ThemePreference } from '@/shared/hooks/useThemePreference';
 import { useDemoMode, DemoBanner } from '@/features/demo';
 import { ConfirmDialog } from '@/shared/components';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -29,7 +30,7 @@ export default function ProfileScreen() {
   const { isDemoMode, exitDemoMode } = useDemoMode();
   const userId = (user?.id ?? '') as UserId;
 
-  const { data: profile } = useProfile(userId || undefined);
+  const { data: profile, isLoading: profileLoading } = useProfile(userId || undefined);
   const { preference, setPreference } = useThemePreference();
   const { distanceUnit, setDistanceUnit } = useDistanceUnit();
   const { data: borrowRequests } = useBorrowRequests();
@@ -112,6 +113,11 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {(user || isDemoMode) && userId && profileLoading && (
+          <View style={styles.profileLoading}>
+            <CenteredLoadingIndicator fill={false} />
+          </View>
+        )}
         {(user || isDemoMode) && profile && (
           <ProfileHeader
             profile={profile}
@@ -300,6 +306,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingTop: spacing.xl,
     paddingBottom: spacing.md,
+  },
+  profileLoading: {
+    marginHorizontal: spacing.base,
+    marginBottom: spacing.md,
+    minHeight: 120,
+    justifyContent: 'center',
   },
   menuItem: {
     flexDirection: 'row',

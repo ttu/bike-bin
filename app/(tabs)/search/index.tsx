@@ -1,13 +1,14 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Text, Chip, useTheme, Portal, Modal, ActivityIndicator } from 'react-native-paper';
+import { Text, Chip, useTheme, Portal, Modal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
-import { EmptyState } from '@/shared/components';
+import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { usePrimaryLocation } from '@/features/locations';
 import {
   SearchFiltersProvider,
@@ -245,11 +246,7 @@ function SearchScreenContent() {
 
   const listEmpty = useMemo(() => {
     if (effectiveHasSearched && effectiveIsLoading) {
-      return (
-        <View style={styles.emptyLoading}>
-          <ActivityIndicator size="large" />
-        </View>
-      );
+      return <CenteredLoadingIndicator fill={false} />;
     }
     if (showEmpty) {
       return (
@@ -286,11 +283,7 @@ function SearchScreenContent() {
         </Text>
       </View>
 
-      {showAuthSpinner && (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" />
-        </View>
-      )}
+      {showAuthSpinner && <CenteredLoadingIndicator />}
 
       {showGuestWall && (
         <EmptyState
@@ -366,12 +359,6 @@ const styles = StyleSheet.create({
   listContentGrow: {
     flexGrow: 1,
   },
-  emptyLoading: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-    minHeight: 200,
-  },
   header: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
@@ -404,11 +391,6 @@ const styles = StyleSheet.create({
   },
   sortControl: {
     flexShrink: 0,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   list: {
     paddingBottom: 100,
