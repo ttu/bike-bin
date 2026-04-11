@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { View, ScrollView, StyleSheet, Platform } from 'react-native';
 import { Appbar, Text, Switch, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -32,9 +32,22 @@ export default function NotificationSettingsScreen() {
     [preferences, updatePreferences],
   );
 
+  const themedStyles = useMemo(
+    () => ({
+      screen: { backgroundColor: theme.colors.background },
+      appbar: { backgroundColor: theme.colors.background },
+      description: { color: theme.colors.onSurfaceVariant },
+      categoryCard: { backgroundColor: theme.colors.surface },
+      categoryTitle: { color: theme.colors.onSurface },
+      toggleLabel: { color: theme.colors.onSurface },
+      note: { color: theme.colors.onSurfaceVariant },
+    }),
+    [theme],
+  );
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+    <View style={[styles.container, themedStyles.screen]}>
+      <Appbar.Header dark={theme.dark} style={themedStyles.appbar}>
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
         <Appbar.Content title={t('settings.title')} />
       </Appbar.Header>
@@ -43,27 +56,18 @@ export default function NotificationSettingsScreen() {
         <CenteredLoadingIndicator />
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
-          <Text
-            variant="bodyMedium"
-            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
-          >
+          <Text variant="bodyMedium" style={[styles.description, themedStyles.description]}>
             {t('settings.description')}
           </Text>
 
           {CATEGORIES.map((category) => (
-            <View
-              key={category}
-              style={[styles.categoryCard, { backgroundColor: theme.colors.surface }]}
-            >
-              <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+            <View key={category} style={[styles.categoryCard, themedStyles.categoryCard]}>
+              <Text variant="titleMedium" style={themedStyles.categoryTitle}>
                 {t(`settings.categories.${category}`)}
               </Text>
 
               <View style={styles.toggleRow}>
-                <Text
-                  variant="bodyMedium"
-                  style={[styles.toggleLabel, { color: theme.colors.onSurface }]}
-                >
+                <Text variant="bodyMedium" style={[styles.toggleLabel, themedStyles.toggleLabel]}>
                   {t('settings.channels.push')}
                 </Text>
                 <Switch
@@ -74,10 +78,7 @@ export default function NotificationSettingsScreen() {
               </View>
 
               <View style={styles.toggleRow}>
-                <Text
-                  variant="bodyMedium"
-                  style={[styles.toggleLabel, { color: theme.colors.onSurface }]}
-                >
+                <Text variant="bodyMedium" style={[styles.toggleLabel, themedStyles.toggleLabel]}>
                   {t('settings.channels.email')}
                 </Text>
                 <Switch
@@ -88,15 +89,12 @@ export default function NotificationSettingsScreen() {
             </View>
           ))}
 
-          <Text variant="bodySmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodySmall" style={[styles.note, themedStyles.note]}>
             {t('settings.inAppNote')}
           </Text>
 
           {Platform.OS === 'web' && (
-            <Text
-              variant="bodySmall"
-              style={[styles.note, { color: theme.colors.onSurfaceVariant }]}
-            >
+            <Text variant="bodySmall" style={[styles.note, themedStyles.note]}>
               {t('settings.pushNotAvailable')}
             </Text>
           )}

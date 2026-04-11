@@ -9,7 +9,6 @@ export { DetailCard, detailCardStyles } from './DetailCard';
 export { EmptyState } from './EmptyState';
 export { GradientButton } from './GradientButton';
 export { LoadingScreen } from './LoadingScreen';
-export { CenteredLoadingIndicator } from './CenteredLoadingIndicator/CenteredLoadingIndicator';
 export { MaxWidthContainer } from './MaxWidthContainer/MaxWidthContainer';
 export { OfflineBanner } from './OfflineBanner/OfflineBanner';
 export { PhotoGallery } from './PhotoGallery/PhotoGallery';
