@@ -11,17 +11,15 @@ on:
       - '.github/workflows/deploy-marketing-pages.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: pages-marketing
   cancel-in-progress: true
 
 jobs:
   build:
+    permissions:
+      contents: read
+      pages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -52,6 +50,9 @@ jobs:
           path: sites/marketing/dist
 
   deploy:
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
