@@ -14,9 +14,16 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import {
+  spacing,
+  borderRadius,
+  iconSize,
+  fabOffsetAboveTabBar,
+  fabListScrollPaddingBottom,
+} from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useGroups, useCreateGroup, useSearchGroups, useJoinGroup } from '@/features/groups';
@@ -27,6 +34,7 @@ type ScreenMode = 'list' | 'create' | 'search';
 
 export default function GroupsScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('groups');
   const { showSnackbarAlert } = useSnackbarAlerts();
   const [mode, setMode] = useState<ScreenMode>('list');
@@ -203,7 +211,10 @@ export default function GroupsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.BackAction
+          testID="groups-screen-back"
+          onPress={() => tabScopedBack('/(tabs)/profile')}
+        />
         <Appbar.Content title={t('title')} />
         <Appbar.Action icon="magnify" onPress={handleSearchMode} />
       </Appbar.Header>
@@ -222,13 +233,19 @@ export default function GroupsScreen() {
           renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
           keyExtractor={(item) => item.id}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
         />
       )}
 
       <FAB
         icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: theme.colors.primary,
+            bottom: fabOffsetAboveTabBar(insets.bottom),
+          },
+        ]}
         color={theme.colors.onPrimary}
         onPress={handleCreatePress}
         accessibilityLabel={t('empty.cta')}

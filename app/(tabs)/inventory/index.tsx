@@ -24,7 +24,12 @@ import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/C
 import { isTerminalStatus } from '@/features/inventory/utils/status';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { DemoBanner } from '@/features/demo';
-import { iconSize, spacing } from '@/shared/theme';
+import {
+  fabListScrollPaddingBottom,
+  fabOffsetAboveTabBar,
+  iconSize,
+  spacing,
+} from '@/shared/theme';
 import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
 
 type InventoryViewMode = 'list' | 'gallery';
@@ -287,7 +292,7 @@ export default function InventoryScreen() {
               <RefreshControl refreshing={isLoading} onRefresh={refetch} />
             ) : undefined
           }
-          contentContainerStyle={styles.list}
+          contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
           ListFooterComponent={
             filteredItems.length > 0 ? (
               <Text
@@ -306,7 +311,7 @@ export default function InventoryScreen() {
           icon="plus"
           style={[
             styles.fab,
-            { backgroundColor: theme.colors.primary, bottom: spacing.base + insets.bottom + 60 },
+            { backgroundColor: theme.colors.primary, bottom: fabOffsetAboveTabBar(insets.bottom) },
           ]}
           color={theme.colors.onPrimary}
           onPress={handleAddPress}
@@ -362,9 +367,6 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-  },
-  list: {
-    paddingBottom: 100,
   },
   itemCount: {
     textAlign: 'center',

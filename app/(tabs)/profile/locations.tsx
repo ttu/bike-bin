@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { SavedLocation } from '@/shared/types';
@@ -18,12 +19,19 @@ import {
   LocationForm,
 } from '@/features/locations';
 import type { GeocodeResult } from '@/features/locations';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import {
+  spacing,
+  borderRadius,
+  iconSize,
+  fabOffsetAboveTabBar,
+  fabListScrollPaddingBottom,
+} from '@/shared/theme';
 
 type ScreenMode = 'list' | 'add' | 'edit';
 
 export default function SavedLocationsScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('locations');
   const { showSnackbarAlert } = useSnackbarAlerts();
   const [mode, setMode] = useState<ScreenMode>('list');
@@ -34,6 +42,20 @@ export default function SavedLocationsScreen() {
   const createLocation = useCreateLocation();
   const updateLocation = useUpdateLocation();
   const deleteLocation = useDeleteLocation();
+
+  const listModeDynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        contentContainer: {
+          paddingBottom: fabListScrollPaddingBottom(insets.bottom),
+        },
+        fabDynamic: {
+          backgroundColor: theme.colors.primary,
+          bottom: fabOffsetAboveTabBar(insets.bottom),
+        },
+      }),
+    [insets.bottom, theme.colors.primary],
+  );
 
   const handleAddPress = useCallback(() => {
     setEditingLocation(undefined);
@@ -168,7 +190,10 @@ export default function SavedLocationsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile')} />
+        <Appbar.BackAction
+          testID="saved-locations-screen-back"
+          onPress={() => tabScopedBack('/(tabs)/profile')}
+        />
         <Appbar.Content title={t('title')} />
       </Appbar.Header>
 
@@ -186,7 +211,7 @@ export default function SavedLocationsScreen() {
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={listModeDynamicStyles.contentContainer}
           ListFooterComponent={
             <Pressable
               onPress={handleAddPress}
@@ -211,7 +236,7 @@ export default function SavedLocationsScreen() {
 
       <FAB
         icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        style={[styles.fab, listModeDynamicStyles.fabDynamic]}
         color={theme.colors.onPrimary}
         onPress={handleAddPress}
         accessibilityLabel={t('addLocation')}
@@ -234,9 +259,6 @@ export default function SavedLocationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  list: {
-    paddingBottom: 80,
   },
   addCard: {
     flexDirection: 'row',
