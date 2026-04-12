@@ -42,7 +42,7 @@ jest.mock('@/features/demo', () => {
 const mockAuthState = {
   user: undefined as { id: string } | undefined,
   isAuthenticated: false,
-  session: null as Record<string, unknown> | null,
+  session: undefined as Record<string, unknown> | undefined,
   isLoading: true,
 };
 
@@ -67,7 +67,7 @@ describe('SearchScreen - auth loading', () => {
   beforeEach(() => {
     mockAuthState.user = undefined;
     mockAuthState.isAuthenticated = false;
-    mockAuthState.session = null;
+    mockAuthState.session = undefined;
     mockAuthState.isLoading = true;
     mockSearchItemsState.data = undefined;
     mockSearchItemsState.isLoading = false;

@@ -33,15 +33,16 @@ export default function NotificationSettingsScreen() {
   );
 
   const themedStyles = useMemo(
-    () => ({
-      screen: { backgroundColor: theme.colors.background },
-      appbar: { backgroundColor: theme.colors.background },
-      description: { color: theme.colors.onSurfaceVariant },
-      categoryCard: { backgroundColor: theme.colors.surface },
-      categoryTitle: { color: theme.colors.onSurface },
-      toggleLabel: { color: theme.colors.onSurface },
-      note: { color: theme.colors.onSurfaceVariant },
-    }),
+    () =>
+      StyleSheet.create({
+        screen: { backgroundColor: theme.colors.background },
+        appbar: { backgroundColor: theme.colors.background },
+        description: { color: theme.colors.onSurfaceVariant },
+        categoryCard: { backgroundColor: theme.colors.surface },
+        categoryTitle: { color: theme.colors.onSurface },
+        toggleLabel: { color: theme.colors.onSurface },
+        note: { color: theme.colors.onSurfaceVariant },
+      }),
     [theme],
   );
 
