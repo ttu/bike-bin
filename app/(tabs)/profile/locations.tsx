@@ -10,7 +10,7 @@ import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { ConfirmDialog } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
-import { formatValidationFeedbackBody } from '@/shared/utils/formValidationFeedback';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import {
   useLocations,
   useCreateLocation,
@@ -75,18 +75,7 @@ export default function SavedLocationsScreen() {
     setEditingLocation(undefined);
   }, []);
 
-  const handleLocationValidationError = useCallback(
-    (messages: string[]) => {
-      const body = formatValidationFeedbackBody(tCommon('formValidation.summaryIntro'), messages);
-      if (!body) return;
-      showSnackbarAlert({
-        message: body,
-        variant: 'error',
-        duration: 'long',
-      });
-    },
-    [showSnackbarAlert, tCommon],
-  );
+  const handleLocationValidationError = useValidationErrorSnackbar();
 
   const handleSaveNew = useCallback(
     async (data: {

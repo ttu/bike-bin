@@ -17,13 +17,20 @@ export function collectFormErrorMessages(errors: object): string[] {
 
 /**
  * Builds snackbar body: a single message is shown alone; multiple messages use
- * an intro line and a bulleted list so issues stay visible above the tab bar.
+ * an intro line and a prefixed list so issues stay visible above the tab bar.
+ *
+ * @param bulletPrefix - Prepended to each line when there are multiple messages
+ *   (e.g. localized `"• "`). Defaults to empty string.
  */
-export function formatValidationFeedbackBody(intro: string, messages: string[]): string {
+export function formatValidationFeedbackBody(
+  intro: string,
+  messages: string[],
+  bulletPrefix = '',
+): string {
   const cleaned = messages.map((m) => m.trim()).filter(Boolean);
   if (cleaned.length === 0) return '';
   if (cleaned.length === 1) {
     return cleaned[0] ?? '';
   }
-  return `${intro}\n\n${cleaned.map((m) => `• ${m}`).join('\n')}`;
+  return `${intro}\n\n${cleaned.map((m) => `${bulletPrefix}${m}`).join('\n')}`;
 }

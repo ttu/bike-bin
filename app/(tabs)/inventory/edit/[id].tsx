@@ -20,7 +20,7 @@ import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPi
 import { canDelete } from '@/features/inventory';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
-import { formatValidationFeedbackBody } from '@/shared/utils/formValidationFeedback';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
 import { supabase } from '@/shared/api/supabase';
@@ -75,18 +75,7 @@ export default function EditItemScreen() {
     closeConfirm,
   });
 
-  const handleValidationError = useCallback(
-    (messages: string[]) => {
-      const body = formatValidationFeedbackBody(tCommon('formValidation.summaryIntro'), messages);
-      if (!body) return;
-      showSnackbarAlert({
-        message: body,
-        variant: 'error',
-        duration: 'long',
-      });
-    },
-    [showSnackbarAlert, tCommon],
-  );
+  const handleValidationError = useValidationErrorSnackbar();
 
   const handleSave = async (data: ItemFormData) => {
     try {

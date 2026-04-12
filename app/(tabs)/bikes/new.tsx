@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPi
 import { usePhotoPicker } from '@/features/inventory/hooks/usePhotoPicker';
 import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
-import { formatValidationFeedbackBody } from '@/shared/utils/formValidationFeedback';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import { spacing } from '@/shared/theme';
 
 export default function NewBikeScreen() {
@@ -49,18 +49,7 @@ export default function NewBikeScreen() {
   const submitBlockedMessage =
     isReady && atLimit && limit !== undefined ? t('limit.reachedBanner', { limit }) : undefined;
 
-  const handleValidationError = useCallback(
-    (messages: string[]) => {
-      const body = formatValidationFeedbackBody(tCommon('formValidation.summaryIntro'), messages);
-      if (!body) return;
-      showSnackbarAlert({
-        message: body,
-        variant: 'error',
-        duration: 'long',
-      });
-    },
-    [showSnackbarAlert, tCommon],
-  );
+  const handleValidationError = useValidationErrorSnackbar();
 
   const handleSave = async (data: BikeFormData) => {
     setIsSaving(true);

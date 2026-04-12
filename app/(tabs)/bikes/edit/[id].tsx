@@ -24,7 +24,7 @@ import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
-import { formatValidationFeedbackBody } from '@/shared/utils/formValidationFeedback';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 
 export default function EditBikeScreen() {
   const theme = useTheme<AppTheme>();
@@ -72,18 +72,7 @@ export default function EditBikeScreen() {
     closeConfirm,
   });
 
-  const handleValidationError = useCallback(
-    (messages: string[]) => {
-      const body = formatValidationFeedbackBody(tCommon('formValidation.summaryIntro'), messages);
-      if (!body) return;
-      showSnackbarAlert({
-        message: body,
-        variant: 'error',
-        duration: 'long',
-      });
-    },
-    [showSnackbarAlert, tCommon],
-  );
+  const handleValidationError = useValidationErrorSnackbar();
 
   const handleSave = useCallback(
     (data: BikeFormData) => {
