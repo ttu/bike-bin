@@ -24,4 +24,16 @@ describe('areBikeFormDataEqual', () => {
     const b: BikeFormData = { ...base, year: undefined };
     expect(areBikeFormDataEqual(a, b)).toBe(true);
   });
+
+  it('treats undefined year equal to NaN year (invalid numeric)', () => {
+    const a: BikeFormData = { ...base, year: undefined };
+    const b: BikeFormData = { ...base, year: Number.NaN };
+    expect(areBikeFormDataEqual(a, b)).toBe(true);
+  });
+
+  it('treats undefined distanceKm equal to NaN distanceKm', () => {
+    const a: BikeFormData = { ...base, distanceKm: undefined };
+    const b: BikeFormData = { ...base, distanceKm: Number.NaN };
+    expect(areBikeFormDataEqual(a, b)).toBe(true);
+  });
 });

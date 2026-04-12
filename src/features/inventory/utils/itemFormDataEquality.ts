@@ -35,7 +35,9 @@ export function areItemFormDataEqual(baseline: ItemFormData, draft: ItemFormData
   if ((baseline.model ?? '') !== (draft.model ?? '')) return false;
   if ((baseline.description ?? '') !== (draft.description ?? '')) return false;
 
-  if (!sortedStringsEqual(baseline.availabilityTypes as string[], draft.availabilityTypes as string[])) {
+  if (
+    !sortedStringsEqual(baseline.availabilityTypes as string[], draft.availabilityTypes as string[])
+  ) {
     return false;
   }
 
@@ -52,7 +54,12 @@ export function areItemFormDataEqual(baseline: ItemFormData, draft: ItemFormData
   if (baseline.visibility !== draft.visibility) return false;
 
   if (baseline.visibility === Visibility.Groups || draft.visibility === Visibility.Groups) {
-    if (!sortedStringsEqual(baseline.groupIds as string[] | undefined, draft.groupIds as string[] | undefined)) {
+    if (
+      !sortedStringsEqual(
+        baseline.groupIds as string[] | undefined,
+        draft.groupIds as string[] | undefined,
+      )
+    ) {
       return false;
     }
   }

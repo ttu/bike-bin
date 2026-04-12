@@ -27,7 +27,8 @@ jest.mock('@/shared/api/supabase', () => ({
 }));
 
 jest.mock('expo-router', () => {
-  const { mockExpoRouterNavigation } = require('@/test/routerMocks');
+  const { mockExpoRouterNavigation } =
+    jest.requireActual<typeof import('@/test/routerMocks')>('@/test/routerMocks');
   return {
     ...mockExpoRouterNavigation,
     useLocalSearchParams: () => ({ id: 'item-edit-1' }),

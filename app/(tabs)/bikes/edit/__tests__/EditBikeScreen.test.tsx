@@ -9,7 +9,8 @@ import EditBikeScreen from '../[id]';
 const mockRouterNavigate = jest.fn();
 
 jest.mock('expo-router', () => {
-  const { mockExpoRouterNavigation } = require('@/test/routerMocks');
+  const { mockExpoRouterNavigation } =
+    jest.requireActual<typeof import('@/test/routerMocks')>('@/test/routerMocks');
   return {
     ...mockExpoRouterNavigation,
     useLocalSearchParams: () => ({ id: 'bike-123' }),

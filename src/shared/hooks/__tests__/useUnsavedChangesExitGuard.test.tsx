@@ -20,7 +20,9 @@ describe('useUnsavedChangesExitGuard', () => {
   it('does not open a second confirm while a pending removal is already queued', () => {
     const openConfirm = jest.fn();
     const closeConfirm = jest.fn();
-    let beforeRemove: ((e: { preventDefault: () => void; data: { action: unknown } }) => void) | undefined;
+    let beforeRemove:
+      | ((e: { preventDefault: () => void; data: { action: unknown } }) => void)
+      | undefined;
 
     mockAddListener.mockImplementation((event: string, handler: typeof beforeRemove) => {
       if (event === 'beforeRemove') {
@@ -65,7 +67,9 @@ describe('useUnsavedChangesExitGuard', () => {
   it('skips the guard once after bypassNextNavigation is invoked', () => {
     const openConfirm = jest.fn();
     const closeConfirm = jest.fn();
-    let beforeRemove: ((e: { preventDefault: () => void; data: { action: unknown } }) => void) | undefined;
+    let beforeRemove:
+      | ((e: { preventDefault: () => void; data: { action: unknown } }) => void)
+      | undefined;
 
     mockAddListener.mockImplementation((event: string, handler: typeof beforeRemove) => {
       if (event === 'beforeRemove') {

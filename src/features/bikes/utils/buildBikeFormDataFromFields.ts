@@ -20,16 +20,16 @@ export function buildBikeFormDataFromFields(fields: BikeFormDraftFields): BikeFo
   const distanceParsed = optionalNumberFromInput(fields.distanceKmStr);
   const hoursParsed = optionalNumberFromInput(fields.usageHoursStr);
   const yearParsed = optionalNumberFromInput(fields.year);
+  const yearFromInput =
+    yearParsed.invalid || yearParsed.value === undefined ? undefined : Math.round(yearParsed.value);
+  const yearNormalized = Number.isNaN(yearFromInput) ? undefined : yearFromInput;
 
   return {
     name: resolvedName.trim(),
     brand: fields.brand.trim() || undefined,
     model: fields.model.trim() || undefined,
     type: fields.bikeType,
-    year:
-      yearParsed.invalid || yearParsed.value === undefined
-        ? undefined
-        : Math.round(yearParsed.value),
+    year: yearNormalized,
     distanceKm: distanceParsed.invalid ? undefined : distanceParsed.value,
     usageHours: hoursParsed.invalid ? undefined : hoursParsed.value,
     condition: fields.bikeCondition,

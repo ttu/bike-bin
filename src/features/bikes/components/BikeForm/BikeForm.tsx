@@ -135,17 +135,7 @@ export function BikeForm({
         bikeCondition,
         notes,
       }),
-    [
-      name,
-      brand,
-      model,
-      bikeType,
-      year,
-      distanceKmStr,
-      usageHoursStr,
-      bikeCondition,
-      notes,
-    ],
+    [name, brand, model, bikeType, year, distanceKmStr, usageHoursStr, bikeCondition, notes],
   );
 
   const isDirty = useMemo(() => {
@@ -414,11 +404,7 @@ export function BikeForm({
       <GradientButton
         onPress={handleSubmit}
         loading={isSubmitting}
-        disabled={
-          isSubmitting ||
-          Boolean(submitBlockedMessage) ||
-          (isEditMode && !isDirty)
-        }
+        disabled={isSubmitting || Boolean(submitBlockedMessage) || (isEditMode && !isDirty)}
         icon={isEditMode ? 'check-circle-outline' : undefined}
         style={styles.saveButton}
       >

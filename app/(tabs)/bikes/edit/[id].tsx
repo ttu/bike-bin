@@ -160,7 +160,16 @@ export default function EditBikeScreen() {
         });
       },
     });
-  }, [deleteBike, bikeId, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon, bypassNextNavigation]);
+  }, [
+    deleteBike,
+    bikeId,
+    t,
+    openConfirm,
+    closeConfirm,
+    showSnackbarAlert,
+    tCommon,
+    bypassNextNavigation,
+  ]);
 
   if (isLoading || !bike) {
     return <LoadingScreen />;
