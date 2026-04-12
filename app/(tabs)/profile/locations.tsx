@@ -223,6 +223,7 @@ export default function SavedLocationsScreen() {
         />
       ) : (
         <FlatList
+          testID="saved-locations-list"
           data={locations ?? []}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}

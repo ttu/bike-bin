@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react-native';
+import commonEn from '@/i18n/en/common.json';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import type { Item, ItemId, UserId } from '@/shared/types';
@@ -36,6 +37,13 @@ jest.mock('@/shared/api/supabase', () => ({
 
 const mockUserTags = jest.fn(() => ({ data: undefined as string[] | undefined }));
 
+const mockUseItemsState = {
+  data: [] as Item[],
+  isLoading: false,
+  isRefetching: false,
+  refetch: jest.fn(),
+};
+
 const mockServerItems: Item[] = [
   createMockItem({
     id: 'item-alpha' as ItemId,
@@ -69,10 +77,10 @@ jest.mock('@/features/inventory', () => ({
   ...jest.requireActual<typeof import('@/features/inventory')>('@/features/inventory'),
   useUserTags: () => mockUserTags(),
   useItems: () => ({
-    data: mockServerItems,
-    isLoading: false,
-    isRefetching: false,
-    refetch: jest.fn(),
+    data: mockUseItemsState.data,
+    isLoading: mockUseItemsState.isLoading,
+    isRefetching: mockUseItemsState.isRefetching,
+    refetch: mockUseItemsState.refetch,
   }),
   useInventoryRowCapacity: () => ({
     atLimit: false,
@@ -114,6 +122,27 @@ jest.mock('react-native-safe-area-context', () => ({
 describe('InventoryScreen (authenticated)', () => {
   beforeEach(() => {
     mockRouterPush.mockClear();
+    mockUseItemsState.data = mockServerItems;
+    mockUseItemsState.isLoading = false;
+    mockUseItemsState.isRefetching = false;
+    mockUseItemsState.refetch.mockClear();
+  });
+
+  it('shows centered loading when server items are loading and list is empty', () => {
+    mockUseItemsState.data = [];
+    mockUseItemsState.isLoading = true;
+    renderWithProviders(<InventoryScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('passes isRefetching to RefreshControl when list has items', () => {
+    mockUseItemsState.isRefetching = true;
+    renderWithProviders(<InventoryScreen />);
+    const list = screen.getByTestId('inventory-items-list');
+    const refreshControl = list.props.refreshControl as {
+      props: { refreshing?: boolean };
+    };
+    expect(refreshControl.props.refreshing).toBe(true);
   });
 
   it('filters by search, category, terminal toggle, opens item, and adds with category', () => {

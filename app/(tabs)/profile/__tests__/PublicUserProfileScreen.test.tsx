@@ -185,6 +185,30 @@ describe('PublicUserProfileScreen', () => {
     expect(screen.queryByText(profileEn.publicProfile.notFoundTitle)).toBeNull();
   });
 
+  it('shows loading indicator in reviews section while ratings are loading', () => {
+    mockPublicProfileQuery.isLoading = false;
+    mockPublicProfileQuery.data = sampleProfile;
+    mockRatingsQuery.isLoading = true;
+    mockRatingsQuery.data = undefined;
+    mockPublicListingsQuery.isLoading = false;
+    mockPublicListingsQuery.data = [];
+    renderWithProviders(<PublicUserProfileScreen />);
+    expect(screen.getAllByLabelText(commonEn.loading.a11y).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Public User')).toBeTruthy();
+  });
+
+  it('shows loading indicator in listings section while listings are loading', () => {
+    mockPublicProfileQuery.isLoading = false;
+    mockPublicProfileQuery.data = sampleProfile;
+    mockRatingsQuery.isLoading = false;
+    mockRatingsQuery.data = [];
+    mockPublicListingsQuery.isLoading = true;
+    mockPublicListingsQuery.data = undefined;
+    renderWithProviders(<PublicUserProfileScreen />);
+    expect(screen.getAllByLabelText(commonEn.loading.a11y).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Public User')).toBeTruthy();
+  });
+
   it('shows not found state and refetches on retry', () => {
     mockPublicProfileQuery.isLoading = false;
     mockPublicProfileQuery.isError = true;

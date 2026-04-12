@@ -249,6 +249,7 @@ export default function GroupsScreen() {
         />
       ) : (
         <FlatList
+          testID="groups-screen-list"
           data={groups ?? []}
           renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
           keyExtractor={(item) => item.id}

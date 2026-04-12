@@ -74,10 +74,53 @@ describe('GroupsScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseGroups.mockReturnValue({ data: [sampleGroup], isLoading: false, refetch: jest.fn() });
+    mockUseGroups.mockReturnValue({
+      data: [sampleGroup],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+    });
     mockUseSearchGroups.mockReturnValue({ data: [], isLoading: false });
     mockCreateMutateAsync.mockResolvedValue(undefined);
     mockJoinMutateAsync.mockResolvedValue(undefined);
+  });
+
+  it('shows loading when groups list is empty and loading', () => {
+    mockUseGroups.mockReturnValue({
+      data: [],
+      isLoading: true,
+      isRefetching: false,
+      refetch: jest.fn(),
+    });
+    renderWithProviders(<GroupsScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('shows loading when search results are loading', () => {
+    mockUseSearchGroups.mockImplementation(() => ({
+      data: [],
+      isLoading: true,
+    }));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByTestId('groups-search-button'));
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'ab');
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('sets RefreshControl refreshing from isRefetching when list has groups', () => {
+    const refetch = jest.fn();
+    mockUseGroups.mockReturnValue({
+      data: [sampleGroup],
+      isLoading: false,
+      isRefetching: true,
+      refetch,
+    });
+    renderWithProviders(<GroupsScreen />);
+    const list = screen.getByTestId('groups-screen-list');
+    const refreshControl = list.props.refreshControl as {
+      props: { refreshing?: boolean };
+    };
+    expect(refreshControl.props.refreshing).toBe(true);
   });
 
   it('calls tabScopedBack when list back is pressed', () => {

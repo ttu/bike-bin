@@ -318,6 +318,7 @@ export default function InventoryScreen() {
       </View>
 
       <FlatList
+        testID="inventory-items-list"
         key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
         style={styles.listContainer}
         data={filteredItems}

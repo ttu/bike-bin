@@ -27,6 +27,11 @@ jest.mock('@/shared/utils/tabScopedBack', () => ({
 const mockRefetch = jest.fn();
 let mockLocations = [createMockLocation()];
 
+const mockLocationsQuery = {
+  isLoading: false,
+  isRefetching: false,
+};
+
 const mockCreateMutateAsync = jest.fn((_input?: unknown) => Promise.resolve());
 const mockUpdateMutateAsync = jest.fn(() => Promise.resolve());
 const mockDeleteMutateAsync = jest.fn(() => Promise.resolve());
@@ -37,7 +42,12 @@ jest.mock('@/features/locations', () => {
   const actual = jest.requireActual<typeof import('@/features/locations')>('@/features/locations');
   return {
     ...actual,
-    useLocations: () => ({ data: mockLocations, isLoading: false, refetch: mockRefetch }),
+    useLocations: () => ({
+      data: mockLocations,
+      isLoading: mockLocationsQuery.isLoading,
+      isRefetching: mockLocationsQuery.isRefetching,
+      refetch: mockRefetch,
+    }),
     useCreateLocation: () => {
       const [isPending, setIsPending] = React.useState(false);
       const mutateAsync = React.useCallback(async (input: unknown) => {
@@ -121,8 +131,27 @@ describe('SavedLocationsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockLocations = [createMockLocation()];
+    mockLocationsQuery.isLoading = false;
+    mockLocationsQuery.isRefetching = false;
     mockCreateMutateAsync.mockImplementation(() => Promise.resolve());
     mockDeleteMutateAsync.mockImplementation(() => Promise.resolve());
+  });
+
+  it('shows loading when locations are loading and list is empty', () => {
+    mockLocations = [];
+    mockLocationsQuery.isLoading = true;
+    renderWithProviders(<SavedLocationsScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('sets RefreshControl refreshing from isRefetching when list has locations', () => {
+    mockLocationsQuery.isRefetching = true;
+    renderWithProviders(<SavedLocationsScreen />);
+    const list = screen.getByTestId('saved-locations-list');
+    const refreshControl = list.props.refreshControl as {
+      props: { refreshing?: boolean };
+    };
+    expect(refreshControl.props.refreshing).toBe(true);
   });
 
   it('shows list title and navigates back', () => {
