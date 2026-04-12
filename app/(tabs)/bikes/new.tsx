@@ -20,6 +20,7 @@ import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPi
 import { usePhotoPicker } from '@/features/inventory/hooks/usePhotoPicker';
 import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import { spacing } from '@/shared/theme';
 
 export default function NewBikeScreen() {
@@ -47,6 +48,8 @@ export default function NewBikeScreen() {
 
   const submitBlockedMessage =
     isReady && atLimit && limit !== undefined ? t('limit.reachedBanner', { limit }) : undefined;
+
+  const handleValidationError = useValidationErrorSnackbar();
 
   const handleSave = async (data: BikeFormData) => {
     setIsSaving(true);
@@ -107,6 +110,7 @@ export default function NewBikeScreen() {
         isSubmitting={isSaving || createBike.isPending}
         submitBlockedMessage={submitBlockedMessage}
         photoSection={photoSection}
+        onValidationError={handleValidationError}
       />
       <Snackbar
         visible={limitSnackbarVisible}

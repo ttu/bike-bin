@@ -18,6 +18,7 @@ let mockPhotoLimitNum: number | undefined = 10_000;
 let mockPhotoCapacityReady = true;
 let mockLimit: number | undefined;
 let capturedOnSave: ((data: Record<string, unknown>) => void | Promise<void>) | undefined;
+let capturedOnValidationError: ((messages: string[]) => void) | undefined;
 let capturedSubmitBlocked: string | undefined;
 
 const mockPhotoPicker = jest.fn((_props: Record<string, unknown>) => {
@@ -77,10 +78,12 @@ jest.mock('@/features/inventory/hooks/usePhotoPicker', () => ({
 jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({
   BikeForm: (props: {
     onSave: (data: Record<string, unknown>) => void | Promise<void>;
+    onValidationError?: (messages: string[]) => void;
     photoSection?: React.ReactNode;
     submitBlockedMessage?: string;
   }) => {
     capturedOnSave = props.onSave;
+    capturedOnValidationError = props.onValidationError;
     capturedSubmitBlocked = props.submitBlockedMessage;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { View, Text } = require('react-native');
@@ -106,6 +109,7 @@ const formData = {
 beforeEach(() => {
   jest.clearAllMocks();
   capturedOnSave = undefined;
+  capturedOnValidationError = undefined;
   capturedSubmitBlocked = undefined;
   mockStagedPhotos = [];
   mockAtLimit = false;
@@ -230,5 +234,17 @@ describe('NewBikeScreen', () => {
     mockLimit = 3;
     renderWithProviders(<NewBikeScreen />);
     expect(capturedSubmitBlocked).toContain('3');
+  });
+
+  it('shows validation feedback snackbar when the form reports validation errors', async () => {
+    const { getByText } = renderWithProviders(<NewBikeScreen />);
+
+    await act(async () => {
+      capturedOnValidationError!(['Validation message one']);
+    });
+
+    await waitFor(() => {
+      expect(getByText('Validation message one')).toBeTruthy();
+    });
   });
 });

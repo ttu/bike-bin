@@ -15,6 +15,7 @@ import { resolveBikeFormName } from '../../utils/resolveBikeFormName';
 import { optionalNumberFromInput } from '../../utils/optionalNumberFromInput';
 import { buildBikeFormDataFromFields } from '../../utils/buildBikeFormDataFromFields';
 import { areBikeFormDataEqual } from '../../utils/bikeFormDataEquality';
+import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
 
 const BIKE_TYPES = [
   BikeType.Road,
@@ -55,6 +56,7 @@ interface BikeFormProps {
   isEditMode?: boolean;
   submitBlockedMessage?: string;
   onDirtyChange?: (dirty: boolean) => void;
+  onValidationError?: (messages: string[]) => void;
 }
 
 interface BikeFormErrors {
@@ -74,6 +76,7 @@ export function BikeForm({
   isEditMode = false,
   submitBlockedMessage,
   onDirtyChange,
+  onValidationError,
 }: BikeFormProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
@@ -178,11 +181,26 @@ export function BikeForm({
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
+      const messages = collectFormErrorMessages(validationErrors);
+      if (messages.length > 0) {
+        onValidationError?.(messages);
+      }
       return;
     }
 
     onSave(draftData);
-  }, [name, brand, model, bikeType, distanceKmStr, usageHoursStr, t, onSave, draftData]);
+  }, [
+    name,
+    brand,
+    model,
+    bikeType,
+    distanceKmStr,
+    usageHoursStr,
+    t,
+    onSave,
+    onValidationError,
+    draftData,
+  ]);
 
   return (
     <ScrollView

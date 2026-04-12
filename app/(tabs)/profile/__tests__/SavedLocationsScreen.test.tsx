@@ -1,4 +1,4 @@
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { LocationId, UserId } from '@/shared/types';
@@ -74,5 +74,16 @@ describe('SavedLocationsScreen', () => {
     const { getByTestId } = renderWithProviders(<SavedLocationsScreen />);
     fireEvent.press(getByTestId('saved-locations-screen-back'));
     expect(jest.mocked(tabScopedBack)).toHaveBeenCalledWith('/(tabs)/profile');
+  });
+
+  it('shows validation feedback snackbar when saving an empty add-location form', async () => {
+    renderWithProviders(<SavedLocationsScreen />);
+
+    fireEvent.press(screen.getAllByLabelText('Add location')[0]);
+    fireEvent.press(screen.getByText('Save'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Please fix the following/)).toBeTruthy();
+    });
   });
 });

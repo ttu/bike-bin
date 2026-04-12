@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
@@ -118,5 +118,17 @@ describe('EditBikeScreen confirmations', () => {
     fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockDeleteMutate).toHaveBeenCalledWith('bike-123', expect.any(Object));
+  });
+
+  it('shows validation feedback snackbar when save fails client-side validation', async () => {
+    const { getByText, getByPlaceholderText } = renderWithProviders(<EditBikeScreen />);
+
+    fireEvent.changeText(getByPlaceholderText('Service history, setup notes, etc.'), 'edited');
+    fireEvent.changeText(getByPlaceholderText('e.g. 3200'), 'not-a-number');
+    fireEvent.press(getByText('Update Bike'));
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Enter a valid distance in kilometers').length).toBeGreaterThan(0);
+    });
   });
 });

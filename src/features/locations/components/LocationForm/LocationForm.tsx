@@ -16,6 +16,7 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { geocodePostcode } from '../../utils/geocoding';
 import type { GeocodeResult } from '../../utils/geocoding';
+import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
 
 export interface LocationFormData {
   postcode: string;
@@ -29,6 +30,7 @@ interface LocationFormProps {
   onCancel: () => void;
   isSubmitting: boolean;
   showPrimaryToggle?: boolean;
+  onValidationError?: (messages: string[]) => void;
 }
 
 export function LocationForm({
@@ -37,6 +39,7 @@ export function LocationForm({
   onCancel,
   isSubmitting,
   showPrimaryToggle = true,
+  onValidationError,
 }: LocationFormProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('locations');
@@ -94,7 +97,13 @@ export function LocationForm({
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) return;
+    if (Object.keys(newErrors).length > 0) {
+      const messages = collectFormErrorMessages(newErrors);
+      if (messages.length > 0) {
+        onValidationError?.(messages);
+      }
+      return;
+    }
 
     if (!geocoded) {
       // Trigger geocoding first
@@ -105,7 +114,7 @@ export function LocationForm({
     }
 
     onSave({ postcode: postcode.trim(), label: label.trim(), isPrimary, geocoded });
-  }, [postcode, label, isPrimary, geocoded, onSave, handleGeocodePostcode, t]);
+  }, [postcode, label, isPrimary, geocoded, onSave, handleGeocodePostcode, onValidationError, t]);
 
   return (
     <View style={styles.container}>

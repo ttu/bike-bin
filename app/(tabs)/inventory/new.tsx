@@ -25,6 +25,7 @@ import { spacing } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 import { LOCAL_USER_ID } from '@/shared/types';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 
 export default function NewItemScreen() {
   const theme = useTheme();
@@ -109,6 +110,8 @@ export default function NewItemScreen() {
     });
   };
 
+  const handleValidationError = useValidationErrorSnackbar();
+
   const handleSave = async (data: ItemFormData) => {
     setIsSaving(true);
     try {
@@ -161,6 +164,7 @@ export default function NewItemScreen() {
         isSubmitting={isSaving || createItem.isPending}
         photoSection={photoSection}
         submitBlockedMessage={submitBlockedMessage}
+        onValidationError={handleValidationError}
       />
       <Snackbar
         visible={limitSnackbarVisible}

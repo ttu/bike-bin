@@ -20,6 +20,7 @@ import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPi
 import { canDelete } from '@/features/inventory';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
 import { supabase } from '@/shared/api/supabase';
@@ -73,6 +74,8 @@ export default function EditItemScreen() {
     openConfirm,
     closeConfirm,
   });
+
+  const handleValidationError = useValidationErrorSnackbar();
 
   const handleSave = async (data: ItemFormData) => {
     try {
@@ -277,6 +280,7 @@ export default function EditItemScreen() {
         headerComponent={heroSection}
         photoSection={photoSection}
         onDirtyChange={setFormDirty}
+        onValidationError={handleValidationError}
       />
       <ConfirmDialog
         {...confirmDialogProps}

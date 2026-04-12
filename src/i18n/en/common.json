@@ -64,5 +64,9 @@
   },
   "loading": {
     "a11y": "Loading"
+  },
+  "formValidation": {
+    "summaryIntro": "Please fix the following:",
+    "bulletPrefix": "• "
   }
 }

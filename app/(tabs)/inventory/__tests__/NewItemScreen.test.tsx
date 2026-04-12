@@ -19,6 +19,7 @@ let mockAtLimit = false;
 let mockPhotoAtLimit = false;
 let mockLimit: number | undefined;
 let capturedOnSave: ((data: Record<string, unknown>) => void) | undefined;
+let capturedOnValidationError: ((messages: string[]) => void) | undefined;
 
 const mockPhotoPicker = jest.fn((_props: Record<string, unknown>) => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -95,9 +96,11 @@ jest.mock('@/features/inventory/hooks/useStagedPhotos', () => ({
 jest.mock('@/features/inventory/components/ItemForm/ItemForm', () => ({
   ItemForm: (props: {
     onSave: (data: Record<string, unknown>) => void;
+    onValidationError?: (messages: string[]) => void;
     photoSection?: React.ReactNode;
   }) => {
     capturedOnSave = props.onSave;
+    capturedOnValidationError = props.onValidationError;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { View, Text } = require('react-native');
     return (
@@ -118,6 +121,7 @@ const formData = { name: 'Test Item', category: 'component', condition: 'good' }
 beforeEach(() => {
   jest.clearAllMocks();
   capturedOnSave = undefined;
+  capturedOnValidationError = undefined;
   mockIsAuthenticated = true;
   mockIsInventoryLimitError = false;
   mockIsPhotoLimitError = false;
@@ -255,5 +259,17 @@ describe('NewItemScreen', () => {
 
     expect(mockUploadAll).toHaveBeenCalledWith('item-1');
     expect(mockTabScopedBack).toHaveBeenCalledWith('/(tabs)/inventory');
+  });
+
+  it('shows validation feedback snackbar when the form reports validation errors', async () => {
+    const { getByText } = renderWithProviders(<NewItemScreen />);
+
+    await act(async () => {
+      capturedOnValidationError!(['Item validation message']);
+    });
+
+    await waitFor(() => {
+      expect(getByText('Item validation message')).toBeTruthy();
+    });
   });
 });

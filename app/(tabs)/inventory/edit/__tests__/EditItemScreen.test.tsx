@@ -201,4 +201,15 @@ describe('EditItemScreen', () => {
       expect(router.dismiss).toHaveBeenCalledWith(1);
     });
   });
+
+  it('shows validation feedback snackbar when save fails client-side validation', async () => {
+    renderWithProviders(<EditItemScreen />);
+
+    fireEvent.changeText(screen.getByDisplayValue('1'), '0');
+    fireEvent.press(screen.getByText('Update Inventory'));
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Enter a whole number of at least 1').length).toBeGreaterThan(0);
+    });
+  });
 });
