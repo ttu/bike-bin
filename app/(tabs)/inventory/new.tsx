@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +25,7 @@ import { spacing } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 import { LOCAL_USER_ID } from '@/shared/types';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import { formatValidationFeedbackBody } from '@/shared/utils/formValidationFeedback';
 
 export default function NewItemScreen() {
   const theme = useTheme();
@@ -109,6 +110,19 @@ export default function NewItemScreen() {
     });
   };
 
+  const handleValidationError = useCallback(
+    (messages: string[]) => {
+      const body = formatValidationFeedbackBody(tCommon('formValidation.summaryIntro'), messages);
+      if (!body) return;
+      showSnackbarAlert({
+        message: body,
+        variant: 'error',
+        duration: 'long',
+      });
+    },
+    [showSnackbarAlert, tCommon],
+  );
+
   const handleSave = async (data: ItemFormData) => {
     setIsSaving(true);
     try {
@@ -161,6 +175,7 @@ export default function NewItemScreen() {
         isSubmitting={isSaving || createItem.isPending}
         photoSection={photoSection}
         submitBlockedMessage={submitBlockedMessage}
+        onValidationError={handleValidationError}
       />
       <Snackbar
         visible={limitSnackbarVisible}

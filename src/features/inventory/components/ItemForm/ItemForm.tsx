@@ -31,9 +31,10 @@ export function ItemForm({
   photoSection,
   submitBlockedMessage,
   onDirtyChange,
+  onValidationError,
 }: ItemFormProps) {
   const theme = useTheme<AppTheme>();
-  const state = useItemFormState({ initialData, initialCategory, onSave });
+  const state = useItemFormState({ initialData, initialCategory, onSave, onValidationError });
 
   useEffect(() => {
     onDirtyChange?.(state.isDirty);

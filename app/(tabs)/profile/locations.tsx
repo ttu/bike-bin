@@ -10,6 +10,7 @@ import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { ConfirmDialog } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import { formatValidationFeedbackBody } from '@/shared/utils/formValidationFeedback';
 import {
   useLocations,
   useCreateLocation,
@@ -73,6 +74,19 @@ export default function SavedLocationsScreen() {
     setMode('list');
     setEditingLocation(undefined);
   }, []);
+
+  const handleLocationValidationError = useCallback(
+    (messages: string[]) => {
+      const body = formatValidationFeedbackBody(tCommon('formValidation.summaryIntro'), messages);
+      if (!body) return;
+      showSnackbarAlert({
+        message: body,
+        variant: 'error',
+        duration: 'long',
+      });
+    },
+    [showSnackbarAlert, tCommon],
+  );
 
   const handleSaveNew = useCallback(
     async (data: {
@@ -174,6 +188,7 @@ export default function SavedLocationsScreen() {
           onSave={handleSaveNew}
           onCancel={handleCancel}
           isSubmitting={createLocation.isPending}
+          onValidationError={handleLocationValidationError}
         />
       </View>
     );
@@ -195,6 +210,7 @@ export default function SavedLocationsScreen() {
           onSave={handleSaveEdit}
           onCancel={handleCancel}
           isSubmitting={updateLocation.isPending}
+          onValidationError={handleLocationValidationError}
         />
       </View>
     );

@@ -16,6 +16,7 @@ import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
 import { useDistanceUnit } from '@/features/profile';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
+import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
 
 import type { ItemFormState } from './types';
 
@@ -23,12 +24,14 @@ interface UseItemFormStateParams {
   initialData?: ItemFormData;
   initialCategory?: ItemCategory;
   onSave: (data: ItemFormData) => void;
+  onValidationError?: (messages: string[]) => void;
 }
 
 export function useItemFormState({
   initialData,
   initialCategory,
   onSave,
+  onValidationError,
 }: UseItemFormStateParams): ItemFormState {
   const { t } = useTranslation('inventory');
   const { data: existingItems } = useItems();
@@ -294,9 +297,15 @@ export function useItemFormState({
     const validationErrors = validateItem(formData, t);
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length === 0) {
-      onSave(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      const messages = collectFormErrorMessages(validationErrors);
+      if (messages.length > 0) {
+        onValidationError?.(messages);
+      }
+      return;
     }
+
+    onSave(formData);
   }, [
     name,
     quantityStr,
@@ -323,6 +332,7 @@ export function useItemFormState({
     tagInput,
     clearTagBlurCommitTimeout,
     onSave,
+    onValidationError,
     t,
     initialData?.pickupLocationId,
   ]);

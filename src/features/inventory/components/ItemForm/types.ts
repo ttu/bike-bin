@@ -19,6 +19,8 @@ export interface ItemFormProps {
   submitBlockedMessage?: string;
   /** Notified when dirty state changes (e.g. parent combines with photo edits for exit guard). */
   onDirtyChange?: (dirty: boolean) => void;
+  /** Called when client-side validation fails (e.g. show a snackbar listing issues off-screen). */
+  onValidationError?: (messages: string[]) => void;
 }
 
 export interface InputStyling {
