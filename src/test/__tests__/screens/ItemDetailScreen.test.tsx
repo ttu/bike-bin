@@ -6,6 +6,7 @@ import type { ItemId } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemCondition, ItemStatus } from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import commonEn from '@/i18n/en/common.json';
+import { mockAuthModule } from '@/test/authMocks';
 import ItemDetailScreen from '../../../../app/(tabs)/inventory/[id]';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -155,6 +156,16 @@ jest.mock('@/features/borrow', () => ({
 jest.mock('@/features/exchange', () => ({
   useMarkDonated: () => ({ mutate: mockMarkDonatedMutate, isPending: false }),
   useMarkSold: () => ({ mutate: mockMarkSoldMutate, isPending: false }),
+}));
+
+jest.mock('@/features/auth', () => mockAuthModule);
+
+jest.mock('@/features/inventory/hooks/useTransferItem', () => ({
+  useTransferItem: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+
+jest.mock('@/features/inventory/utils/itemPermissions', () => ({
+  canTransferItem: () => false,
 }));
 
 describe('ItemDetailScreen', () => {

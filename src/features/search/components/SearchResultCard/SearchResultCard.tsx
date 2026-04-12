@@ -73,7 +73,7 @@ export const SearchResultCard = memo(function SearchResultCard({
             numberOfLines={1}
             onPress={(e) => {
               e.stopPropagation();
-              onOwnerPress?.(item.ownerId);
+              if (item.ownerId) onOwnerPress?.(item.ownerId);
             }}
             accessibilityRole="link"
           >

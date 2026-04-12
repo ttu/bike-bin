@@ -1,7 +1,7 @@
 import { supabase } from '@/shared/api/supabase';
 import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import type { ConversationListItem } from '../types';
-import type { AvailabilityType, ConversationId, ItemId, UserId } from '@/shared/types';
+import type { AvailabilityType, ConversationId, GroupId, ItemId, UserId } from '@/shared/types';
 
 /** Loads the full conversation list for the signed-in user (Supabase + RPCs + profile map). */
 export async function fetchConversationsForUser(userId: string): Promise<ConversationListItem[]> {
@@ -25,6 +25,7 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
           items (
             id,
             owner_id,
+            group_id,
             name,
             status,
             availability_types
@@ -108,6 +109,28 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
     }
   }
 
+  // Enrich group-owned items with group names
+  const groupIds = conversationsWithOtherParticipant
+    .map((c) => {
+      const itm = (Array.isArray(c.items) ? c.items[0] : c.items) as {
+        group_id?: string | null;
+      } | null;
+      return itm?.group_id;
+    })
+    .filter((gid): gid is string => Boolean(gid));
+
+  const groupNameById = new Map<string, string>();
+  if (groupIds.length > 0) {
+    const uniqueGroupIds = [...new Set(groupIds)];
+    const { data: groupRows } = await supabase
+      .from('groups')
+      .select('id, name')
+      .in('id', uniqueGroupIds);
+    for (const g of groupRows ?? []) {
+      groupNameById.set(g.id as string, g.name as string);
+    }
+  }
+
   const results: ConversationListItem[] = conversationsWithOtherParticipant.map((conv) => {
     const otherParticipant = participantsByConversationId.get(conv.id as string)!;
     const lastMsg = lastMessageByConvId.get(conv.id as string);
@@ -118,7 +141,8 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
 
     const item = (Array.isArray(conv.items) ? conv.items[0] : conv.items) as {
       id: string;
-      owner_id: string;
+      owner_id: string | null;
+      group_id: string | null;
       name: string;
       status: string;
       availability_types: string[];
@@ -127,7 +151,9 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
     return {
       id: conv.id as ConversationId,
       itemId: (conv.item_id as ItemId) ?? undefined,
-      itemOwnerId: (item?.owner_id as UserId) ?? undefined,
+      itemOwnerId: item?.owner_id ? (item.owner_id as UserId) : undefined,
+      itemGroupId: item?.group_id ? (item.group_id as GroupId) : undefined,
+      groupName: item?.group_id ? groupNameById.get(item.group_id) : undefined,
       itemName: (item?.name as string) ?? undefined,
       itemStatus: (item?.status as string) ?? undefined,
       itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,

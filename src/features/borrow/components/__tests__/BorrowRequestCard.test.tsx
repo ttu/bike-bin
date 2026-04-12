@@ -15,6 +15,7 @@ function createRequest(overrides?: Partial<BorrowRequestWithDetails>): BorrowReq
     requesterId: OTHER_USER_ID,
     status: BorrowRequestStatus.Pending,
     message: undefined,
+    actedBy: undefined,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     itemName: 'Shimano XT Derailleur',

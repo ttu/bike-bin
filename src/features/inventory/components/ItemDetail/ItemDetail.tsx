@@ -5,6 +5,7 @@ import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { Item, ItemPhoto } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
+import { useGroup } from '@/features/groups';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor } from '../../utils/status';
@@ -50,6 +51,7 @@ export function ItemDetail({
   const { width: windowWidth } = useWindowDimensions();
   const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
   const { distanceUnit } = useDistanceUnit();
+  const { data: ownerGroup } = useGroup(item.groupId);
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =
@@ -88,6 +90,19 @@ export function ItemDetail({
         <Text variant="headlineMedium" style={[styles.title, themed.onSurface]}>
           {item.name}
         </Text>
+
+        {/* Group ownership indicator */}
+        {ownerGroup && (
+          <Chip
+            compact
+            icon="account-group"
+            style={[styles.ownerChip, { backgroundColor: theme.colors.secondaryContainer }]}
+          >
+            <Text variant="labelSmall" style={{ color: theme.colors.onSecondaryContainer }}>
+              {ownerGroup.name}
+            </Text>
+          </Chip>
+        )}
 
         {/* Availability + Status chips */}
         <View style={styles.chipRow}>
@@ -415,6 +430,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   statusChip: {
+    borderRadius: borderRadius.full,
+  },
+  ownerChip: {
+    marginBottom: spacing.sm,
+    alignSelf: 'flex-start',
     borderRadius: borderRadius.full,
   },
   sectionHeader: {

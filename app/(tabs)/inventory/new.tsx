@@ -81,6 +81,8 @@ export default function NewItemScreen() {
     await addItem({
       id: crypto.randomUUID() as ItemId,
       ownerId: LOCAL_USER_ID,
+      groupId: undefined,
+      createdBy: undefined,
       bikeId: undefined,
       name: data.name,
       category: data.category!,

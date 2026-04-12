@@ -27,6 +27,10 @@ export function useBorrowTransition({
     mutationFn: async ({ requestId }: BorrowTransitionParams) => {
       if (!user) throw new Error('Must be authenticated');
 
+      // For group-owned items, the `transition_borrow_request` RPC server-side
+      // trigger records `auth.uid()` into `borrow_requests.acted_by` — the
+      // client does not pass it. Group admin authorization is also enforced
+      // server-side (see migration 00005_borrow_requests.sql).
       const { data, error } = await supabase.rpc('transition_borrow_request', {
         p_request_id: requestId,
         p_new_request_status: newRequestStatus,
@@ -42,6 +46,11 @@ export function useBorrowTransition({
       });
       void queryClient.invalidateQueries({
         queryKey: ['items'],
+      });
+      // Cover the case where the item is group-owned — the TanStack Query
+      // prefix match invalidates all `['group-items', groupId]` entries.
+      void queryClient.invalidateQueries({
+        queryKey: ['group-items'],
       });
       void queryClient.invalidateQueries({
         queryKey: ['search', 'items'],

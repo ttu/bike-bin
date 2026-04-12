@@ -279,6 +279,100 @@ describe('useConversations', () => {
     expect(result.current.data![1].id).toBe('conv-1');
   });
 
+  it('enriches group-owned item conversations with group name', async () => {
+    const mockParticipantRows = [{ conversation_id: 'conv-1' }];
+    const mockConversations = [
+      {
+        id: 'conv-1',
+        item_id: 'item-1',
+        created_at: '2026-01-01T10:00:00Z',
+        items: {
+          id: 'item-1',
+          owner_id: null,
+          group_id: 'group-1',
+          name: 'Group Shimano Derailleur',
+          status: 'available',
+          availability_types: ['lend'],
+        },
+      },
+    ];
+    const mockAllParticipants = [{ conversation_id: 'conv-1', user_id: 'admin-2' }];
+    mockFetchPublicProfilesMap.mockResolvedValue(
+      new Map([
+        [
+          'admin-2',
+          {
+            id: 'admin-2',
+            displayName: 'Admin Two',
+            avatarUrl: undefined,
+            ratingAvg: 0,
+            ratingCount: 0,
+          },
+        ],
+      ]),
+    );
+
+    // Call 1: conversation_participants (my conversations)
+    const mockCall1 = {
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ data: mockParticipantRows, error: null }),
+      }),
+    };
+    // Call 2: conversations with items (including group_id)
+    const mockCall2 = {
+      select: jest.fn().mockReturnValue({
+        in: jest.fn().mockReturnValue({
+          order: jest.fn().mockResolvedValue({ data: mockConversations, error: null }),
+        }),
+      }),
+    };
+    // Call 3: conversation_participants (other participants)
+    const mockCall3 = {
+      select: jest.fn().mockReturnValue({
+        in: jest.fn().mockReturnValue({
+          neq: jest.fn().mockResolvedValue({ data: mockAllParticipants, error: null }),
+        }),
+      }),
+    };
+    // Call 4: groups (names lookup)
+    const mockCall4 = {
+      select: jest.fn().mockReturnValue({
+        in: jest
+          .fn()
+          .mockResolvedValue({ data: [{ id: 'group-1', name: 'Cycling Club' }], error: null }),
+      }),
+    };
+
+    mockRpc
+      .mockResolvedValueOnce({
+        data: [
+          {
+            conversation_id: 'conv-1',
+            body: 'Is this available?',
+            sender_id: 'user-456',
+            created_at: '2026-01-02T10:00:00Z',
+          },
+        ],
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: [], error: null });
+
+    mockFromChains = [mockCall1, mockCall2, mockCall3, mockCall4];
+
+    const { result } = renderHook(() => useConversations(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toHaveLength(1);
+    const conv = result.current.data![0];
+    expect(conv.itemGroupId).toBe('group-1');
+    expect(conv.groupName).toBe('Cycling Club');
+    expect(conv.itemOwnerId).toBeUndefined();
+    expect(conv.itemName).toBe('Group Shimano Derailleur');
+  });
+
   it('is disabled when user is not authenticated', () => {
     // This test relies on the enabled flag — we can verify no calls made by checking
     // that the query remains in idle/pending state without a user.

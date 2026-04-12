@@ -75,6 +75,8 @@ const mockConversation: ConversationListItem = {
   id: 'conv-1' as ConversationId,
   itemId: undefined,
   itemOwnerId: undefined,
+  itemGroupId: undefined,
+  groupName: undefined,
   itemName: undefined,
   itemStatus: undefined,
   itemAvailabilityTypes: undefined,
@@ -128,6 +130,7 @@ jest.mock('@/features/messaging', () => {
         React.createElement(Text, null, message.body),
       ),
     ItemReferenceCard: () => null,
+    isGroupConversation: jest.requireActual('@/features/messaging').isGroupConversation,
   };
 });
 

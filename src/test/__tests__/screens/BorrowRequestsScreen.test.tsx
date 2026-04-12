@@ -93,6 +93,7 @@ function createRequest(overrides?: Partial<BorrowRequestWithDetails>): BorrowReq
     requesterAvatarUrl: undefined,
     ownerName: 'Bob',
     ownerAvatarUrl: undefined,
+    actedBy: undefined,
     ...overrides,
   };
 }

@@ -166,4 +166,57 @@ GRANT EXECUTE ON FUNCTION public.primary_photos_for_items(uuid[]) TO authenticat
 
 ALTER PUBLICATION supabase_realtime ADD TABLE messages;
 
+-- ============================================================
+-- Trigger: sync conversation participants with group admin roster
+-- ============================================================
+-- When a user is promoted to admin of a group, they are added to all conversations
+-- about that group's items. When demoted or removed, they are removed unless they
+-- still have a reason to stay (e.g. they are the requester of a borrow request).
+
+CREATE OR REPLACE FUNCTION public.sync_group_conversation_participants()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO public
+AS $$
+BEGIN
+  -- New admin (INSERT) or promoted to admin (UPDATE): add to all group item conversations
+  IF (TG_OP = 'INSERT' AND NEW.role = 'admin')
+     OR (TG_OP = 'UPDATE' AND NEW.role = 'admin' AND OLD.role = 'member') THEN
+    INSERT INTO conversation_participants (conversation_id, user_id)
+    SELECT c.id, NEW.user_id
+    FROM conversations c
+    JOIN items i ON i.id = c.item_id
+    WHERE i.group_id = NEW.group_id
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+  -- Demoted or removed: remove from group item conversations,
+  -- but preserve rows where the user is still the requester of a borrow_request.
+  IF (TG_OP = 'UPDATE' AND NEW.role = 'member' AND OLD.role = 'admin')
+     OR TG_OP = 'DELETE' THEN
+    DELETE FROM conversation_participants cp
+    WHERE cp.user_id = COALESCE(OLD.user_id, NEW.user_id)
+      AND cp.conversation_id IN (
+        SELECT c.id FROM conversations c
+        JOIN items i ON i.id = c.item_id
+        WHERE i.group_id = COALESCE(OLD.group_id, NEW.group_id)
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM borrow_requests br
+        WHERE br.item_id = (
+          SELECT c2.item_id FROM conversations c2 WHERE c2.id = cp.conversation_id
+        )
+        AND br.requester_id = COALESCE(OLD.user_id, NEW.user_id)
+      );
+  END IF;
+
+  RETURN COALESCE(NEW, OLD);
+END;
+$$;
+
+CREATE TRIGGER trg_sync_group_conversation_participants
+  AFTER INSERT OR UPDATE OR DELETE ON group_members
+  FOR EACH ROW EXECUTE FUNCTION public.sync_group_conversation_participants();
+
 

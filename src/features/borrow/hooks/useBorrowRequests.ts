@@ -27,6 +27,7 @@ export function useBorrowRequests() {
           requester_id,
           status,
           message,
+          acted_by,
           created_at,
           updated_at,
           items (
@@ -75,6 +76,7 @@ export function useBorrowRequests() {
           requesterId: row.requester_id as UserId,
           status: row.status as BorrowRequestStatus,
           message: (row.message as string) ?? undefined,
+          actedBy: (row.acted_by as UserId | null) ?? undefined,
           createdAt: row.created_at as string,
           updatedAt: row.updated_at as string,
           itemName: item?.name ?? 'Unknown item',

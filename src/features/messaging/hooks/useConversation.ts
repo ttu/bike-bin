@@ -3,7 +3,7 @@ import { supabase } from '@/shared/api/supabase';
 import { fetchPublicProfile } from '@/shared/api/fetchPublicProfile';
 import { useAuth } from '@/features/auth';
 import type { ConversationListItem } from '../types';
-import type { ConversationId, ItemId, UserId } from '@/shared/types';
+import type { ConversationId, ItemId, UserId, GroupId } from '@/shared/types';
 import type { AvailabilityType } from '@/shared/types';
 
 export function useConversation(conversationId: ConversationId | undefined) {
@@ -26,6 +26,7 @@ export function useConversation(conversationId: ConversationId | undefined) {
           items (
             id,
             owner_id,
+            group_id,
             name,
             status,
             availability_types
@@ -69,16 +70,30 @@ export function useConversation(conversationId: ConversationId | undefined) {
 
       const item = (Array.isArray(conv.items) ? conv.items[0] : conv.items) as {
         id: string;
-        owner_id: string;
+        owner_id: string | null;
+        group_id: string | null;
         name: string;
         status: string;
         availability_types: string[];
       } | null;
 
+      const itemGroupId = item?.group_id ? (item.group_id as GroupId) : undefined;
+      let groupName: string | undefined;
+      if (itemGroupId) {
+        const { data: groupRow } = await supabase
+          .from('groups')
+          .select('name')
+          .eq('id', itemGroupId)
+          .single();
+        groupName = (groupRow?.name as string) ?? undefined;
+      }
+
       return {
         id: conv.id as ConversationId,
         itemId: (conv.item_id as ItemId) ?? undefined,
-        itemOwnerId: (item?.owner_id as UserId) ?? undefined,
+        itemOwnerId: item?.owner_id ? (item.owner_id as UserId) : undefined,
+        itemGroupId,
+        groupName,
         itemName: (item?.name as string) ?? undefined,
         itemStatus: (item?.status as string) ?? undefined,
         itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
