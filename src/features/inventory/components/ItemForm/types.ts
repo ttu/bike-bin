@@ -17,6 +17,8 @@ export interface ItemFormProps {
   photoSection?: React.ReactNode;
   /** When set, shows a banner and disables save (e.g. subscription inventory cap). */
   submitBlockedMessage?: string;
+  /** Notified when dirty state changes (e.g. parent combines with photo edits for exit guard). */
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 export interface InputStyling {
@@ -120,4 +122,6 @@ export interface ItemFormState {
   // Errors & submit
   errors: ItemFormErrors;
   handleSubmit: () => void;
+  /** False only when editing and the form matches `initialData` (no unsaved field changes). */
+  isDirty: boolean;
 }

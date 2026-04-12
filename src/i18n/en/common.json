@@ -55,5 +55,11 @@
   },
   "photo": {
     "label": "Photo {{index}}"
+  },
+  "unsavedChanges": {
+    "title": "Discard changes?",
+    "message": "You have unsaved changes. If you leave now, they will be lost.",
+    "discard": "Discard",
+    "keepEditing": "Keep editing"
   }
 }

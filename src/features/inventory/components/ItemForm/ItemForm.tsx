@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import { Banner, Text, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
@@ -29,9 +30,14 @@ export function ItemForm({
   headerComponent,
   photoSection,
   submitBlockedMessage,
+  onDirtyChange,
 }: ItemFormProps) {
   const theme = useTheme<AppTheme>();
   const state = useItemFormState({ initialData, initialCategory, onSave });
+
+  useEffect(() => {
+    onDirtyChange?.(state.isDirty);
+  }, [onDirtyChange, state.isDirty]);
 
   const hasSubmitBlock = Boolean(submitBlockedMessage && submitBlockedMessage.length > 0);
 
@@ -180,7 +186,7 @@ export function ItemForm({
         isSubmitting={isSubmitting}
         isEditMode={isEditMode}
         onDelete={onDelete}
-        saveDisabled={hasSubmitBlock}
+        saveDisabled={hasSubmitBlock || (isEditMode && !state.isDirty)}
       />
     </ScrollView>
   );

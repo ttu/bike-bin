@@ -22,12 +22,17 @@ jest.mock('@/shared/api/supabase', () => ({
 
 const mockNavigate = jest.fn();
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ id: 'bike-1' }),
-  router: {
-    navigate: (...args: unknown[]) => mockNavigate(...args),
-  },
-}));
+jest.mock('expo-router', () => {
+  const { mockExpoRouterNavigation } =
+    jest.requireActual<typeof import('@/test/routerMocks')>('@/test/routerMocks');
+  return {
+    ...mockExpoRouterNavigation,
+    useLocalSearchParams: () => ({ id: 'bike-1' }),
+    router: {
+      navigate: (...args: unknown[]) => mockNavigate(...args),
+    },
+  };
+});
 
 jest.mock('@/shared/utils/tabScopedBack', () => ({
   tabScopedBack: jest.fn(),

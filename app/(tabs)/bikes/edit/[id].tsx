@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -19,6 +19,7 @@ import type { BikeFormData } from '@/features/bikes';
 import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
+import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -32,14 +33,43 @@ export default function EditBikeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const bikeId = id as BikeId;
 
-  const { data: bike, isLoading } = useBike(bikeId);
-  const { data: photos = [] } = useBikePhotos(bikeId);
+  const { data: bike, isLoading, isSuccess: bikeReady } = useBike(bikeId);
+  const { data: photos = [], isSuccess: photosReady } = useBikePhotos(bikeId);
+  const [formDirty, setFormDirty] = useState(false);
+  const [photoBaseline, setPhotoBaseline] = useState<string[] | undefined>(undefined);
   const updateBike = useUpdateBike();
   const deleteBike = useDeleteBike();
   const { pickAndUpload, isUploading } = useBikePhotoUpload();
   const removeBikePhoto = useRemoveBikePhoto();
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
+
+  const photoIdsKey = useMemo(() => photos.map((p) => p.id).join('|'), [photos]);
+
+  useEffect(() => {
+    if (!bikeReady || !photosReady) return;
+    const ids = photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync baseline when photo query data or order changes
+    setPhotoBaseline(ids);
+  }, [bikeReady, photosReady, photoIdsKey]);
+
+  const photosDirty = useMemo(() => {
+    if (photoBaseline === undefined) return false;
+    if (photos.length !== photoBaseline.length) return true;
+    return photos.some((p, i) => p.id !== photoBaseline[i]);
+  }, [photos, photoBaseline]);
+
+  const isScreenDirty = formDirty || photosDirty;
+
+  const { bypassNextNavigation } = useUnsavedChangesExitGuard({
+    isDirty: isScreenDirty,
+    title: tCommon('unsavedChanges.title'),
+    message: tCommon('unsavedChanges.message'),
+    confirmLabel: tCommon('unsavedChanges.discard'),
+    cancelLabel: tCommon('unsavedChanges.keepEditing'),
+    openConfirm,
+    closeConfirm,
+  });
 
   const handleSave = useCallback(
     (data: BikeFormData) => {
@@ -51,6 +81,7 @@ export default function EditBikeScreen() {
               message: tCommon('feedback.bikeUpdated'),
               variant: 'success',
             });
+            bypassNextNavigation();
             tabScopedBack('/(tabs)/bikes' as Href);
           },
           onError: () => {
@@ -63,7 +94,7 @@ export default function EditBikeScreen() {
         },
       );
     },
-    [updateBike, bikeId, showSnackbarAlert, tCommon],
+    [updateBike, bikeId, showSnackbarAlert, tCommon, bypassNextNavigation],
   );
 
   const handleAddPhoto = useCallback(() => {
@@ -115,6 +146,7 @@ export default function EditBikeScreen() {
               message: tCommon('feedback.bikeDeleted'),
               variant: 'success',
             });
+            bypassNextNavigation();
             router.navigate('/(tabs)/bikes' as Href);
           },
           onError: () => {
@@ -128,7 +160,16 @@ export default function EditBikeScreen() {
         });
       },
     });
-  }, [deleteBike, bikeId, t, openConfirm, closeConfirm, showSnackbarAlert, tCommon]);
+  }, [
+    deleteBike,
+    bikeId,
+    t,
+    openConfirm,
+    closeConfirm,
+    showSnackbarAlert,
+    tCommon,
+    bypassNextNavigation,
+  ]);
 
   if (isLoading || !bike) {
     return <LoadingScreen />;
@@ -209,6 +250,7 @@ export default function EditBikeScreen() {
         onSave={handleSave}
         onDelete={handleDelete}
         isSubmitting={updateBike.isPending}
+        onDirtyChange={setFormDirty}
       />
       <ConfirmDialog
         {...confirmDialogProps}
