@@ -160,6 +160,8 @@ describe('GroupsScreen', () => {
       name: 'Join Me',
       description: undefined,
       isPublic: true,
+      ratingAvg: 0,
+      ratingCount: 0,
       createdAt: '2024-01-01T00:00:00.000Z',
       memberCount: 2,
       isMember: false,
