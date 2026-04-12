@@ -60,21 +60,27 @@ export function ListingDetailRoute({
   const thisListingPath = `${thisListingPathPrefix}/${item.id}`;
 
   const handleContact = () => {
-    createConversation(
-      { itemId: item.id, otherUserId: item.ownerId },
-      {
-        onSuccess: (result) => {
-          router.push(`/messages/${result.conversationId}`);
-        },
-        onError: () => {
-          showSnackbarAlert({
-            message: t('listing.errors.contactFailed'),
-            variant: 'error',
-            duration: 'long',
-          });
-        },
+    // Group items use the shared-inbox path (all admins as participants);
+    // personal items use the direct owner path.
+    const params =
+      item.groupId !== undefined
+        ? { itemId: item.id, groupId: item.groupId }
+        : item.ownerId !== undefined
+          ? { itemId: item.id, otherUserId: item.ownerId }
+          : undefined;
+    if (!params) return;
+    createConversation(params, {
+      onSuccess: (result) => {
+        router.push(`/messages/${result.conversationId}`);
       },
-    );
+      onError: () => {
+        showSnackbarAlert({
+          message: t('listing.errors.contactFailed'),
+          variant: 'error',
+          duration: 'long',
+        });
+      },
+    });
   };
 
   const handleOwnerPress = () => {

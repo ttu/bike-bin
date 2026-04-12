@@ -55,7 +55,12 @@ export interface SavedLocation {
 
 export interface Item {
   id: ItemId;
-  ownerId: UserId;
+  /** Undefined for group-owned items */
+  ownerId: UserId | undefined;
+  /** Undefined for personal items */
+  groupId: GroupId | undefined;
+  /** The admin who created/transferred the item; group items only */
+  createdBy: UserId | undefined;
   bikeId: BikeId | undefined;
   name: string;
   category: ItemCategory;
@@ -128,6 +133,8 @@ export interface Group {
   name: string;
   description: string | undefined;
   isPublic: boolean;
+  ratingAvg: number;
+  ratingCount: number;
   createdAt: string;
 }
 
@@ -144,6 +151,8 @@ export interface BorrowRequest {
   requesterId: UserId;
   status: BorrowRequestStatus;
   message: string | undefined;
+  /** The admin who acted on status transitions for group-owned items */
+  actedBy: UserId | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -166,8 +175,10 @@ export interface Rating {
   id: RatingId;
   /** Undefined when the reviewer account was deleted (GDPR anonymization). */
   fromUserId: UserId | undefined;
-  /** Undefined when the recipient account was deleted (GDPR anonymization). */
+  /** Undefined when the recipient is a group or the reviewer account was deleted. */
   toUserId: UserId | undefined;
+  /** Undefined when the recipient is a user. Exclusive arc with toUserId. */
+  toGroupId: GroupId | undefined;
   itemId: ItemId | undefined;
   transactionType: TransactionType;
   score: number;

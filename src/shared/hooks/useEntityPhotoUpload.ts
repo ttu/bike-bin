@@ -28,7 +28,7 @@ export interface EntityPhotoUploadConfig {
 }
 
 export interface UseEntityPhotoUploadReturn<TEntityId extends string> {
-  pickAndUpload: (entityId: TEntityId) => Promise<string | undefined>;
+  pickAndUpload: (entityId: TEntityId, ownerSegment?: string) => Promise<string | undefined>;
   isUploading: boolean;
   error: EntityPhotoUploadError | undefined;
 }
@@ -50,7 +50,7 @@ export function useEntityPhotoUpload<TEntityId extends string>(
   const { bucket, table, entityIdColumn, pathPrefix, photoQueryKey, parentQueryKey } = config;
 
   const pickAndUpload = useCallback(
-    async (entityId: TEntityId): Promise<string | undefined> => {
+    async (entityId: TEntityId, ownerSegment?: string): Promise<string | undefined> => {
       setError(undefined);
 
       const picked = await pickImage();
@@ -73,7 +73,7 @@ export function useEntityPhotoUpload<TEntityId extends string>(
           return undefined;
         }
 
-        const storagePath = `${pathPrefix}/${user.id}/${entityId}/${picked.fileName}`;
+        const storagePath = `${pathPrefix}/${ownerSegment ?? user.id}/${entityId}/${picked.fileName}`;
 
         const result = await uploadPhoto({
           bucket,

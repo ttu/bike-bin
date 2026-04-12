@@ -30,7 +30,8 @@ export const DEFAULT_SEARCH_FILTERS: SearchFilters = {
 /** A search result item with distance and owner info joined. */
 export interface SearchResultItem {
   id: ItemId;
-  ownerId: UserId;
+  /** Personal owner id. Undefined for group-owned items. */
+  ownerId: UserId | undefined;
   name: string;
   category: ItemCategory;
   brand: string | undefined;
@@ -59,4 +60,12 @@ export interface SearchResultItem {
   /** Area name from the pickup location. */
   areaName: string | undefined;
   thumbnailStoragePath: string | undefined;
+  /** Group owner id. Undefined for personal items. */
+  groupId: GroupId | undefined;
+  /** Group display name when the item is group-owned. */
+  groupName: string | undefined;
+  /** Group average rating. */
+  groupRatingAvg: number;
+  /** Group rating count. */
+  groupRatingCount: number;
 }

@@ -3,11 +3,22 @@ import { supabase } from '@/shared/api/supabase';
 import { randomUuidV4 } from '@/shared/utils/randomUuid';
 import { useAuth } from '@/features/auth';
 import { CONVERSATIONS_QUERY_KEY } from './useConversations';
-import type { ConversationId, ItemId, UserId } from '@/shared/types';
+import type { ConversationId, ItemId, UserId, GroupId } from '@/shared/types';
 
+/**
+ * Parameters for creating a conversation about an item.
+ *
+ * - For **personal items**, pass `otherUserId` (the item owner).
+ * - For **group-owned items**, pass `groupId`; all of the group's admins will
+ *   be added as participants so the shared inbox model works (any admin can
+ *   reply on behalf of the group).
+ *
+ * Exactly one of `otherUserId` or `groupId` must be provided.
+ */
 interface CreateConversationParams {
   itemId: ItemId;
-  otherUserId: UserId;
+  otherUserId?: UserId;
+  groupId?: GroupId;
 }
 
 interface CreateConversationResult {
@@ -23,10 +34,18 @@ export function useCreateConversation() {
     mutationFn: async ({
       itemId,
       otherUserId,
+      groupId,
     }: CreateConversationParams): Promise<CreateConversationResult> => {
       if (!user) throw new Error('Must be authenticated to create conversations');
+      if (!otherUserId && !groupId) {
+        throw new Error('Either otherUserId or groupId must be provided');
+      }
 
-      // Check if a conversation already exists for this item + participant pair
+      // Check if a conversation already exists where the current user is a
+      // participant. For group items this is sufficient because the "other
+      // side" is the group itself (represented by its admin roster, which is
+      // kept in sync via trigger), so any conversation about the item that
+      // the current user is part of is reused.
       const { data: existing } = await supabase
         .from('conversations')
         .select(
@@ -41,13 +60,39 @@ export function useCreateConversation() {
         for (const conv of existing) {
           const participants = conv.conversation_participants as { user_id: string }[] | undefined;
           const participantIds = participants?.map((p) => p.user_id) ?? [];
-          if (participantIds.includes(user.id) && participantIds.includes(otherUserId)) {
+          if (!participantIds.includes(user.id)) continue;
+          if (groupId !== undefined) {
+            return {
+              conversationId: conv.id as ConversationId,
+              isExisting: true,
+            };
+          }
+          if (otherUserId !== undefined && participantIds.includes(otherUserId)) {
             return {
               conversationId: conv.id as ConversationId,
               isExisting: true,
             };
           }
         }
+      }
+
+      // Determine participants to add alongside the requester.
+      // For group items: fetch all current admins and add them all.
+      // For personal items: add the item owner.
+      const otherParticipantIds: string[] = [];
+      if (groupId !== undefined) {
+        const { data: admins, error: adminErr } = await supabase
+          .from('group_members')
+          .select('user_id')
+          .eq('group_id', groupId)
+          .eq('role', 'admin');
+        if (adminErr) throw adminErr;
+        for (const admin of admins ?? []) {
+          const adminId = admin.user_id as string;
+          if (adminId !== user.id) otherParticipantIds.push(adminId);
+        }
+      } else if (otherUserId !== undefined) {
+        otherParticipantIds.push(otherUserId);
       }
 
       // Create new conversation (client id: INSERT…RETURNING is blocked by RLS until we are a participant)
@@ -59,11 +104,13 @@ export function useCreateConversation() {
 
       if (convError) throw convError;
 
-      // Add both participants
-      const { error: partError } = await supabase.from('conversation_participants').insert([
+      const participantRows = [
         { conversation_id: conversationId, user_id: user.id },
-        { conversation_id: conversationId, user_id: otherUserId },
-      ]);
+        ...otherParticipantIds.map((uid) => ({ conversation_id: conversationId, user_id: uid })),
+      ];
+      const { error: partError } = await supabase
+        .from('conversation_participants')
+        .insert(participantRows);
 
       if (partError) throw partError;
 

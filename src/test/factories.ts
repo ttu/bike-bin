@@ -65,6 +65,8 @@ export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
   return {
     id: faker.string.uuid(),
     owner_id: faker.string.uuid(),
+    group_id: null,
+    created_by: null,
     bike_id: null,
     name: faker.commerce.productName(),
     category: faker.helpers.arrayElement(Object.values(ItemCategory)),
@@ -106,6 +108,8 @@ export function createMockItem(overrides?: Partial<Item>): Item {
   return {
     id: faker.string.uuid() as ItemId,
     ownerId: faker.string.uuid() as UserId,
+    groupId: undefined,
+    createdBy: undefined,
     bikeId: undefined,
     name: faker.commerce.productName(),
     category: faker.helpers.arrayElement(Object.values(ItemCategory)),
@@ -207,6 +211,7 @@ export function createMockBorrowRequest(overrides?: Partial<BorrowRequest>): Bor
     requesterId: faker.string.uuid() as UserId,
     status: faker.helpers.arrayElement(Object.values(BorrowRequestStatus)),
     message: faker.helpers.maybe(() => faker.lorem.sentence()),
+    actedBy: undefined,
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
@@ -218,6 +223,7 @@ export function createMockRating(overrides?: Partial<Rating>): Rating {
     id: faker.string.uuid() as RatingId,
     fromUserId: faker.string.uuid() as UserId,
     toUserId: faker.string.uuid() as UserId,
+    toGroupId: undefined,
     itemId: faker.helpers.maybe(() => faker.string.uuid() as ItemId),
     transactionType: faker.helpers.arrayElement(Object.values(TransactionType)),
     score: faker.number.int({ min: 1, max: 5 }),
@@ -235,6 +241,8 @@ export function createMockGroup(overrides?: Partial<Group>): Group {
     name: faker.company.name(),
     description: faker.helpers.maybe(() => faker.lorem.sentence()),
     isPublic: faker.datatype.boolean(),
+    ratingAvg: parseFloat(faker.number.float({ min: 1, max: 5, fractionDigits: 2 }).toFixed(2)),
+    ratingCount: faker.number.int({ min: 0, max: 100 }),
     createdAt: faker.date.past().toISOString(),
     ...overrides,
   };
@@ -365,6 +373,10 @@ export function createMockSearchResultItem(
     ownerRatingCount: 12,
     areaName: 'Berlin Mitte',
     thumbnailStoragePath: undefined,
+    groupId: undefined,
+    groupName: undefined,
+    groupRatingAvg: 0,
+    groupRatingCount: 0,
     ...overrides,
   };
 }
@@ -377,6 +389,8 @@ export function createMockConversationListItem(
     id: 'conv-1' as ConversationId,
     itemId: 'item-1' as ItemId,
     itemOwnerId: 'user-1' as UserId,
+    itemGroupId: undefined,
+    groupName: undefined,
     itemName: 'Shimano XT Derailleur',
     itemStatus: 'stored',
     itemAvailabilityTypes: [AvailabilityType.Borrowable],

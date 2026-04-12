@@ -149,6 +149,7 @@ export type Database = {
       };
       borrow_requests: {
         Row: {
+          acted_by: string | null;
           created_at: string;
           id: string;
           item_id: string;
@@ -158,6 +159,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          acted_by?: string | null;
           created_at?: string;
           id?: string;
           item_id: string;
@@ -167,6 +169,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          acted_by?: string | null;
           created_at?: string;
           id?: string;
           item_id?: string;
@@ -387,6 +390,8 @@ export type Database = {
           id: string;
           is_public: boolean;
           name: string;
+          rating_avg: number | null;
+          rating_count: number | null;
         };
         Insert: {
           created_at?: string;
@@ -394,6 +399,8 @@ export type Database = {
           id?: string;
           is_public?: boolean;
           name: string;
+          rating_avg?: number | null;
+          rating_count?: number | null;
         };
         Update: {
           created_at?: string;
@@ -401,6 +408,8 @@ export type Database = {
           id?: string;
           is_public?: boolean;
           name?: string;
+          rating_avg?: number | null;
+          rating_count?: number | null;
         };
         Relationships: [];
       };
@@ -476,13 +485,15 @@ export type Database = {
           category: Database['public']['Enums']['item_category'];
           condition: Database['public']['Enums']['item_condition'];
           created_at: string;
+          created_by: string | null;
           deposit: number | null;
           description: string | null;
+          group_id: string | null;
           id: string;
           model: string | null;
           mounted_date: string | null;
           name: string;
-          owner_id: string;
+          owner_id: string | null;
           pickup_location_id: string | null;
           price: number | null;
           purchase_date: string | null;
@@ -505,13 +516,15 @@ export type Database = {
           category: Database['public']['Enums']['item_category'];
           condition?: Database['public']['Enums']['item_condition'];
           created_at?: string;
+          created_by?: string | null;
           deposit?: number | null;
           description?: string | null;
+          group_id?: string | null;
           id?: string;
           model?: string | null;
           mounted_date?: string | null;
           name: string;
-          owner_id: string;
+          owner_id?: string | null;
           pickup_location_id?: string | null;
           price?: number | null;
           purchase_date?: string | null;
@@ -534,13 +547,15 @@ export type Database = {
           category?: Database['public']['Enums']['item_category'];
           condition?: Database['public']['Enums']['item_condition'];
           created_at?: string;
+          created_by?: string | null;
           deposit?: number | null;
           description?: string | null;
+          group_id?: string | null;
           id?: string;
           model?: string | null;
           mounted_date?: string | null;
           name?: string;
-          owner_id?: string;
+          owner_id?: string | null;
           pickup_location_id?: string | null;
           price?: number | null;
           purchase_date?: string | null;
@@ -754,6 +769,7 @@ export type Database = {
           item_id: string | null;
           score: number;
           text: string | null;
+          to_group_id: string | null;
           to_user_id: string | null;
           transaction_type: Database['public']['Enums']['transaction_type'];
           updated_at: string;
@@ -766,6 +782,7 @@ export type Database = {
           item_id?: string | null;
           score: number;
           text?: string | null;
+          to_group_id?: string | null;
           to_user_id?: string | null;
           transaction_type: Database['public']['Enums']['transaction_type'];
           updated_at?: string;
@@ -778,6 +795,7 @@ export type Database = {
           item_id?: string | null;
           score?: number;
           text?: string | null;
+          to_group_id?: string | null;
           to_user_id?: string | null;
           transaction_type?: Database['public']['Enums']['transaction_type'];
           updated_at?: string;
@@ -1098,6 +1116,10 @@ export type Database = {
           deposit: number;
           description: string;
           distance_meters: number;
+          group_id: string;
+          group_name: string;
+          group_rating_avg: number;
+          group_rating_count: number;
           id: string;
           model: string;
           name: string;
@@ -1160,6 +1182,10 @@ export type Database = {
           storage_path: string;
         }[];
       };
+      recalc_group_rating_aggregate: {
+        Args: { target_group_id: string };
+        Returns: undefined;
+      };
       recalc_user_rating_aggregate: {
         Args: { target_user_id: string };
         Returns: undefined;
@@ -1197,6 +1223,14 @@ export type Database = {
           updated_at: string;
           visibility: Database['public']['Enums']['item_visibility'];
         }[];
+      };
+      transfer_item_ownership: {
+        Args: {
+          p_item_id: string;
+          p_to_group_id?: string;
+          p_to_owner_id?: string;
+        };
+        Returns: undefined;
       };
       transition_borrow_request: {
         Args: {

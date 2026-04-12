@@ -36,6 +36,7 @@ import {
   useRealtimeMessages,
   ChatBubble,
   ItemReferenceCard,
+  isGroupConversation,
 } from '@/features/messaging';
 import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
@@ -317,7 +318,13 @@ export default function ConversationDetailScreen() {
             accessibilityState={{ disabled: !conversation?.otherParticipantId }}
             testID="conversation-header-profile"
           >
-            {conversation?.otherParticipantAvatarUrl ? (
+            {conversation && isGroupConversation(conversation) ? (
+              <Avatar.Icon
+                size={32}
+                icon="account-group"
+                style={{ backgroundColor: theme.colors.surfaceVariant }}
+              />
+            ) : conversation?.otherParticipantAvatarUrl ? (
               <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={32} />
             ) : (
               <Avatar.Icon
@@ -327,7 +334,11 @@ export default function ConversationDetailScreen() {
               />
             )}
             <Appbar.Content
-              title={conversation?.otherParticipantName || t('conversation.anonymousUser')}
+              title={
+                conversation && isGroupConversation(conversation)
+                  ? (conversation.groupName ?? t('conversation.groupConversation'))
+                  : conversation?.otherParticipantName || t('conversation.anonymousUser')
+              }
               subtitle={conversation?.itemName ?? ''}
             />
           </Pressable>
