@@ -133,6 +133,7 @@ describe('InventoryScreen (authenticated)', () => {
     mockUseItemsState.isLoading = true;
     renderWithProviders(<InventoryScreen />);
     expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+    expect(screen.queryByTestId('inventory-items-list')).toBeNull();
   });
 
   it('passes isRefetching to RefreshControl when list has items', () => {

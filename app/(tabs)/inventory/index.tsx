@@ -77,6 +77,8 @@ export default function InventoryScreen() {
     [isAuthenticated, serverItems, localItems],
   );
   const isLoading = isAuthenticated ? serverLoading : localLoading;
+  /** Full-area loading below the search bar (matches bikes tab); avoids ListEmptyComponent without flexGrow. */
+  const showInitialLoading = isLoading && items.length === 0;
 
   const filteredItems = useMemo(() => {
     let result = items;
@@ -246,9 +248,7 @@ export default function InventoryScreen() {
 
   const listEmpty = useMemo(
     () =>
-      isLoading && filteredItems.length === 0 ? (
-        <CenteredLoadingIndicator />
-      ) : !isLoading && filteredItems.length === 0 ? (
+      !isLoading && filteredItems.length === 0 ? (
         <EmptyState
           icon="package-variant"
           title={t('empty.title')}
@@ -266,9 +266,9 @@ export default function InventoryScreen() {
   const listContentContainerStyle = useMemo(
     () => [
       { paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
-      !isLoading && filteredItems.length === 0 ? styles.listContentContainerEmpty : undefined,
+      filteredItems.length === 0 ? styles.listContentContainerEmpty : undefined,
     ],
-    [insets.bottom, isLoading, filteredItems.length],
+    [insets.bottom, filteredItems.length],
   );
 
   return (
@@ -317,35 +317,39 @@ export default function InventoryScreen() {
         )}
       </View>
 
-      <FlatList
-        testID="inventory-items-list"
-        key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
-        style={styles.listContainer}
-        data={filteredItems}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
-        columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
-        extraData={viewMode}
-        ListHeaderComponent={listHeader}
-        ListEmptyComponent={listEmpty}
-        refreshControl={
-          isAuthenticated ? (
-            <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
-          ) : undefined
-        }
-        contentContainerStyle={listContentContainerStyle}
-        ListFooterComponent={
-          filteredItems.length > 0 ? (
-            <Text
-              variant="bodySmall"
-              style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
-            >
-              {t('showingItems', { count: filteredItems.length })}
-            </Text>
-          ) : undefined
-        }
-      />
+      {showInitialLoading ? (
+        <CenteredLoadingIndicator />
+      ) : (
+        <FlatList
+          testID="inventory-items-list"
+          key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
+          style={styles.listContainer}
+          data={filteredItems}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
+          columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
+          extraData={viewMode}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={listEmpty}
+          refreshControl={
+            isAuthenticated ? (
+              <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
+            ) : undefined
+          }
+          contentContainerStyle={listContentContainerStyle}
+          ListFooterComponent={
+            filteredItems.length > 0 ? (
+              <Text
+                variant="bodySmall"
+                style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
+              >
+                {t('showingItems', { count: filteredItems.length })}
+              </Text>
+            ) : undefined
+          }
+        />
+      )}
 
       {filteredItems.length > 0 && (
         <FAB
