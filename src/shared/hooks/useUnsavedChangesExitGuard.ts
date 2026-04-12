@@ -65,6 +65,9 @@ export function useUnsavedChangesExitGuard({
         confirmLabel,
         cancelLabel,
         destructive: true,
+        onCancel: () => {
+          pendingActionRef.current = undefined;
+        },
         onConfirm: () => {
           const action = pendingActionRef.current;
           pendingActionRef.current = undefined;

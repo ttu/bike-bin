@@ -5,9 +5,9 @@ import {
   Visibility,
   DistanceUnit,
 } from '@/shared/types';
-import { buildItemFormDataFromState } from '../buildItemFormDataFromState';
+import { buildItemFormDataFromState, type ItemFormDraftInput } from '../buildItemFormDataFromState';
 
-const baseDraft = {
+const baseDraft: ItemFormDraftInput = {
   name: 'Item',
   quantityStr: '1',
   category: ItemCategory.Component,
@@ -65,5 +65,13 @@ describe('buildItemFormDataFromState', () => {
     expect(data.description).toBeUndefined();
     expect(data.storageLocation).toBeUndefined();
     expect(data.age).toBeUndefined();
+  });
+
+  it('normalizes whitespace-only borrowDuration to undefined for borrowable items', () => {
+    const data = buildItemFormDataFromState({
+      ...baseDraft,
+      borrowDuration: '   ',
+    });
+    expect(data.borrowDuration).toBeUndefined();
   });
 });

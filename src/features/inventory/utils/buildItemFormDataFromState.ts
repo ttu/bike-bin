@@ -68,6 +68,7 @@ export function buildItemFormDataFromState(state: ItemFormDraftInput): ItemFormD
 
   const priceParsed = isSellable ? parseFiniteNumberFromInput(state.price) : undefined;
   const depositParsed = isBorrowable ? parseFiniteNumberFromInput(state.deposit) : undefined;
+  const borrowDurationTrimmed = state.borrowDuration.trim();
 
   return {
     name: resolvedName,
@@ -81,7 +82,7 @@ export function buildItemFormDataFromState(state: ItemFormDraftInput): ItemFormD
     availabilityTypes: state.availabilityTypes,
     price: priceParsed,
     deposit: depositParsed,
-    borrowDuration: isBorrowable && state.borrowDuration ? state.borrowDuration : undefined,
+    borrowDuration: isBorrowable && borrowDurationTrimmed ? borrowDurationTrimmed : undefined,
     storageLocation: storageLocationTrimmed || undefined,
     age: ageTrimmed || undefined,
     usageKm: (() => {

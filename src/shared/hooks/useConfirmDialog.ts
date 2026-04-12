@@ -12,6 +12,8 @@ export type ConfirmConfig = {
   cancelLabel?: string;
   destructive?: boolean;
   onConfirm: () => void;
+  /** Invoked when the dialog is dismissed without confirming (cancel, backdrop, etc.). */
+  onCancel?: () => void;
 };
 
 /**
@@ -81,7 +83,11 @@ export function useConfirmDialog(): UseConfirmDialogReturn {
     confirmLabel: confirm?.confirmLabel ?? '',
     cancelLabel: confirm?.cancelLabel,
     destructive: confirm?.destructive,
-    onDismiss: closeConfirm,
+    onDismiss: () => {
+      const onCancel = confirm?.onCancel;
+      closeConfirm();
+      onCancel?.();
+    },
     onConfirm: () => confirm?.onConfirm(),
   };
 

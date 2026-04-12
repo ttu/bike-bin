@@ -64,6 +64,59 @@ describe('useUnsavedChangesExitGuard', () => {
     expect(e2.preventDefault).toHaveBeenCalled();
   });
 
+  it('clears pending removal when the user keeps editing (cancel), allowing a new confirm', () => {
+    const openConfirm = jest.fn();
+    const closeConfirm = jest.fn();
+    let beforeRemove:
+      | ((e: { preventDefault: () => void; data: { action: unknown } }) => void)
+      | undefined;
+
+    mockAddListener.mockImplementation((event: string, handler: typeof beforeRemove) => {
+      if (event === 'beforeRemove') {
+        beforeRemove = handler;
+      }
+      return jest.fn();
+    });
+
+    renderHook(() =>
+      useUnsavedChangesExitGuard({
+        isDirty: true,
+        title: 't',
+        message: 'm',
+        confirmLabel: 'd',
+        cancelLabel: 'k',
+        openConfirm,
+        closeConfirm,
+      }),
+    );
+
+    const e1 = {
+      preventDefault: jest.fn(),
+      data: { action: { type: 'GO_BACK' } },
+    };
+
+    act(() => {
+      beforeRemove?.(e1);
+    });
+    expect(openConfirm).toHaveBeenCalledTimes(1);
+
+    const config = openConfirm.mock.calls[0][0];
+    act(() => {
+      closeConfirm();
+      config.onCancel?.();
+    });
+
+    const e2 = {
+      preventDefault: jest.fn(),
+      data: { action: { type: 'GO_BACK' } },
+    };
+
+    act(() => {
+      beforeRemove?.(e2);
+    });
+    expect(openConfirm).toHaveBeenCalledTimes(2);
+  });
+
   it('skips the guard once after bypassNextNavigation is invoked', () => {
     const openConfirm = jest.fn();
     const closeConfirm = jest.fn();
