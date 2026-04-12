@@ -39,27 +39,56 @@ jest.mock('@/features/demo', () => {
   };
 });
 
+const mockAuthState = {
+  user: undefined as { id: string } | undefined,
+  isAuthenticated: false,
+  session: null as Record<string, unknown> | null,
+  isLoading: true,
+};
+
 jest.mock('@/features/auth', () => ({
-  useAuth: () => ({
-    user: { id: 'u1' },
-    isAuthenticated: true,
-    session: {},
-    isLoading: false,
-  }),
+  useAuth: () => mockAuthState,
 }));
+
+const mockSearchItemsState = {
+  data: undefined as unknown[] | undefined,
+  isLoading: false,
+};
 
 jest.mock('@/features/search', () => {
   const actual = jest.requireActual<typeof import('@/features/search')>('@/features/search');
   return {
     ...actual,
-    useSearchItems: () => ({
-      data: undefined,
-      isLoading: true,
-    }),
+    useSearchItems: () => mockSearchItemsState,
   };
 });
 
-describe('SearchScreen search results loading', () => {
+describe('SearchScreen - auth loading', () => {
+  beforeEach(() => {
+    mockAuthState.user = undefined;
+    mockAuthState.isAuthenticated = false;
+    mockAuthState.session = null;
+    mockAuthState.isLoading = true;
+    mockSearchItemsState.data = undefined;
+    mockSearchItemsState.isLoading = false;
+  });
+
+  it('shows centered loading while auth session is resolving', () => {
+    renderWithProviders(<SearchScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+});
+
+describe('SearchScreen - search results loading', () => {
+  beforeEach(() => {
+    mockAuthState.user = { id: 'u1' };
+    mockAuthState.isAuthenticated = true;
+    mockAuthState.session = {};
+    mockAuthState.isLoading = false;
+    mockSearchItemsState.data = undefined;
+    mockSearchItemsState.isLoading = true;
+  });
+
   it('shows loading in list area while search results are loading after submit', () => {
     renderWithProviders(<SearchScreen />);
     const input = screen.getByPlaceholderText(searchEn.searchPlaceholder);

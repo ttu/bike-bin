@@ -18,6 +18,7 @@ import type { PublicProfile, PublicListing } from '@/features/profile/types';
 import type { RatingWithReviewer } from '@/features/ratings/types';
 import commonEn from '@/i18n/en/common.json';
 import profileEn from '@/i18n/en/profile.json';
+import ratingsEn from '@/i18n/en/ratings.json';
 import PublicUserProfileScreen from '../[userId]';
 
 const mockRouterPush = jest.fn();
@@ -225,7 +226,7 @@ describe('PublicUserProfileScreen', () => {
     mockPublicProfileQuery.data = sampleProfile;
     mockRatingsQuery.isLoading = true;
     renderWithProviders(<PublicUserProfileScreen />);
-    fireEvent.press(screen.getByLabelText('Back'));
+    fireEvent.press(screen.getByLabelText(commonEn.actions.back));
     expect(jest.mocked(tabScopedBack)).toHaveBeenCalledWith('/(tabs)/profile');
   });
 
@@ -237,7 +238,7 @@ describe('PublicUserProfileScreen', () => {
     mockRatingsQuery.data = [];
     mockPublicListingsQuery.data = [];
     renderWithProviders(<PublicUserProfileScreen />);
-    fireEvent.press(screen.getByLabelText('Back'));
+    fireEvent.press(screen.getByLabelText(commonEn.actions.back));
     expect(mockRouterReplace).toHaveBeenCalledWith('/(tabs)/search');
   });
 
@@ -262,7 +263,7 @@ describe('PublicUserProfileScreen', () => {
       },
     });
 
-    fireEvent.press(screen.getByLabelText('Report'));
+    fireEvent.press(screen.getByLabelText(ratingsEn.profile.report));
     await waitFor(() => {
       expect(screen.getByText(profileEn.report.title)).toBeTruthy();
     });
