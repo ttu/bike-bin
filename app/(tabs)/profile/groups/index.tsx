@@ -25,6 +25,7 @@ import {
   fabListScrollPaddingBottom,
 } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useGroups, useCreateGroup, useSearchGroups, useJoinGroup } from '@/features/groups';
 import type { GroupWithRole, SearchGroupResult } from '@/features/groups';
@@ -42,7 +43,7 @@ export default function GroupsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // My groups
-  const { data: groups, isLoading, refetch } = useGroups();
+  const { data: groups, isLoading, isRefetching, refetch } = useGroups();
 
   // Search
   const { data: searchResults, isLoading: isSearching } = useSearchGroups(searchQuery);
@@ -165,6 +166,7 @@ export default function GroupsScreen() {
           </View>
 
           <Button
+            testID="groups-create-save"
             mode="contained"
             onPress={handleCreateSubmit}
             loading={createGroup.isPending}
@@ -192,7 +194,9 @@ export default function GroupsScreen() {
           />
         </Appbar.Header>
 
-        {searchQuery.length >= 2 && !isSearching && (searchResults ?? []).length === 0 ? (
+        {searchQuery.length >= 2 && isSearching ? (
+          <CenteredLoadingIndicator />
+        ) : searchQuery.length >= 2 && !isSearching && (searchResults ?? []).length === 0 ? (
           <EmptyState
             icon="account-group-outline"
             title={t('search.noResults')}
@@ -233,7 +237,9 @@ export default function GroupsScreen() {
         />
       </Appbar.Header>
 
-      {!isLoading && (groups ?? []).length === 0 ? (
+      {isLoading && (groups ?? []).length === 0 ? (
+        <CenteredLoadingIndicator />
+      ) : !isLoading && (groups ?? []).length === 0 ? (
         <EmptyState
           icon="account-group-outline"
           title={t('empty.title')}
@@ -243,10 +249,11 @@ export default function GroupsScreen() {
         />
       ) : (
         <FlatList
+          testID="groups-screen-list"
           data={groups ?? []}
           renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
           contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
         />
       )}

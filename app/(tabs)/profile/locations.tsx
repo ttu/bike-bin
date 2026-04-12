@@ -7,6 +7,7 @@ import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { SavedLocation } from '@/shared/types';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { ConfirmDialog } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import {
@@ -39,7 +40,7 @@ export default function SavedLocationsScreen() {
   const [editingLocation, setEditingLocation] = useState<SavedLocation | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<SavedLocation | null>(null);
 
-  const { data: locations, isLoading, refetch } = useLocations();
+  const { data: locations, isLoading, isRefetching, refetch } = useLocations();
   const createLocation = useCreateLocation();
   const updateLocation = useUpdateLocation();
   const deleteLocation = useDeleteLocation();
@@ -210,7 +211,9 @@ export default function SavedLocationsScreen() {
         <Appbar.Content title={t('title')} />
       </Appbar.Header>
 
-      {!isLoading && (locations ?? []).length === 0 ? (
+      {isLoading && (locations ?? []).length === 0 ? (
+        <CenteredLoadingIndicator />
+      ) : !isLoading && (locations ?? []).length === 0 ? (
         <EmptyState
           icon="map-marker-plus"
           title={t('empty.title')}
@@ -220,10 +223,11 @@ export default function SavedLocationsScreen() {
         />
       ) : (
         <FlatList
+          testID="saved-locations-list"
           data={locations ?? []}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
           contentContainerStyle={listModeDynamicStyles.contentContainer}
           ListFooterComponent={
             <Pressable

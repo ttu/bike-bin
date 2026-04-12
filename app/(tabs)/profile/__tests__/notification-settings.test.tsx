@@ -1,6 +1,9 @@
-import { fireEvent } from '@testing-library/react-native';
+import { Platform } from 'react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import commonEn from '@/i18n/en/common.json';
+import notificationsEn from '@/i18n/en/notifications.json';
 import NotificationSettingsScreen from '../notification-settings';
 
 jest.mock('@/shared/utils/tabScopedBack', () => ({
@@ -9,21 +12,40 @@ jest.mock('@/shared/utils/tabScopedBack', () => ({
 
 const mockUpdatePreferences = jest.fn();
 
+const mockNotifPrefsState = {
+  isLoading: false,
+  preferences: {
+    messages: { push: true, email: false },
+    borrowActivity: { push: true, email: true },
+    reminders: { push: false, email: true },
+  },
+};
+
 jest.mock('@/features/notifications', () => ({
   useNotificationPreferences: () => ({
-    preferences: {
-      messages: { push: true, email: false },
-      borrowActivity: { push: true, email: true },
-      reminders: { push: false, email: true },
-    },
-    isLoading: false,
+    preferences: mockNotifPrefsState.preferences,
+    isLoading: mockNotifPrefsState.isLoading,
     updatePreferences: mockUpdatePreferences,
   }),
 }));
 
 describe('NotificationSettingsScreen', () => {
+  const originalOs = Platform.OS;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockNotifPrefsState.isLoading = false;
+    Platform.OS = 'ios';
+  });
+
+  afterEach(() => {
+    Platform.OS = originalOs;
+  });
+
+  it('shows loading indicator while preferences load', () => {
+    mockNotifPrefsState.isLoading = true;
+    renderWithProviders(<NotificationSettingsScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
   });
 
   it('calls tabScopedBack when back is pressed', () => {
@@ -48,5 +70,11 @@ describe('NotificationSettingsScreen', () => {
         messages: expect.objectContaining({ push: false, email: false }) as Record<string, unknown>,
       }),
     );
+  });
+
+  it('on web, shows push unavailable note', () => {
+    Platform.OS = 'web';
+    renderWithProviders(<NotificationSettingsScreen />);
+    expect(screen.getByText(notificationsEn.settings.pushNotAvailable)).toBeTruthy();
   });
 });

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { spacing } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { ConfirmDialog } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
@@ -35,7 +36,7 @@ export default function BorrowRequestsScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('incoming');
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
-  const { data: allRequests, isLoading, refetch } = useBorrowRequests();
+  const { data: allRequests, isLoading, isRefetching, refetch } = useBorrowRequests();
   const acceptRequest = useAcceptBorrowRequest();
   const declineRequest = useDeclineBorrowRequest();
   const cancelRequest = useCancelBorrowRequest();
@@ -290,7 +291,9 @@ export default function BorrowRequestsScreen() {
       </View>
 
       {/* Content */}
-      {!isLoading && currentList.length === 0 ? (
+      {isLoading && currentList.length === 0 ? (
+        <CenteredLoadingIndicator />
+      ) : !isLoading && currentList.length === 0 ? (
         <EmptyState
           icon={emptyConfig[activeTab].icon}
           title={emptyConfig[activeTab].title}
@@ -302,7 +305,7 @@ export default function BorrowRequestsScreen() {
           data={currentList}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
           contentContainerStyle={styles.list}
         />
       )}

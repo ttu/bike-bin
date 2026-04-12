@@ -8,6 +8,7 @@ import type { Bike } from '@/shared/types';
 import { useBikes, useBikeRowCapacity } from '@/features/bikes';
 import { BikeCard } from '@/features/bikes/components/BikeCard/BikeCard';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
+import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { spacing } from '@/shared/theme';
 
 export default function BikesScreen() {
@@ -48,7 +49,9 @@ export default function BikesScreen() {
         </Text>
       </View>
 
-      {!isLoading && bikes.length === 0 ? (
+      {isLoading && bikes.length === 0 ? (
+        <CenteredLoadingIndicator />
+      ) : !isLoading && bikes.length === 0 ? (
         <EmptyState
           icon="bicycle"
           title={t('noBikes')}

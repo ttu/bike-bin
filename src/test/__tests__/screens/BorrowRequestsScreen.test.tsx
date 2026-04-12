@@ -47,6 +47,11 @@ jest.mock('@/features/auth', () => ({
 const mockRefetch = jest.fn();
 let mockRequests: BorrowRequestWithDetails[] = [];
 
+const mockBorrowHookState = {
+  isLoading: false,
+  isRefetching: false,
+};
+
 const mutationWithSuccess = () =>
   jest.fn((_vars: unknown, opts?: { onSuccess?: () => void; onError?: () => void }) => {
     opts?.onSuccess?.();
@@ -61,7 +66,8 @@ jest.mock('@/features/borrow', () => ({
   ...jest.requireActual<typeof import('@/features/borrow')>('@/features/borrow'),
   useBorrowRequests: () => ({
     data: mockRequests,
-    isLoading: false,
+    isLoading: mockBorrowHookState.isLoading,
+    isRefetching: mockBorrowHookState.isRefetching,
     refetch: mockRefetch,
   }),
   useAcceptBorrowRequest: () => ({ mutate: mockAcceptMutate, isPending: false }),
@@ -94,7 +100,28 @@ function createRequest(overrides?: Partial<BorrowRequestWithDetails>): BorrowReq
 describe('BorrowRequestsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockBorrowHookState.isLoading = false;
+    mockBorrowHookState.isRefetching = false;
     mockRequests = [createRequest()];
+  });
+
+  it('shows loading indicator when requests are loading and list is empty', () => {
+    mockBorrowHookState.isLoading = true;
+    mockRequests = [];
+    renderWithProviders(<BorrowRequestsScreen />);
+    expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('sets RefreshControl refreshing when refetching and list is non-empty', () => {
+    mockBorrowHookState.isLoading = false;
+    mockBorrowHookState.isRefetching = true;
+    mockRequests = [createRequest()];
+    renderWithProviders(<BorrowRequestsScreen />);
+    const list = screen.getByTestId('borrow-requests-list');
+    const refreshControl = list.props.refreshControl as {
+      props: { refreshing?: boolean; onRefresh?: () => void };
+    };
+    expect(refreshControl.props.refreshing).toBe(true);
   });
 
   it('renders title and tab labels', () => {
