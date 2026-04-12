@@ -3,9 +3,9 @@ import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
-import type { Item, ItemPhoto, GroupId } from '@/shared/types';
+import type { Item, ItemPhoto } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
-import { useGroup } from '@/features/groups/hooks/useGroups';
+import { useGroup } from '@/features/groups';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor } from '../../utils/status';
@@ -51,7 +51,7 @@ export function ItemDetail({
   const { width: windowWidth } = useWindowDimensions();
   const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
   const { distanceUnit } = useDistanceUnit();
-  const { data: ownerGroup } = useGroup(item.groupId as GroupId);
+  const { data: ownerGroup } = useGroup(item.groupId);
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =

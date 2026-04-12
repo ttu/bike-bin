@@ -35,6 +35,11 @@ BEGIN
     END IF;
   END IF;
 
+  -- Group -> Group transfers are not supported; must go via personal first
+  IF v_item.group_id IS NOT NULL AND p_to_group_id IS NOT NULL THEN
+    RAISE EXCEPTION 'transfer_item_ownership: direct group-to-group transfers are not allowed';
+  END IF;
+
   -- Personal -> Group: caller must be admin of target group
   IF p_to_group_id IS NOT NULL THEN
     IF NOT public.is_group_admin(p_to_group_id, v_caller) THEN
@@ -57,6 +62,9 @@ BEGIN
     RAISE EXCEPTION 'transfer_item_ownership: cannot transfer item with active borrows';
   END IF;
 
+  -- Set sentinel so the ownership-guard trigger allows the change
+  PERFORM set_config('app.item_transfer_in_progress', 'true', true);
+
   UPDATE items SET
     owner_id = p_to_owner_id,
     group_id = p_to_group_id,
@@ -64,6 +72,8 @@ BEGIN
     visibility = 'private',
     updated_at = now()
   WHERE id = p_item_id;
+
+  PERFORM set_config('app.item_transfer_in_progress', 'false', true);
 
   DELETE FROM item_groups WHERE item_id = p_item_id;
 
@@ -75,3 +85,28 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.transfer_item_ownership(uuid, uuid, uuid) TO authenticated;
+
+-- ============================================================
+-- Guard trigger: prevent direct UPDATE of owner_id / group_id
+-- ============================================================
+-- Only the transfer_item_ownership RPC (which sets a session sentinel)
+-- may change these columns. Direct client UPDATEs are rejected.
+
+CREATE OR REPLACE FUNCTION public.guard_item_ownership_columns()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF (OLD.owner_id IS DISTINCT FROM NEW.owner_id OR OLD.group_id IS DISTINCT FROM NEW.group_id) THEN
+    IF current_setting('app.item_transfer_in_progress', true) IS DISTINCT FROM 'true' THEN
+      RAISE EXCEPTION 'direct updates to owner_id / group_id are not allowed; use transfer_item_ownership()';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_guard_item_ownership
+  BEFORE UPDATE ON items
+  FOR EACH ROW
+  EXECUTE FUNCTION public.guard_item_ownership_columns();

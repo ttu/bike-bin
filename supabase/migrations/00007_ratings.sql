@@ -148,9 +148,13 @@ BEGIN
     IF OLD.to_user_id IS DISTINCT FROM NEW.to_user_id THEN
       PERFORM public.recalc_user_rating_aggregate(OLD.to_user_id);
       PERFORM public.recalc_user_rating_aggregate(NEW.to_user_id);
+    ELSIF OLD.score IS DISTINCT FROM NEW.score THEN
+      PERFORM public.recalc_user_rating_aggregate(NEW.to_user_id);
     END IF;
     IF OLD.to_group_id IS DISTINCT FROM NEW.to_group_id THEN
       PERFORM public.recalc_group_rating_aggregate(OLD.to_group_id);
+      PERFORM public.recalc_group_rating_aggregate(NEW.to_group_id);
+    ELSIF OLD.score IS DISTINCT FROM NEW.score THEN
       PERFORM public.recalc_group_rating_aggregate(NEW.to_group_id);
     END IF;
     RETURN NEW;

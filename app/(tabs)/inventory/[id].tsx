@@ -20,6 +20,7 @@ import { RemoveFromInventoryDialog } from '@/features/inventory/components/Remov
 import { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
 import { canTransferItem } from '@/features/inventory/utils/itemPermissions';
 import { useAuth } from '@/features/auth';
+import { useGroups } from '@/features/groups';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
@@ -66,16 +67,20 @@ export default function ItemDetailScreen() {
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
   const { user } = useAuth();
+  const { data: userGroups } = useGroups();
   const transferItem = useTransferItem();
 
   if (isLoading || !item) {
     return <LoadingScreen />;
   }
 
+  const groupRole = item.groupId
+    ? userGroups?.find((g) => g.id === item.groupId)?.memberRole
+    : undefined;
   const showTransferToGroup =
     canTransferItem(item, user?.id ?? '', undefined) && item.groupId === undefined;
   const showTransferToMe =
-    canTransferItem(item, user?.id ?? '', undefined) && item.groupId !== undefined;
+    canTransferItem(item, user?.id ?? '', groupRole) && item.groupId !== undefined;
 
   const handleTransferToMe = () => {
     openConfirm({

@@ -180,8 +180,9 @@ SECURITY DEFINER
 SET search_path TO public
 AS $$
 BEGIN
-  -- Promoted to admin: add to all group item conversations
-  IF TG_OP = 'UPDATE' AND NEW.role = 'admin' AND OLD.role = 'member' THEN
+  -- New admin (INSERT) or promoted to admin (UPDATE): add to all group item conversations
+  IF (TG_OP = 'INSERT' AND NEW.role = 'admin')
+     OR (TG_OP = 'UPDATE' AND NEW.role = 'admin' AND OLD.role = 'member') THEN
     INSERT INTO conversation_participants (conversation_id, user_id)
     SELECT c.id, NEW.user_id
     FROM conversations c
@@ -215,7 +216,7 @@ END;
 $$;
 
 CREATE TRIGGER trg_sync_group_conversation_participants
-  AFTER UPDATE OR DELETE ON group_members
+  AFTER INSERT OR UPDATE OR DELETE ON group_members
   FOR EACH ROW EXECUTE FUNCTION public.sync_group_conversation_participants();
 
 

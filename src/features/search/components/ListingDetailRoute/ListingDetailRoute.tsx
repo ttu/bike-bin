@@ -84,6 +84,7 @@ export function ListingDetailRoute({
   };
 
   const handleOwnerPress = () => {
+    if (!item.ownerId) return;
     router.push({
       pathname: '/(tabs)/profile/[userId]',
       params: {
@@ -171,7 +172,7 @@ export function ListingDetailRoute({
         photos={photos}
         onContact={isOwnItem ? undefined : handleContact}
         onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
-        onOwnerPress={handleOwnerPress}
+        onOwnerPress={item.ownerId ? handleOwnerPress : undefined}
         onPhotoLongPress={isOwnItem || !user ? undefined : handlePhotoLongPress}
       />
 

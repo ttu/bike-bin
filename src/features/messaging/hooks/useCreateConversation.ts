@@ -57,15 +57,33 @@ export function useCreateConversation() {
         .eq('item_id', itemId);
 
       if (existing) {
+        // For group items, fetch the current admin roster so we can verify
+        // the conversation's participants match the group (not a stale set
+        // from a prior ownership).
+        let groupAdminIds: string[] | undefined;
+        if (groupId !== undefined) {
+          const { data: admins } = await supabase
+            .from('group_members')
+            .select('user_id')
+            .eq('group_id', groupId)
+            .eq('role', 'admin');
+          groupAdminIds = (admins ?? []).map((a) => a.user_id as string);
+        }
+
         for (const conv of existing) {
           const participants = conv.conversation_participants as { user_id: string }[] | undefined;
           const participantIds = participants?.map((p) => p.user_id) ?? [];
           if (!participantIds.includes(user.id)) continue;
-          if (groupId !== undefined) {
-            return {
-              conversationId: conv.id as ConversationId,
-              isExisting: true,
-            };
+          if (groupId !== undefined && groupAdminIds) {
+            // Reuse only if at least one current group admin is a participant
+            const hasGroupAdmin = groupAdminIds.some((id) => participantIds.includes(id));
+            if (hasGroupAdmin) {
+              return {
+                conversationId: conv.id as ConversationId,
+                isExisting: true,
+              };
+            }
+            continue;
           }
           if (otherUserId !== undefined && participantIds.includes(otherUserId)) {
             return {

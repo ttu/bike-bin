@@ -390,8 +390,8 @@ export type Database = {
           id: string;
           is_public: boolean;
           name: string;
-          rating_avg: number | null;
-          rating_count: number | null;
+          rating_avg: number;
+          rating_count: number;
         };
         Insert: {
           created_at?: string;
@@ -399,8 +399,8 @@ export type Database = {
           id?: string;
           is_public?: boolean;
           name: string;
-          rating_avg?: number | null;
-          rating_count?: number | null;
+          rating_avg?: number;
+          rating_count?: number;
         };
         Update: {
           created_at?: string;
@@ -408,8 +408,8 @@ export type Database = {
           id?: string;
           is_public?: boolean;
           name?: string;
-          rating_avg?: number | null;
-          rating_count?: number | null;
+          rating_avg?: number;
+          rating_count?: number;
         };
         Relationships: [];
       };
@@ -1116,8 +1116,8 @@ export type Database = {
           deposit: number;
           description: string;
           distance_meters: number;
-          group_id: string;
-          group_name: string;
+          group_id: string | null;
+          group_name: string | null;
           group_rating_avg: number;
           group_rating_count: number;
           id: string;

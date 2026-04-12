@@ -78,7 +78,7 @@ describe('itemPermissions', () => {
     it('group admin cannot borrow group item', () => {
       expect(canBorrowItem(groupItem('g1'), 'u1', GroupRole.Admin)).toBe(false);
     });
-    it('non-member cannot borrow (no group role) group item', () => {
+    it('non-member can borrow public group item', () => {
       expect(canBorrowItem(groupItem('g1'), 'u1', undefined)).toBe(true);
     });
   });
