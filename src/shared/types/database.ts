@@ -151,9 +151,11 @@ export type Database = {
         Row: {
           acted_by: string | null;
           created_at: string;
+          group_id: string | null;
           id: string;
           item_id: string;
           message: string | null;
+          owner_id: string | null;
           requester_id: string;
           status: Database['public']['Enums']['borrow_request_status'];
           updated_at: string;
@@ -161,9 +163,11 @@ export type Database = {
         Insert: {
           acted_by?: string | null;
           created_at?: string;
+          group_id?: string | null;
           id?: string;
           item_id: string;
           message?: string | null;
+          owner_id?: string | null;
           requester_id: string;
           status?: Database['public']['Enums']['borrow_request_status'];
           updated_at?: string;
@@ -171,9 +175,11 @@ export type Database = {
         Update: {
           acted_by?: string | null;
           created_at?: string;
+          group_id?: string | null;
           id?: string;
           item_id?: string;
           message?: string | null;
+          owner_id?: string | null;
           requester_id?: string;
           status?: Database['public']['Enums']['borrow_request_status'];
           updated_at?: string;

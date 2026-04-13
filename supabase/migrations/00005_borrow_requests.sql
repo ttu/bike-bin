@@ -12,11 +12,17 @@ CREATE TABLE borrow_requests (
   status borrow_request_status NOT NULL DEFAULT 'pending',
   message text,
   acted_by uuid REFERENCES profiles(id) ON DELETE SET NULL,
+  owner_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
+  group_id uuid REFERENCES groups(id) ON DELETE SET NULL,
   created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL
+  updated_at timestamptz DEFAULT now() NOT NULL,
+  CONSTRAINT borrow_requests_exclusive_owner
+    CHECK (num_nonnulls(owner_id, group_id) = 1)
 );
 
 COMMENT ON COLUMN borrow_requests.acted_by IS 'For group-owned items: the admin who last transitioned status (auto-set by trigger). NULL for personal items.';
+COMMENT ON COLUMN borrow_requests.owner_id IS 'Snapshot of items.owner_id at borrow request creation time. Immutable after insert.';
+COMMENT ON COLUMN borrow_requests.group_id IS 'Snapshot of items.group_id at borrow request creation time. Immutable after insert.';
 
 CREATE INDEX idx_borrow_requests_item ON borrow_requests(item_id);
 CREATE INDEX idx_borrow_requests_requester ON borrow_requests(requester_id);
@@ -78,6 +84,30 @@ CREATE POLICY "borrow_requests_update"
   );
 
 -- ============================================================
+-- Trigger: snapshot item ownership at borrow request creation
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION borrow_requests_snapshot_owner()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
+DECLARE
+  v_item items%ROWTYPE;
+BEGIN
+  SELECT * INTO v_item FROM items WHERE id = NEW.item_id;
+  NEW.owner_id := v_item.owner_id;
+  NEW.group_id := v_item.group_id;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_borrow_requests_snapshot_owner
+  BEFORE INSERT ON borrow_requests
+  FOR EACH ROW
+  EXECUTE FUNCTION borrow_requests_snapshot_owner();
+
+-- ============================================================
 -- Trigger: borrow request status transition rules
 -- ============================================================
 
@@ -93,6 +123,11 @@ BEGIN
   IF OLD.item_id IS DISTINCT FROM NEW.item_id
      OR OLD.requester_id IS DISTINCT FROM NEW.requester_id THEN
     RAISE EXCEPTION 'borrow_requests: cannot change item_id or requester_id';
+  END IF;
+
+  IF OLD.owner_id IS DISTINCT FROM NEW.owner_id
+     OR OLD.group_id IS DISTINCT FROM NEW.group_id THEN
+    RAISE EXCEPTION 'borrow_requests: cannot change ownership snapshot (owner_id, group_id)';
   END IF;
 
   IF OLD.status IN ('rejected', 'returned', 'cancelled') AND OLD.status IS DISTINCT FROM NEW.status THEN

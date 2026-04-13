@@ -18,7 +18,7 @@ import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetai
 import { TransferItemDialog } from '@/features/inventory/components/TransferItemDialog/TransferItemDialog';
 import { RemoveFromInventoryDialog } from '@/features/inventory/components/RemoveFromInventoryDialog/RemoveFromInventoryDialog';
 import { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
-import { canTransferItem } from '@/features/inventory/utils/itemPermissions';
+import { canEditItem, canTransferItem } from '@/features/inventory/utils/itemPermissions';
 import { useAuth } from '@/features/auth';
 import { useGroups } from '@/features/groups';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
@@ -77,6 +77,7 @@ export default function ItemDetailScreen() {
   const groupRole = item.groupId
     ? userGroups?.find((g) => g.id === item.groupId)?.memberRole
     : undefined;
+  const canEdit = canEditItem(item, user?.id ?? '', groupRole);
   const showTransferToGroup =
     canTransferItem(item, user?.id ?? '', undefined) && item.groupId === undefined;
   const showTransferToMe =
@@ -340,10 +341,12 @@ export default function ItemDetailScreen() {
             accessibilityLabel={tInv('transfer.toPersonal')}
           />
         )}
-        <Appbar.Action
-          icon="pencil"
-          onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}`)}
-        />
+        {canEdit && (
+          <Appbar.Action
+            icon="pencil"
+            onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}`)}
+          />
+        )}
       </Appbar.Header>
       <ItemDetail
         item={item}
@@ -380,6 +383,7 @@ export default function ItemDetailScreen() {
           item={item}
           visible={transferDialogOpen}
           onDismiss={() => setTransferDialogOpen(false)}
+          transferItem={transferItem}
         />
       )}
       <ConfirmDialog

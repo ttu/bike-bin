@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Item, GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 import { useGroups } from '@/features/groups/hooks/useGroups';
-import { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
+import type { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
@@ -14,14 +14,19 @@ export interface TransferItemDialogProps {
   item: Item;
   visible: boolean;
   onDismiss: () => void;
+  transferItem: ReturnType<typeof useTransferItem>;
 }
 
-export function TransferItemDialog({ item, visible, onDismiss }: TransferItemDialogProps) {
+export function TransferItemDialog({
+  item,
+  visible,
+  onDismiss,
+  transferItem,
+}: TransferItemDialogProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const { t: tCommon } = useTranslation('common');
   const { data: groups } = useGroups();
-  const transferItem = useTransferItem();
   const [selectedGroupId, setSelectedGroupId] = useState<GroupId | undefined>(undefined);
 
   const adminGroups = useMemo(

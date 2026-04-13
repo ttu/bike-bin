@@ -152,6 +152,49 @@ describe('ListingDetailScreen', () => {
     expect(getByText('Test Bike Part')).toBeTruthy();
   });
 
+  it('maps group fields from listing queryFn response', async () => {
+    const mockSupabase = jest.requireMock('@/shared/api/supabase');
+    mockSupabase.supabase.rpc = () => ({
+      single: () =>
+        Promise.resolve({
+          data: {
+            id: 'item-1',
+            owner_id: null,
+            name: 'Group Part',
+            category: 'Component',
+            condition: 'Good',
+            availability_types: ['borrowable'],
+            visibility: 'all',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+            group_id: 'group-1',
+            group_name: 'Bike Club',
+            group_rating_avg: 4.2,
+            group_rating_count: 5,
+          },
+          error: null,
+        }),
+    });
+
+    renderWithProviders(<ListingDetailScreen />);
+
+    const listingQueryFn = mockQueryCallbacks['listing'];
+    expect(listingQueryFn).toBeDefined();
+
+    const result = (await listingQueryFn()) as {
+      groupId?: string;
+      groupName?: string;
+      groupRatingAvg?: number;
+      groupRatingCount?: number;
+      ownerId?: string;
+    };
+    expect(result.groupId).toBe('group-1');
+    expect(result.groupName).toBe('Bike Club');
+    expect(result.groupRatingAvg).toBe(4.2);
+    expect(result.groupRatingCount).toBe(5);
+    expect(result.ownerId).toBeUndefined();
+  });
+
   it('maps snake_case photo rows to camelCase via mapItemPhotoRow in queryFn', async () => {
     // Set up supabase mock to return snake_case data (as Supabase actually returns)
     const mockSupabase = jest.requireMock('@/shared/api/supabase');
@@ -255,6 +298,36 @@ describe('ListingDetailScreen', () => {
     expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'success' }),
     );
+  });
+
+  it('passes groupId to createConversation for group-owned items', () => {
+    const reactQuery = jest.requireMock('@tanstack/react-query');
+    const originalUseQuery = reactQuery.useQuery;
+    reactQuery.useQuery = (opts: { queryKey: string[]; queryFn: () => Promise<unknown> }) => {
+      if (opts.queryKey[0] === 'listing') {
+        return {
+          data: {
+            ...mockItem,
+            ownerId: undefined,
+            groupId: 'group-1',
+            groupName: 'Bike Club',
+            availabilityTypes: ['donatable'],
+          },
+          isLoading: false,
+        };
+      }
+      return originalUseQuery(opts);
+    };
+
+    const { getByText } = renderWithProviders(<ListingDetailScreen />);
+    fireEvent.press(getByText('Contact'));
+
+    expect(mockCreateConversation).toHaveBeenCalledWith(
+      { itemId: 'item-1', groupId: 'group-1' },
+      expect.any(Object),
+    );
+
+    reactQuery.useQuery = originalUseQuery;
   });
 
   it('shows error snackbar when photo report fails', () => {

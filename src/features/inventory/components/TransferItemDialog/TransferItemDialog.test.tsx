@@ -15,11 +15,11 @@ jest.mock('@/features/groups/hooks/useGroups', () => ({
   useGroups: (...args: unknown[]) => mockUseGroups(...args),
 }));
 
-jest.mock('@/features/inventory/hooks/useTransferItem', () => ({
-  useTransferItem: () => ({ mutate: mockMutate, isPending: false }),
-}));
-
 import { TransferItemDialog } from '../TransferItemDialog';
+
+const mockTransferItem = { mutate: mockMutate, isPending: false } as unknown as ReturnType<
+  typeof import('@/features/inventory/hooks/useTransferItem').useTransferItem
+>;
 
 const GROUP_ID = 'group-1' as GroupId;
 
@@ -44,7 +44,12 @@ beforeEach(() => {
 describe('TransferItemDialog', () => {
   it('shows groups where user is admin', () => {
     const { getByText } = renderWithProviders(
-      <TransferItemDialog item={makeItem()} visible onDismiss={jest.fn()} />,
+      <TransferItemDialog
+        item={makeItem()}
+        visible
+        onDismiss={jest.fn()}
+        transferItem={mockTransferItem}
+      />,
     );
     expect(getByText('Cycling Club')).toBeTruthy();
   });
@@ -52,7 +57,12 @@ describe('TransferItemDialog', () => {
   it('calls useTransferItem.mutate with toGroupId on confirm', () => {
     const onDismiss = jest.fn();
     const { getByText } = renderWithProviders(
-      <TransferItemDialog item={makeItem()} visible onDismiss={onDismiss} />,
+      <TransferItemDialog
+        item={makeItem()}
+        visible
+        onDismiss={onDismiss}
+        transferItem={mockTransferItem}
+      />,
     );
 
     fireEvent.press(getByText('Cycling Club'));
@@ -77,14 +87,24 @@ describe('TransferItemDialog', () => {
     });
 
     const { queryByText } = renderWithProviders(
-      <TransferItemDialog item={makeItem()} visible onDismiss={jest.fn()} />,
+      <TransferItemDialog
+        item={makeItem()}
+        visible
+        onDismiss={jest.fn()}
+        transferItem={mockTransferItem}
+      />,
     );
     expect(queryByText('Cycling Club')).toBeNull();
   });
 
   it('does not render when not visible', () => {
     const { queryByText } = renderWithProviders(
-      <TransferItemDialog item={makeItem()} visible={false} onDismiss={jest.fn()} />,
+      <TransferItemDialog
+        item={makeItem()}
+        visible={false}
+        onDismiss={jest.fn()}
+        transferItem={mockTransferItem}
+      />,
     );
     expect(queryByText('Transfer to group')).toBeNull();
   });

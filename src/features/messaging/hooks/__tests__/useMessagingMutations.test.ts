@@ -94,6 +94,54 @@ describe('useCreateConversation', () => {
     });
   });
 
+  it('reuses existing conversation when group admin is a participant', async () => {
+    (mockSupabase.from as jest.Mock).mockImplementation((table: string) => {
+      if (table === 'conversations') {
+        return {
+          select: () => ({
+            eq: () =>
+              Promise.resolve({
+                data: [
+                  {
+                    id: 'conv-existing-group',
+                    conversation_participants: [{ user_id: 'user-123' }, { user_id: 'admin-1' }],
+                  },
+                ],
+              }),
+          }),
+        };
+      }
+      if (table === 'group_members') {
+        return {
+          select: () => ({
+            eq: () => ({
+              eq: () =>
+                Promise.resolve({
+                  data: [{ user_id: 'admin-1' }, { user_id: 'admin-2' }],
+                  error: null,
+                }),
+            }),
+          }),
+        };
+      }
+      return { select: mockSelect, insert: mockInsert };
+    });
+
+    const { result } = renderHook(() => useCreateConversation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({ itemId: 'item-1' as never, groupId: 'group-1' as never });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual({
+      conversationId: 'conv-existing-group',
+      isExisting: true,
+    });
+    // Should NOT have created a new conversation
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
   it('creates conversation with all group admins for group items', async () => {
     // Override from() to return table-specific mocks
     (mockSupabase.from as jest.Mock).mockImplementation((table: string) => {

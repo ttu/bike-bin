@@ -44,11 +44,10 @@ CREATE POLICY "ratings_insert_verified"
         AND from_user_id != to_user_id
         AND EXISTS (
           SELECT 1 FROM borrow_requests br
-          JOIN items ON items.id = br.item_id
           WHERE br.status = 'returned'
             AND (
-              (br.requester_id = from_user_id AND items.owner_id = to_user_id)
-              OR (items.owner_id = from_user_id AND br.requester_id = to_user_id)
+              (br.requester_id = from_user_id AND br.owner_id = to_user_id)
+              OR (br.owner_id = from_user_id AND br.requester_id = to_user_id)
             )
             AND (ratings.item_id IS NULL OR br.item_id = ratings.item_id)
         )
@@ -58,10 +57,9 @@ CREATE POLICY "ratings_insert_verified"
         to_group_id IS NOT NULL
         AND EXISTS (
           SELECT 1 FROM borrow_requests br
-          JOIN items ON items.id = br.item_id
           WHERE br.status = 'returned'
             AND br.requester_id = from_user_id
-            AND items.group_id = to_group_id
+            AND br.group_id = to_group_id
             AND (ratings.item_id IS NULL OR br.item_id = ratings.item_id)
         )
       )
@@ -79,6 +77,8 @@ CREATE POLICY "ratings_update_own"
     AND to_user_id IS NOT DISTINCT FROM (SELECT r.to_user_id FROM ratings r WHERE r.id = ratings.id)
     AND to_group_id IS NOT DISTINCT FROM (SELECT r.to_group_id FROM ratings r WHERE r.id = ratings.id)
     AND item_id IS NOT DISTINCT FROM (SELECT r.item_id FROM ratings r WHERE r.id = ratings.id)
+    AND editable_until IS NOT DISTINCT FROM (SELECT r.editable_until FROM ratings r WHERE r.id = ratings.id)
+    AND transaction_type IS NOT DISTINCT FROM (SELECT r.transaction_type FROM ratings r WHERE r.id = ratings.id)
   );
 
 CREATE POLICY "ratings_delete_own"
