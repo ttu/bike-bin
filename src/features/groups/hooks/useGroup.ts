@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { Group } from '@/shared/types';
 import type { GroupId } from '@/shared/types';
+import { mapGroupRow } from '../utils/mapGroupRow';
 
 /**
  * Fetch a single group by ID.
@@ -13,7 +13,7 @@ export function useGroup(id: GroupId | undefined) {
       const { data, error } = await supabase.from('groups').select('*').eq('id', id!).single();
 
       if (error) throw error;
-      return data as Group;
+      return mapGroupRow(data);
     },
     enabled: !!id,
   });

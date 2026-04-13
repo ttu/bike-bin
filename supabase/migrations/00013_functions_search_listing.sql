@@ -96,7 +96,12 @@ BEGIN
     AND (
       i.visibility = 'all'
       OR (i.owner_id IS NOT NULL AND i.owner_id = (select auth.uid()))
-      OR (i.group_id IS NOT NULL AND public.is_group_member(i.group_id, (select auth.uid())))
+      OR (i.group_id IS NOT NULL AND public.is_group_admin(i.group_id, (select auth.uid())))
+      OR (
+        i.group_id IS NOT NULL
+        AND i.visibility = 'groups'
+        AND public.is_group_member(i.group_id, (select auth.uid()))
+      )
       OR (
         i.owner_id IS NOT NULL
         AND i.visibility = 'groups'

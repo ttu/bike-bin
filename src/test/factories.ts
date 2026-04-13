@@ -62,6 +62,11 @@ export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
 
 /** Creates a snake_case DB row matching what Supabase returns for items. */
 export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
+  const normalized: Partial<ItemRow> = { ...overrides };
+  if (normalized.group_id != null && normalized.owner_id === undefined) {
+    normalized.owner_id = null;
+  }
+
   return {
     id: faker.string.uuid(),
     owner_id: faker.string.uuid(),
@@ -100,11 +105,16 @@ export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
     tags: [],
     created_at: faker.date.past().toISOString(),
     updated_at: faker.date.recent().toISOString(),
-    ...overrides,
+    ...normalized,
   };
 }
 
 export function createMockItem(overrides?: Partial<Item>): Item {
+  const normalized: Partial<Item> = { ...overrides };
+  if (normalized.groupId !== undefined && normalized.ownerId === undefined) {
+    normalized.ownerId = undefined;
+  }
+
   return {
     id: faker.string.uuid() as ItemId,
     ownerId: faker.string.uuid() as UserId,
@@ -137,7 +147,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     updatedAt: faker.date.recent().toISOString(),
     tags: [],
     thumbnailStoragePath: undefined,
-    ...overrides,
+    ...normalized,
   } as Item;
 }
 
@@ -233,13 +243,17 @@ export function createMockRating(overrides?: Partial<Rating>): Rating {
 }
 
 export function createMockGroup(overrides?: Partial<Group>): Group {
+  const ratingCount = faker.number.int({ min: 0, max: 100 });
   return {
     id: faker.string.uuid() as GroupId,
     name: faker.company.name(),
     description: faker.helpers.maybe(() => faker.lorem.sentence()),
     isPublic: faker.datatype.boolean(),
-    ratingAvg: parseFloat(faker.number.float({ min: 1, max: 5, fractionDigits: 2 }).toFixed(2)),
-    ratingCount: faker.number.int({ min: 0, max: 100 }),
+    ratingAvg:
+      ratingCount === 0
+        ? 0
+        : Number.parseFloat(faker.number.float({ min: 1, max: 5, fractionDigits: 2 }).toFixed(2)),
+    ratingCount,
     createdAt: faker.date.past().toISOString(),
     ...overrides,
   };
@@ -345,6 +359,11 @@ export function createMockSearchItemsRpcRow(
 export function createMockSearchResultItem(
   overrides?: Partial<SearchResultItem>,
 ): SearchResultItem {
+  const normalized: Partial<SearchResultItem> = { ...overrides };
+  if (normalized.groupId !== undefined && normalized.ownerId === undefined) {
+    normalized.ownerId = undefined;
+  }
+
   return {
     id: 'item-1' as ItemId,
     ownerId: 'owner-1' as UserId,
@@ -374,7 +393,7 @@ export function createMockSearchResultItem(
     groupName: undefined,
     groupRatingAvg: 0,
     groupRatingCount: 0,
-    ...overrides,
+    ...normalized,
   };
 }
 

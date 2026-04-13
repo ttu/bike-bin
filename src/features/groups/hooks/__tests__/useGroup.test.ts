@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { createMockGroup } from '@/test/factories';
 import { mockSelect, mockEq, mockSingle, mockSupabase } from '@/test/supabaseMocks';
 import type { GroupId } from '@/shared/types';
 
@@ -15,23 +14,40 @@ describe('useGroup', () => {
   });
 
   it('fetches a single group by ID', async () => {
-    const group = createMockGroup({ name: 'Road Cyclists', isPublic: true });
+    const groupId = 'g-1' as GroupId;
+    const row = {
+      id: groupId,
+      name: 'Road Cyclists',
+      description: 'A cycling group',
+      is_public: true,
+      rating_avg: 3.47,
+      rating_count: 78,
+      created_at: '2025-07-13T04:08:50.303Z',
+    };
 
     mockSelect.mockReturnValue({
       eq: mockEq.mockReturnValue({
-        single: mockSingle.mockResolvedValue({ data: group, error: null }),
+        single: mockSingle.mockResolvedValue({ data: row, error: null }),
       }),
     });
 
-    const { result } = renderHook(() => useGroup(group.id), {
+    const { result } = renderHook(() => useGroup(groupId), {
       wrapper: createQueryClientHookWrapper(),
     });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(mockSelect).toHaveBeenCalledWith('*');
-    expect(mockEq).toHaveBeenCalledWith('id', group.id);
-    expect(result.current.data).toEqual(group);
+    expect(mockEq).toHaveBeenCalledWith('id', groupId);
+    expect(result.current.data).toEqual({
+      id: groupId,
+      name: 'Road Cyclists',
+      description: 'A cycling group',
+      isPublic: true,
+      ratingAvg: 3.47,
+      ratingCount: 78,
+      createdAt: '2025-07-13T04:08:50.303Z',
+    });
   });
 
   it('throws when supabase returns an error', async () => {

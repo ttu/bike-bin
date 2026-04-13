@@ -83,11 +83,13 @@ export default function ItemDetailScreen() {
     canTransferItem(item, user?.id ?? '', groupRole) && item.groupId !== undefined;
 
   const handleTransferToMe = () => {
+    if (transferItem.isPending) return;
     openConfirm({
       title: tInv('transfer.toPersonal'),
       message: tInv('transfer.toPersonalConfirm'),
       confirmLabel: tInv('transfer.confirm'),
       onConfirm: () => {
+        if (transferItem.isPending) return;
         closeConfirm();
         transferItem.mutate(
           { itemId: item.id, toOwnerId: user!.id as UserId },
@@ -324,6 +326,7 @@ export default function ItemDetailScreen() {
           <Appbar.Action
             icon="swap-horizontal"
             onPress={() => setTransferDialogOpen(true)}
+            disabled={transferItem.isPending}
             accessibilityLabel={tInv('transfer.title')}
           />
         )}
@@ -331,6 +334,7 @@ export default function ItemDetailScreen() {
           <Appbar.Action
             icon="swap-horizontal"
             onPress={handleTransferToMe}
+            disabled={transferItem.isPending}
             accessibilityLabel={tInv('transfer.toPersonal')}
           />
         )}

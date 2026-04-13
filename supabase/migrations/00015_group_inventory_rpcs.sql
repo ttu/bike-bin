@@ -24,6 +24,12 @@ BEGIN
     RAISE EXCEPTION 'transfer_item_ownership: item % not found', p_item_id;
   END IF;
 
+  -- Reject no-op transfers before any cleanup runs
+  IF v_item.owner_id IS NOT DISTINCT FROM p_to_owner_id
+     AND v_item.group_id IS NOT DISTINCT FROM p_to_group_id THEN
+    RAISE EXCEPTION 'transfer_item_ownership: item already has the requested owner';
+  END IF;
+
   -- Authorization: caller must own the item (personal) or be admin of the current group
   IF v_item.owner_id IS NOT NULL THEN
     IF v_item.owner_id != v_caller THEN

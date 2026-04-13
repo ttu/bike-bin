@@ -50,7 +50,7 @@ CREATE POLICY "ratings_insert_verified"
               (br.requester_id = from_user_id AND items.owner_id = to_user_id)
               OR (items.owner_id = from_user_id AND br.requester_id = to_user_id)
             )
-            AND (item_id IS NULL OR br.item_id = item_id)
+            AND (ratings.item_id IS NULL OR br.item_id = ratings.item_id)
         )
       )
       -- User-to-group rating: requester rated the group after returning a group item
@@ -62,7 +62,7 @@ CREATE POLICY "ratings_insert_verified"
           WHERE br.status = 'returned'
             AND br.requester_id = from_user_id
             AND items.group_id = to_group_id
-            AND (item_id IS NULL OR br.item_id = item_id)
+            AND (ratings.item_id IS NULL OR br.item_id = ratings.item_id)
         )
       )
     )
