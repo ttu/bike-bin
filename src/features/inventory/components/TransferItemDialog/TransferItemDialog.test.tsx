@@ -29,7 +29,7 @@ function makeItem(overrides?: Partial<Item>): Item {
     ownerId: 'user-123' as UserId,
     status: ItemStatus.Stored,
     ...overrides,
-  });
+  } as Partial<Item>);
 }
 
 beforeEach(() => {

@@ -108,8 +108,6 @@ export function createMockItem(overrides?: Partial<Item>): Item {
   return {
     id: faker.string.uuid() as ItemId,
     ownerId: faker.string.uuid() as UserId,
-    groupId: undefined,
-    createdBy: undefined,
     bikeId: undefined,
     name: faker.commerce.productName(),
     category: faker.helpers.arrayElement(Object.values(ItemCategory)),
@@ -140,7 +138,7 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     tags: [],
     thumbnailStoragePath: undefined,
     ...overrides,
-  };
+  } as Item;
 }
 
 export function createMockBike(overrides?: Partial<Bike>): Bike {
@@ -223,7 +221,6 @@ export function createMockRating(overrides?: Partial<Rating>): Rating {
     id: faker.string.uuid() as RatingId,
     fromUserId: faker.string.uuid() as UserId,
     toUserId: faker.string.uuid() as UserId,
-    toGroupId: undefined,
     itemId: faker.helpers.maybe(() => faker.string.uuid() as ItemId),
     transactionType: faker.helpers.arrayElement(Object.values(TransactionType)),
     score: faker.number.int({ min: 1, max: 5 }),
@@ -232,7 +229,7 @@ export function createMockRating(overrides?: Partial<Rating>): Rating {
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
-  };
+  } as Rating;
 }
 
 export function createMockGroup(overrides?: Partial<Group>): Group {

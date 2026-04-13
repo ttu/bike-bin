@@ -1,15 +1,19 @@
-import type { Rating } from '@/shared/types';
+import type { Rating, RatingRecipient } from '@/shared/types';
 import type { RatingId, UserId, GroupId, ItemId, RatingRow } from '@/shared/types';
 import type { TransactionType } from '@/shared/types';
 import type { RatingWithReviewer } from '../types';
 
 /** Transforms a Supabase row into the Rating domain model. */
 export function mapRatingRow(row: RatingRow): Rating {
+  const recipient: RatingRecipient =
+    row.to_group_id != null
+      ? { toGroupId: row.to_group_id as GroupId }
+      : { toUserId: row.to_user_id != null ? (row.to_user_id as UserId) : undefined };
+
   return {
+    ...recipient,
     id: row.id as RatingId,
     fromUserId: row.from_user_id != null ? (row.from_user_id as UserId) : undefined,
-    toUserId: row.to_user_id != null ? (row.to_user_id as UserId) : undefined,
-    toGroupId: row.to_group_id != null ? (row.to_group_id as GroupId) : undefined,
     itemId: (row.item_id as ItemId) ?? undefined,
     transactionType: row.transaction_type as TransactionType,
     score: row.score as number,

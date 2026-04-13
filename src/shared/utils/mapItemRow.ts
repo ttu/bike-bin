@@ -1,4 +1,4 @@
-import type { Item, ItemPhoto } from '@/shared/types';
+import type { Item, ItemPhoto, Ownership } from '@/shared/types';
 import type { ItemId, BikeId, UserId, GroupId, LocationId, ItemPhotoId } from '@/shared/types';
 import type { ItemRow, ItemPhotoRow } from '@/shared/types';
 import type {
@@ -17,11 +17,14 @@ export function mapItemRow(row: ItemRow): Item {
   const rawQty = (row.quantity as number | null) ?? Number.NaN;
   const quantity = Number.isNaN(rawQty) ? 1 : Math.max(1, rawQty);
 
+  const ownership: Ownership =
+    row.group_id != null
+      ? { groupId: row.group_id as GroupId, createdBy: row.created_by as UserId }
+      : { ownerId: row.owner_id as UserId };
+
   return {
+    ...ownership,
     id: row.id as ItemId,
-    ownerId: (row.owner_id as UserId | null) ?? undefined,
-    groupId: (row.group_id as GroupId | null) ?? undefined,
-    createdBy: (row.created_by as UserId | null) ?? undefined,
     bikeId: (row.bike_id as BikeId) ?? undefined,
     name: row.name as string,
     category: row.category as ItemCategory,
