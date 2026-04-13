@@ -74,7 +74,12 @@ CREATE POLICY "ratings_update_own"
     (select auth.uid()) = from_user_id
     AND (editable_until IS NULL OR editable_until > now())
   )
-  WITH CHECK ((select auth.uid()) = from_user_id);
+  WITH CHECK (
+    (select auth.uid()) = from_user_id
+    AND to_user_id IS NOT DISTINCT FROM (SELECT r.to_user_id FROM ratings r WHERE r.id = ratings.id)
+    AND to_group_id IS NOT DISTINCT FROM (SELECT r.to_group_id FROM ratings r WHERE r.id = ratings.id)
+    AND item_id IS NOT DISTINCT FROM (SELECT r.item_id FROM ratings r WHERE r.id = ratings.id)
+  );
 
 CREATE POLICY "ratings_delete_own"
   ON ratings FOR DELETE

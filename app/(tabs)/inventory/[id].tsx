@@ -84,6 +84,8 @@ export default function ItemDetailScreen() {
 
   const handleTransferToMe = () => {
     if (transferItem.isPending) return;
+    const stableUserId = user?.id as UserId | undefined;
+    if (!stableUserId) return;
     openConfirm({
       title: tInv('transfer.toPersonal'),
       message: tInv('transfer.toPersonalConfirm'),
@@ -92,7 +94,7 @@ export default function ItemDetailScreen() {
         if (transferItem.isPending) return;
         closeConfirm();
         transferItem.mutate(
-          { itemId: item.id, toOwnerId: user!.id as UserId },
+          { itemId: item.id, toOwnerId: stableUserId },
           {
             onSuccess: () =>
               showSnackbarAlert({ message: tInv('transfer.success'), variant: 'success' }),
