@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import type { Item, GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
-import { useGroups } from '@/features/groups/hooks/useGroups';
+import { useGroups } from '@/features/groups';
 import type { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -54,42 +54,56 @@ export function TransferItemDialog({
         onDismiss={onDismiss}
         style={[styles.dialog, { backgroundColor: theme.colors.surface }]}
       >
-        <Dialog.Title style={{ color: theme.colors.onSurface }}>{t('transfer.title')}</Dialog.Title>
+        <Dialog.Title style={[styles.title, { color: theme.colors.onSurface }]}>
+          {t('transfer.title')}
+        </Dialog.Title>
         <Dialog.Content>
           <Text
             variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant, marginBottom: spacing.md }}
+            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
           >
             {t('transfer.description')}
           </Text>
-          {adminGroups.map((group) => {
-            const selected = selectedGroupId === group.id;
-            return (
-              <Pressable
-                key={group.id}
-                onPress={() => setSelectedGroupId(group.id)}
-                style={[
-                  styles.groupRow,
-                  {
-                    backgroundColor: selected
-                      ? theme.colors.primaryContainer
-                      : theme.customColors.surfaceContainerLow,
-                  },
-                ]}
-                accessibilityRole="radio"
-                accessibilityState={{ selected }}
-              >
-                <MaterialCommunityIcons
-                  name={selected ? 'radiobox-marked' : 'radiobox-blank'}
-                  size={20}
-                  color={selected ? theme.colors.primary : theme.colors.onSurfaceVariant}
-                />
-                <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, flex: 1 }}>
-                  {group.name}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {adminGroups.length === 0 ? (
+            <Text
+              variant="bodyMedium"
+              style={[styles.emptyState, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t('transfer.noAdminGroups')}
+            </Text>
+          ) : (
+            adminGroups.map((group) => {
+              const selected = selectedGroupId === group.id;
+              return (
+                <Pressable
+                  key={group.id}
+                  onPress={() => setSelectedGroupId(group.id)}
+                  style={[
+                    styles.groupRow,
+                    {
+                      backgroundColor: selected
+                        ? theme.colors.primaryContainer
+                        : theme.customColors.surfaceContainerLow,
+                    },
+                  ]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                >
+                  <MaterialCommunityIcons
+                    name={selected ? 'radiobox-marked' : 'radiobox-blank'}
+                    size={20}
+                    color={selected ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                  />
+                  <Text
+                    variant="bodyLarge"
+                    style={[styles.groupName, { color: theme.colors.onSurface }]}
+                  >
+                    {group.name}
+                  </Text>
+                </Pressable>
+              );
+            })
+          )}
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={onDismiss}>{tCommon('actions.cancel')}</Button>
@@ -113,6 +127,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
   },
+  title: {
+    fontWeight: '600',
+  },
+  description: {
+    marginBottom: spacing.md,
+  },
+  emptyState: {
+    marginVertical: spacing.md,
+    textAlign: 'center',
+  },
   groupRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -120,5 +144,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.xs,
+  },
+  groupName: {
+    flex: 1,
   },
 });

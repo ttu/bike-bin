@@ -10,18 +10,46 @@ CREATE TYPE transaction_type AS ENUM ('borrow', 'donate', 'sell');
 CREATE TABLE ratings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   from_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
-  to_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
-  to_group_id uuid REFERENCES groups(id) ON DELETE CASCADE,
+  to_user_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
+  to_group_id uuid REFERENCES groups(id) ON DELETE SET NULL,
   item_id uuid REFERENCES items(id) ON DELETE SET NULL,
   transaction_type transaction_type NOT NULL,
   score integer NOT NULL CHECK (score >= 1 AND score <= 5),
   text text,
   editable_until timestamptz,
   created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL,
-  CONSTRAINT ratings_exclusive_target
-    CHECK (num_nonnulls(to_user_id, to_group_id) = 1)
+  updated_at timestamptz DEFAULT now() NOT NULL
 );
+
+-- Enforce exclusive-arc: exactly one target on INSERT; allow anonymization (both NULL) on UPDATE
+CREATE OR REPLACE FUNCTION ratings_validate_targets()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    IF num_nonnulls(NEW.to_user_id, NEW.to_group_id) != 1 THEN
+      RAISE EXCEPTION 'ratings: exactly one of to_user_id or to_group_id must be set';
+    END IF;
+  ELSIF TG_OP = 'UPDATE' THEN
+    -- Allow anonymization: transition from one non-null target to both NULL
+    IF num_nonnulls(NEW.to_user_id, NEW.to_group_id) = 0
+       AND num_nonnulls(OLD.to_user_id, OLD.to_group_id) = 1 THEN
+      RETURN NEW;
+    END IF;
+    IF num_nonnulls(NEW.to_user_id, NEW.to_group_id) != 1 THEN
+      RAISE EXCEPTION 'ratings: exactly one of to_user_id or to_group_id must be set';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_ratings_validate_targets
+  BEFORE INSERT OR UPDATE ON ratings
+  FOR EACH ROW
+  EXECUTE FUNCTION ratings_validate_targets();
 
 CREATE INDEX idx_ratings_to_user ON ratings(to_user_id) WHERE to_user_id IS NOT NULL;
 CREATE INDEX idx_ratings_to_group ON ratings(to_group_id) WHERE to_group_id IS NOT NULL;
@@ -37,6 +65,7 @@ CREATE POLICY "ratings_insert_verified"
   ON ratings FOR INSERT
   WITH CHECK (
     (select auth.uid()) = from_user_id
+    AND transaction_type = 'borrow'
     AND (
       -- User-to-user rating: requires a completed borrow between the two parties
       (

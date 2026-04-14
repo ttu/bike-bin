@@ -11,7 +11,7 @@ jest.mock('@/features/auth', () => mockAuthModule);
 const mockMutate = jest.fn();
 const mockUseGroups = jest.fn();
 
-jest.mock('@/features/groups/hooks/useGroups', () => ({
+jest.mock('@/features/groups', () => ({
   useGroups: (...args: unknown[]) => mockUseGroups(...args),
 }));
 

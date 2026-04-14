@@ -273,6 +273,7 @@
     "toPersonal": "Transfer to me",
     "toPersonalConfirm": "Transfer this item to your personal inventory?",
     "success": "Item transferred successfully",
-    "error": "Failed to transfer item"
+    "error": "Failed to transfer item",
+    "noAdminGroups": "You are not an admin of any groups. Create or join a group first."
   }
 }

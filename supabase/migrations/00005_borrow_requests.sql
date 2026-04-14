@@ -12,8 +12,8 @@ CREATE TABLE borrow_requests (
   status borrow_request_status NOT NULL DEFAULT 'pending',
   message text,
   acted_by uuid REFERENCES profiles(id) ON DELETE SET NULL,
-  owner_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
-  group_id uuid REFERENCES groups(id) ON DELETE SET NULL,
+  owner_id uuid REFERENCES profiles(id) ON DELETE RESTRICT,
+  group_id uuid REFERENCES groups(id) ON DELETE RESTRICT,
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL,
   CONSTRAINT borrow_requests_exclusive_owner
@@ -47,6 +47,12 @@ CREATE POLICY "borrow_requests_insert"
   ON borrow_requests FOR INSERT
   WITH CHECK (
     (select auth.uid()) = requester_id
+    -- Requester must be able to see the item (it exists and is listed/visible)
+    AND EXISTS (
+      SELECT 1 FROM items
+      WHERE items.id = borrow_requests.item_id
+    )
+    -- Requester must not be the item owner or a group admin (no self-requests)
     AND NOT EXISTS (
       SELECT 1 FROM items
       WHERE items.id = borrow_requests.item_id
@@ -98,6 +104,7 @@ BEGIN
   SELECT * INTO v_item FROM items WHERE id = NEW.item_id;
   NEW.owner_id := v_item.owner_id;
   NEW.group_id := v_item.group_id;
+  NEW.acted_by := NULL;
   RETURN NEW;
 END;
 $$;
@@ -132,6 +139,11 @@ BEGIN
 
   IF OLD.status IN ('rejected', 'returned', 'cancelled') AND OLD.status IS DISTINCT FROM NEW.status THEN
     RAISE EXCEPTION 'borrow_requests: cannot change status from terminal state %', OLD.status;
+  END IF;
+
+  -- Reject direct client writes to acted_by
+  IF OLD.acted_by IS DISTINCT FROM NEW.acted_by THEN
+    NEW.acted_by := OLD.acted_by;
   END IF;
 
   IF OLD.status IS NOT DISTINCT FROM NEW.status THEN
