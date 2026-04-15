@@ -12,13 +12,16 @@ CREATE TABLE ratings (
   from_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
   to_user_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   to_group_id uuid REFERENCES groups(id) ON DELETE SET NULL,
+  borrow_request_id uuid NOT NULL REFERENCES borrow_requests(id) ON DELETE CASCADE,
   item_id uuid REFERENCES items(id) ON DELETE SET NULL,
   transaction_type transaction_type NOT NULL,
   score integer NOT NULL CHECK (score >= 1 AND score <= 5),
   text text,
   editable_until timestamptz,
   created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL
+  updated_at timestamptz DEFAULT now() NOT NULL,
+  CONSTRAINT ratings_unique_per_borrow_request
+    UNIQUE (borrow_request_id, from_user_id)
 );
 
 -- Enforce exclusive-arc: exactly one target on INSERT; allow anonymization (both NULL) on UPDATE
@@ -51,6 +54,23 @@ CREATE TRIGGER trg_ratings_validate_targets
   FOR EACH ROW
   EXECUTE FUNCTION ratings_validate_targets();
 
+-- Server-side enforcement of editable_until (clients cannot forge the edit window)
+CREATE OR REPLACE FUNCTION ratings_set_editable_until()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
+BEGIN
+  NEW.editable_until := now() + INTERVAL '14 days';
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_ratings_set_editable_until
+  BEFORE INSERT ON ratings
+  FOR EACH ROW
+  EXECUTE FUNCTION ratings_set_editable_until();
+
 CREATE INDEX idx_ratings_to_user ON ratings(to_user_id) WHERE to_user_id IS NOT NULL;
 CREATE INDEX idx_ratings_to_group ON ratings(to_group_id) WHERE to_group_id IS NOT NULL;
 
@@ -60,20 +80,22 @@ CREATE POLICY "ratings_select_public"
   ON ratings FOR SELECT
   USING (true);
 
--- Require a completed borrow transaction to create a rating
+-- Require a completed borrow transaction to create a rating.
+-- Each rating is tied to a specific borrow_request_id (one rating per rater per borrow).
 CREATE POLICY "ratings_insert_verified"
   ON ratings FOR INSERT
   WITH CHECK (
     (select auth.uid()) = from_user_id
     AND transaction_type = 'borrow'
     AND (
-      -- User-to-user rating: requires a completed borrow between the two parties
+      -- User-to-user rating: requires the specific borrow is returned and parties match
       (
         to_user_id IS NOT NULL
         AND from_user_id != to_user_id
         AND EXISTS (
           SELECT 1 FROM borrow_requests br
-          WHERE br.status = 'returned'
+          WHERE br.id = ratings.borrow_request_id
+            AND br.status = 'returned'
             AND (
               (br.requester_id = from_user_id AND br.owner_id = to_user_id)
               OR (br.owner_id = from_user_id AND br.requester_id = to_user_id)
@@ -86,7 +108,8 @@ CREATE POLICY "ratings_insert_verified"
         to_group_id IS NOT NULL
         AND EXISTS (
           SELECT 1 FROM borrow_requests br
-          WHERE br.status = 'returned'
+          WHERE br.id = ratings.borrow_request_id
+            AND br.status = 'returned'
             AND br.requester_id = from_user_id
             AND br.group_id = to_group_id
             AND (ratings.item_id IS NULL OR br.item_id = ratings.item_id)
@@ -105,6 +128,7 @@ CREATE POLICY "ratings_update_own"
     (select auth.uid()) = from_user_id
     AND to_user_id IS NOT DISTINCT FROM (SELECT r.to_user_id FROM ratings r WHERE r.id = ratings.id)
     AND to_group_id IS NOT DISTINCT FROM (SELECT r.to_group_id FROM ratings r WHERE r.id = ratings.id)
+    AND borrow_request_id IS NOT DISTINCT FROM (SELECT r.borrow_request_id FROM ratings r WHERE r.id = ratings.id)
     AND item_id IS NOT DISTINCT FROM (SELECT r.item_id FROM ratings r WHERE r.id = ratings.id)
     AND editable_until IS NOT DISTINCT FROM (SELECT r.editable_until FROM ratings r WHERE r.id = ratings.id)
     AND transaction_type IS NOT DISTINCT FROM (SELECT r.transaction_type FROM ratings r WHERE r.id = ratings.id)

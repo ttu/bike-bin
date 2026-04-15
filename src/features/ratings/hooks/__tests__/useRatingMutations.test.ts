@@ -22,11 +22,13 @@ import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 beforeEach(() => jest.clearAllMocks());
 
 describe('useCreateRating', () => {
-  it('creates a rating with editable window', async () => {
+  it('creates a user-targeted rating with borrow_request_id', async () => {
     const ratingData = {
       id: 'rating-1',
       from_user_id: 'user-123',
       to_user_id: 'user-456',
+      to_group_id: null,
+      borrow_request_id: 'br-1',
       item_id: 'item-1',
       transaction_type: 'borrow',
       score: 4,
@@ -45,6 +47,7 @@ describe('useCreateRating', () => {
 
     result.current.mutate({
       toUserId: 'user-456' as never,
+      borrowRequestId: 'br-1' as never,
       itemId: 'item-1' as never,
       transactionType: 'borrow' as never,
       score: 4,
@@ -53,6 +56,41 @@ describe('useCreateRating', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.score).toBe(4);
+  });
+
+  it('creates a group-targeted rating', async () => {
+    const ratingData = {
+      id: 'rating-2',
+      from_user_id: 'user-123',
+      to_user_id: null,
+      to_group_id: 'group-1',
+      borrow_request_id: 'br-2',
+      item_id: 'item-1',
+      transaction_type: 'borrow',
+      score: 5,
+      text: null,
+      editable_until: '2026-04-04T00:00:00Z',
+      created_at: '2026-03-21T00:00:00Z',
+      updated_at: '2026-03-21T00:00:00Z',
+    };
+    mockSingle.mockResolvedValue({ data: ratingData, error: null });
+    mockSelect.mockReturnValue({ single: mockSingle });
+    mockInsert.mockReturnValue({ select: mockSelect });
+
+    const { result } = renderHook(() => useCreateRating(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({
+      toGroupId: 'group-1' as never,
+      borrowRequestId: 'br-2' as never,
+      itemId: 'item-1' as never,
+      transactionType: 'borrow' as never,
+      score: 5,
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.score).toBe(5);
   });
 
   it('propagates errors', async () => {
@@ -66,6 +104,7 @@ describe('useCreateRating', () => {
 
     result.current.mutate({
       toUserId: 'user-456' as never,
+      borrowRequestId: 'br-1' as never,
       transactionType: 'borrow' as never,
       score: 4,
     });

@@ -768,6 +768,7 @@ export type Database = {
       };
       ratings: {
         Row: {
+          borrow_request_id: string;
           created_at: string;
           editable_until: string | null;
           from_user_id: string | null;
@@ -781,6 +782,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          borrow_request_id: string;
           created_at?: string;
           editable_until?: string | null;
           from_user_id?: string | null;
@@ -794,6 +796,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          borrow_request_id?: string;
           created_at?: string;
           editable_until?: string | null;
           from_user_id?: string | null;

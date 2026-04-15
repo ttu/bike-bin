@@ -1,13 +1,25 @@
 import type { Rating, TransactionType, UserProfile } from '@/shared/types';
-import type { RatingId, UserId, ItemId } from '@/shared/types';
+import type { RatingId, UserId, GroupId, ItemId, BorrowRequestId } from '@/shared/types';
 
-export interface CreateRatingInput {
-  toUserId: UserId;
+interface CreateRatingBase {
+  borrowRequestId: BorrowRequestId;
   itemId?: ItemId;
   transactionType: TransactionType;
   score: number;
   text?: string;
 }
+
+interface CreateUserRatingInput extends CreateRatingBase {
+  toUserId: UserId;
+  toGroupId?: never;
+}
+
+interface CreateGroupRatingInput extends CreateRatingBase {
+  toGroupId: GroupId;
+  toUserId?: never;
+}
+
+export type CreateRatingInput = CreateUserRatingInput | CreateGroupRatingInput;
 
 export interface UpdateRatingInput {
   id: RatingId;
