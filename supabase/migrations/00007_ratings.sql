@@ -9,7 +9,7 @@ CREATE TYPE transaction_type AS ENUM ('borrow', 'donate', 'sell');
 -- Exclusive-arc: each rating targets either a user (to_user_id) or a group (to_group_id), never both.
 CREATE TABLE ratings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  from_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  from_user_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   to_user_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   to_group_id uuid REFERENCES groups(id) ON DELETE SET NULL,
   borrow_request_id uuid NOT NULL REFERENCES borrow_requests(id) ON DELETE CASCADE,
@@ -146,7 +146,7 @@ CREATE OR REPLACE FUNCTION public.recalc_user_rating_aggregate(target_user_id uu
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
 BEGIN
   IF target_user_id IS NULL THEN
@@ -169,7 +169,7 @@ CREATE OR REPLACE FUNCTION public.recalc_group_rating_aggregate(target_group_id 
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
 BEGIN
   IF target_group_id IS NULL THEN
@@ -191,7 +191,7 @@ CREATE OR REPLACE FUNCTION public.update_user_rating_avg()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
 BEGIN
   IF TG_OP = 'DELETE' THEN
@@ -224,5 +224,10 @@ CREATE TRIGGER trg_update_user_rating_avg
   AFTER INSERT OR UPDATE OR DELETE ON ratings
   FOR EACH ROW
   EXECUTE FUNCTION update_user_rating_avg();
+
+CREATE TRIGGER trg_ratings_set_updated_at
+  BEFORE UPDATE ON ratings
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
 
 

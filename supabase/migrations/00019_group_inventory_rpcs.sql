@@ -9,12 +9,16 @@ CREATE OR REPLACE FUNCTION public.transfer_item_ownership(
 ) RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
 DECLARE
   v_item items%ROWTYPE;
   v_caller uuid := (select auth.uid());
 BEGIN
+  IF v_caller IS NULL THEN
+    RAISE EXCEPTION 'transfer_item_ownership: authentication required';
+  END IF;
+
   IF num_nonnulls(p_to_owner_id, p_to_group_id) != 1 THEN
     RAISE EXCEPTION 'transfer_item_ownership: exactly one of p_to_owner_id / p_to_group_id required';
   END IF;
@@ -90,6 +94,7 @@ BEGIN
 END;
 $$;
 
+REVOKE ALL ON FUNCTION public.transfer_item_ownership(uuid, uuid, uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.transfer_item_ownership(uuid, uuid, uuid) TO authenticated;
 
 -- ============================================================
@@ -101,6 +106,7 @@ GRANT EXECUTE ON FUNCTION public.transfer_item_ownership(uuid, uuid, uuid) TO au
 CREATE OR REPLACE FUNCTION public.guard_item_ownership_columns()
 RETURNS trigger
 LANGUAGE plpgsql
+SET search_path TO public
 AS $$
 BEGIN
   IF (OLD.owner_id IS DISTINCT FROM NEW.owner_id OR OLD.group_id IS DISTINCT FROM NEW.group_id) THEN

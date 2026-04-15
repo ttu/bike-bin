@@ -45,9 +45,22 @@ CREATE TABLE items (
   availability_types text[] DEFAULT '{}',
   price numeric(10, 2),
   deposit numeric(10, 2),
-  borrow_duration text,
+  borrow_duration text
+    CONSTRAINT items_borrow_duration_check CHECK (
+      borrow_duration IS NULL
+      OR borrow_duration IN (
+        '1_day', '2_3_days', '1_week', '2_weeks', '1_month', 'flexible'
+      )
+    ),
   storage_location text,
-  age text,
+  age text
+    CONSTRAINT items_age_check CHECK (
+      age IS NULL
+      OR age IN (
+        'less_than_6_months', '6_to_12_months', '1_to_2_years',
+        '2_to_3_years', '3_to_5_years', '5_to_10_years', 'over_10_years'
+      )
+    ),
   usage_km integer,
   purchase_date date,
   mounted_date date,
@@ -115,7 +128,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM item_groups ig
@@ -130,7 +143,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM group_members
@@ -144,7 +157,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM groups WHERE id = p_group_id AND is_public = true
@@ -157,7 +170,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM group_members
@@ -171,7 +184,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM items
@@ -457,5 +470,10 @@ CREATE TRIGGER trg_items_enforce_borrow_locked_update
   BEFORE UPDATE ON items
   FOR EACH ROW
   EXECUTE FUNCTION enforce_item_no_edits_while_borrow_locked();
+
+CREATE TRIGGER trg_items_set_updated_at
+  BEFORE UPDATE ON items
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
 
 

@@ -21,7 +21,7 @@ CREATE TABLE conversation_participants (
 CREATE TABLE messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-  sender_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  sender_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   body text NOT NULL,
   created_at timestamptz DEFAULT now() NOT NULL
 );
@@ -35,7 +35,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM conversation_participants
@@ -49,11 +49,29 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
   SELECT NOT EXISTS (
     SELECT 1 FROM conversation_participants
     WHERE conversation_id = p_conversation_id
+  );
+$$;
+
+-- Check if a user can join a conversation as the first participant:
+-- the conversation must exist and its item must be visible to the user.
+-- SECURITY DEFINER so the caller can read the conversations table despite RLS.
+CREATE OR REPLACE FUNCTION public.can_join_conversation(p_conversation_id uuid, p_user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path TO public, pg_temp
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM conversations c
+    JOIN items i ON i.id = c.item_id
+    WHERE c.id = p_conversation_id
+      AND public.can_see_item(i.id, p_user_id)
   );
 $$;
 
@@ -91,10 +109,28 @@ CREATE POLICY "conversation_participants_insert"
   WITH CHECK (
     (select auth.uid()) IS NOT NULL
     AND (
-      -- Conversation is brand new (no participants yet)
-      public.conversation_has_no_participants(conversation_id)
-      -- Inserter is already a participant
-      OR public.is_conversation_participant(conversation_id, (select auth.uid()))
+      -- Users can add themselves to a conversation they can access
+      (
+        user_id = (select auth.uid())
+        AND (
+          -- First participant: must also be able to see the underlying item
+          (
+            public.conversation_has_no_participants(conversation_id)
+            AND public.can_join_conversation(conversation_id, (select auth.uid()))
+          )
+          OR public.is_conversation_participant(conversation_id, (select auth.uid()))
+        )
+      )
+      OR (
+        -- An existing participant may add the item owner as the other party
+        -- (prevents adding arbitrary third parties to conversations)
+        public.is_conversation_participant(conversation_id, (select auth.uid()))
+        AND EXISTS (
+          SELECT 1 FROM conversations c
+          JOIN items i ON i.id = c.item_id
+          WHERE c.id = conversation_id AND i.owner_id = user_id
+        )
+      )
     )
   );
 
@@ -177,7 +213,7 @@ CREATE OR REPLACE FUNCTION public.sync_group_conversation_participants()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO public
+SET search_path TO public, pg_temp
 AS $$
 BEGIN
   -- New admin (INSERT) or promoted to admin (UPDATE): add to all group item conversations
