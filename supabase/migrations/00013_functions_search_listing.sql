@@ -30,7 +30,11 @@ RETURNS TABLE (
   owner_display_name text,
   owner_avatar_url text,
   owner_rating_avg numeric,
-  owner_rating_count integer
+  owner_rating_count integer,
+  group_id uuid,
+  group_name text,
+  group_rating_avg numeric,
+  group_rating_count integer
 )
 LANGUAGE plpgsql
 STABLE
@@ -67,10 +71,15 @@ BEGIN
     p.display_name AS owner_display_name,
     p.avatar_url AS owner_avatar_url,
     COALESCE(p.rating_avg, 0) AS owner_rating_avg,
-    COALESCE(p.rating_count, 0) AS owner_rating_count
+    COALESCE(p.rating_count, 0) AS owner_rating_count,
+    i.group_id,
+    g.name AS group_name,
+    COALESCE(g.rating_avg, 0) AS group_rating_avg,
+    COALESCE(g.rating_count, 0) AS group_rating_count
   FROM items i
   LEFT JOIN saved_locations sl ON sl.id = i.pickup_location_id
   LEFT JOIN public_profiles p ON p.id = i.owner_id
+  LEFT JOIN groups g ON g.id = i.group_id
   LEFT JOIN LATERAL (
     SELECT loc.coordinates
     FROM saved_locations loc
@@ -79,17 +88,24 @@ BEGIN
   ) caller_loc ON true
   WHERE i.id = p_item_id
     -- Non-owners cannot view archived, donated, or sold items
-    AND (i.owner_id = (select auth.uid()) OR i.status NOT IN ('archived', 'donated', 'sold'))
+    AND (
+      (i.owner_id IS NOT NULL AND i.owner_id = (select auth.uid()))
+      OR (i.group_id IS NOT NULL AND public.is_group_admin(i.group_id, (select auth.uid())))
+      OR i.status NOT IN ('archived', 'donated', 'sold')
+    )
     AND (
       i.visibility = 'all'
-      OR i.owner_id = (select auth.uid())
+      OR (i.owner_id IS NOT NULL AND i.owner_id = (select auth.uid()))
+      OR (i.group_id IS NOT NULL AND public.is_group_admin(i.group_id, (select auth.uid())))
       OR (
-        i.visibility = 'groups'
-        AND EXISTS (
-          SELECT 1 FROM item_groups ig
-          JOIN group_members gm ON gm.group_id = ig.group_id
-          WHERE ig.item_id = i.id AND gm.user_id = (select auth.uid())
-        )
+        i.group_id IS NOT NULL
+        AND i.visibility = 'groups'
+        AND public.is_group_member(i.group_id, (select auth.uid()))
+      )
+      OR (
+        i.owner_id IS NOT NULL
+        AND i.visibility = 'groups'
+        AND public.user_shares_group_with_item(i.id, (select auth.uid()))
       )
     );
 END;
@@ -170,17 +186,23 @@ BEGIN
   FROM items i
   LEFT JOIN saved_locations sl ON sl.id = i.pickup_location_id
   WHERE
-    i.owner_id != (select auth.uid())
+    -- Exclude the caller's own items: personal items they own, or group items in groups they admin
+    (
+      (i.owner_id IS NOT NULL AND i.owner_id != (select auth.uid()))
+      OR (i.group_id IS NOT NULL AND NOT public.is_group_admin(i.group_id, (select auth.uid())))
+    )
     AND i.status NOT IN ('archived', 'donated', 'sold')
     AND (
       i.visibility = 'all'
       OR (
         i.visibility = 'groups'
-        AND EXISTS (
-          SELECT 1 FROM item_groups ig
-          JOIN group_members gm ON gm.group_id = ig.group_id
-          WHERE ig.item_id = i.id AND gm.user_id = (select auth.uid())
-        )
+        AND i.owner_id IS NOT NULL
+        AND public.user_shares_group_with_item(i.id, (select auth.uid()))
+      )
+      OR (
+        i.visibility = 'groups'
+        AND i.group_id IS NOT NULL
+        AND public.is_group_member(i.group_id, (select auth.uid()))
       )
     )
     AND (

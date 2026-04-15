@@ -1,0 +1,1 @@
+export { GroupInventoryTab } from './GroupInventoryTab';

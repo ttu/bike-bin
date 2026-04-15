@@ -44,6 +44,8 @@ const mockSearchGroup: SearchGroupResult = {
   createdAt: new Date().toISOString(),
   memberCount: 3,
   isMember: false,
+  ratingAvg: 0,
+  ratingCount: 0,
 };
 
 let mockSearchResults: SearchGroupResult[] = [];

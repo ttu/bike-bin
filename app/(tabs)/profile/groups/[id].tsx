@@ -34,6 +34,7 @@ import {
   canRemoveMember,
   canLeaveGroup,
 } from '@/features/groups';
+import { GroupInventoryTab } from '@/features/groups/components/GroupInventoryTab';
 import type { GroupMemberWithProfile } from '@/features/groups';
 import type { GroupId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
@@ -365,6 +366,17 @@ export default function GroupDetailScreen() {
           />
         ))}
 
+        {/* Inventory */}
+        <Text
+          variant="titleMedium"
+          style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
+        >
+          {t('inventory.sectionTitle')}
+        </Text>
+        <View style={styles.inventoryTab}>
+          <GroupInventoryTab groupId={groupId} />
+        </View>
+
         {/* Actions */}
         {currentMember && (
           <View style={styles.actions}>
@@ -489,6 +501,9 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: spacing.sm,
+  },
+  inventoryTab: {
+    minHeight: 200,
   },
   actionButton: {
     borderColor: 'transparent',

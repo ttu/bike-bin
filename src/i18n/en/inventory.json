@@ -265,5 +265,15 @@
     "depositPositive": "Deposit must be positive",
     "groupRequired": "Select at least one group",
     "dateInvalid": "Use a valid date (YYYY-MM-DD)"
+  },
+  "transfer": {
+    "title": "Transfer to group",
+    "description": "Select a group to transfer this item to. You must be an admin of the group.",
+    "confirm": "Transfer",
+    "toPersonal": "Transfer to me",
+    "toPersonalConfirm": "Transfer this item to your personal inventory?",
+    "success": "Item transferred successfully",
+    "error": "Failed to transfer item",
+    "noAdminGroups": "You are not an admin of any groups. Create or join a group first."
   }
 }

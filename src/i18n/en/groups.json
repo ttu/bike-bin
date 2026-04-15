@@ -74,5 +74,14 @@
   },
   "validation": {
     "nameRequired": "Name is required"
+  },
+  "inventory": {
+    "sectionTitle": "Inventory",
+    "addItem": "Add group item",
+    "empty": {
+      "title": "No items in this group yet",
+      "description": "Group admins can add items here for members to borrow, buy, or receive.",
+      "cta": "Add first item"
+    }
   }
 }

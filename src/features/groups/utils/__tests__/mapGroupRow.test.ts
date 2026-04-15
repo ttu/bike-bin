@@ -8,6 +8,8 @@ describe('mapGroupRow', () => {
       name: 'MTB Club',
       description: 'Mountain biking group',
       is_public: true,
+      rating_avg: 4.5,
+      rating_count: 12,
       created_at: '2026-01-01T00:00:00Z',
     };
     expect(mapGroupRow(row)).toEqual({
@@ -15,6 +17,8 @@ describe('mapGroupRow', () => {
       name: 'MTB Club',
       description: 'Mountain biking group',
       isPublic: true,
+      ratingAvg: 4.5,
+      ratingCount: 12,
       createdAt: '2026-01-01T00:00:00Z',
     });
   });
@@ -25,6 +29,8 @@ describe('mapGroupRow', () => {
       name: 'Road Riders',
       description: null,
       is_public: false,
+      rating_avg: 0,
+      rating_count: 0,
       created_at: '2026-01-01T00:00:00Z',
     };
     expect(mapGroupRow(row).description).toBeUndefined();

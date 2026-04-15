@@ -60,24 +60,31 @@ export function ListingDetailRoute({
   const thisListingPath = `${thisListingPathPrefix}/${item.id}`;
 
   const handleContact = () => {
-    createConversation(
-      { itemId: item.id, otherUserId: item.ownerId },
-      {
-        onSuccess: (result) => {
-          router.push(`/messages/${result.conversationId}`);
-        },
-        onError: () => {
-          showSnackbarAlert({
-            message: t('listing.errors.contactFailed'),
-            variant: 'error',
-            duration: 'long',
-          });
-        },
+    // Group items use the shared-inbox path (all admins as participants);
+    // personal items use the direct owner path.
+    const params =
+      item.groupId !== undefined
+        ? { itemId: item.id, groupId: item.groupId }
+        : item.ownerId !== undefined
+          ? { itemId: item.id, otherUserId: item.ownerId }
+          : undefined;
+    if (!params) return;
+    createConversation(params, {
+      onSuccess: (result) => {
+        router.push(`/messages/${result.conversationId}`);
       },
-    );
+      onError: () => {
+        showSnackbarAlert({
+          message: t('listing.errors.contactFailed'),
+          variant: 'error',
+          duration: 'long',
+        });
+      },
+    });
   };
 
   const handleOwnerPress = () => {
+    if (!item.ownerId) return;
     router.push({
       pathname: '/(tabs)/profile/[userId]',
       params: {
@@ -165,7 +172,7 @@ export function ListingDetailRoute({
         photos={photos}
         onContact={isOwnItem ? undefined : handleContact}
         onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
-        onOwnerPress={handleOwnerPress}
+        onOwnerPress={item.ownerId ? handleOwnerPress : undefined}
         onPhotoLongPress={isOwnItem || !user ? undefined : handlePhotoLongPress}
       />
 

@@ -62,9 +62,16 @@ export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
 
 /** Creates a snake_case DB row matching what Supabase returns for items. */
 export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
+  const normalized: Partial<ItemRow> = { ...overrides };
+  if (normalized.group_id != null && normalized.owner_id === undefined) {
+    normalized.owner_id = null;
+  }
+
   return {
     id: faker.string.uuid(),
     owner_id: faker.string.uuid(),
+    group_id: null,
+    created_by: null,
     bike_id: null,
     name: faker.commerce.productName(),
     category: faker.helpers.arrayElement(Object.values(ItemCategory)),
@@ -98,11 +105,16 @@ export function createMockItemRow(overrides?: Partial<ItemRow>): ItemRow {
     tags: [],
     created_at: faker.date.past().toISOString(),
     updated_at: faker.date.recent().toISOString(),
-    ...overrides,
+    ...normalized,
   };
 }
 
 export function createMockItem(overrides?: Partial<Item>): Item {
+  const normalized: Partial<Item> = { ...overrides };
+  if (normalized.groupId !== undefined && normalized.ownerId === undefined) {
+    normalized.ownerId = undefined;
+  }
+
   return {
     id: faker.string.uuid() as ItemId,
     ownerId: faker.string.uuid() as UserId,
@@ -135,8 +147,8 @@ export function createMockItem(overrides?: Partial<Item>): Item {
     updatedAt: faker.date.recent().toISOString(),
     tags: [],
     thumbnailStoragePath: undefined,
-    ...overrides,
-  };
+    ...normalized,
+  } as Item;
 }
 
 export function createMockBike(overrides?: Partial<Bike>): Bike {
@@ -207,6 +219,7 @@ export function createMockBorrowRequest(overrides?: Partial<BorrowRequest>): Bor
     requesterId: faker.string.uuid() as UserId,
     status: faker.helpers.arrayElement(Object.values(BorrowRequestStatus)),
     message: faker.helpers.maybe(() => faker.lorem.sentence()),
+    actedBy: undefined,
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
@@ -226,15 +239,21 @@ export function createMockRating(overrides?: Partial<Rating>): Rating {
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     ...overrides,
-  };
+  } as Rating;
 }
 
 export function createMockGroup(overrides?: Partial<Group>): Group {
+  const ratingCount = faker.number.int({ min: 0, max: 100 });
   return {
     id: faker.string.uuid() as GroupId,
     name: faker.company.name(),
     description: faker.helpers.maybe(() => faker.lorem.sentence()),
     isPublic: faker.datatype.boolean(),
+    ratingAvg:
+      ratingCount === 0
+        ? 0
+        : Number.parseFloat(faker.number.float({ min: 1, max: 5, fractionDigits: 2 }).toFixed(2)),
+    ratingCount,
     createdAt: faker.date.past().toISOString(),
     ...overrides,
   };
@@ -340,6 +359,11 @@ export function createMockSearchItemsRpcRow(
 export function createMockSearchResultItem(
   overrides?: Partial<SearchResultItem>,
 ): SearchResultItem {
+  const normalized: Partial<SearchResultItem> = { ...overrides };
+  if (normalized.groupId !== undefined && normalized.ownerId === undefined) {
+    normalized.ownerId = undefined;
+  }
+
   return {
     id: 'item-1' as ItemId,
     ownerId: 'owner-1' as UserId,
@@ -365,7 +389,11 @@ export function createMockSearchResultItem(
     ownerRatingCount: 12,
     areaName: 'Berlin Mitte',
     thumbnailStoragePath: undefined,
-    ...overrides,
+    groupId: undefined,
+    groupName: undefined,
+    groupRatingAvg: 0,
+    groupRatingCount: 0,
+    ...normalized,
   };
 }
 
@@ -377,6 +405,8 @@ export function createMockConversationListItem(
     id: 'conv-1' as ConversationId,
     itemId: 'item-1' as ItemId,
     itemOwnerId: 'user-1' as UserId,
+    itemGroupId: undefined,
+    groupName: undefined,
     itemName: 'Shimano XT Derailleur',
     itemStatus: 'stored',
     itemAvailabilityTypes: [AvailabilityType.Borrowable],

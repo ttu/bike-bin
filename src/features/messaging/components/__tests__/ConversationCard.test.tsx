@@ -78,6 +78,15 @@ describe('ConversationCard', () => {
     expect(onPress).toHaveBeenCalledWith(conv);
   });
 
+  it('shows group name as title for group conversations', () => {
+    const conv = createMockConversationListItem({
+      itemGroupId: 'group-1' as never,
+      groupName: 'Cycling Club',
+    });
+    const { getByText } = renderWithProviders(<ConversationCard conversation={conv} />);
+    expect(getByText('Cycling Club')).toBeTruthy();
+  });
+
   it('applies dimmed style for completed transactions', () => {
     const conv = createMockConversationListItem({ itemStatus: 'sold' });
     const { getByLabelText } = renderWithProviders(<ConversationCard conversation={conv} />);

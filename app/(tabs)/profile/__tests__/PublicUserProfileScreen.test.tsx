@@ -151,6 +151,7 @@ const sampleRating: RatingWithReviewer = {
   id: 'r1' as RatingId,
   fromUserId: 'rev-1' as UserId,
   toUserId: 'public-user-1' as UserId,
+  toGroupId: undefined,
   itemId: undefined,
   transactionType: TransactionType.Borrow,
   score: 5,

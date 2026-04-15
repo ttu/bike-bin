@@ -1,5 +1,6 @@
 // Types
 export type { ConversationListItem, MessageWithSender } from './types';
+export { isGroupConversation } from './types';
 
 // Hooks
 export { useConversations, CONVERSATIONS_QUERY_KEY } from './hooks/useConversations';

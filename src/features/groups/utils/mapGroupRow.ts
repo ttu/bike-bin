@@ -10,6 +10,8 @@ export function mapGroupRow(row: GroupRow): Group {
     name: row.name as string,
     description: (row.description as string) ?? undefined,
     isPublic: row.is_public as boolean,
+    ratingAvg: (row.rating_avg as number | null) ?? 0,
+    ratingCount: (row.rating_count as number | null) ?? 0,
     createdAt: row.created_at as string,
   };
 }

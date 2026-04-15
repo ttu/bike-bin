@@ -6,6 +6,7 @@ import type { ItemId } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemCondition, ItemStatus } from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import commonEn from '@/i18n/en/common.json';
+import { mockAuthModule } from '@/test/authMocks';
 import ItemDetailScreen from '../../../../app/(tabs)/inventory/[id]';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -157,11 +158,46 @@ jest.mock('@/features/exchange', () => ({
   useMarkSold: () => ({ mutate: mockMarkSoldMutate, isPending: false }),
 }));
 
+jest.mock('@/features/auth', () => mockAuthModule);
+
+const mockTransferMutate = jest.fn(
+  (_vars: unknown, opts?: { onSuccess?: () => void; onError?: () => void }) => {
+    opts?.onSuccess?.();
+  },
+);
+let mockTransferIsPending = false;
+jest.mock('@/features/inventory/hooks/useTransferItem', () => ({
+  useTransferItem: () => ({ mutate: mockTransferMutate, isPending: mockTransferIsPending }),
+}));
+
+const mockCanEditItem = jest.fn<boolean, unknown[]>(() => true);
+const mockCanTransferItem = jest.fn<boolean, unknown[]>(() => false);
+jest.mock('@/features/inventory/utils/itemPermissions', () => ({
+  canEditItem: (...args: unknown[]) => mockCanEditItem(...args),
+  canTransferItem: (...args: unknown[]) => mockCanTransferItem(...args),
+}));
+
+jest.mock('@/features/groups', () => ({
+  useGroups: () => ({
+    data: [
+      {
+        id: 'group-1',
+        name: 'Test Group',
+        memberRole: 'admin',
+        joinedAt: '2026-01-01',
+      },
+    ],
+  }),
+}));
+
 describe('ItemDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRouteParams = { id: ITEM_ID };
     mockAcceptedBorrowRequestId = 'borrow-1';
+    mockTransferIsPending = false;
+    mockCanEditItem.mockReturnValue(true);
+    mockCanTransferItem.mockReturnValue(false);
     mockItem = createMockItem({
       id: ITEM_ID,
       name: 'Test part',
@@ -404,6 +440,66 @@ describe('ItemDetailScreen', () => {
     fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
     await waitFor(() => {
       expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('hides edit button when canEditItem returns false', () => {
+    mockCanEditItem.mockReturnValue(false);
+    renderWithProviders(<ItemDetailScreen />);
+    const pencilButtons = screen
+      .getAllByTestId('icon-button')
+      .filter((btn) => btn.props.accessibilityLabel !== 'Back');
+    expect(pencilButtons).toHaveLength(0);
+  });
+
+  it('shows transfer-to-group button for personal items when canTransferItem allows', () => {
+    mockCanTransferItem.mockReturnValue(true);
+    renderWithProviders(<ItemDetailScreen />);
+    expect(screen.getByLabelText(/transfer/i)).toBeTruthy();
+  });
+
+  it('opens transfer dialog when transfer-to-group button is pressed', () => {
+    mockCanTransferItem.mockReturnValue(true);
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByLabelText(/transfer/i));
+    expect(screen.getByText(/transfer to group/i)).toBeTruthy();
+  });
+
+  it('shows transfer-to-me button for group items and triggers confirm', async () => {
+    mockCanTransferItem.mockReturnValue(true);
+    mockItem = createMockItem({
+      id: ITEM_ID,
+      groupId: 'group-1' as import('@/shared/types').GroupId,
+      status: ItemStatus.Stored,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByLabelText(/transfer to me/i));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(mockTransferMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ itemId: ITEM_ID }),
+        expect.any(Object),
+      );
+    });
+  });
+
+  it('shows error snackbar when transfer-to-me fails', async () => {
+    mockCanTransferItem.mockReturnValue(true);
+    mockTransferMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    mockItem = createMockItem({
+      id: ITEM_ID,
+      groupId: 'group-1' as import('@/shared/types').GroupId,
+      status: ItemStatus.Stored,
+      availabilityTypes: [AvailabilityType.Borrowable],
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByLabelText(/transfer to me/i));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(/failed to transfer/i)).toBeTruthy();
     });
   });
 });

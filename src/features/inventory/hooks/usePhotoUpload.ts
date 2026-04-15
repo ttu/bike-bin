@@ -7,7 +7,7 @@ import {
 import type { ItemId } from '@/shared/types';
 
 interface UsePhotoUploadReturn {
-  pickAndUpload: (itemId: ItemId) => Promise<string | undefined>;
+  pickAndUpload: (itemId: ItemId, ownerSegment?: string) => Promise<string | undefined>;
   isUploading: boolean;
   error: string | undefined;
 }

@@ -11,6 +11,8 @@ import type { ItemRow } from '@/shared/types';
 const baseRow: ItemRow = {
   id: 'item-1',
   owner_id: 'owner-1',
+  group_id: null,
+  created_by: null,
   bike_id: null,
   name: 'Chain lube',
   category: ItemCategory.Consumable,

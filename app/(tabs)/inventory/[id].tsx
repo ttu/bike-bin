@@ -15,12 +15,17 @@ import {
 import { useAcceptedBorrowRequestForItem, useMarkReturned } from '@/features/borrow';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail/ItemDetail';
+import { TransferItemDialog } from '@/features/inventory/components/TransferItemDialog/TransferItemDialog';
 import { RemoveFromInventoryDialog } from '@/features/inventory/components/RemoveFromInventoryDialog/RemoveFromInventoryDialog';
+import { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
+import { canEditItem, canTransferItem } from '@/features/inventory/utils/itemPermissions';
+import { useAuth } from '@/features/auth';
+import { useGroups } from '@/features/groups';
 import { ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { ItemStatus } from '@/shared/types';
-import type { ItemId } from '@/shared/types';
+import type { ItemId, UserId } from '@/shared/types';
 
 export default function ItemDetailScreen() {
   const theme = useTheme();
@@ -59,11 +64,52 @@ export default function ItemDetailScreen() {
     });
 
   const [removeInventoryOpen, setRemoveInventoryOpen] = useState(false);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
+  const { user } = useAuth();
+  const { data: userGroups } = useGroups();
+  const transferItem = useTransferItem();
 
   if (isLoading || !item) {
     return <LoadingScreen />;
   }
+
+  const groupRole = item.groupId
+    ? userGroups?.find((g) => g.id === item.groupId)?.memberRole
+    : undefined;
+  const canEdit = canEditItem(item, user?.id ?? '', groupRole);
+  const showTransferToGroup =
+    canTransferItem(item, user?.id ?? '', undefined) && item.groupId === undefined;
+  const showTransferToMe =
+    canTransferItem(item, user?.id ?? '', groupRole) && item.groupId !== undefined;
+
+  const handleTransferToMe = () => {
+    if (transferItem.isPending) return;
+    const stableUserId = user?.id as UserId | undefined;
+    if (!stableUserId) return;
+    openConfirm({
+      title: tInv('transfer.toPersonal'),
+      message: tInv('transfer.toPersonalConfirm'),
+      confirmLabel: tInv('transfer.confirm'),
+      onConfirm: () => {
+        if (transferItem.isPending) return;
+        closeConfirm();
+        transferItem.mutate(
+          { itemId: item.id, toOwnerId: stableUserId },
+          {
+            onSuccess: () =>
+              showSnackbarAlert({ message: tInv('transfer.success'), variant: 'success' }),
+            onError: () =>
+              showSnackbarAlert({
+                message: tInv('transfer.error'),
+                variant: 'error',
+                duration: 'long',
+              }),
+          },
+        );
+      },
+    });
+  };
 
   const handleMarkDonated = () => {
     openConfirm({
@@ -279,10 +325,28 @@ export default function ItemDetailScreen() {
       >
         <Appbar.BackAction onPress={handleHeaderBack} />
         <Appbar.Content title="" />
-        <Appbar.Action
-          icon="pencil"
-          onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}`)}
-        />
+        {showTransferToGroup && (
+          <Appbar.Action
+            icon="swap-horizontal"
+            onPress={() => setTransferDialogOpen(true)}
+            disabled={transferItem.isPending}
+            accessibilityLabel={tInv('transfer.title')}
+          />
+        )}
+        {showTransferToMe && (
+          <Appbar.Action
+            icon="swap-horizontal"
+            onPress={handleTransferToMe}
+            disabled={transferItem.isPending}
+            accessibilityLabel={tInv('transfer.toPersonal')}
+          />
+        )}
+        {canEdit && (
+          <Appbar.Action
+            icon="pencil"
+            onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}`)}
+          />
+        )}
       </Appbar.Header>
       <ItemDetail
         item={item}
@@ -314,6 +378,14 @@ export default function ItemDetailScreen() {
             : undefined
         }
       />
+      {showTransferToGroup && (
+        <TransferItemDialog
+          item={item}
+          visible={transferDialogOpen}
+          onDismiss={() => setTransferDialogOpen(false)}
+          transferItem={transferItem}
+        />
+      )}
       <ConfirmDialog
         {...confirmDialogProps}
         loading={

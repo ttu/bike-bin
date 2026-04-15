@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
-import type { ItemId, UserId, LocationId } from '@/shared/types';
+import type { GroupId, ItemId, UserId, LocationId } from '@/shared/types';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { usePrimaryLocation } from '@/features/locations';
@@ -44,7 +44,7 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
 
       const rows = (data ?? []) as RpcRow[];
 
-      const ownerIds = [...new Set(rows.map((r) => r.owner_id))];
+      const ownerIds = [...new Set(rows.map((r) => r.owner_id).filter((v): v is string => !!v))];
       const locationIds = [...new Set(rows.map((r) => r.pickup_location_id).filter(Boolean))];
 
       const [ownerMap, locationMap, thumbMap] = await Promise.all([
@@ -107,7 +107,8 @@ function sortResults(
 
 interface RpcRow {
   id: string;
-  owner_id: string;
+  owner_id: string | null;
+  group_id?: string | null;
   name: string;
   category: ItemCategory;
   brand: string | null;
@@ -178,10 +179,10 @@ function mapRow(
   locationMap: Map<string, string>,
   thumbMap: Map<string, string>,
 ): SearchResultItem {
-  const owner = ownerMap.get(row.owner_id);
+  const owner = row.owner_id ? ownerMap.get(row.owner_id) : undefined;
   return {
     id: row.id as ItemId,
-    ownerId: row.owner_id as UserId,
+    ownerId: (row.owner_id as UserId | null) ?? undefined,
     name: row.name,
     category: row.category,
     brand: row.brand ?? undefined,
@@ -204,5 +205,9 @@ function mapRow(
     ownerRatingCount: owner?.rating_count ?? 0,
     areaName: row.pickup_location_id ? locationMap.get(row.pickup_location_id) : undefined,
     thumbnailStoragePath: thumbMap.get(row.id),
+    groupId: (row.group_id as GroupId | null | undefined) ?? undefined,
+    groupName: undefined,
+    groupRatingAvg: 0,
+    groupRatingCount: 0,
   };
 }

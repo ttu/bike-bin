@@ -8,6 +8,7 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import type { ConversationListItem } from '../../types';
+import { isGroupConversation } from '../../types';
 import { ItemStatus } from '@/shared/types';
 
 interface ConversationCardProps {
@@ -56,6 +57,12 @@ export const ConversationCard = memo(function ConversationCard({
     [theme],
   );
 
+  const isGroup = isGroupConversation(conversation);
+
+  const displayName = isGroup
+    ? (conversation.groupName ?? t('conversation.groupConversation'))
+    : conversation.otherParticipantName || t('conversation.anonymousUser');
+
   const isCompleted =
     conversation.itemStatus === ItemStatus.Sold || conversation.itemStatus === ItemStatus.Donated;
 
@@ -82,12 +89,14 @@ export const ConversationCard = memo(function ConversationCard({
     <AnimatedPressable
       onPress={() => onPress?.(conversation)}
       style={[styles.container, themedStyles.containerSurface, isCompleted && styles.dimmed]}
-      accessibilityLabel={conversation.otherParticipantName || t('conversation.anonymousUser')}
+      accessibilityLabel={displayName}
       accessibilityRole="button"
     >
       {/* Avatar */}
       <View style={styles.avatarContainer}>
-        {conversation.otherParticipantAvatarUrl ? (
+        {isGroup ? (
+          <Avatar.Icon size={44} icon="account-group" style={themedStyles.avatarIcon} />
+        ) : conversation.otherParticipantAvatarUrl ? (
           <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={44} />
         ) : (
           <Avatar.Icon size={44} icon="account" style={themedStyles.avatarIcon} />
@@ -101,7 +110,7 @@ export const ConversationCard = memo(function ConversationCard({
       <View style={styles.content}>
         <View style={styles.topRow}>
           <Text variant="titleSmall" numberOfLines={1} style={[styles.name, themedStyles.name]}>
-            {conversation.otherParticipantName || t('conversation.anonymousUser')}
+            {displayName}
           </Text>
           <Text variant="labelSmall" style={themedStyles.timestamp}>
             {timestamp}

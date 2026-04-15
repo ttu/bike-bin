@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { mapItemPhotoRow } from '@/shared/utils/mapItemRow';
-import type { ItemId, UserId, LocationId } from '@/shared/types';
+import type { GroupId, ItemId, UserId, LocationId } from '@/shared/types';
 import type { ItemCategory, ItemCondition, AvailabilityType, ItemPhoto } from '@/shared/types';
 import type { SearchResultItem } from '../types';
 
@@ -17,7 +17,7 @@ export function useListingDetail(id: string | undefined) {
 
       return {
         id: row.id as ItemId,
-        ownerId: row.owner_id as UserId,
+        ownerId: (row.owner_id as UserId) ?? undefined,
         name: row.name as string,
         category: row.category as ItemCategory,
         brand: (row.brand as string) ?? undefined,
@@ -40,6 +40,10 @@ export function useListingDetail(id: string | undefined) {
         ownerRatingCount: (row.owner_rating_count as number) ?? 0,
         areaName: (row.area_name as string) ?? undefined,
         thumbnailStoragePath: undefined,
+        groupId: (row.group_id as GroupId) ?? undefined,
+        groupName: (row.group_name as string) ?? undefined,
+        groupRatingAvg: (row.group_rating_avg as number) ?? 0,
+        groupRatingCount: (row.group_rating_count as number) ?? 0,
       };
     },
     enabled: !!id,

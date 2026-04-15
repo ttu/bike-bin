@@ -7,10 +7,33 @@ CREATE TYPE item_status AS ENUM ('stored', 'mounted', 'loaned', 'reserved', 'don
 CREATE TYPE item_visibility AS ENUM ('private', 'groups', 'all');
 CREATE TYPE group_role AS ENUM ('admin', 'member');
 
+-- Groups
+CREATE TABLE groups (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  description text,
+  is_public boolean DEFAULT true NOT NULL,
+  rating_avg numeric(3, 2) NOT NULL DEFAULT 0,
+  rating_count integer NOT NULL DEFAULT 0,
+  created_at timestamptz DEFAULT now() NOT NULL
+);
+
+-- Group members
+CREATE TABLE group_members (
+  group_id uuid NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  role group_role NOT NULL DEFAULT 'member',
+  joined_at timestamptz DEFAULT now() NOT NULL,
+  PRIMARY KEY (group_id, user_id)
+);
+
 -- Items
+-- Exclusive-arc ownership: exactly one of owner_id (personal) or group_id (group-owned) is set.
 CREATE TABLE items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  owner_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  owner_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  group_id uuid REFERENCES groups(id) ON DELETE CASCADE,
+  created_by uuid REFERENCES profiles(id) ON DELETE SET NULL,
   name text NOT NULL,
   category item_category NOT NULL,
   subcategory text,
@@ -44,11 +67,15 @@ CREATE TABLE items (
   CONSTRAINT items_tags_no_empty
     CHECK ('' != ALL(tags)),
   CONSTRAINT items_quantity_positive
-    CHECK (quantity >= 1)
+    CHECK (quantity >= 1),
+  CONSTRAINT items_exclusive_owner
+    CHECK (num_nonnulls(owner_id, group_id) = 1)
 );
 
+COMMENT ON COLUMN items.owner_id IS 'Personal owner (NULL for group-owned items). Exactly one of owner_id/group_id is set.';
+COMMENT ON COLUMN items.group_id IS 'Group owner (NULL for personal items). Exactly one of owner_id/group_id is set.';
+COMMENT ON COLUMN items.created_by IS 'For group-owned items: the admin who created the row. NULL for personal items.';
 COMMENT ON COLUMN items.visibility IS 'Default private; items are not listed until the owner sets visibility (see docs/datamodel.md).';
-
 COMMENT ON COLUMN items.remaining_fraction IS 'For consumables: fraction remaining (0–1). NULL for other categories or unspecified.';
 COMMENT ON COLUMN items.mounted_date IS 'Optional date the part was mounted on a bike; independent of lifecycle status.';
 COMMENT ON COLUMN items.quantity IS 'Count of identical units represented by this row; minimum 1.';
@@ -58,6 +85,7 @@ CREATE INDEX idx_items_status ON items(status);
 CREATE INDEX idx_items_category ON items(category);
 CREATE INDEX idx_items_bike_id ON items(bike_id) WHERE bike_id IS NOT NULL;
 CREATE INDEX idx_items_tags ON items USING GIN (tags);
+CREATE INDEX idx_items_group ON items(group_id) WHERE group_id IS NOT NULL;
 
 -- Item photos
 CREATE TABLE item_photos (
@@ -70,25 +98,7 @@ CREATE TABLE item_photos (
 
 CREATE INDEX idx_item_photos_item ON item_photos(item_id);
 
--- Groups
-CREATE TABLE groups (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL,
-  description text,
-  is_public boolean DEFAULT true NOT NULL,
-  created_at timestamptz DEFAULT now() NOT NULL
-);
-
--- Group members
-CREATE TABLE group_members (
-  group_id uuid NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  role group_role NOT NULL DEFAULT 'member',
-  joined_at timestamptz DEFAULT now() NOT NULL,
-  PRIMARY KEY (group_id, user_id)
-);
-
--- Item-group junction (for group-scoped visibility)
+-- Item-group junction (for group-scoped visibility of personal items)
 CREATE TABLE item_groups (
   item_id uuid NOT NULL REFERENCES items(id) ON DELETE CASCADE,
   group_id uuid NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
@@ -168,9 +178,14 @@ AS $$
     WHERE id = p_item_id
       AND (
         visibility = 'all'
-        OR owner_id = p_user_id
+        -- Personal item: owner can see
+        OR (owner_id IS NOT NULL AND owner_id = p_user_id)
+        -- Group item: any group member can see
+        OR (group_id IS NOT NULL AND public.is_group_member(group_id, p_user_id))
+        -- Personal item shared with groups via item_groups junction
         OR (
-          visibility = 'groups'
+          owner_id IS NOT NULL
+          AND visibility = 'groups'
           AND public.user_shares_group_with_item(id, p_user_id)
         )
       )
@@ -188,27 +203,48 @@ CREATE POLICY "items_select_public"
   ON items FOR SELECT
   USING (
     visibility = 'all'
-    OR owner_id = (select auth.uid())
+    OR (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
+    OR (group_id IS NOT NULL AND public.is_group_member(group_id, (select auth.uid())))
     OR (
-      visibility = 'groups'
+      owner_id IS NOT NULL
+      AND visibility = 'groups'
       AND public.user_shares_group_with_item(id, (select auth.uid()))
     )
   );
 
 CREATE POLICY "items_insert_own"
   ON items FOR INSERT
-  WITH CHECK ((select auth.uid()) = owner_id);
+  WITH CHECK (
+    -- Personal item: caller is the owner, no group set
+    (owner_id = (select auth.uid()) AND group_id IS NULL)
+    -- Group item: caller is admin of target group, owner is NULL, created_by is caller
+    OR (
+      group_id IS NOT NULL
+      AND owner_id IS NULL
+      AND created_by = (select auth.uid())
+      AND public.is_group_admin(group_id, (select auth.uid()))
+    )
+  );
 
--- Owners can update their own rows (borrow-lock rules: trigger above).
+-- Owners update personal items; group admins update group items. Borrow-lock trigger still applies.
 CREATE POLICY "items_update_owner"
   ON items FOR UPDATE
-  USING ((select auth.uid()) = owner_id)
-  WITH CHECK ((select auth.uid()) = owner_id);
+  USING (
+    (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
+    OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+  )
+  WITH CHECK (
+    (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
+    OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+  );
 
 CREATE POLICY "items_delete_own"
   ON items FOR DELETE
   USING (
-    (select auth.uid()) = owner_id
+    (
+      (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
+      OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+    )
     AND status NOT IN ('loaned', 'reserved')
   );
 
@@ -224,9 +260,11 @@ CREATE POLICY "item_photos_select_via_item"
       WHERE items.id = item_photos.item_id
         AND (
           items.visibility = 'all'
-          OR items.owner_id = (select auth.uid())
+          OR (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
+          OR (items.group_id IS NOT NULL AND public.is_group_member(items.group_id, (select auth.uid())))
           OR (
-            items.visibility = 'groups'
+            items.owner_id IS NOT NULL
+            AND items.visibility = 'groups'
             AND public.user_shares_group_with_item(items.id, (select auth.uid()))
           )
         )
@@ -238,7 +276,11 @@ CREATE POLICY "item_photos_insert_own"
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM items
-      WHERE items.id = item_photos.item_id AND items.owner_id = (select auth.uid())
+      WHERE items.id = item_photos.item_id
+        AND (
+          (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
+          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+        )
     )
   );
 
@@ -247,7 +289,11 @@ CREATE POLICY "item_photos_update_own"
   USING (
     EXISTS (
       SELECT 1 FROM items
-      WHERE items.id = item_photos.item_id AND items.owner_id = (select auth.uid())
+      WHERE items.id = item_photos.item_id
+        AND (
+          (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
+          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+        )
     )
   );
 
@@ -256,7 +302,11 @@ CREATE POLICY "item_photos_delete_own"
   USING (
     EXISTS (
       SELECT 1 FROM items
-      WHERE items.id = item_photos.item_id AND items.owner_id = (select auth.uid())
+      WHERE items.id = item_photos.item_id
+        AND (
+          (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
+          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+        )
     )
   );
 
@@ -332,7 +382,12 @@ CREATE POLICY "item_groups_insert_owner"
   ON item_groups FOR INSERT
   WITH CHECK (
     EXISTS (
-      SELECT 1 FROM items WHERE items.id = item_groups.item_id AND items.owner_id = (select auth.uid())
+      SELECT 1 FROM items
+      WHERE items.id = item_groups.item_id
+        AND (
+          (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
+          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+        )
     )
   );
 
@@ -340,7 +395,12 @@ CREATE POLICY "item_groups_delete_owner"
   ON item_groups FOR DELETE
   USING (
     EXISTS (
-      SELECT 1 FROM items WHERE items.id = item_groups.item_id AND items.owner_id = (select auth.uid())
+      SELECT 1 FROM items
+      WHERE items.id = item_groups.item_id
+        AND (
+          (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
+          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+        )
     )
   );
 

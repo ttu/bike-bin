@@ -53,9 +53,23 @@ export interface SavedLocation {
   createdAt: string;
 }
 
-export interface Item {
-  id: ItemId;
+/** Exclusive ownership arc: an item is owned by either a user or a group. */
+export type PersonalOwnership = {
   ownerId: UserId;
+  groupId?: never;
+  createdBy?: never;
+};
+
+export type GroupOwnership = {
+  groupId: GroupId;
+  createdBy: UserId;
+  ownerId?: never;
+};
+
+export type Ownership = PersonalOwnership | GroupOwnership;
+
+interface ItemBase {
+  id: ItemId;
   bikeId: BikeId | undefined;
   name: string;
   category: ItemCategory;
@@ -86,6 +100,8 @@ export interface Item {
   tags: string[];
   thumbnailStoragePath: string | undefined;
 }
+
+export type Item = ItemBase & Ownership;
 
 export interface ItemPhoto {
   id: ItemPhotoId;
@@ -128,6 +144,8 @@ export interface Group {
   name: string;
   description: string | undefined;
   isPublic: boolean;
+  ratingAvg: number;
+  ratingCount: number;
   createdAt: string;
 }
 
@@ -144,6 +162,8 @@ export interface BorrowRequest {
   requesterId: UserId;
   status: BorrowRequestStatus;
   message: string | undefined;
+  /** The admin who acted on status transitions for group-owned items */
+  actedBy: UserId | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -162,12 +182,24 @@ export interface Message {
   createdAt: string;
 }
 
-export interface Rating {
+/** Exclusive recipient arc: a rating targets either a user or a group. */
+export type UserRatingRecipient = {
+  /** Undefined when the reviewer account was deleted (GDPR anonymization). */
+  toUserId: UserId | undefined;
+  toGroupId?: never;
+};
+
+export type GroupRatingRecipient = {
+  toGroupId: GroupId;
+  toUserId?: never;
+};
+
+export type RatingRecipient = UserRatingRecipient | GroupRatingRecipient;
+
+interface RatingBase {
   id: RatingId;
   /** Undefined when the reviewer account was deleted (GDPR anonymization). */
   fromUserId: UserId | undefined;
-  /** Undefined when the recipient account was deleted (GDPR anonymization). */
-  toUserId: UserId | undefined;
   itemId: ItemId | undefined;
   transactionType: TransactionType;
   score: number;
@@ -176,6 +208,8 @@ export interface Rating {
   createdAt: string;
   updatedAt: string;
 }
+
+export type Rating = RatingBase & RatingRecipient;
 
 export interface Notification {
   id: NotificationId;
