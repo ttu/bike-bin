@@ -21,7 +21,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
-import { spacing } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import {
   ItemStatus,
   type ConversationId,
@@ -40,7 +40,7 @@ import {
 } from '@/features/messaging';
 import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
-import { useMarkDonated, useMarkSold } from '@/features/exchange';
+import { useMarkDonated, useMarkSold, getExchangeDialogConfig } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
 import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
@@ -267,33 +267,7 @@ export default function ConversationDetailScreen() {
     }
   }, [exchangeConfirm, markDonated, markSold, showSnackbarAlert, tCommon]);
 
-  const exchangeDialogTitle =
-    exchangeConfirm?.kind === 'donate'
-      ? tExchange('confirm.donate.title')
-      : exchangeConfirm?.kind === 'sell'
-        ? tExchange('confirm.sell.title')
-        : '';
-
-  const exchangeDialogMessage =
-    exchangeConfirm?.kind === 'donate'
-      ? tExchange('confirm.donate.message')
-      : exchangeConfirm?.kind === 'sell'
-        ? tExchange('confirm.sell.message')
-        : '';
-
-  const exchangeCancelLabel =
-    exchangeConfirm?.kind === 'donate'
-      ? tExchange('confirm.donate.cancel')
-      : exchangeConfirm?.kind === 'sell'
-        ? tExchange('confirm.sell.cancel')
-        : undefined;
-
-  const exchangeConfirmLabel =
-    exchangeConfirm?.kind === 'donate'
-      ? tExchange('confirm.donate.confirm')
-      : exchangeConfirm?.kind === 'sell'
-        ? tExchange('confirm.sell.confirm')
-        : '';
+  const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
 
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
@@ -455,10 +429,10 @@ export default function ConversationDetailScreen() {
 
       <ConfirmDialog
         visible={exchangeConfirm !== null}
-        title={exchangeDialogTitle}
-        message={exchangeDialogMessage}
-        cancelLabel={exchangeCancelLabel}
-        confirmLabel={exchangeConfirmLabel}
+        title={exchangeDialogConfig.title}
+        message={exchangeDialogConfig.message}
+        cancelLabel={exchangeDialogConfig.cancelLabel}
+        confirmLabel={exchangeDialogConfig.confirmLabel}
         onDismiss={handleDismissExchangeConfirm}
         onConfirm={handleConfirmExchange}
         loading={markDonated.isPending || markSold.isPending}
@@ -500,7 +474,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     maxHeight: 100,

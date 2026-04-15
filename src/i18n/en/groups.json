@@ -45,7 +45,8 @@
     "privateBadge": "Private",
     "joinGroup": "Request to Join",
     "joined": "Joined",
-    "edit": "Edit Group"
+    "edit": "Edit Group",
+    "unknownMember": "Unknown member"
   },
   "edit": {
     "title": "Edit Group",

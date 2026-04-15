@@ -6,6 +6,11 @@ export type {
   GroupMemberWithProfile,
 } from './types';
 
+// Components
+export { GroupCreateForm } from './components/GroupCreateForm/GroupCreateForm';
+export { GroupSearchView } from './components/GroupSearchView/GroupSearchView';
+export { GroupEditForm } from './components/GroupEditForm/GroupEditForm';
+
 // Hooks
 export { useGroups, useCreateGroup, useUpdateGroup, useDeleteGroup } from './hooks/useGroups';
 export { useGroup } from './hooks/useGroup';

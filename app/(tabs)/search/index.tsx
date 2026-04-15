@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, borderRadius } from '@/shared/theme';
+import { spacing, borderRadius, tabBarListScrollPaddingBottom } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   list: {
-    paddingBottom: 100,
+    paddingBottom: tabBarListScrollPaddingBottom,
     paddingHorizontal: spacing.base,
   },
   columnWrapper: {

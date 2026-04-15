@@ -71,7 +71,7 @@ jest.mock('@/shared/hooks/usePhotoRowCapacity', () => ({
   }),
 }));
 
-jest.mock('@/features/inventory/hooks/usePhotoPicker', () => ({
+jest.mock('@/shared/hooks/usePhotoPicker', () => ({
   usePhotoPicker: () => ({ pickPhoto: jest.fn(), isPicking: false }),
 }));
 
@@ -96,7 +96,7 @@ jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({
   },
 }));
 
-jest.mock('@/features/inventory/components/PhotoPicker/PhotoPicker', () => ({
+jest.mock('@/shared/components/PhotoPicker/PhotoPicker', () => ({
   PhotoPicker: (props: Record<string, unknown>) => mockPhotoPicker(props),
 }));
 

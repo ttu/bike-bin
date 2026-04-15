@@ -5,7 +5,7 @@ import { supabase } from '@/shared/api/supabase';
 import { uploadPhoto } from '@/shared/utils/uploadPhoto';
 import { PhotoLimitExceededError } from '@/shared/utils/subscriptionLimitErrors';
 import type { ItemId } from '@/shared/types';
-import type { PickerPhoto } from '../components/PhotoPicker/PhotoPicker';
+import type { PickerPhoto } from '@/shared/components/PhotoPicker/PhotoPicker';
 
 interface StagedPhoto {
   id: string;

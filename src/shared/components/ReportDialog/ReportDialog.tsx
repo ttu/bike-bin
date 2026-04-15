@@ -103,7 +103,10 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
                 numberOfLines={3}
                 mode="flat"
                 style={[
-                  { backgroundColor: theme.customColors.surfaceContainerHighest, borderRadius: 12 },
+                  {
+                    backgroundColor: theme.customColors.surfaceContainerHighest,
+                    borderRadius: borderRadius.md,
+                  },
                   styles.textInput,
                 ]}
                 underlineColor={theme.colors.outlineVariant + '26'}

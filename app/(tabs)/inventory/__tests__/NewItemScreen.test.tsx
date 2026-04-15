@@ -79,7 +79,7 @@ jest.mock('@/features/inventory/hooks/useLocalInventory', () => ({
   useLocalInventory: () => ({ addItem: mockAddItem }),
 }));
 
-jest.mock('@/features/inventory/hooks/usePhotoPicker', () => ({
+jest.mock('@/shared/hooks/usePhotoPicker', () => ({
   usePhotoPicker: () => ({ pickPhoto: mockPickPhoto, isPicking: false }),
 }));
 
@@ -112,7 +112,7 @@ jest.mock('@/features/inventory/components/ItemForm/ItemForm', () => ({
   },
 }));
 
-jest.mock('@/features/inventory/components/PhotoPicker/PhotoPicker', () => ({
+jest.mock('@/shared/components/PhotoPicker/PhotoPicker', () => ({
   PhotoPicker: (props: Record<string, unknown>) => mockPhotoPicker(props),
 }));
 

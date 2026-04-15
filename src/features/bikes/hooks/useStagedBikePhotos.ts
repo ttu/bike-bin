@@ -5,7 +5,7 @@ import { supabase } from '@/shared/api/supabase';
 import { uploadPhoto } from '@/shared/utils/uploadPhoto';
 import { PhotoLimitExceededError } from '@/shared/utils/subscriptionLimitErrors';
 import type { BikeId } from '@/shared/types';
-import type { PickerPhoto } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
+import type { PickerPhoto } from '@/shared/components/PhotoPicker/PhotoPicker';
 
 const ITEM_PHOTOS_BUCKET = 'item-photos';
 

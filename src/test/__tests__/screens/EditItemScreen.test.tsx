@@ -69,7 +69,7 @@ jest.mock('@/features/inventory', () => ({
   useRemoveItemPhoto: () => ({ mutate: mockRemovePhotoMutate, isPending: false }),
 }));
 
-jest.mock('@/features/inventory/components/PhotoPicker/PhotoPicker', () => ({
+jest.mock('@/shared/components/PhotoPicker/PhotoPicker', () => ({
   PhotoPicker: ({ onRemove }: { onRemove: (photoId: string) => void }) => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory
     const { Pressable, Text } = require('react-native');

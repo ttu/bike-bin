@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { spacing, borderRadius, iconSize, tabBarListScrollPaddingBottom } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import { useBorrowRequests } from '@/features/borrow';
 import { ProfileHeader, useProfile, useDistanceUnit } from '@/features/profile';
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: 100,
+    paddingBottom: tabBarListScrollPaddingBottom,
   },
   header: {
     paddingHorizontal: spacing.base,

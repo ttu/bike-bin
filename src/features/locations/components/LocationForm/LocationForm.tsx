@@ -49,7 +49,7 @@ export function LocationForm({
       StyleSheet.create({
         softInput: {
           backgroundColor: theme.customColors.surfaceContainerHighest,
-          borderRadius: 12,
+          borderRadius: borderRadius.md,
         },
       }),
     [theme],

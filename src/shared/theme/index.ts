@@ -7,4 +7,5 @@ export {
   fabListScrollPaddingBase,
   fabOffsetAboveTabBar,
   fabListScrollPaddingBottom,
+  tabBarListScrollPaddingBottom,
 } from './fabLayout';

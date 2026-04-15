@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -16,13 +16,14 @@ import {
 } from '@/features/inventory';
 import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
-import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
+import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
 import { canDelete } from '@/features/inventory';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
+import { usePhotoDirtyTracking } from '@/shared/hooks/usePhotoDirtyTracking';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -39,7 +40,6 @@ export default function EditItemScreen() {
   const { data: item, isLoading, isSuccess: itemReady } = useItem(itemId);
   const { data: photos = [], isSuccess: photosReady } = useItemPhotos(itemId);
   const [formDirty, setFormDirty] = useState(false);
-  const [photoBaseline, setPhotoBaseline] = useState<string[] | undefined>(undefined);
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
   const { pickAndUpload, isUploading } = usePhotoUpload();
@@ -48,21 +48,7 @@ export default function EditItemScreen() {
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
-  const photoIdsKey = useMemo(() => photos.map((p) => p.id).join('|'), [photos]);
-
-  useEffect(() => {
-    if (!itemReady || !photosReady) return;
-    const ids = photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync baseline when photo query data or order changes
-    setPhotoBaseline(ids);
-  }, [itemReady, photosReady, photoIdsKey]);
-
-  const photosDirty = useMemo(() => {
-    if (photoBaseline === undefined) return false;
-    if (photos.length !== photoBaseline.length) return true;
-    return photos.some((p, i) => p.id !== photoBaseline[i]);
-  }, [photos, photoBaseline]);
-
+  const photosDirty = usePhotoDirtyTracking(photos, itemReady, photosReady);
   const isScreenDirty = formDirty || photosDirty;
 
   const { bypassNextNavigation } = useUnsavedChangesExitGuard({

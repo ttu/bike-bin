@@ -4,7 +4,7 @@ import { Text, TextInput, Button, Portal, Modal, useTheme } from 'react-native-p
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing, iconSize, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 import { RATING_WINDOW_DAYS } from '../../utils/ratingWindow';
@@ -113,7 +113,10 @@ export function RatingPrompt({
           multiline
           numberOfLines={3}
           style={[
-            { backgroundColor: theme.customColors.surfaceContainerHighest, borderRadius: 12 },
+            {
+              backgroundColor: theme.customColors.surfaceContainerHighest,
+              borderRadius: borderRadius.md,
+            },
             styles.commentInput,
           ]}
           underlineColor={theme.colors.outlineVariant + '26'}

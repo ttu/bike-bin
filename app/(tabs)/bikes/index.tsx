@@ -9,7 +9,7 @@ import { useBikes, useBikeRowCapacity } from '@/features/bikes';
 import { BikeCard } from '@/features/bikes/components/BikeCard/BikeCard';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
-import { spacing } from '@/shared/theme';
+import { spacing, fabListScrollPaddingBottom, fabOffsetAboveTabBar } from '@/shared/theme';
 
 export default function BikesScreen() {
   const theme = useTheme();
@@ -69,14 +69,17 @@ export default function BikesScreen() {
           data={bikes}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
         />
       )}
 
       {bikes.length > 0 && (
         <FAB
           icon="plus"
-          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          style={[
+            styles.fab,
+            { backgroundColor: theme.colors.primary, bottom: fabOffsetAboveTabBar(insets.bottom) },
+          ]}
           color={theme.colors.onPrimary}
           onPress={handleAddPress}
           disabled={blockNewBikes}
@@ -98,12 +101,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
   },
-  list: {
-    paddingBottom: 80,
-  },
   fab: {
     position: 'absolute',
     right: spacing.base,
-    bottom: 80,
   },
 });

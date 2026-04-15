@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { AppTheme } from '@/shared/theme';
+import { borderRadius } from '@/shared/theme';
 
 interface GradientButtonProps {
   children: React.ReactNode;
@@ -88,12 +89,12 @@ export function GradientButton({
 
 const styles = StyleSheet.create({
   wrapper: {
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     overflow: 'hidden' as const,
   },
   gradient: {
     height: 48,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
     paddingHorizontal: 24,

@@ -13,7 +13,7 @@ import { useUserTags } from '../../hooks/useUserTags';
 import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useItems } from '../../hooks/useItems';
 import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
-import { useDistanceUnit } from '@/features/profile';
+import { useDistanceUnit } from '@/shared/hooks/useDistanceUnit';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';

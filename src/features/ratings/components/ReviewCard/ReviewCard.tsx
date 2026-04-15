@@ -2,7 +2,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing, iconSize, borderRadius } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 
 interface ReviewCardProps {
@@ -83,7 +83,7 @@ export function ReviewCard({
 const styles = StyleSheet.create({
   container: {
     padding: spacing.base,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
   },
   header: {
