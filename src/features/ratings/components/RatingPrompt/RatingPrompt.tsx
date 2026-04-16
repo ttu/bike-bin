@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput, Button, Portal, Modal, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
@@ -39,6 +39,26 @@ export function RatingPrompt({
   const [score, setScore] = useState(0);
   const [comment, setComment] = useState('');
 
+  const themeStyles = useMemo(
+    () => ({
+      modal: { backgroundColor: theme.colors.surface },
+      context: { color: theme.colors.onSurfaceVariant },
+      starLabel: { color: theme.colors.onSurfaceVariant },
+      scoreLabel: { color: theme.colors.primary },
+      note: { color: theme.colors.onSurfaceVariant },
+      commentInput: {
+        backgroundColor: theme.customColors.surfaceContainerHighest,
+        borderRadius: borderRadius.md,
+      },
+    }),
+    [
+      theme.colors.surface,
+      theme.colors.onSurfaceVariant,
+      theme.colors.primary,
+      theme.customColors.surfaceContainerHighest,
+    ],
+  );
+
   const handleSubmit = useCallback(() => {
     if (score < 1) return;
     onSubmit(score, comment.trim() || undefined);
@@ -55,7 +75,7 @@ export function RatingPrompt({
       <Modal
         visible={visible}
         onDismiss={handleDismiss}
-        contentContainerStyle={[styles.modal, { backgroundColor: theme.colors.surface }]}
+        contentContainerStyle={[styles.modal, themeStyles.modal]}
       >
         {/* Title */}
         <Text variant="titleLarge" style={styles.title}>
@@ -63,18 +83,12 @@ export function RatingPrompt({
         </Text>
 
         {/* Context */}
-        <Text
-          variant="bodyMedium"
-          style={[styles.context, { color: theme.colors.onSurfaceVariant }]}
-        >
+        <Text variant="bodyMedium" style={[styles.context, themeStyles.context]}>
           {t('prompt.context', { transactionType, itemName, userName })}
         </Text>
 
         {/* Star selector */}
-        <Text
-          variant="labelMedium"
-          style={[styles.starLabel, { color: theme.colors.onSurfaceVariant }]}
-        >
+        <Text variant="labelMedium" style={[styles.starLabel, themeStyles.starLabel]}>
           {t('prompt.starLabel')}
         </Text>
         <View style={styles.starsRow} accessibilityRole="radiogroup">
@@ -98,7 +112,7 @@ export function RatingPrompt({
 
         {/* Score label */}
         {score > 0 && (
-          <Text variant="bodySmall" style={[styles.scoreLabel, { color: theme.colors.primary }]}>
+          <Text variant="bodySmall" style={[styles.scoreLabel, themeStyles.scoreLabel]}>
             {t(`stars.${score}` as 'stars.1')}
           </Text>
         )}
@@ -112,19 +126,13 @@ export function RatingPrompt({
           onChangeText={setComment}
           multiline
           numberOfLines={3}
-          style={[
-            {
-              backgroundColor: theme.customColors.surfaceContainerHighest,
-              borderRadius: borderRadius.md,
-            },
-            styles.commentInput,
-          ]}
+          style={[themeStyles.commentInput, styles.commentInput]}
           underlineColor={theme.colors.outlineVariant + '26'}
           activeUnderlineColor={theme.colors.primary}
         />
 
         {/* Window note */}
-        <Text variant="bodySmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
+        <Text variant="bodySmall" style={[styles.note, themeStyles.note]}>
           {t('prompt.windowNote', { days: RATING_WINDOW_DAYS })}
         </Text>
 

@@ -17,9 +17,11 @@ export function usePhotoDirtyTracking(
 
   useEffect(() => {
     if (!isEntityReady || !isPhotosReady) return;
-    const ids = photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync baseline when photo query data or order changes
-    setPhotoBaseline(ids);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time baseline capture when data is ready
+    setPhotoBaseline((prev) => {
+      if (prev !== undefined) return prev;
+      return photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
+    });
   }, [isEntityReady, isPhotosReady, photoIdsKey]);
 
   return useMemo(() => {

@@ -26,4 +26,4 @@ export function fabListScrollPaddingBottom(insetsBottom: number): number {
  * `paddingBottom` for scroll views / FlatLists on tab screens that do **not** have a FAB.
  * Clears the bottom tab bar with comfortable breathing room.
  */
-export const tabBarListScrollPaddingBottom = 100;
+export const tabBarListScrollPaddingBottom = fabListScrollPaddingBase;

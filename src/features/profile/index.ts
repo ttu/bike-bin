@@ -9,7 +9,7 @@ export { useProfile } from './hooks/useProfile';
 export { usePublicProfile } from './hooks/usePublicProfile';
 export { usePublicListings } from './hooks/usePublicListings';
 export { useUpdateProfile } from './hooks/useUpdateProfile';
-export { useDistanceUnit } from '@/shared/hooks/useDistanceUnit';
+export { useDistanceUnit } from './hooks/useDistanceUnit';
 export { useSubmitSupport } from './hooks/useSubmitSupport';
 export { useDeleteAccount } from './hooks/useDeleteAccount';
 export { useRequestExport } from './hooks/useRequestExport';

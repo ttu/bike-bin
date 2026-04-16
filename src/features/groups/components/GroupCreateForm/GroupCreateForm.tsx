@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Appbar, Text, TextInput, Button, Switch, HelperText, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,15 @@ export function GroupCreateForm({ onBack, onSubmit, isSubmitting }: GroupCreateF
   const [isPublic, setIsPublic] = useState(false);
   const [nameError, setNameError] = useState('');
 
+  const themeStyles = useMemo(
+    () => ({
+      container: { backgroundColor: theme.colors.background },
+      appbar: { backgroundColor: theme.colors.background },
+      description: { color: theme.colors.onSurfaceVariant },
+    }),
+    [theme.colors.background, theme.colors.onSurfaceVariant],
+  );
+
   const handleSubmit = useCallback(() => {
     if (!name.trim()) {
       setNameError(t('validation.nameRequired'));
@@ -33,8 +42,8 @@ export function GroupCreateForm({ onBack, onSubmit, isSubmitting }: GroupCreateF
   }, [name, description, isPublic, onSubmit, t]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+    <View style={[styles.container, themeStyles.container]}>
+      <Appbar.Header dark={theme.dark} style={themeStyles.appbar}>
         <Appbar.BackAction onPress={onBack} />
         <Appbar.Content title={t('create.title')} />
       </Appbar.Header>
@@ -71,7 +80,7 @@ export function GroupCreateForm({ onBack, onSubmit, isSubmitting }: GroupCreateF
         <View style={styles.switchRow}>
           <View style={styles.switchLabel}>
             <Text variant="labelLarge">{t('create.publicLabel')}</Text>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodySmall" style={themeStyles.description}>
               {isPublic ? t('create.publicDescription') : t('create.privateDescription')}
             </Text>
           </View>

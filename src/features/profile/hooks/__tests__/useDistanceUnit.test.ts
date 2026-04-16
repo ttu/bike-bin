@@ -21,7 +21,7 @@ jest.mock('@/shared/api/supabase', () => ({
 
 jest.mock('@/features/auth', () => mockAuthModule);
 
-jest.mock('@/features/profile', () => ({
+jest.mock('../useProfile', () => ({
   useProfile: () => ({ data: { distanceUnit: 'mi' } }),
 }));
 

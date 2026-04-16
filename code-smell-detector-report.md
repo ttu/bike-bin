@@ -1,5 +1,12 @@
 # Code Smell Detection Report — Bike Bin
 
+> **Historical snapshot.** This report was produced **before** the
+> `refactor/code-smell-phase1` effort. Many of the findings below have since
+> been addressed in that refactor (container/presentational split for the
+> multi-mode screens, extraction of `useItemActions`, FAB layout helpers,
+> inline-style memoization, branded IDs for photo fetching, etc.). Treat this
+> document as the pre-PR baseline, not a TODO list.
+
 ## Executive Summary
 
 Analysis of `/Users/ttu/src/github/bike-bin` covering the `src/` and `app/` directories of an Expo + React Native + TypeScript project. The codebase is generally well-structured, follows feature-slice conventions, and avoids many common pitfalls. However, several recurring patterns across medium-to-large screen files represent meaningful maintainability risk. No critical architectural violations were found.

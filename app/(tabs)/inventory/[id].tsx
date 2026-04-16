@@ -45,7 +45,11 @@ export default function ItemDetailScreen() {
 
   const [removeInventoryOpen, setRemoveInventoryOpen] = useState(false);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
-  const { openConfirm, closeConfirm, confirmDialogProps: transferConfirmProps } = useConfirmDialog();
+  const {
+    openConfirm,
+    closeConfirm,
+    confirmDialogProps: transferConfirmProps,
+  } = useConfirmDialog();
   const { user } = useAuth();
   const { data: userGroups } = useGroups();
   const transferItem = useTransferItem();

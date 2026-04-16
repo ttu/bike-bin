@@ -4,7 +4,7 @@ import { supabase } from '@/shared/api/supabase';
 import type { UserId } from '@/shared/types';
 import type { DistanceUnit } from '@/shared/types';
 import { useAuth } from '@/features/auth';
-import { useProfile } from '@/features/profile';
+import { useProfile } from './useProfile';
 
 /**
  * Hook to read and update the user's distance unit preference (km/mi).

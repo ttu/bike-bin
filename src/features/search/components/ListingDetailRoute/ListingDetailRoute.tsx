@@ -106,6 +106,13 @@ export function ListingDetailRoute({
             onSuccess: () => {
               router.push('/(tabs)/profile/borrow-requests');
             },
+            onError: () => {
+              showSnackbarAlert({
+                message: tBorrow('error.requestFailed'),
+                variant: 'error',
+                duration: 'long',
+              });
+            },
           },
         );
       },

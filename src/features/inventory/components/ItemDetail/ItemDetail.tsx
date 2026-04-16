@@ -10,7 +10,7 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
-import { useDistanceUnit } from '@/shared/hooks/useDistanceUnit';
+import { useDistanceUnit } from '@/features/profile';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 

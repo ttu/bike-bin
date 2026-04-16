@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Appbar, Text, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -26,10 +26,22 @@ export function GroupEditForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('groups');
 
-  const softInputStyle = {
-    backgroundColor: theme.customColors.surfaceContainerHighest,
-    borderRadius: borderRadius.md,
-  };
+  const themeStyles = useMemo(
+    () => ({
+      container: { backgroundColor: theme.colors.background },
+      appbar: { backgroundColor: theme.colors.background },
+      softInput: {
+        backgroundColor: theme.customColors.surfaceContainerHighest,
+        borderRadius: borderRadius.md,
+      },
+      description: { color: theme.colors.onSurfaceVariant },
+    }),
+    [
+      theme.colors.background,
+      theme.colors.onSurfaceVariant,
+      theme.customColors.surfaceContainerHighest,
+    ],
+  );
   const underlineColor = theme.colors.outlineVariant + '26';
   const activeUnderlineColor = theme.colors.primary;
 
@@ -52,8 +64,8 @@ export function GroupEditForm({
   }, [editName, editDescription, editIsPublic, onSubmit, t]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+    <View style={[styles.container, themeStyles.container]}>
+      <Appbar.Header dark={theme.dark} style={themeStyles.appbar}>
         <Appbar.BackAction onPress={onCancel} />
         <Appbar.Content title={t('edit.title')} />
       </Appbar.Header>
@@ -68,7 +80,7 @@ export function GroupEditForm({
           onChangeText={setEditName}
           placeholder={t('create.namePlaceholder')}
           error={!!editNameError}
-          style={softInputStyle}
+          style={themeStyles.softInput}
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}
         />
@@ -88,7 +100,7 @@ export function GroupEditForm({
           placeholder={t('create.descriptionPlaceholder')}
           multiline
           numberOfLines={3}
-          style={softInputStyle}
+          style={themeStyles.softInput}
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}
         />
@@ -96,7 +108,7 @@ export function GroupEditForm({
         <View style={styles.switchRow}>
           <View style={styles.switchLabel}>
             <Text variant="labelLarge">{t('create.publicLabel')}</Text>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodySmall" style={themeStyles.description}>
               {editIsPublic ? t('create.publicDescription') : t('create.privateDescription')}
             </Text>
           </View>
