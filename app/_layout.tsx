@@ -1,4 +1,7 @@
+import 'react-native-gesture-handler';
 import { useCallback } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -21,6 +24,13 @@ import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
 import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
 import { APP_ENV } from '@/shared/utils/env';
+import StorybookUIRoot from '../.rnstorybook';
+
+const storybookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true';
+
+const layoutStyles = StyleSheet.create({
+  storybookRoot: { flex: 1 },
+});
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 if (typeof sentryDsn === 'string' && sentryDsn.trim().length > 0) {
@@ -49,6 +59,25 @@ function AppContent() {
   );
 }
 
+function StorybookAppContent() {
+  const { effectiveTheme } = useThemePreference();
+  const theme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
+
+  return (
+    <GestureHandlerRootView style={layoutStyles.storybookRoot}>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <SnackbarAlertsProvider>
+            <DemoModeProvider>
+              <StorybookUIRoot />
+            </DemoModeProvider>
+          </SnackbarAlertsProvider>
+        </PaperProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
+
 function RootLayout() {
   const [fontsLoaded] = useFonts({
     'Manrope-Regular': Manrope_400Regular,
@@ -66,6 +95,18 @@ function RootLayout() {
 
   if (!fontsLoaded) {
     return null;
+  }
+
+  if (storybookEnabled) {
+    return (
+      <SafeAreaProvider onLayout={onLayoutRootView}>
+        <QueryClientProvider client={queryClient}>
+          <ThemePreferenceProvider>
+            <StorybookAppContent />
+          </ThemePreferenceProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    );
   }
 
   return (

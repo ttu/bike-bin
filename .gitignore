@@ -22,3 +22,6 @@ expo-env.d.ts
 .worktrees/
 
 .env.local
+
+*storybook.log
+storybook-static

@@ -1,0 +1,29 @@
+{
+  "emptyState": {
+    "title": "Nothing here yet",
+    "description": "Try adding something to see it show up in this list.",
+    "cta": "Get started"
+  },
+  "confirm": {
+    "title": "Remove item?",
+    "message": "This cannot be undone.",
+    "confirm": "Remove"
+  },
+  "brandInput": {
+    "label": "Brand",
+    "placeholder": "Search brands"
+  },
+  "report": {
+    "title": "Report content",
+    "detailsLabel": "Details",
+    "detailsPlaceholder": "Describe what is wrong"
+  },
+  "searchBar": {
+    "area": "Helsinki center"
+  },
+  "sample": {
+    "detailTitle": "Specifications",
+    "detailBody": "Example detail text for previews.",
+    "maxWidthHint": "Max width applies on web; native shows full width."
+  }
+}

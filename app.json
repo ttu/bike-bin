@@ -60,7 +60,8 @@
           "project": "bike-bin",
           "organization": "ttu-iz"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true
