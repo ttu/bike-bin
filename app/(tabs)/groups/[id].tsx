@@ -92,7 +92,7 @@ export default function GroupDetailScreen() {
         closeConfirm();
         try {
           await deleteGroup.mutateAsync(groupId);
-          tabScopedBack('/(tabs)/profile/groups');
+          tabScopedBack('/(tabs)/groups');
         } catch {
           showSnackbarAlert({
             message: t('errors.deleteFailed'),
@@ -126,7 +126,7 @@ export default function GroupDetailScreen() {
         closeConfirm();
         try {
           await leaveGroup.mutateAsync(groupId);
-          tabScopedBack('/(tabs)/profile/groups');
+          tabScopedBack('/(tabs)/groups');
         } catch {
           showSnackbarAlert({
             message: t('errors.leaveFailed'),
@@ -225,7 +225,7 @@ export default function GroupDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile/groups')} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/groups')} />
         <Appbar.Content title={group.name} />
         {isAdmin && <Appbar.Action icon="pencil" onPress={() => setIsEditing(true)} />}
       </Appbar.Header>

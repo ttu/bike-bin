@@ -7,8 +7,6 @@ export default function ProfileLayout() {
       <Stack.Screen name="locations" />
       <Stack.Screen name="borrow-requests" />
       <Stack.Screen name="notification-settings" />
-      <Stack.Screen name="groups/index" />
-      <Stack.Screen name="groups/[id]" />
       <Stack.Screen name="[userId]" />
       <Stack.Screen name="support" />
       <Stack.Screen name="about" />

@@ -1,6 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
-import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 import type { GroupWithRole, SearchGroupResult } from '@/features/groups';
@@ -25,10 +24,6 @@ jest.mock('expo-router', () => ({
   router: {
     push: (...args: unknown[]) => mockRouterPush(...args),
   },
-}));
-
-jest.mock('@/shared/utils/tabScopedBack', () => ({
-  tabScopedBack: jest.fn(),
 }));
 
 jest.mock('react-native-safe-area-context', () => {
@@ -131,16 +126,10 @@ describe('GroupsScreen', () => {
     expect(refreshControl.props.refreshing).toBe(true);
   });
 
-  it('calls tabScopedBack when list back is pressed', () => {
-    const { getByTestId } = renderWithProviders(<GroupsScreen />);
-    fireEvent.press(getByTestId('groups-screen-back'));
-    expect(jest.mocked(tabScopedBack)).toHaveBeenCalledWith('/(tabs)/profile');
-  });
-
   it('navigates to group detail when a group row is pressed', () => {
     const { getByText } = renderWithProviders(<GroupsScreen />);
     fireEvent.press(getByText('Test Group'));
-    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/profile/groups/group-abc');
+    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/groups/group-abc');
   });
 
   it('completes create group flow on success', async () => {

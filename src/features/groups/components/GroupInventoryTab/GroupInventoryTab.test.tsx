@@ -1,8 +1,15 @@
+import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
 import type { GroupId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
+
+const mockRouterPush = jest.fn();
+
+jest.mock('expo-router', () => ({
+  router: { push: (...args: unknown[]) => mockRouterPush(...args) },
+}));
 
 jest.mock('@/features/auth', () => mockAuthModule);
 
@@ -33,6 +40,7 @@ const GROUP_ID = 'group-1' as GroupId;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockRouterPush.mockClear();
 });
 
 describe('GroupInventoryTab', () => {
@@ -92,5 +100,19 @@ describe('GroupInventoryTab', () => {
 
     const { queryByLabelText } = renderWithProviders(<GroupInventoryTab groupId={GROUP_ID} />);
     expect(queryByLabelText('Add group item')).toBeNull();
+  });
+
+  it('opens new inventory with groupId when admin taps the FAB', () => {
+    mockUseGroupItems.mockReturnValue({
+      data: [createMockItem({ name: 'Shared Helmet', groupId: GROUP_ID, ownerId: undefined })],
+      isLoading: false,
+      refetch: jest.fn(),
+    });
+    setupMembers('admin');
+
+    const { getByLabelText } = renderWithProviders(<GroupInventoryTab groupId={GROUP_ID} />);
+    fireEvent.press(getByLabelText('Add group item'));
+
+    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/new?groupId=group-1');
   });
 });

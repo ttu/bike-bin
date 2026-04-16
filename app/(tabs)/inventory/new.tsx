@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -19,11 +19,17 @@ import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
 import { usePhotoPicker } from '@/shared/hooks/usePhotoPicker';
 import { useStagedPhotos } from '@/features/inventory/hooks/useStagedPhotos';
-import { ItemCategory, ItemStatus, Visibility } from '@/shared/types';
-import type { BorrowDuration } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemStatus,
+  LOCAL_USER_ID,
+  Visibility,
+  type BorrowDuration,
+  type GroupId,
+  type ItemId,
+} from '@/shared/types';
 import { spacing } from '@/shared/theme';
-import type { ItemId } from '@/shared/types';
-import { LOCAL_USER_ID } from '@/shared/types';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 
@@ -40,10 +46,24 @@ export default function NewItemScreen() {
   const { atLimit: atPhotoLimit, isReady: photoCapacityReady } = usePhotoRowCapacity();
   const [limitSnackbarVisible, setLimitSnackbarVisible] = useState(false);
   const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
-  const { category } = useLocalSearchParams<{ category?: string }>();
+  const { category, groupId: groupIdParam } = useLocalSearchParams<{
+    category?: string;
+    groupId?: string;
+  }>();
   const initialCategory = Object.values(ItemCategory).includes(category as ItemCategory)
     ? (category as ItemCategory)
     : undefined;
+
+  const initialDataFromGroup = useMemo((): ItemFormData | undefined => {
+    const raw = groupIdParam?.trim();
+    if (!raw) return undefined;
+    return {
+      name: '',
+      availabilityTypes: [AvailabilityType.Private],
+      groupIds: [raw as GroupId],
+      visibility: Visibility.Groups,
+    };
+  }, [groupIdParam]);
 
   const { pickPhoto, isPicking } = usePhotoPicker();
   const { stagedPhotos, addStaged, removeStaged, uploadAll, isUploading } = useStagedPhotos();
@@ -161,6 +181,7 @@ export default function NewItemScreen() {
         <Appbar.Content title={t('addItem')} />
       </Appbar.Header>
       <ItemForm
+        initialData={initialDataFromGroup}
         initialCategory={initialCategory}
         onSave={handleSave}
         isSubmitting={isSaving || createItem.isPending}

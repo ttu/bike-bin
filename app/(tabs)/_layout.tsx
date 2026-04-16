@@ -151,6 +151,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="groups"
+        options={{
+          title: t('tabs.groups'),
+          tabBarAccessibilityLabel: t('tabs.groups'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-group" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="messages"
         options={{
           title: t('tabs.messages'),

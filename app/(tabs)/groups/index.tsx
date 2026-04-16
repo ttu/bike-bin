@@ -1,10 +1,9 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Appbar, Text, FAB, Chip, useTheme } from 'react-native-paper';
+import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {
   spacing,
@@ -84,7 +83,7 @@ export default function GroupsScreen() {
   );
 
   const handleGroupPress = useCallback((group: GroupWithRole) => {
-    router.push(`/(tabs)/profile/groups/${group.id}`);
+    router.push(`/(tabs)/groups/${group.id}`);
   }, []);
 
   if (mode === 'create') {
@@ -114,10 +113,6 @@ export default function GroupsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction
-          testID="groups-screen-back"
-          onPress={() => tabScopedBack('/(tabs)/profile')}
-        />
         <Appbar.Content title={t('title')} />
         <Appbar.Action
           icon="magnify"
@@ -204,12 +199,22 @@ function GroupCard({
           </Text>
         )}
         <View style={styles.cardMeta}>
-          <Chip compact textStyle={styles.chipText}>
-            {group.isPublic ? t('detail.publicBadge') : t('detail.privateBadge')}
-          </Chip>
-          <Chip compact textStyle={styles.chipText}>
-            {group.memberRole === 'admin' ? t('detail.admin') : t('detail.member')}
-          </Chip>
+          <View style={[styles.metaBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
+            <Text
+              variant="labelSmall"
+              style={[styles.metaBadgeText, { color: theme.colors.onSecondaryContainer }]}
+            >
+              {group.isPublic ? t('detail.publicBadge') : t('detail.privateBadge')}
+            </Text>
+          </View>
+          <View style={[styles.metaBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
+            <Text
+              variant="labelSmall"
+              style={[styles.metaBadgeText, { color: theme.colors.onSecondaryContainer }]}
+            >
+              {group.memberRole === 'admin' ? t('detail.admin') : t('detail.member')}
+            </Text>
+          </View>
         </View>
       </View>
       <MaterialCommunityIcons
@@ -249,8 +254,15 @@ const styles = StyleSheet.create({
   cardMeta: {
     flexDirection: 'row',
     gap: spacing.xs,
+    flexWrap: 'wrap',
   },
-  chipText: {
+  metaBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.full,
+    alignSelf: 'flex-start',
+  },
+  metaBadgeText: {
     fontSize: 11,
   },
   fab: {

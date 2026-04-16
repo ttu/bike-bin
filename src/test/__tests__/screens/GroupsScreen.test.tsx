@@ -3,9 +3,8 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import type { SearchGroupResult } from '@/features/groups/types';
 import type { GroupId } from '@/shared/types';
-import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import groupsEn from '@/i18n/en/groups.json';
-import GroupsScreen from '../../../../app/(tabs)/profile/groups/index';
+import GroupsScreen from '../../../../app/(tabs)/groups/index';
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -17,10 +16,6 @@ jest.mock('@/shared/api/supabase', () => ({
       }),
     })),
   },
-}));
-
-jest.mock('@/shared/utils/tabScopedBack', () => ({
-  tabScopedBack: jest.fn(),
 }));
 
 const mockPush = jest.fn();
@@ -71,11 +66,10 @@ describe('GroupsScreen', () => {
     mockJoinMutateAsync.mockImplementation(() => Promise.resolve());
   });
 
-  it('shows empty state and navigates back', () => {
+  it('shows empty state on the groups tab root', () => {
     renderWithProviders(<GroupsScreen />);
     expect(screen.getByText(groupsEn.empty.title)).toBeTruthy();
-    fireEvent.press(screen.getByLabelText('Back'));
-    expect(tabScopedBack).toHaveBeenCalledWith('/(tabs)/profile');
+    expect(screen.getByText(groupsEn.title)).toBeTruthy();
   });
 
   it('opens create mode and returns to list', () => {

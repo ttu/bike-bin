@@ -2,6 +2,8 @@ import React from 'react';
 import { renderWithProviders } from '@/test/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import NewItemScreen from '../new';
+import { AvailabilityType, Visibility } from '@/shared/types';
+import type { GroupId } from '@/shared/types';
 
 const mockMutateAsync = jest.fn();
 const mockDeleteMutateAsync = jest.fn();
@@ -20,6 +22,8 @@ let mockPhotoAtLimit = false;
 let mockLimit: number | undefined;
 let capturedOnSave: ((data: Record<string, unknown>) => void) | undefined;
 let capturedOnValidationError: ((messages: string[]) => void) | undefined;
+let capturedInitialData: Record<string, unknown> | undefined;
+let mockSearchParams: Record<string, string | undefined> = {};
 
 const mockPhotoPicker = jest.fn((_props: Record<string, unknown>) => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -38,7 +42,7 @@ jest.mock('@/shared/api/supabase', () => ({
 }));
 
 jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockSearchParams,
   router: { push: (...args: unknown[]) => mockRouterPush(...args) },
 }));
 
@@ -95,10 +99,12 @@ jest.mock('@/features/inventory/hooks/useStagedPhotos', () => ({
 
 jest.mock('@/features/inventory/components/ItemForm/ItemForm', () => ({
   ItemForm: (props: {
+    initialData?: Record<string, unknown>;
     onSave: (data: Record<string, unknown>) => void;
     onValidationError?: (messages: string[]) => void;
     photoSection?: React.ReactNode;
   }) => {
+    capturedInitialData = props.initialData;
     capturedOnSave = props.onSave;
     capturedOnValidationError = props.onValidationError;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -120,8 +126,10 @@ const formData = { name: 'Test Item', category: 'component', condition: 'good' }
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockSearchParams = {};
   capturedOnSave = undefined;
   capturedOnValidationError = undefined;
+  capturedInitialData = undefined;
   mockIsAuthenticated = true;
   mockIsInventoryLimitError = false;
   mockIsPhotoLimitError = false;
@@ -137,6 +145,7 @@ describe('NewItemScreen', () => {
     const { getByText, getByTestId } = renderWithProviders(<NewItemScreen />);
     expect(getByText('Add item')).toBeTruthy();
     expect(getByTestId('item-form-placeholder')).toBeTruthy();
+    expect(capturedInitialData).toBeUndefined();
     expect(mockPhotoPicker).toHaveBeenCalledWith(
       expect.objectContaining({ accountPhotoLimitReached: false }),
     );
@@ -270,6 +279,17 @@ describe('NewItemScreen', () => {
 
     await waitFor(() => {
       expect(getByText('Item validation message')).toBeTruthy();
+    });
+  });
+
+  it('passes group visibility initial data when groupId search param is set', () => {
+    mockSearchParams = { groupId: 'group-abc' };
+    renderWithProviders(<NewItemScreen />);
+    expect(capturedInitialData).toEqual({
+      name: '',
+      availabilityTypes: [AvailabilityType.Private],
+      groupIds: ['group-abc' as GroupId],
+      visibility: Visibility.Groups,
     });
   });
 });

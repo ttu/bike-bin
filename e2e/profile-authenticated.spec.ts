@@ -28,7 +28,7 @@ test.describe('Profile overview', () => {
 
     await expect(loggedInPage.getByText('Saved Locations')).toBeVisible();
     await expect(loggedInPage.getByText('Borrow Requests')).toBeVisible();
-    await expect(loggedInPage.getByText('Groups')).toBeVisible();
+    await expect(loggedInPage.getByTestId('profile-menu-groups')).toBeVisible();
     await expect(loggedInPage.getByText('Notification Settings')).toBeVisible();
     await expect(loggedInPage.getByText('Help & Support')).toBeVisible();
     await expect(loggedInPage.getByText('About & Legal')).toBeVisible();
@@ -157,16 +157,13 @@ test.describe('Borrow Requests', () => {
 });
 
 test.describe('Groups', () => {
-  test('navigates to groups', async ({ loggedInPage }) => {
-    await navigateToProfile(loggedInPage);
-
-    await loggedInPage.getByText('Groups').click();
+  test('navigates to groups via tab bar', async ({ loggedInPage }) => {
+    await loggedInPage.getByRole('tab', { name: 'Groups' }).click();
     await expect(loggedInPage).toHaveURL(/groups/, { timeout: 10000 });
   });
 
   test('shows group list', async ({ loggedInPage }) => {
-    await navigateToProfile(loggedInPage);
-    await loggedInPage.getByText('Groups').click();
+    await loggedInPage.getByRole('tab', { name: 'Groups' }).click();
 
     // At least one group should be visible
     await expect(loggedInPage.getByText('Berlin Bike Co-op').first()).toBeVisible({
@@ -175,8 +172,7 @@ test.describe('Groups', () => {
   });
 
   test('groups show member count', async ({ loggedInPage }) => {
-    await navigateToProfile(loggedInPage);
-    await loggedInPage.getByText('Groups').click();
+    await loggedInPage.getByRole('tab', { name: 'Groups' }).click();
 
     // Verify group list loaded (member count format may vary)
     await expect(loggedInPage.getByText('Berlin Bike Co-op').first()).toBeVisible({

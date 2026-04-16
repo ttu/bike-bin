@@ -144,7 +144,8 @@ export default function ProfileScreen() {
         <MenuItem
           icon="account-group"
           label={tGroups('profileMenu.label')}
-          onPress={() => router.push('/(tabs)/profile/groups')}
+          testID="profile-menu-groups"
+          onPress={() => router.push('/(tabs)/groups')}
         />
 
         {/* Notification Settings */}
@@ -264,13 +265,15 @@ interface MenuItemProps {
   label: string;
   badge?: number;
   onPress: () => void;
+  testID?: string;
 }
 
-function MenuItem({ icon, label, badge, onPress }: MenuItemProps) {
+function MenuItem({ icon, label, badge, onPress, testID }: MenuItemProps) {
   const theme = useTheme();
 
   return (
     <Pressable
+      testID={testID}
       onPress={onPress}
       style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
       accessibilityRole="button"
