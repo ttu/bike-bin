@@ -6,7 +6,8 @@ import { SearchBar } from './SearchBar';
 
 const meta = {
   title: 'Search/SearchBar',
-} satisfies Meta;
+  component: SearchBar,
+} satisfies Meta<typeof SearchBar>;
 
 export default meta;
 
@@ -31,5 +32,14 @@ function SearchBarPlayground() {
 }
 
 export const Interactive: Story = {
+  args: {
+    query: '',
+    onQueryChange: fn(),
+    onSubmit: fn(),
+    areaName: '',
+    distanceKm: 25,
+    onDistanceChange: fn(),
+    onChangeLocation: fn(),
+  },
   render: () => <SearchBarPlayground />,
 };

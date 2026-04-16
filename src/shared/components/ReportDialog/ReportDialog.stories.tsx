@@ -4,12 +4,18 @@ import { ReportDialog } from './ReportDialog';
 
 const meta = {
   title: 'Shared/ReportDialog',
-} satisfies Meta;
+  component: ReportDialog,
+} satisfies Meta<typeof ReportDialog>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  args: {
+    visible: true,
+    onDismiss: fn(),
+    onSubmit: fn(),
+  },
   render: () => <ReportDialog visible onDismiss={fn()} onSubmit={fn()} />,
 };

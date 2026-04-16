@@ -5,7 +5,8 @@ import { GradientButton } from './GradientButton';
 
 const meta = {
   title: 'Shared/GradientButton',
-} satisfies Meta;
+  component: GradientButton,
+} satisfies Meta<typeof GradientButton>;
 
 export default meta;
 
@@ -21,6 +22,10 @@ function SaveLabel() {
 }
 
 export const Primary: Story = {
+  args: {
+    children: ' ',
+    onPress: fn(),
+  },
   render: () => <SaveLabel />,
 };
 
@@ -34,5 +39,9 @@ function LoadingState() {
 }
 
 export const Loading: Story = {
+  args: {
+    children: ' ',
+    loading: true,
+  },
   render: () => <LoadingState />,
 };

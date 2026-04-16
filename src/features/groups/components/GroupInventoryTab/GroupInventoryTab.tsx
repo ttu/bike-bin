@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { FAB, useTheme } from 'react-native-paper';
-import type { Href } from 'expo-router';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { Item, GroupId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';

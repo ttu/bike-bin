@@ -7,7 +7,8 @@ import { FilterSheet } from './FilterSheet';
 
 const meta = {
   title: 'Search/FilterSheet',
-} satisfies Meta;
+  component: FilterSheet,
+} satisfies Meta<typeof FilterSheet>;
 
 export default meta;
 
@@ -27,19 +28,33 @@ function FilterSheetPlayground() {
 }
 
 export const Interactive: Story = {
+  args: {
+    filters: DEFAULT_SEARCH_FILTERS,
+    onFiltersChange: fn(),
+    onReset: fn(),
+    onApply: fn(),
+  },
   render: () => <FilterSheetPlayground />,
 };
 
+const withSellFiltersState: SearchFilters = {
+  ...DEFAULT_SEARCH_FILTERS,
+  offerTypes: [AvailabilityType.Sellable],
+  categories: [ItemCategory.Component],
+  conditions: [ItemCondition.Good, ItemCondition.New],
+  priceMin: 10,
+  priceMax: 200,
+};
+
 export const WithSellFilters: Story = {
+  args: {
+    filters: withSellFiltersState,
+    onFiltersChange: fn(),
+    onReset: fn(),
+    onApply: fn(),
+  },
   render: function WithSellFiltersStory() {
-    const [filters, setFilters] = useState<SearchFilters>({
-      ...DEFAULT_SEARCH_FILTERS,
-      offerTypes: [AvailabilityType.Sellable],
-      categories: [ItemCategory.Component],
-      conditions: [ItemCondition.Good, ItemCondition.New],
-      priceMin: 10,
-      priceMax: 200,
-    });
+    const [filters, setFilters] = useState<SearchFilters>(withSellFiltersState);
 
     return (
       <FilterSheet

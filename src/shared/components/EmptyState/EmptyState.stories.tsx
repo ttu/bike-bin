@@ -5,7 +5,8 @@ import { EmptyState } from './EmptyState';
 
 const meta = {
   title: 'Shared/EmptyState',
-} satisfies Meta;
+  component: EmptyState,
+} satisfies Meta<typeof EmptyState>;
 
 export default meta;
 
@@ -25,6 +26,13 @@ function EmptyStateWithCopy() {
 }
 
 export const WithCallToAction: Story = {
+  args: {
+    icon: 'bike',
+    title: '',
+    description: '',
+    ctaLabel: '',
+    onCtaPress: fn(),
+  },
   render: () => <EmptyStateWithCopy />,
 };
 
@@ -40,5 +48,10 @@ function EmptyStateNoCta() {
 }
 
 export const TextOnly: Story = {
+  args: {
+    icon: 'package-variant',
+    title: '',
+    description: '',
+  },
   render: () => <EmptyStateNoCta />,
 };

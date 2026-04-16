@@ -4,7 +4,8 @@ import { DetailCard } from './DetailCard';
 
 const meta = {
   title: 'Shared/DetailCard',
-} satisfies Meta;
+  component: DetailCard,
+} satisfies Meta<typeof DetailCard>;
 
 export default meta;
 
@@ -18,5 +19,10 @@ function SampleDetail() {
 }
 
 export const Default: Story = {
+  args: {
+    icon: 'information',
+    label: '',
+    value: '',
+  },
   render: () => <SampleDetail />,
 };

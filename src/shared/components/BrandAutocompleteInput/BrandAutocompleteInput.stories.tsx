@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import { fn } from 'storybook/test';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
@@ -10,7 +11,8 @@ const BRANDS = ['Shimano', 'SRAM', 'Campagnolo', 'Canyon'];
 
 const meta = {
   title: 'Shared/BrandAutocompleteInput',
-} satisfies Meta;
+  component: BrandAutocompleteInput,
+} satisfies Meta<typeof BrandAutocompleteInput>;
 
 export default meta;
 
@@ -57,5 +59,19 @@ function BrandAutocompletePlayground() {
 }
 
 export const WithSuggestions: Story = {
+  args: {
+    label: '',
+    placeholder: '',
+    value: '',
+    filteredBrands: [],
+    menuVisible: false,
+    onChangeText: fn(),
+    onSelectBrand: fn(),
+    onFocus: fn(),
+    onBlur: fn(),
+    softInputStyle: {},
+    underlineColor: '',
+    activeUnderlineColor: '',
+  },
   render: () => <BrandAutocompletePlayground />,
 };

@@ -5,7 +5,8 @@ import { ConfirmDialog } from './ConfirmDialog';
 
 const meta = {
   title: 'Shared/ConfirmDialog',
-} satisfies Meta;
+  component: ConfirmDialog,
+} satisfies Meta<typeof ConfirmDialog>;
 
 export default meta;
 
@@ -27,6 +28,15 @@ function ConfirmCancelStory() {
 }
 
 export const ConfirmCancel: Story = {
+  args: {
+    visible: true,
+    title: '',
+    message: '',
+    confirmLabel: '',
+    variant: 'confirm-cancel',
+    onDismiss: fn(),
+    onConfirm: fn(),
+  },
   render: () => <ConfirmCancelStory />,
 };
 
@@ -46,5 +56,14 @@ function AcknowledgeStory() {
 }
 
 export const Acknowledge: Story = {
+  args: {
+    visible: true,
+    title: '',
+    message: '',
+    confirmLabel: '',
+    variant: 'acknowledge',
+    onDismiss: fn(),
+    onConfirm: fn(),
+  },
   render: () => <AcknowledgeStory />,
 };

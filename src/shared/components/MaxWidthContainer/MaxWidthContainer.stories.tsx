@@ -5,7 +5,8 @@ import { MaxWidthContainer } from './MaxWidthContainer';
 
 const meta = {
   title: 'Shared/MaxWidthContainer',
-} satisfies Meta;
+  component: MaxWidthContainer,
+} satisfies Meta<typeof MaxWidthContainer>;
 
 export default meta;
 
@@ -21,5 +22,8 @@ function MaxWidthHint() {
 }
 
 export const WithContent: Story = {
+  args: {
+    children: null,
+  },
   render: () => <MaxWidthHint />,
 };

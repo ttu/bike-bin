@@ -18,7 +18,8 @@ import {
 } from '@expo-google-fonts/manrope';
 import { lightTheme, darkTheme } from '@/shared/theme';
 import '@/shared/i18n/config';
-import { queryClient } from '@/shared/api';
+import { queryClient } from '@/shared/api/queryClient';
+import { storybookShellQueryClient } from '@/storybook/shellQueryClient';
 import { AuthProvider } from '@/features/auth';
 import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
@@ -68,9 +69,7 @@ function StorybookAppContent() {
       <SafeAreaProvider>
         <PaperProvider theme={theme}>
           <SnackbarAlertsProvider>
-            <DemoModeProvider>
-              <StorybookUIRoot />
-            </DemoModeProvider>
+            <StorybookUIRoot />
           </SnackbarAlertsProvider>
         </PaperProvider>
       </SafeAreaProvider>
@@ -100,7 +99,7 @@ function RootLayout() {
   if (storybookEnabled) {
     return (
       <SafeAreaProvider onLayout={onLayoutRootView}>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={storybookShellQueryClient}>
           <ThemePreferenceProvider>
             <StorybookAppContent />
           </ThemePreferenceProvider>
