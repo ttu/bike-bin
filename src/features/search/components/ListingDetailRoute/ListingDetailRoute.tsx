@@ -44,7 +44,7 @@ export function ListingDetailRoute({
   const { user } = useAuth();
   const { showSnackbarAlert } = useSnackbarAlerts();
   const reportMutation = useReport();
-  const { openConfirm, confirmDialogProps } = useConfirmDialog();
+  const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
   const handleBack = useReturnNavigation(returnPath, fallbackHref);
   const [reportPhotoId, setReportPhotoId] = useState<ItemPhotoId | undefined>(undefined);
 
@@ -100,6 +100,9 @@ export function ListingDetailRoute({
       cancelLabel: tBorrow('confirm.requestBorrow.cancel'),
       confirmLabel: tBorrow('confirm.requestBorrow.confirm'),
       onConfirm: () => {
+        // Close the dialog immediately to prevent double-submit from repeated Confirm taps
+        // before createBorrowRequest resolves.
+        closeConfirm();
         createBorrowRequest(
           { itemId: item.id },
           {
