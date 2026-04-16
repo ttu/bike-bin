@@ -256,15 +256,16 @@ INSERT INTO borrow_requests (id, item_id, requester_id, status, message, created
   ('f2000001-0001-4000-8000-000000000001', 'd0000001-0006-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'accepted', 'Need the stand for a fork service this weekend.', now() - interval '5 days', now() - interval '4 days'),
   ('f2000001-0002-4000-8000-000000000001', 'd0000001-0003-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'pending', 'Hi! I need to check my chain wear before the race this weekend. Can I borrow it for a day?', now() - interval '45 minutes', now() - interval '45 minutes'),
   ('f2000001-0003-4000-8000-000000000001', 'd0000001-0002-4000-8000-000000000003', 'a1b2c3d4-0004-4000-8000-000000000004', 'returned', 'Need to borrow for a week-long trip. Will take good care of it!', now() - interval '14 days', now() - interval '6 days'),
-  ('f2000001-0004-4000-8000-000000000001', 'd0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'accepted', 'Need accurate pressure for race wheels.', now() - interval '3 days', now() - interval '2 days');
+  ('f2000001-0004-4000-8000-000000000001', 'd0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'accepted', 'Need accurate pressure for race wheels.', now() - interval '3 days', now() - interval '2 days'),
+  ('f2000001-0005-4000-8000-000000000001', 'd0000001-0004-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'returned', 'Need a multi-tool for a weekend ride.', now() - interval '35 days', now() - interval '30 days');
 
 -- ── Ratings ─────────────────────────────────────────────────
 
-INSERT INTO ratings (id, from_user_id, to_user_id, item_id, transaction_type, score, text, created_at, updated_at) VALUES
-  ('f3000001-0001-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004', 'a1b2c3d4-0003-4000-8000-000000000003', 'd0000001-0002-4000-8000-000000000003', 'borrow', 5, 'Sarah was super friendly and flexible with pickup times. Lock was in great condition.', now() - interval '5 days', now() - interval '5 days'),
-  ('f3000001-0002-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003', 'a1b2c3d4-0004-4000-8000-000000000004', 'd0000001-0002-4000-8000-000000000003', 'borrow', 5, 'Jonas returned the lock right on time and in perfect condition. Highly recommend!', now() - interval '5 days', now() - interval '5 days'),
-  ('f3000001-0003-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', NULL, 'borrow', 4, 'Kai returned the tools on time. Good communication.', now() - interval '30 days', now() - interval '30 days'),
-  ('f3000001-0004-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'a1b2c3d4-0001-4000-8000-000000000001', NULL, 'borrow', 5, 'Test User is a great lender. Bike tools were well-maintained and easy to use.', now() - interval '30 days', now() - interval '30 days');
+INSERT INTO ratings (id, from_user_id, to_user_id, item_id, borrow_request_id, transaction_type, score, text, created_at, updated_at) VALUES
+  ('f3000001-0001-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004', 'a1b2c3d4-0003-4000-8000-000000000003', 'd0000001-0002-4000-8000-000000000003', 'f2000001-0003-4000-8000-000000000001', 'borrow', 5, 'Sarah was super friendly and flexible with pickup times. Lock was in great condition.', now() - interval '5 days', now() - interval '5 days'),
+  ('f3000001-0002-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003', 'a1b2c3d4-0004-4000-8000-000000000004', 'd0000001-0002-4000-8000-000000000003', 'f2000001-0003-4000-8000-000000000001', 'borrow', 5, 'Jonas returned the lock right on time and in perfect condition. Highly recommend!', now() - interval '5 days', now() - interval '5 days'),
+  ('f3000001-0003-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', NULL, 'f2000001-0005-4000-8000-000000000001', 'borrow', 4, 'Kai returned the tools on time. Good communication.', now() - interval '30 days', now() - interval '30 days'),
+  ('f3000001-0004-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'a1b2c3d4-0001-4000-8000-000000000001', NULL, 'f2000001-0005-4000-8000-000000000001', 'borrow', 5, 'Test User is a great lender. Bike tools were well-maintained and easy to use.', now() - interval '30 days', now() - interval '30 days');
 
 -- ── Notifications ───────────────────────────────────────────
 
