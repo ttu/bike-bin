@@ -16,8 +16,8 @@ import {
 } from '@/shared/utils/subscriptionLimitErrors';
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
-import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
-import { usePhotoPicker } from '@/features/inventory/hooks/usePhotoPicker';
+import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
+import { usePhotoPicker } from '@/shared/hooks/usePhotoPicker';
 import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';

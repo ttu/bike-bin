@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -16,10 +16,11 @@ import {
 } from '@/features/bikes';
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
-import { PhotoPicker } from '@/features/inventory/components/PhotoPicker/PhotoPicker';
+import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
+import { usePhotoDirtyTracking } from '@/shared/hooks/usePhotoDirtyTracking';
 import { supabase } from '@/shared/api/supabase';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
@@ -37,7 +38,6 @@ export default function EditBikeScreen() {
   const { data: bike, isLoading, isSuccess: bikeReady } = useBike(bikeId);
   const { data: photos = [], isSuccess: photosReady } = useBikePhotos(bikeId);
   const [formDirty, setFormDirty] = useState(false);
-  const [photoBaseline, setPhotoBaseline] = useState<string[] | undefined>(undefined);
   const updateBike = useUpdateBike();
   const deleteBike = useDeleteBike();
   const { pickAndUpload, isUploading } = useBikePhotoUpload();
@@ -45,21 +45,7 @@ export default function EditBikeScreen() {
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
-  const photoIdsKey = useMemo(() => photos.map((p) => p.id).join('|'), [photos]);
-
-  useEffect(() => {
-    if (!bikeReady || !photosReady) return;
-    const ids = photoIdsKey.length > 0 ? photoIdsKey.split('|') : [];
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync baseline when photo query data or order changes
-    setPhotoBaseline(ids);
-  }, [bikeReady, photosReady, photoIdsKey]);
-
-  const photosDirty = useMemo(() => {
-    if (photoBaseline === undefined) return false;
-    if (photos.length !== photoBaseline.length) return true;
-    return photos.some((p, i) => p.id !== photoBaseline[i]);
-  }, [photos, photoBaseline]);
-
+  const photosDirty = usePhotoDirtyTracking(photos, bikeReady, photosReady);
   const isScreenDirty = formDirty || photosDirty;
 
   const { bypassNextNavigation } = useUnsavedChangesExitGuard({

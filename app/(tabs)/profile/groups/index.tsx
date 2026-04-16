@@ -1,17 +1,6 @@
 import { useState, useCallback } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl, Pressable, ScrollView } from 'react-native';
-import {
-  Appbar,
-  Text,
-  FAB,
-  Chip,
-  TextInput,
-  Searchbar,
-  Button,
-  Switch,
-  HelperText,
-  useTheme,
-} from 'react-native-paper';
+import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
+import { Appbar, Text, FAB, Chip, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,8 +16,15 @@ import {
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
-import { useGroups, useCreateGroup, useSearchGroups, useJoinGroup } from '@/features/groups';
-import type { GroupWithRole, SearchGroupResult } from '@/features/groups';
+import {
+  useGroups,
+  useCreateGroup,
+  useSearchGroups,
+  useJoinGroup,
+  GroupCreateForm,
+  GroupSearchView,
+} from '@/features/groups';
+import type { GroupWithRole } from '@/features/groups';
 import type { GroupId } from '@/shared/types';
 
 type ScreenMode = 'list' | 'create' | 'search';
@@ -42,61 +38,35 @@ export default function GroupsScreen() {
   const [mode, setMode] = useState<ScreenMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // My groups
   const { data: groups, isLoading, isRefetching, refetch } = useGroups();
-
-  // Search
   const { data: searchResults, isLoading: isSearching } = useSearchGroups(searchQuery);
-
-  // Mutations
   const createGroup = useCreateGroup();
   const joinGroup = useJoinGroup();
 
-  // Create form state
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
-  const [nameError, setNameError] = useState('');
-
-  const handleCreatePress = useCallback(() => {
-    setName('');
-    setDescription('');
-    setIsPublic(false);
-    setNameError('');
-    setMode('create');
-  }, []);
-
-  const handleSearchMode = useCallback(() => {
-    setSearchQuery('');
-    setMode('search');
-  }, []);
-
-  const handleBack = useCallback(() => {
+  const handleBackToList = useCallback(() => {
     setMode('list');
+    setSearchQuery('');
   }, []);
 
-  const handleCreateSubmit = useCallback(async () => {
-    if (!name.trim()) {
-      setNameError(t('validation.nameRequired'));
-      return;
-    }
-    setNameError('');
-
-    try {
-      await createGroup.mutateAsync({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        isPublic,
-      });
-      showSnackbarAlert({
-        message: tCommon('feedback.groupCreated'),
-        variant: 'success',
-      });
-      setMode('list');
-    } catch {
-      showSnackbarAlert({ message: t('errors.createFailed'), variant: 'error', duration: 'long' });
-    }
-  }, [name, description, isPublic, createGroup, showSnackbarAlert, t, tCommon]);
+  const handleCreateSubmit = useCallback(
+    async (data: { name: string; description: string | undefined; isPublic: boolean }) => {
+      try {
+        await createGroup.mutateAsync(data);
+        showSnackbarAlert({
+          message: tCommon('feedback.groupCreated'),
+          variant: 'success',
+        });
+        setMode('list');
+      } catch {
+        showSnackbarAlert({
+          message: t('errors.createFailed'),
+          variant: 'error',
+          duration: 'long',
+        });
+      }
+    },
+    [createGroup, showSnackbarAlert, t, tCommon],
+  );
 
   const handleJoinGroup = useCallback(
     async (groupId: GroupId) => {
@@ -117,110 +87,30 @@ export default function GroupsScreen() {
     router.push(`/(tabs)/profile/groups/${group.id}`);
   }, []);
 
-  // Create form
   if (mode === 'create') {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-          <Appbar.BackAction onPress={handleBack} />
-          <Appbar.Content title={t('create.title')} />
-        </Appbar.Header>
-
-        <ScrollView contentContainerStyle={styles.formContent}>
-          <Text variant="labelLarge" style={styles.label}>
-            {t('create.nameLabel')}
-          </Text>
-          <TextInput
-            mode="outlined"
-            value={name}
-            onChangeText={setName}
-            placeholder={t('create.namePlaceholder')}
-            error={!!nameError}
-          />
-          {nameError && (
-            <HelperText type="error" visible>
-              {nameError}
-            </HelperText>
-          )}
-
-          <Text variant="labelLarge" style={styles.label}>
-            {t('create.descriptionLabel')}
-          </Text>
-          <TextInput
-            mode="outlined"
-            value={description}
-            onChangeText={setDescription}
-            placeholder={t('create.descriptionPlaceholder')}
-            multiline
-            numberOfLines={3}
-          />
-
-          <View style={styles.switchRow}>
-            <View style={styles.switchLabel}>
-              <Text variant="labelLarge">{t('create.publicLabel')}</Text>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {isPublic ? t('create.publicDescription') : t('create.privateDescription')}
-              </Text>
-            </View>
-            <Switch value={isPublic} onValueChange={setIsPublic} />
-          </View>
-
-          <Button
-            testID="groups-create-save"
-            mode="contained"
-            onPress={handleCreateSubmit}
-            loading={createGroup.isPending}
-            disabled={createGroup.isPending}
-            style={styles.submitButton}
-          >
-            {t('create.save')}
-          </Button>
-        </ScrollView>
-      </View>
+      <GroupCreateForm
+        onBack={handleBackToList}
+        onSubmit={handleCreateSubmit}
+        isSubmitting={createGroup.isPending}
+      />
     );
   }
 
-  // Search mode
   if (mode === 'search') {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-          <Appbar.BackAction onPress={handleBack} />
-          <Searchbar
-            placeholder={t('search.placeholder')}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={styles.searchBar}
-          />
-        </Appbar.Header>
-
-        {searchQuery.length >= 2 && isSearching ? (
-          <CenteredLoadingIndicator />
-        ) : searchQuery.length >= 2 && !isSearching && (searchResults ?? []).length === 0 ? (
-          <EmptyState
-            icon="account-group-outline"
-            title={t('search.noResults')}
-            description={t('search.noResultsDescription')}
-          />
-        ) : (
-          <FlatList
-            data={searchResults ?? []}
-            renderItem={({ item }) => (
-              <SearchResultCard
-                group={item}
-                onJoin={handleJoinGroup}
-                isJoining={joinGroup.isPending}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-          />
-        )}
-      </View>
+      <GroupSearchView
+        onBack={handleBackToList}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        searchResults={searchResults ?? []}
+        isSearching={isSearching}
+        onJoinGroup={handleJoinGroup}
+        isJoining={joinGroup.isPending}
+      />
     );
   }
 
-  // List mode (default)
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
@@ -231,7 +121,7 @@ export default function GroupsScreen() {
         <Appbar.Content title={t('title')} />
         <Appbar.Action
           icon="magnify"
-          onPress={handleSearchMode}
+          onPress={() => setMode('search')}
           testID="groups-search-button"
           accessibilityLabel={t('search.placeholder')}
         />
@@ -245,7 +135,7 @@ export default function GroupsScreen() {
           title={t('empty.title')}
           description={t('empty.description')}
           ctaLabel={t('empty.cta')}
-          onCtaPress={handleCreatePress}
+          onCtaPress={() => setMode('create')}
         />
       ) : (
         <FlatList
@@ -268,7 +158,7 @@ export default function GroupsScreen() {
           },
         ]}
         color={theme.colors.onPrimary}
-        onPress={handleCreatePress}
+        onPress={() => setMode('create')}
         accessibilityLabel={t('empty.cta')}
       />
     </View>
@@ -331,69 +221,9 @@ function GroupCard({
   );
 }
 
-function SearchResultCard({
-  group,
-  onJoin,
-  isJoining,
-}: {
-  group: SearchGroupResult;
-  onJoin: (id: GroupId) => void;
-  isJoining: boolean;
-}) {
-  const theme = useTheme();
-  const { t } = useTranslation('groups');
-
-  return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-      <View style={styles.cardIcon}>
-        <MaterialCommunityIcons
-          name="account-group"
-          size={iconSize.md}
-          color={theme.colors.primary}
-        />
-      </View>
-      <View style={styles.cardContent}>
-        <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
-          {group.name}
-        </Text>
-        {group.description && (
-          <Text
-            variant="bodySmall"
-            style={{ color: theme.colors.onSurfaceVariant }}
-            numberOfLines={2}
-          >
-            {group.description}
-          </Text>
-        )}
-        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-          {t('detail.memberCount', { count: group.memberCount })}
-        </Text>
-      </View>
-      {group.isMember ? (
-        <Chip compact textStyle={styles.chipText}>
-          {t('detail.joined')}
-        </Chip>
-      ) : (
-        <Button
-          mode="outlined"
-          compact
-          onPress={() => onJoin(group.id)}
-          loading={isJoining}
-          disabled={isJoining}
-        >
-          {t('detail.joinGroup')}
-        </Button>
-      )}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  list: {
-    paddingBottom: 80,
   },
   card: {
     flexDirection: 'row',
@@ -422,31 +252,6 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 11,
-  },
-  searchBar: {
-    flex: 1,
-  },
-  formContent: {
-    padding: spacing.base,
-    paddingBottom: spacing['2xl'],
-  },
-  label: {
-    marginTop: spacing.base,
-    marginBottom: spacing.xs,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  switchLabel: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  submitButton: {
-    marginTop: spacing.lg,
   },
   fab: {
     position: 'absolute',

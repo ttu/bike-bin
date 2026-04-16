@@ -26,6 +26,7 @@ import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { DemoBanner } from '@/features/demo';
 import {
+  borderRadius,
   fabListScrollPaddingBottom,
   fabOffsetAboveTabBar,
   iconSize,
@@ -392,14 +393,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     minHeight: 56,
-    borderRadius: 28,
+    borderRadius: borderRadius.xl,
     justifyContent: 'center',
   },
   viewModeTogglePressed: {
     opacity: 0.72,
   },
   searchbar: {
-    borderRadius: 28,
+    borderRadius: borderRadius.xl,
   },
   searchInput: {
     minHeight: 0,

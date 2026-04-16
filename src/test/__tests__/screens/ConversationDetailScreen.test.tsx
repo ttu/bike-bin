@@ -166,6 +166,7 @@ jest.mock('@/features/inventory', () => ({
 }));
 
 jest.mock('@/features/exchange', () => ({
+  ...jest.requireActual('@/features/exchange'),
   useMarkDonated: () => ({ mutate: mockMarkDonatedMutate, isPending: false }),
   useMarkSold: () => ({ mutate: mockMarkSoldMutate, isPending: false }),
 }));

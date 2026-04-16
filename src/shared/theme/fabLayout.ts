@@ -21,3 +21,9 @@ export function fabOffsetAboveTabBar(insetsBottom: number): number {
 export function fabListScrollPaddingBottom(insetsBottom: number): number {
   return fabListScrollPaddingBase + insetsBottom;
 }
+
+/**
+ * `paddingBottom` for scroll views / FlatLists on tab screens that do **not** have a FAB.
+ * Clears the bottom tab bar with comfortable breathing room.
+ */
+export const tabBarListScrollPaddingBottom = fabListScrollPaddingBase;

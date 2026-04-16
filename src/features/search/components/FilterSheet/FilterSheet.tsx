@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   chip: {
-    borderRadius: 9999,
+    borderRadius: borderRadius.full,
   },
   priceRow: {
     flexDirection: 'row',
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   priceInput: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     padding: spacing.sm,
   },
   applyButton: {

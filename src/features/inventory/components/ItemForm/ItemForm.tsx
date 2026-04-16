@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import { Banner, Text, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
+import { borderRadius } from '@/shared/theme';
 import { ItemCategory } from '@/shared/types';
 
 import { useItemFormState } from './useItemFormState';
@@ -45,7 +46,7 @@ export function ItemForm({
   const inputStyling: InputStyling = {
     softInputStyle: {
       backgroundColor: theme.customColors.surfaceContainerHighest,
-      borderRadius: 12,
+      borderRadius: borderRadius.md,
     },
     underlineColor: theme.colors.outlineVariant + '26',
     activeUnderlineColor: theme.colors.primary,

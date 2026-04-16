@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Portal, Dialog, Button, RadioButton, TextInput, Text, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
@@ -36,6 +36,26 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
   const [details, setDetails] = useState('');
   const [error, setError] = useState('');
 
+  const themeStyles = useMemo(
+    () => ({
+      dialog: { backgroundColor: theme.colors.surface },
+      reasonLabel: { color: theme.colors.onSurfaceVariant },
+      radioLabel: { color: theme.colors.onSurface },
+      error: { color: theme.colors.error },
+      textInput: {
+        backgroundColor: theme.customColors.surfaceContainerHighest,
+        borderRadius: borderRadius.md,
+      },
+    }),
+    [
+      theme.colors.surface,
+      theme.colors.onSurfaceVariant,
+      theme.colors.onSurface,
+      theme.colors.error,
+      theme.customColors.surfaceContainerHighest,
+    ],
+  );
+
   const handleSubmit = () => {
     if (!selectedReason) {
       setError(t('report.validationReason'));
@@ -57,15 +77,12 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
       <Dialog
         visible={visible}
         onDismiss={handleDismiss}
-        style={[styles.dialog, { backgroundColor: theme.colors.surface }]}
+        style={[styles.dialog, themeStyles.dialog]}
       >
         <Dialog.Title>{t('report.title')}</Dialog.Title>
         <Dialog.ScrollArea style={styles.scrollArea}>
           <ScrollView>
-            <Text
-              variant="bodyMedium"
-              style={[styles.reasonLabel, { color: theme.colors.onSurfaceVariant }]}
-            >
+            <Text variant="bodyMedium" style={[styles.reasonLabel, themeStyles.reasonLabel]}>
               {t('report.reasonLabel')}
             </Text>
 
@@ -82,13 +99,13 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
                   label={t(`report.reasons.${reason}`)}
                   value={reason}
                   style={styles.radioItem}
-                  labelStyle={{ color: theme.colors.onSurface }}
+                  labelStyle={themeStyles.radioLabel}
                 />
               ))}
             </RadioButton.Group>
 
             {error ? (
-              <Text variant="bodySmall" style={[styles.error, { color: theme.colors.error }]}>
+              <Text variant="bodySmall" style={[styles.error, themeStyles.error]}>
                 {error}
               </Text>
             ) : null}
@@ -102,10 +119,7 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
                 multiline
                 numberOfLines={3}
                 mode="flat"
-                style={[
-                  { backgroundColor: theme.customColors.surfaceContainerHighest, borderRadius: 12 },
-                  styles.textInput,
-                ]}
+                style={[themeStyles.textInput, styles.textInput]}
                 underlineColor={theme.colors.outlineVariant + '26'}
                 activeUnderlineColor={theme.colors.primary}
               />

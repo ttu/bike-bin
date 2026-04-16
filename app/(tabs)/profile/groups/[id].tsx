@@ -1,16 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
-import {
-  Appbar,
-  Text,
-  Button,
-  Chip,
-  TextInput,
-  Switch,
-  HelperText,
-  useTheme,
-} from 'react-native-paper';
-import { GradientButton } from '@/shared/components/GradientButton';
+import { Appbar, Text, Button, Chip, useTheme } from 'react-native-paper';
 import { ConfirmDialog } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
@@ -18,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing, iconSize, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import {
@@ -33,13 +23,12 @@ import {
   canPromoteMember,
   canRemoveMember,
   canLeaveGroup,
+  GroupEditForm,
 } from '@/features/groups';
 import { GroupInventoryTab } from '@/features/groups/components/GroupInventoryTab';
 import type { GroupMemberWithProfile } from '@/features/groups';
 import type { GroupId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
-
-type ScreenMode = 'detail' | 'edit';
 
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -50,36 +39,20 @@ export default function GroupDetailScreen() {
   const { showSnackbarAlert } = useSnackbarAlerts();
   const { user } = useAuth();
 
-  const softInputStyle = {
-    backgroundColor: theme.customColors.surfaceContainerHighest,
-    borderRadius: 12,
-  };
-  const underlineColor = theme.colors.outlineVariant + '26';
-  const activeUnderlineColor = theme.colors.primary;
   const userId = (user?.id ?? '') as UserId;
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [mode, setMode] = useState<ScreenMode>('detail');
-
-  // Data
   const { data: group } = useGroup(groupId);
   const { data: members } = useGroupMembers(groupId);
 
-  // Mutations
   const updateGroup = useUpdateGroup();
   const deleteGroup = useDeleteGroup();
   const leaveGroup = useLeaveGroup();
   const promoteMember = usePromoteMember();
   const removeMember = useRemoveMember();
 
-  // Edit form state
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [editIsPublic, setEditIsPublic] = useState(false);
-  const [editNameError, setEditNameError] = useState('');
-
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
-  // Current user's membership
   const currentMember = useMemo(
     () => (members ?? []).find((m) => m.userId === userId),
     [members, userId],
@@ -87,38 +60,26 @@ export default function GroupDetailScreen() {
 
   const isAdmin = currentMember?.role === GroupRole.Admin;
 
-  const handleEditPress = useCallback(() => {
-    if (!group) return;
-    setEditName(group.name);
-    setEditDescription(group.description ?? '');
-    setEditIsPublic(group.isPublic);
-    setEditNameError('');
-    setMode('edit');
-  }, [group]);
-
-  const handleEditCancel = useCallback(() => {
-    setMode('detail');
-  }, []);
-
-  const handleEditSave = useCallback(async () => {
-    if (!editName.trim()) {
-      setEditNameError(t('validation.nameRequired'));
-      return;
-    }
-    setEditNameError('');
-
-    try {
-      await updateGroup.mutateAsync({
-        id: groupId,
-        name: editName.trim(),
-        description: editDescription.trim() || undefined,
-        isPublic: editIsPublic,
-      });
-      setMode('detail');
-    } catch {
-      showSnackbarAlert({ message: t('errors.updateFailed'), variant: 'error', duration: 'long' });
-    }
-  }, [groupId, editName, editDescription, editIsPublic, updateGroup, showSnackbarAlert, t]);
+  const handleEditSubmit = useCallback(
+    async (data: { name: string; description: string | undefined; isPublic: boolean }) => {
+      try {
+        await updateGroup.mutateAsync({
+          id: groupId,
+          name: data.name,
+          description: data.description,
+          isPublic: data.isPublic,
+        });
+        setIsEditing(false);
+      } catch {
+        showSnackbarAlert({
+          message: t('errors.updateFailed'),
+          variant: 'error',
+          duration: 'long',
+        });
+      }
+    },
+    [groupId, updateGroup, showSnackbarAlert, t],
+  );
 
   const handleDeleteGroup = useCallback(() => {
     openConfirm({
@@ -189,7 +150,7 @@ export default function GroupDetailScreen() {
 
   const handlePromoteMember = useCallback(
     (member: GroupMemberWithProfile) => {
-      const displayName = member.profile.displayName ?? 'this member';
+      const displayName = member.profile.displayName ?? t('detail.unknownMember');
       openConfirm({
         title: t('detail.promote'),
         message: t('detail.promoteConfirm', { name: displayName }),
@@ -217,7 +178,7 @@ export default function GroupDetailScreen() {
 
   const handleRemoveMember = useCallback(
     (member: GroupMemberWithProfile) => {
-      const displayName = member.profile.displayName ?? 'this member';
+      const displayName = member.profile.displayName ?? t('detail.unknownMember');
       openConfirm({
         title: t('detail.remove'),
         message: t('detail.removeConfirm', { name: displayName }),
@@ -248,81 +209,25 @@ export default function GroupDetailScreen() {
     return null;
   }
 
-  // Edit mode
-  if (mode === 'edit') {
+  if (isEditing) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-          <Appbar.BackAction onPress={handleEditCancel} />
-          <Appbar.Content title={t('edit.title')} />
-        </Appbar.Header>
-
-        <ScrollView contentContainerStyle={styles.formContent}>
-          <Text variant="labelLarge" style={styles.label}>
-            {t('create.nameLabel')}
-          </Text>
-          <TextInput
-            mode="flat"
-            value={editName}
-            onChangeText={setEditName}
-            placeholder={t('create.namePlaceholder')}
-            error={!!editNameError}
-            style={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
-          />
-          {editNameError && (
-            <HelperText type="error" visible>
-              {editNameError}
-            </HelperText>
-          )}
-
-          <Text variant="labelLarge" style={styles.label}>
-            {t('create.descriptionLabel')}
-          </Text>
-          <TextInput
-            mode="flat"
-            value={editDescription}
-            onChangeText={setEditDescription}
-            placeholder={t('create.descriptionPlaceholder')}
-            multiline
-            numberOfLines={3}
-            style={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
-          />
-
-          <View style={styles.switchRow}>
-            <View style={styles.switchLabel}>
-              <Text variant="labelLarge">{t('create.publicLabel')}</Text>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {editIsPublic ? t('create.publicDescription') : t('create.privateDescription')}
-              </Text>
-            </View>
-            <Switch value={editIsPublic} onValueChange={setEditIsPublic} />
-          </View>
-
-          <GradientButton
-            onPress={handleEditSave}
-            loading={updateGroup.isPending}
-            disabled={updateGroup.isPending}
-            style={styles.submitButton}
-          >
-            {t('edit.save')}
-          </GradientButton>
-        </ScrollView>
-        <ConfirmDialog {...confirmDialogProps} />
-      </View>
+      <GroupEditForm
+        initialName={group.name}
+        initialDescription={group.description ?? ''}
+        initialIsPublic={group.isPublic}
+        onCancel={() => setIsEditing(false)}
+        onSubmit={handleEditSubmit}
+        isSubmitting={updateGroup.isPending}
+      />
     );
   }
 
-  // Detail mode
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/profile/groups')} />
         <Appbar.Content title={group.name} />
-        {isAdmin && <Appbar.Action icon="pencil" onPress={handleEditPress} />}
+        {isAdmin && <Appbar.Action icon="pencil" onPress={() => setIsEditing(true)} />}
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.detailContent}>
@@ -332,7 +237,10 @@ export default function GroupDetailScreen() {
             <Chip
               compact
               textStyle={styles.chipText}
-              style={{ backgroundColor: theme.colors.secondaryContainer, borderRadius: 9999 }}
+              style={{
+                backgroundColor: theme.colors.secondaryContainer,
+                borderRadius: borderRadius.full,
+              }}
             >
               {group.isPublic ? t('detail.publicBadge') : t('detail.privateBadge')}
             </Chip>
@@ -439,7 +347,7 @@ function MemberRow({
       />
       <View style={styles.memberInfo}>
         <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-          {member.profile.displayName ?? 'Unknown'}
+          {member.profile.displayName ?? t('detail.unknownMember')}
         </Text>
         <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
           {member.role === GroupRole.Admin ? t('detail.admin') : t('detail.member')}
@@ -507,27 +415,5 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     borderColor: 'transparent',
-  },
-  formContent: {
-    padding: spacing.base,
-    paddingBottom: spacing['2xl'],
-  },
-  label: {
-    marginTop: spacing.base,
-    marginBottom: spacing.xs,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  switchLabel: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  submitButton: {
-    marginTop: spacing.lg,
   },
 });

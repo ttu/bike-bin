@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { useBikes, useBikeRowCapacity } from '@/features/bikes';
 import { BikeCard } from '@/features/bikes/components/BikeCard/BikeCard';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
-import { spacing } from '@/shared/theme';
+import { spacing, fabListScrollPaddingBottom, fabOffsetAboveTabBar } from '@/shared/theme';
 
 export default function BikesScreen() {
   const theme = useTheme();
@@ -36,13 +36,17 @@ export default function BikesScreen() {
     [handleBikePress],
   );
 
+  const insetsStyles = useMemo(
+    () => ({
+      container: { backgroundColor: theme.colors.background, paddingTop: insets.top },
+      listContent: { paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
+      fab: { backgroundColor: theme.colors.primary, bottom: fabOffsetAboveTabBar(insets.bottom) },
+    }),
+    [theme.colors.background, theme.colors.primary, insets.top, insets.bottom],
+  );
+
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <View style={[styles.container, insetsStyles.container]}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
           {t('title')}
@@ -69,14 +73,14 @@ export default function BikesScreen() {
           data={bikes}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={insetsStyles.listContent}
         />
       )}
 
       {bikes.length > 0 && (
         <FAB
           icon="plus"
-          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          style={[styles.fab, insetsStyles.fab]}
           color={theme.colors.onPrimary}
           onPress={handleAddPress}
           disabled={blockNewBikes}
@@ -98,12 +102,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
   },
-  list: {
-    paddingBottom: 80,
-  },
   fab: {
     position: 'absolute',
     right: spacing.base,
-    bottom: 80,
   },
 });

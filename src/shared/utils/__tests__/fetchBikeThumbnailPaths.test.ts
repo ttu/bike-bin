@@ -1,4 +1,5 @@
 import { mockSelect, mockIn, mockOrder, mockSupabase } from '@/test/supabaseMocks';
+import type { BikeId } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
@@ -11,7 +12,7 @@ describe('fetchBikeThumbnailPaths', () => {
   });
 
   it('returns an empty map when given an empty array', async () => {
-    const result = await fetchBikeThumbnailPaths([]);
+    const result = await fetchBikeThumbnailPaths([] as BikeId[]);
 
     expect(result).toBeInstanceOf(Map);
     expect(result.size).toBe(0);
@@ -31,10 +32,10 @@ describe('fetchBikeThumbnailPaths', () => {
       }),
     });
 
-    const result = await fetchBikeThumbnailPaths(['bike-1', 'bike-2']);
+    const result = await fetchBikeThumbnailPaths(['bike-1' as BikeId, 'bike-2' as BikeId]);
 
-    expect(result.get('bike-1')).toBe('bikes/bike-1/thumb.jpg');
-    expect(result.get('bike-2')).toBe('bikes/bike-2/thumb.jpg');
+    expect(result.get('bike-1' as BikeId)).toBe('bikes/bike-1/thumb.jpg');
+    expect(result.get('bike-2' as BikeId)).toBe('bikes/bike-2/thumb.jpg');
     expect(result.size).toBe(2);
   });
 
@@ -50,9 +51,9 @@ describe('fetchBikeThumbnailPaths', () => {
       }),
     });
 
-    const result = await fetchBikeThumbnailPaths(['bike-1']);
+    const result = await fetchBikeThumbnailPaths(['bike-1' as BikeId]);
 
-    expect(result.get('bike-1')).toBe('bikes/bike-1/first.jpg');
+    expect(result.get('bike-1' as BikeId)).toBe('bikes/bike-1/first.jpg');
     expect(result.size).toBe(1);
   });
 
@@ -63,7 +64,7 @@ describe('fetchBikeThumbnailPaths', () => {
       }),
     });
 
-    const result = await fetchBikeThumbnailPaths(['bike-1']);
+    const result = await fetchBikeThumbnailPaths(['bike-1' as BikeId]);
 
     expect(result).toBeInstanceOf(Map);
     expect(result.size).toBe(0);
@@ -76,7 +77,7 @@ describe('fetchBikeThumbnailPaths', () => {
       }),
     });
 
-    await fetchBikeThumbnailPaths(['bike-a', 'bike-b', 'bike-c']);
+    await fetchBikeThumbnailPaths(['bike-a' as BikeId, 'bike-b' as BikeId, 'bike-c' as BikeId]);
 
     expect(mockSelect).toHaveBeenCalledWith('bike_id, storage_path');
     expect(mockIn).toHaveBeenCalledWith('bike_id', ['bike-a', 'bike-b', 'bike-c']);

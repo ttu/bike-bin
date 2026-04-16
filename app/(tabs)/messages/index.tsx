@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { AppTheme } from '@/shared/theme';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing, iconSize, tabBarListScrollPaddingBottom } from '@/shared/theme';
 import { useConversations, ConversationCard } from '@/features/messaging';
 import type { ConversationListItem } from '@/features/messaging';
 import { LoadingScreen } from '@/shared/components';
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   listContent: {
-    paddingBottom: 100,
+    paddingBottom: tabBarListScrollPaddingBottom,
     paddingHorizontal: spacing.sm,
     gap: spacing.md,
   },

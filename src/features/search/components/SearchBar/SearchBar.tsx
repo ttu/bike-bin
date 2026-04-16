@@ -3,7 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Searchbar, useTheme, Menu } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { spacing } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { DISTANCE_PRESETS } from '../../types';
 
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   searchbar: {
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     elevation: 0,
   },
   locationRow: {

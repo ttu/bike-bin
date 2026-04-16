@@ -50,7 +50,7 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const [ownerMap, locationMap, thumbMap] = await Promise.all([
         fetchOwnerProfiles(ownerIds),
         fetchLocationAreaNames(locationIds as string[]),
-        fetchThumbnailPaths(rows.map((r) => r.id)),
+        fetchThumbnailPaths(rows.map((r) => r.id as ItemId)),
       ]);
 
       const results = rows.map((row) => mapRow(row, ownerMap, locationMap, thumbMap));

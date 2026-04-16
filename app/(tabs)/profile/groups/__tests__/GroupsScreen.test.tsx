@@ -55,6 +55,12 @@ const mockCreateMutateAsync = jest.fn().mockResolvedValue(undefined);
 const mockJoinMutateAsync = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('@/features/groups', () => ({
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  GroupCreateForm: require('@/features/groups/components/GroupCreateForm/GroupCreateForm')
+    .GroupCreateForm,
+  GroupSearchView: require('@/features/groups/components/GroupSearchView/GroupSearchView')
+    .GroupSearchView,
+  /* eslint-enable @typescript-eslint/no-require-imports */
   useGroups: () => mockUseGroups(),
   useSearchGroups: (query: string) => mockUseSearchGroups(query),
   useCreateGroup: () => ({ mutateAsync: mockCreateMutateAsync, isPending: false }),

@@ -51,6 +51,12 @@ const mockSearchGroup: SearchGroupResult = {
 let mockSearchResults: SearchGroupResult[] = [];
 
 jest.mock('@/features/groups', () => ({
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  GroupCreateForm: require('@/features/groups/components/GroupCreateForm/GroupCreateForm')
+    .GroupCreateForm,
+  GroupSearchView: require('@/features/groups/components/GroupSearchView/GroupSearchView')
+    .GroupSearchView,
+  /* eslint-enable @typescript-eslint/no-require-imports */
   useGroups: () => ({ data: [], isLoading: false, refetch: mockRefetch }),
   useSearchGroups: () => ({ data: mockSearchResults, isLoading: false }),
   useCreateGroup: () => ({ mutateAsync: mockCreateMutateAsync, isPending: false }),

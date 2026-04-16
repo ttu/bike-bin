@@ -1,19 +1,16 @@
 import { useState } from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  decodeReturnPathParam,
-  encodeReturnPath,
-  isSafeTabReturnPath,
-} from '@/shared/utils/returnPath';
-import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import { encodeReturnPath } from '@/shared/utils/returnPath';
+import { useReturnNavigation } from '@/shared/hooks/useReturnNavigation';
 import type { AppTheme } from '@/shared/theme';
-import { LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
+import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
+import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { ListingDetail } from '@/features/search/components/ListingDetail/ListingDetail';
 import { useListingDetail } from '@/features/search/hooks/useListingDetail';
 import { useCreateConversation } from '@/features/messaging';
@@ -47,6 +44,8 @@ export function ListingDetailRoute({
   const { user } = useAuth();
   const { showSnackbarAlert } = useSnackbarAlerts();
   const reportMutation = useReport();
+  const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
+  const handleBack = useReturnNavigation(returnPath, fallbackHref);
   const [reportPhotoId, setReportPhotoId] = useState<ItemPhotoId | undefined>(undefined);
 
   const { item, photos, isLoading } = useListingDetail(listingId);
@@ -94,36 +93,33 @@ export function ListingDetailRoute({
     });
   };
 
-  const handleBack = () => {
-    const decoded = decodeReturnPathParam(returnPath);
-    if (decoded && isSafeTabReturnPath(decoded)) {
-      router.replace(decoded as Href);
-      return;
-    }
-    tabScopedBack(fallbackHref);
-  };
-
   const handleRequestBorrow = () => {
-    Alert.alert(
-      tBorrow('confirm.requestBorrow.title'),
-      tBorrow('confirm.requestBorrow.message', { itemName: item.name }),
-      [
-        { text: tBorrow('confirm.requestBorrow.cancel'), style: 'cancel' },
-        {
-          text: tBorrow('confirm.requestBorrow.confirm'),
-          onPress: () => {
-            createBorrowRequest(
-              { itemId: item.id },
-              {
-                onSuccess: () => {
-                  router.push('/(tabs)/profile/borrow-requests');
-                },
-              },
-            );
+    openConfirm({
+      title: tBorrow('confirm.requestBorrow.title'),
+      message: tBorrow('confirm.requestBorrow.message', { itemName: item.name }),
+      cancelLabel: tBorrow('confirm.requestBorrow.cancel'),
+      confirmLabel: tBorrow('confirm.requestBorrow.confirm'),
+      onConfirm: () => {
+        // Close the dialog immediately to prevent double-submit from repeated Confirm taps
+        // before createBorrowRequest resolves.
+        closeConfirm();
+        createBorrowRequest(
+          { itemId: item.id },
+          {
+            onSuccess: () => {
+              router.push('/(tabs)/profile/borrow-requests');
+            },
+            onError: () => {
+              showSnackbarAlert({
+                message: tBorrow('error.requestFailed'),
+                variant: 'error',
+                duration: 'long',
+              });
+            },
           },
-        },
-      ],
-    );
+        );
+      },
+    });
   };
 
   const handlePhotoLongPress = (photo: ItemPhoto) => {
@@ -175,6 +171,8 @@ export function ListingDetailRoute({
         onOwnerPress={item.ownerId ? handleOwnerPress : undefined}
         onPhotoLongPress={isOwnItem || !user ? undefined : handlePhotoLongPress}
       />
+
+      <ConfirmDialog {...confirmDialogProps} />
 
       <ReportDialog
         visible={reportPhotoId !== undefined}

@@ -1,8 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Appbar, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { Href } from 'expo-router';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -13,15 +12,11 @@ import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import type { ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
 import { useAuth } from '@/features/auth';
-import { spacing, iconSize } from '@/shared/theme';
+import { spacing, iconSize, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import type { UserId } from '@/shared/types';
-import {
-  decodeReturnPathParam,
-  encodeReturnPath,
-  isSafeTabReturnPath,
-} from '@/shared/utils/returnPath';
-import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import { encodeReturnPath } from '@/shared/utils/returnPath';
+import { useReturnNavigation } from '@/shared/hooks/useReturnNavigation';
 import { usePublicProfile, usePublicListings } from '@/features/profile';
 import { useUserRatings } from '@/features/ratings/hooks/useUserRatings';
 import { ReviewCard } from '@/features/ratings/components/ReviewCard/ReviewCard';
@@ -33,14 +28,7 @@ export default function PublicUserProfileScreen() {
   const router = useRouter();
   const { userId, returnPath } = useLocalSearchParams<{ userId: string; returnPath?: string }>();
 
-  const handleBack = useCallback(() => {
-    const decoded = decodeReturnPathParam(returnPath);
-    if (decoded && isSafeTabReturnPath(decoded)) {
-      router.replace(decoded as Href);
-      return;
-    }
-    tabScopedBack('/(tabs)/profile');
-  }, [returnPath, router]);
+  const handleBack = useReturnNavigation(returnPath, '/(tabs)/profile');
   const { user } = useAuth();
   const [reportVisible, setReportVisible] = useState(false);
   const reportMutation = useReport();
@@ -294,7 +282,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.base,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
   },
   listingContent: {
