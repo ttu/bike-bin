@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { FAB, useTheme } from 'react-native-paper';
-import type { Href } from 'expo-router';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { Item, GroupId } from '@/shared/types';
@@ -32,7 +31,10 @@ export function GroupInventoryTab({ groupId }: GroupInventoryTabProps) {
   }, []);
 
   const handleAddPress = useCallback(() => {
-    router.push(`/(tabs)/inventory/new?groupId=${encodeURIComponent(groupId)}` as Href);
+    router.push({
+      pathname: '/(tabs)/inventory/new',
+      params: { groupId },
+    });
   }, [groupId]);
 
   const renderItem = useCallback(

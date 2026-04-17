@@ -1,4 +1,7 @@
+import 'react-native-gesture-handler';
 import { useCallback } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -15,12 +18,20 @@ import {
 } from '@expo-google-fonts/manrope';
 import { lightTheme, darkTheme } from '@/shared/theme';
 import '@/shared/i18n/config';
-import { queryClient } from '@/shared/api';
+import { queryClient } from '@/shared/api/queryClient';
+import { storybookShellQueryClient } from '@/storybook/shellQueryClient';
 import { AuthProvider } from '@/features/auth';
 import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
 import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
 import { APP_ENV } from '@/shared/utils/env';
+import StorybookUIRoot from '../.rnstorybook';
+
+const storybookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true';
+
+const layoutStyles = StyleSheet.create({
+  storybookRoot: { flex: 1 },
+});
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 if (typeof sentryDsn === 'string' && sentryDsn.trim().length > 0) {
@@ -49,6 +60,16 @@ function AppContent() {
   );
 }
 
+function StorybookAppContent() {
+  return (
+    <GestureHandlerRootView style={layoutStyles.storybookRoot}>
+      <SafeAreaProvider>
+        <StorybookUIRoot />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
+
 function RootLayout() {
   const [fontsLoaded] = useFonts({
     'Manrope-Regular': Manrope_400Regular,
@@ -66,6 +87,18 @@ function RootLayout() {
 
   if (!fontsLoaded) {
     return null;
+  }
+
+  if (storybookEnabled) {
+    return (
+      <SafeAreaProvider onLayout={onLayoutRootView}>
+        <QueryClientProvider client={storybookShellQueryClient}>
+          <ThemePreferenceProvider>
+            <StorybookAppContent />
+          </ThemePreferenceProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    );
   }
 
   return (

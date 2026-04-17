@@ -49,7 +49,11 @@
     "build:android": "eas build --platform android",
     "build:ios": "eas build --platform ios",
     "ios:prebuild": "expo prebuild --platform ios --clean",
-    "prepare": "husky"
+    "prepare": "husky",
+    "storybook-generate": "sb-rn-get-stories",
+    "storybook": "npm run storybook-generate && cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start",
+    "storybook:ios": "npm run storybook-generate && cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --ios",
+    "storybook:android": "npm run storybook-generate && cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --android"
   },
   "keywords": [],
   "author": "",
@@ -64,11 +68,18 @@
     ]
   },
   "dependencies": {
+    "@babel/core": "^7.29.0",
     "@expo-google-fonts/manrope": "^0.4.2",
     "@expo/vector-icons": "^15.1.1",
+    "@gorhom/bottom-sheet": "^5.2.9",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-community/datetimepicker": "8.6.0",
     "@react-native-community/netinfo": "11.5.2",
+    "@react-native-community/slider": "5.1.2",
     "@sentry/react-native": "~7.11.0",
+    "@storybook/addon-ondevice-actions": "^10.3.1",
+    "@storybook/addon-ondevice-controls": "^10.3.1",
+    "@storybook/react-native": "^10.3.1",
     "@supabase/supabase-js": "^2.99.2",
     "@tanstack/query-async-storage-persister": "^5.90.24",
     "@tanstack/react-query": "^5.90.21",
@@ -91,11 +102,18 @@
     "react-dom": "19.2.0",
     "react-i18next": "^16.5.8",
     "react-native": "0.83.4",
+    "react-native-gesture-handler": "~2.30.0",
     "react-native-paper": "^5.15.0",
+    "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
+    "react-native-svg": "15.15.3",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "storybook": "^10.3.5"
+  },
+  "overrides": {
+    "react-native-worklets": "0.7.4"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
@@ -105,6 +123,7 @@
     "@types/react": "^19.2.14",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",
+    "cross-env": "^7.0.3",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",

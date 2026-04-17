@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-nat
 import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
+import type { Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {
@@ -83,7 +84,7 @@ export default function GroupsScreen() {
   );
 
   const handleGroupPress = useCallback((group: GroupWithRole) => {
-    router.push(`/(tabs)/groups/${group.id}`);
+    router.push(`/(tabs)/groups/${group.id}` as Href);
   }, []);
 
   if (mode === 'create') {

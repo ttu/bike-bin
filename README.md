@@ -51,6 +51,10 @@ npm run dev              # Start Supabase + Expo dev server
 
 See [docs/development.md](docs/development.md) for full setup instructions. Production web deploy uses **EAS Hosting** and GitHub Actions (see **Web production (EAS Hosting)** in that doc).
 
+### Dependency overrides
+
+`package.json` **overrides** pins `react-native-worklets` to `0.7.4` so a single version is resolved alongside `react-native-reanimated` and Storybook-related dependencies. Remove this pin when upstream versions agree on a compatible `react-native-worklets` release (recheck after Reanimated or Storybook upgrades).
+
 ## License
 
 [GNU General Public License v3.0](LICENSE) (GPL-3.0).

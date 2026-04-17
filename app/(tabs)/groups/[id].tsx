@@ -6,6 +6,7 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
+import type { Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize, borderRadius } from '@/shared/theme';
@@ -92,7 +93,7 @@ export default function GroupDetailScreen() {
         closeConfirm();
         try {
           await deleteGroup.mutateAsync(groupId);
-          tabScopedBack('/(tabs)/groups');
+          tabScopedBack('/(tabs)/groups' as Href);
         } catch {
           showSnackbarAlert({
             message: t('errors.deleteFailed'),
@@ -126,7 +127,7 @@ export default function GroupDetailScreen() {
         closeConfirm();
         try {
           await leaveGroup.mutateAsync(groupId);
-          tabScopedBack('/(tabs)/groups');
+          tabScopedBack('/(tabs)/groups' as Href);
         } catch {
           showSnackbarAlert({
             message: t('errors.leaveFailed'),
@@ -225,7 +226,7 @@ export default function GroupDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/groups')} />
+        <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/groups' as Href)} />
         <Appbar.Content title={group.name} />
         {isAdmin && <Appbar.Action icon="pencil" onPress={() => setIsEditing(true)} />}
       </Appbar.Header>

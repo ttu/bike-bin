@@ -113,6 +113,9 @@ describe('GroupInventoryTab', () => {
     const { getByLabelText } = renderWithProviders(<GroupInventoryTab groupId={GROUP_ID} />);
     fireEvent.press(getByLabelText('Add group item'));
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/new?groupId=group-1');
+    expect(mockRouterPush).toHaveBeenCalledWith({
+      pathname: '/(tabs)/inventory/new',
+      params: { groupId: GROUP_ID },
+    });
   });
 });
