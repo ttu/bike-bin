@@ -1,5 +1,6 @@
 import React from 'react';
-import { screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import { renderWithProviders } from '@/test/utils';
 import commonEn from '@/i18n/en/common.json';
 import profileEn from '@/i18n/en/profile.json';
@@ -85,5 +86,11 @@ describe('ProfileScreen', () => {
     renderWithProviders(<ProfileScreen />);
     expect(screen.getByText(profileEn.title)).toBeTruthy();
     expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('navigates to the groups tab when the Groups menu row is pressed', () => {
+    renderWithProviders(<ProfileScreen />);
+    fireEvent.press(screen.getByTestId('profile-menu-groups'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/groups');
   });
 });

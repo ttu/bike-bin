@@ -114,13 +114,23 @@ jest.mock('react-native-safe-area-context', () => {
 describe('app/_layout', () => {
   const originalStorybookFlag = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED;
 
+  /** Re-run `app/_layout` top-level (incl. `storybookEnabled`) without `jest.resetModules()`, which reloads React and breaks hooks in RTL. */
+  function evictLayoutFromRequireCache(): void {
+    const layoutPath = require.resolve('./_layout');
+    Reflect.deleteProperty(require.cache as Record<string, NodeModule>, layoutPath);
+  }
+
   afterAll(() => {
-    process.env.EXPO_PUBLIC_STORYBOOK_ENABLED = originalStorybookFlag;
+    if (originalStorybookFlag === undefined) {
+      Reflect.deleteProperty(process.env, 'EXPO_PUBLIC_STORYBOOK_ENABLED');
+    } else {
+      process.env.EXPO_PUBLIC_STORYBOOK_ENABLED = originalStorybookFlag;
+    }
   });
 
   it('renders Storybook UI when EXPO_PUBLIC_STORYBOOK_ENABLED is true', () => {
     process.env.EXPO_PUBLIC_STORYBOOK_ENABLED = 'true';
-    // First load of `app/_layout` — `storybookEnabled` must read the flag above.
+    evictLayoutFromRequireCache();
     const { default: RootLayout } = require('./_layout') as { default: React.ComponentType };
     const { getByTestId } = render(<RootLayout />);
     expect(getByTestId('storybook-ui-root')).toBeTruthy();
@@ -129,6 +139,7 @@ describe('app/_layout', () => {
 
   it('hides the splash screen when the root SafeAreaProvider lays out', () => {
     process.env.EXPO_PUBLIC_STORYBOOK_ENABLED = 'true';
+    evictLayoutFromRequireCache();
     const { default: RootLayout } = require('./_layout') as { default: React.ComponentType };
     const { getByTestId } = render(<RootLayout />);
     fireEvent(getByTestId('safe-area-root'), 'layout', {
