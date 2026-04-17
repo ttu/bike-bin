@@ -5,6 +5,7 @@
  */
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/features/auth';
@@ -23,15 +24,17 @@ export function StoryProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <View style={styles.root}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ThemePreferenceProvider>
-            <PaperProvider theme={lightTheme}>
-              <SnackbarAlertsProvider>{children}</SnackbarAlertsProvider>
-            </PaperProvider>
-          </ThemePreferenceProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <ThemePreferenceProvider>
+              <PaperProvider theme={lightTheme}>
+                <SnackbarAlertsProvider>{children}</SnackbarAlertsProvider>
+              </PaperProvider>
+            </ThemePreferenceProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
     </View>
   );
 }

@@ -13,9 +13,23 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function CategoryFilterPlayground() {
-  const [selected, setSelected] = useState<ItemCategory | undefined>(undefined);
-  return <CategoryFilter selected={selected} onSelect={setSelected} />;
+function CategoryFilterPlayground({
+  selected: initialSelected,
+  onSelect,
+}: {
+  selected?: ItemCategory;
+  onSelect?: (category: ItemCategory | undefined) => void;
+}) {
+  const [selected, setSelected] = useState<ItemCategory | undefined>(initialSelected);
+  return (
+    <CategoryFilter
+      selected={selected}
+      onSelect={(category) => {
+        setSelected(category);
+        onSelect?.(category);
+      }}
+    />
+  );
 }
 
 export const Interactive: Story = {
@@ -23,7 +37,7 @@ export const Interactive: Story = {
     selected: undefined,
     onSelect: fn(),
   },
-  render: () => <CategoryFilterPlayground />,
+  render: (args) => <CategoryFilterPlayground selected={args.selected} onSelect={args.onSelect} />,
 };
 
 export const ComponentsSelected: Story = {
@@ -31,8 +45,5 @@ export const ComponentsSelected: Story = {
     selected: ItemCategory.Component,
     onSelect: fn(),
   },
-  render: function ComponentsSelectedStory() {
-    const [selected, setSelected] = useState<ItemCategory | undefined>(ItemCategory.Component);
-    return <CategoryFilter selected={selected} onSelect={setSelected} />;
-  },
+  render: (args) => <CategoryFilterPlayground selected={args.selected} onSelect={args.onSelect} />,
 };

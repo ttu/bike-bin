@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import type { ComponentProps } from 'react';
 import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,20 +14,29 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function SearchBarPlayground() {
+const searchBarOnSubmit = fn();
+const searchBarOnChangeLocation = fn();
+
+function SearchBarPlayground(args: ComponentProps<typeof SearchBar>) {
   const { t } = useTranslation('storybook');
-  const [query, setQuery] = useState('');
-  const [distanceKm, setDistanceKm] = useState(25);
+  const [query, setQuery] = useState(args.query ?? '');
+  const [distanceKm, setDistanceKm] = useState(args.distanceKm ?? 25);
 
   return (
     <SearchBar
       query={query}
-      onQueryChange={setQuery}
-      onSubmit={fn()}
-      areaName={t('searchBar.area')}
+      onQueryChange={(text) => {
+        setQuery(text);
+        args.onQueryChange?.(text);
+      }}
+      onSubmit={args.onSubmit ?? searchBarOnSubmit}
+      areaName={args.areaName && args.areaName.length > 0 ? args.areaName : t('searchBar.area')}
       distanceKm={distanceKm}
-      onDistanceChange={setDistanceKm}
-      onChangeLocation={fn()}
+      onDistanceChange={(km) => {
+        setDistanceKm(km);
+        args.onDistanceChange?.(km);
+      }}
+      onChangeLocation={args.onChangeLocation ?? searchBarOnChangeLocation}
     />
   );
 }
@@ -41,5 +51,5 @@ export const Interactive: Story = {
     onDistanceChange: fn(),
     onChangeLocation: fn(),
   },
-  render: () => <SearchBarPlayground />,
+  render: (args) => <SearchBarPlayground {...args} />,
 };

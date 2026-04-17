@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import type { ComponentProps, ReactElement } from 'react';
 import { fn } from 'storybook/test';
+import { useTranslation } from 'react-i18next';
 import {
   AvailabilityType,
   BorrowRequestStatus,
@@ -36,9 +38,19 @@ const pendingIncoming: BorrowRequestWithDetails = {
   itemAvailabilityTypes: [AvailabilityType.Borrowable],
   requesterName: 'Alex Rider',
   requesterAvatarUrl: undefined,
-  ownerName: 'You',
+  ownerName: undefined,
   ownerAvatarUrl: undefined,
 };
+
+function IncomingPendingStory(args: ComponentProps<typeof BorrowRequestCard>): ReactElement {
+  const { t } = useTranslation('storybook');
+  return (
+    <BorrowRequestCard
+      {...args}
+      request={{ ...args.request, ownerName: t('fixtures.borrowOwnerDisplayName') }}
+    />
+  );
+}
 
 export const IncomingPending: Story = {
   args: {
@@ -48,4 +60,5 @@ export const IncomingPending: Story = {
     onDecline: fn(),
     onPress: fn(),
   },
+  render: (args) => <IncomingPendingStory {...args} />,
 };

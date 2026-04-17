@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import type { ComponentProps } from 'react';
 import { fn } from 'storybook/test';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from './EmptyState';
@@ -12,15 +13,19 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function EmptyStateWithCopy() {
+function WithCallToActionStory(args: ComponentProps<typeof EmptyState>) {
   const { t } = useTranslation('storybook');
   return (
     <EmptyState
-      icon="bike"
-      title={t('emptyState.title')}
-      description={t('emptyState.description')}
-      ctaLabel={t('emptyState.cta')}
-      onCtaPress={fn()}
+      icon={args.icon ?? 'bike'}
+      title={args.title && args.title.length > 0 ? args.title : t('emptyState.title')}
+      description={
+        args.description && args.description.length > 0
+          ? args.description
+          : t('emptyState.description')
+      }
+      ctaLabel={args.ctaLabel && args.ctaLabel.length > 0 ? args.ctaLabel : t('emptyState.cta')}
+      onCtaPress={args.onCtaPress ?? fn()}
     />
   );
 }
@@ -33,16 +38,20 @@ export const WithCallToAction: Story = {
     ctaLabel: '',
     onCtaPress: fn(),
   },
-  render: () => <EmptyStateWithCopy />,
+  render: (args) => <WithCallToActionStory {...args} />,
 };
 
-function EmptyStateNoCta() {
+function TextOnlyStory(args: ComponentProps<typeof EmptyState>) {
   const { t } = useTranslation('storybook');
   return (
     <EmptyState
-      icon="package-variant"
-      title={t('emptyState.title')}
-      description={t('emptyState.description')}
+      icon={args.icon ?? 'package-variant'}
+      title={args.title && args.title.length > 0 ? args.title : t('emptyState.title')}
+      description={
+        args.description && args.description.length > 0
+          ? args.description
+          : t('emptyState.description')
+      }
     />
   );
 }
@@ -53,5 +62,5 @@ export const TextOnly: Story = {
     title: '',
     description: '',
   },
-  render: () => <EmptyStateNoCta />,
+  render: (args) => <TextOnlyStory {...args} />,
 };

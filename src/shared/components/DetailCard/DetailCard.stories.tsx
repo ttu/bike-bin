@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DetailCard } from './DetailCard';
 
@@ -11,10 +12,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function SampleDetail() {
+function DefaultStory(args: ComponentProps<typeof DetailCard>) {
   const { t } = useTranslation('storybook');
   return (
-    <DetailCard icon="information" label={t('sample.detailTitle')} value={t('sample.detailBody')} />
+    <DetailCard
+      icon={args.icon ?? 'information'}
+      label={args.label && args.label.length > 0 ? args.label : t('sample.detailTitle')}
+      value={args.value && args.value.length > 0 ? args.value : t('sample.detailBody')}
+    />
   );
 }
 
@@ -24,5 +29,5 @@ export const Default: Story = {
     label: '',
     value: '',
   },
-  render: () => <SampleDetail />,
+  render: (args) => <DefaultStory {...args} />,
 };

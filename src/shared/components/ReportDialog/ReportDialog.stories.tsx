@@ -17,5 +17,5 @@ export const Default: Story = {
     onDismiss: fn(),
     onSubmit: fn(),
   },
-  render: () => <ReportDialog visible onDismiss={fn()} onSubmit={fn()} />,
+  render: (args) => <ReportDialog {...args} />,
 };

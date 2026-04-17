@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { fn } from 'storybook/test';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 import { borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import { appendHexAlpha } from '@/shared/utils/appendHexAlpha';
 import { BrandAutocompleteInput } from './BrandAutocompleteInput';
 
 const BRANDS = ['Shimano', 'SRAM', 'Campagnolo', 'Canyon'];
@@ -52,26 +52,14 @@ function BrandAutocompletePlayground() {
       onFocus={() => setMenuVisible(true)}
       onBlur={() => setMenuVisible(false)}
       softInputStyle={softInputStyle}
-      underlineColor={theme.colors.outlineVariant + '26'}
+      underlineColor={appendHexAlpha(theme.colors.outlineVariant, '26')}
       activeUnderlineColor={theme.colors.primary}
     />
   );
 }
 
-export const WithSuggestions: Story = {
-  args: {
-    label: '',
-    placeholder: '',
-    value: '',
-    filteredBrands: [],
-    menuVisible: false,
-    onChangeText: fn(),
-    onSelectBrand: fn(),
-    onFocus: fn(),
-    onBlur: fn(),
-    softInputStyle: {},
-    underlineColor: '',
-    activeUnderlineColor: '',
-  },
+/** Playground owns state; args are placeholders so Storybook types stay satisfied. */
+export const WithSuggestions = {
+  args: {} as never,
   render: () => <BrandAutocompletePlayground />,
-};
+} as unknown as Story;

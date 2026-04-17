@@ -9,7 +9,7 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|react-native-paper|react-native-vector-icons|@faker-js/faker|react-native-gesture-handler|react-native-reanimated|@gorhom/bottom-sheet)',
+    'node_modules/(?!(jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|react-native-paper|react-native-vector-icons|@faker-js/faker|react-native-gesture-handler|react-native-reanimated|@gorhom/bottom-sheet)',
   ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

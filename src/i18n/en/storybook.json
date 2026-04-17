@@ -1,4 +1,17 @@
 {
+  "fixtures": {
+    "borrowOwnerDisplayName": "Jordan Lee",
+    "itemFormSampleName": "Sample crankset",
+    "ratingItemName": "Tubeless sealant",
+    "ratingUserName": "Jamie",
+    "reviewerName": "Alex",
+    "reviewBody": "Smooth borrow, item matched the listing."
+  },
+  "locationCard": {
+    "homeLabel": "Home",
+    "berlinArea": "Berlin",
+    "workshopLabel": "Workshop"
+  },
   "emptyState": {
     "title": "Nothing here yet",
     "description": "Try adding something to see it show up in this list.",

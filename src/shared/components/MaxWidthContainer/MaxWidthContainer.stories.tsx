@@ -23,7 +23,7 @@ function MaxWidthHint() {
 
 export const WithContent: Story = {
   args: {
-    children: null,
+    children: undefined,
   },
   render: () => <MaxWidthHint />,
 };

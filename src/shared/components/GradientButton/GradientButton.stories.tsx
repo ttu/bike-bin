@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import type { ComponentProps } from 'react';
 import { fn } from 'storybook/test';
 import { useTranslation } from 'react-i18next';
 import { GradientButton } from './GradientButton';
@@ -12,36 +13,46 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function SaveLabel() {
+type GradientButtonProps = ComponentProps<typeof GradientButton>;
+
+function SaveLabel(args: Partial<GradientButtonProps>) {
   const { t } = useTranslation('common');
   return (
-    <GradientButton onPress={fn()} accessibilityLabel={t('actions.save')}>
-      {t('actions.save')}
+    <GradientButton
+      {...args}
+      onPress={args.onPress ?? fn()}
+      accessibilityLabel={args.accessibilityLabel ?? t('actions.save')}
+    >
+      {args.children ?? t('actions.save')}
     </GradientButton>
   );
 }
 
 export const Primary: Story = {
   args: {
-    children: ' ',
+    children: undefined,
     onPress: fn(),
   },
-  render: () => <SaveLabel />,
+  render: (args) => <SaveLabel {...args} />,
 };
 
-function LoadingState() {
+function LoadingState(args: Partial<GradientButtonProps>) {
   const { t } = useTranslation('common');
   return (
-    <GradientButton loading accessibilityLabel={t('actions.save')}>
-      {t('actions.save')}
+    <GradientButton
+      {...args}
+      loading={args.loading ?? true}
+      accessibilityLabel={args.accessibilityLabel ?? t('actions.save')}
+    >
+      {args.children ?? t('actions.save')}
     </GradientButton>
   );
 }
 
 export const Loading: Story = {
   args: {
-    children: ' ',
+    children: undefined,
     loading: true,
   },
-  render: () => <LoadingState />,
+  render: (args) => <LoadingState {...args} />,
 };

@@ -61,17 +61,10 @@ function AppContent() {
 }
 
 function StorybookAppContent() {
-  const { effectiveTheme } = useThemePreference();
-  const theme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
-
   return (
     <GestureHandlerRootView style={layoutStyles.storybookRoot}>
       <SafeAreaProvider>
-        <PaperProvider theme={theme}>
-          <SnackbarAlertsProvider>
-            <StorybookUIRoot />
-          </SnackbarAlertsProvider>
-        </PaperProvider>
+        <StorybookUIRoot />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

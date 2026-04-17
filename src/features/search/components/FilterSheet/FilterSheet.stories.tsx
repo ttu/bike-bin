@@ -14,15 +14,33 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function FilterSheetPlayground() {
-  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_SEARCH_FILTERS);
+function FilterSheetPlayground({
+  initialFilters,
+  onFiltersChange: onFiltersChangeArg,
+  onReset: onResetArg,
+  onApply: onApplyArg,
+}: {
+  initialFilters: SearchFilters;
+  onFiltersChange?: (partial: Partial<SearchFilters>) => void;
+  onReset?: () => void;
+  onApply?: () => void;
+}) {
+  const [filters, setFilters] = useState<SearchFilters>(initialFilters);
 
   return (
     <FilterSheet
       filters={filters}
-      onFiltersChange={(partial) => setFilters((prev) => ({ ...prev, ...partial }))}
-      onReset={() => setFilters(DEFAULT_SEARCH_FILTERS)}
-      onApply={fn()}
+      onFiltersChange={(partial) => {
+        setFilters((prev) => ({ ...prev, ...partial }));
+        onFiltersChangeArg?.(partial);
+      }}
+      onReset={() => {
+        setFilters(DEFAULT_SEARCH_FILTERS);
+        onResetArg?.();
+      }}
+      onApply={() => {
+        onApplyArg?.();
+      }}
     />
   );
 }
@@ -34,7 +52,14 @@ export const Interactive: Story = {
     onReset: fn(),
     onApply: fn(),
   },
-  render: () => <FilterSheetPlayground />,
+  render: (args) => (
+    <FilterSheetPlayground
+      initialFilters={args.filters ?? DEFAULT_SEARCH_FILTERS}
+      onFiltersChange={args.onFiltersChange}
+      onReset={args.onReset}
+      onApply={args.onApply}
+    />
+  ),
 };
 
 const withSellFiltersState: SearchFilters = {
@@ -53,16 +78,12 @@ export const WithSellFilters: Story = {
     onReset: fn(),
     onApply: fn(),
   },
-  render: function WithSellFiltersStory() {
-    const [filters, setFilters] = useState<SearchFilters>(withSellFiltersState);
-
-    return (
-      <FilterSheet
-        filters={filters}
-        onFiltersChange={(partial) => setFilters((prev) => ({ ...prev, ...partial }))}
-        onReset={() => setFilters(DEFAULT_SEARCH_FILTERS)}
-        onApply={fn()}
-      />
-    );
-  },
+  render: (args) => (
+    <FilterSheetPlayground
+      initialFilters={args.filters ?? withSellFiltersState}
+      onFiltersChange={args.onFiltersChange}
+      onReset={args.onReset}
+      onApply={args.onApply}
+    />
+  ),
 };
