@@ -20,8 +20,6 @@ export function DetailCard({ icon, label, value }: DetailCardProps) {
         iconBg: { backgroundColor: theme.customColors.surfaceContainerHighest },
         label: {
           color: theme.colors.onSurfaceVariant,
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
         },
         value: { color: theme.colors.onSurface },
       }),

@@ -1,10 +1,11 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { AppTheme } from '@/shared/theme';
-import { borderRadius } from '@/shared/theme';
+import { borderRadius, iconSize, spacing } from '@/shared/theme';
+
+const BUTTON_HEIGHT = 48;
 
 interface GradientButtonProps {
   children: React.ReactNode;
@@ -29,6 +30,8 @@ export function GradientButton({
 }: GradientButtonProps) {
   const theme = useTheme<AppTheme>();
   const isDisabled = disabled || loading;
+  const backgroundColor = isDisabled ? theme.colors.surfaceVariant : theme.colors.primary;
+  const foregroundColor = isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary;
 
   return (
     <Pressable
@@ -39,84 +42,46 @@ export function GradientButton({
       accessibilityState={{ disabled: isDisabled }}
       testID={testID}
       style={({ pressed }) => [
-        styles.wrapper,
-        !isDisabled && styles.shadow,
-        !isDisabled && { shadowColor: theme.colors.onSurface },
+        styles.button,
+        { backgroundColor },
         pressed && !isDisabled && styles.pressed,
         style,
       ]}
     >
-      <LinearGradient
-        colors={
-          isDisabled
-            ? [theme.colors.surfaceVariant, theme.colors.surfaceVariant]
-            : [theme.colors.primary, theme.colors.primaryContainer]
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      >
-        {loading ? (
-          <ActivityIndicator
-            color={isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary}
-            size="small"
-          />
-        ) : (
-          <View style={styles.contentRow}>
-            <Text
-              variant="labelLarge"
-              style={[
-                styles.label,
-                { color: isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary },
-              ]}
-            >
-              {children}
-            </Text>
-            {icon && (
-              <MaterialCommunityIcons
-                name={icon as never}
-                size={20}
-                color={isDisabled ? theme.colors.onSurfaceVariant : theme.colors.onPrimary}
-                style={styles.icon}
-              />
-            )}
-          </View>
-        )}
-      </LinearGradient>
+      {loading ? (
+        <ActivityIndicator color={foregroundColor} size="small" />
+      ) : (
+        <View style={styles.contentRow}>
+          <Text variant="labelLarge" style={{ color: foregroundColor }}>
+            {children}
+          </Text>
+          {icon && (
+            <MaterialCommunityIcons
+              name={icon as never}
+              size={iconSize.sm}
+              color={foregroundColor}
+            />
+          )}
+        </View>
+      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  button: {
+    height: BUTTON_HEIGHT,
     borderRadius: borderRadius.md,
-    overflow: 'hidden' as const,
-  },
-  gradient: {
-    height: 48,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 24,
-  },
-  shadow: {
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
   },
   pressed: {
     opacity: 0.88,
   },
   contentRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-  },
-  label: {
-    textTransform: 'uppercase' as const,
-  },
-  icon: {
-    marginLeft: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
 });

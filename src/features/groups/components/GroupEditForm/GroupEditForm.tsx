@@ -4,6 +4,7 @@ import { Appbar, Text, TextInput, Switch, HelperText, useTheme } from 'react-nat
 import { useTranslation } from 'react-i18next';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { spacing, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 
 type GroupEditFormProps = {
@@ -42,7 +43,7 @@ export function GroupEditForm({
       theme.customColors.surfaceContainerHighest,
     ],
   );
-  const underlineColor = theme.colors.outlineVariant + '26';
+  const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 
   const [editName, setEditName] = useState(initialName);

@@ -3,6 +3,7 @@ import { ScrollView } from 'react-native';
 import { Banner, Text, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { ItemCategory } from '@/shared/types';
 
 import { useItemFormState } from './useItemFormState';
@@ -48,7 +49,7 @@ export function ItemForm({
       backgroundColor: theme.customColors.surfaceContainerHighest,
       borderRadius: borderRadius.md,
     },
-    underlineColor: theme.colors.outlineVariant + '26',
+    underlineColor: colorWithAlpha(theme.colors.outlineVariant, 0.15),
     activeUnderlineColor: theme.colors.primary,
   };
 

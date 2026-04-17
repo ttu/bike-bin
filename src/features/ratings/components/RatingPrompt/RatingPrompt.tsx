@@ -5,6 +5,7 @@ import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, iconSize, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 import { RATING_WINDOW_DAYS } from '../../utils/ratingWindow';
@@ -127,7 +128,7 @@ export function RatingPrompt({
           multiline
           numberOfLines={3}
           style={[themeStyles.commentInput, styles.commentInput]}
-          underlineColor={theme.colors.outlineVariant + '26'}
+          underlineColor={colorWithAlpha(theme.colors.outlineVariant, 0.15)}
           activeUnderlineColor={theme.colors.primary}
         />
 
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
   modal: {
     margin: spacing.lg,
     padding: spacing.lg,
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
   },
   title: {
     textAlign: 'center',

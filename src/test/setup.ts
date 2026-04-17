@@ -19,13 +19,6 @@ jest.mock('expo-auth-session', () => ({
   makeRedirectUri: jest.fn(() => 'exp://localhost'),
 }));
 
-// Mock expo-blur
-jest.mock('expo-blur', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require('react-native');
-  return { BlurView: View };
-});
-
 // Global mock for AsyncStorage (used by theme preference, supabase, etc.)
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(() => Promise.resolve(null)),

@@ -10,17 +10,17 @@ describe('Theme', () => {
   });
 
   it('includes surface container tokens in light theme', () => {
-    expect(lightTheme.customColors.surfaceContainerLowest).toBe('#ffffff');
-    expect(lightTheme.customColors.surfaceContainerLow).toBe('#f1f4fa');
-    expect(lightTheme.customColors.surfaceContainer).toBe('#ebeef4');
-    expect(lightTheme.customColors.surfaceContainerHigh).toBe('#e5e8ee');
-    expect(lightTheme.customColors.surfaceContainerHighest).toBe('#dfe3e8');
+    expect(lightTheme.customColors.surfaceContainerLowest).toBe('#faf8f5');
+    expect(lightTheme.customColors.surfaceContainerLow).toBe('#f0ede6');
+    expect(lightTheme.customColors.surfaceContainer).toBe('#eae7e0');
+    expect(lightTheme.customColors.surfaceContainerHigh).toBe('#e4e0d9');
+    expect(lightTheme.customColors.surfaceContainerHighest).toBe('#dedad3');
   });
 
   it('includes surface container tokens in dark theme', () => {
-    expect(darkTheme.customColors.surfaceContainerLowest).toBe('#0b0f12');
-    expect(darkTheme.customColors.surfaceContainerLow).toBe('#1a1e22');
-    expect(darkTheme.customColors.surfaceContainerHigh).toBe('#252a2e');
+    expect(darkTheme.customColors.surfaceContainerLowest).toBe('#0e0c0a');
+    expect(darkTheme.customColors.surfaceContainerLow).toBe('#1e1b18');
+    expect(darkTheme.customColors.surfaceContainerHigh).toBe('#2a2824');
   });
 
   it('includes tertiary colors for community features', () => {

@@ -155,9 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },
-  badgeText: {
-    fontSize: 11,
-  },
+  badgeText: {},
   deleteButton: {
     padding: spacing.sm,
   },

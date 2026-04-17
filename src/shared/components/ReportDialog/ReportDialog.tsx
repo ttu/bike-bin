@@ -4,6 +4,7 @@ import { Portal, Dialog, Button, RadioButton, TextInput, Text, useTheme } from '
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 
 /** All report reason keys, matching i18n profile.report.reasons.* */
@@ -120,7 +121,7 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
                 numberOfLines={3}
                 mode="flat"
                 style={[themeStyles.textInput, styles.textInput]}
-                underlineColor={theme.colors.outlineVariant + '26'}
+                underlineColor={colorWithAlpha(theme.colors.outlineVariant, 0.15)}
                 activeUnderlineColor={theme.colors.primary}
               />
             </View>
