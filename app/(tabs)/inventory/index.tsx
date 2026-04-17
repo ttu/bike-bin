@@ -408,8 +408,6 @@ const styles = StyleSheet.create({
   sectionLabel: {
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
   },
   listContainer: {
     flex: 1,

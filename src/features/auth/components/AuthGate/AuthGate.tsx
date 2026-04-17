@@ -5,6 +5,7 @@ import { GradientButton } from '@/shared/components/GradientButton';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { spacing, borderRadius } from '@/shared/theme';
 import { useAuth } from '../../hooks/useAuth';
 
 interface AuthGateProps {
@@ -74,9 +75,9 @@ export function useAuthGate() {
 
 const styles = StyleSheet.create({
   modalContent: {
-    margin: 24,
-    padding: 24,
-    borderRadius: 16,
+    margin: spacing.lg,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   modalTitle: {

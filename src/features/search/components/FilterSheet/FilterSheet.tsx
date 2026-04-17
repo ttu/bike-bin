@@ -5,6 +5,7 @@ import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import type { SearchFilters } from '../../types';
 
@@ -213,7 +214,7 @@ function useThemedStyles(theme: AppTheme) {
       StyleSheet.create({
         onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
-        outlineBorder: { borderColor: theme.colors.outlineVariant + '26' },
+        outlineBorder: { borderColor: colorWithAlpha(theme.colors.outlineVariant, 0.15) },
         priceInputBg: { backgroundColor: theme.customColors.surfaceContainerHighest },
         priceInputText: { color: theme.colors.onSurface, padding: 0 },
       }),

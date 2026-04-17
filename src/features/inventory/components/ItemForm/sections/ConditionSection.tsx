@@ -3,6 +3,7 @@ import { Text, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { AppTheme } from '@/shared/theme';
 import { spacing } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { ItemCondition } from '@/shared/types';
 import { useTranslation } from 'react-i18next';
 import type { ItemFormState } from '../types';
@@ -58,7 +59,7 @@ export function ConditionSection({ condition, setCondition, errors }: ConditionS
                 styles.conditionButton,
                 {
                   backgroundColor: active
-                    ? theme.colors.primary + '14'
+                    ? colorWithAlpha(theme.colors.primary, 0.08)
                     : theme.customColors.surfaceContainerLow,
                   borderColor: active ? theme.colors.primary : theme.colors.outlineVariant,
                   borderWidth: active ? 2 : 1,
@@ -74,8 +75,6 @@ export function ConditionSection({ condition, setCondition, errors }: ConditionS
                 variant="labelSmall"
                 style={{
                   color: active ? theme.colors.primary : theme.colors.onSurfaceVariant,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
                   marginTop: spacing.xs,
                 }}
               >

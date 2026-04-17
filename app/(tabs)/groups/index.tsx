@@ -262,9 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.full,
     alignSelf: 'flex-start',
   },
-  metaBadgeText: {
-    fontSize: 11,
-  },
+  metaBadgeText: {},
   fab: {
     position: 'absolute',
     right: spacing.base,

@@ -7,6 +7,7 @@ import type { Item, ItemPhoto } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
 import { useGroup } from '@/features/groups';
 import { spacing, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
@@ -112,17 +113,17 @@ export function ItemDetail({
               compact
               style={[styles.statusChip, { backgroundColor: theme.colors.primary }]}
             >
-              <Text
-                variant="labelSmall"
-                style={{ color: theme.colors.onPrimary, textTransform: 'uppercase' }}
-              >
+              <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
                 {t(`availability.${type}`)}
               </Text>
             </Chip>
           ))}
           {item.status !== ItemStatus.Stored && (
-            <Chip compact style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
-              <Text variant="labelSmall" style={{ color: statusColor, textTransform: 'uppercase' }}>
+            <Chip
+              compact
+              style={[styles.statusChip, { backgroundColor: colorWithAlpha(statusColor, 0.12) }]}
+            >
+              <Text variant="labelSmall" style={{ color: statusColor }}>
                 {t(`status.${item.status}`)}
               </Text>
             </Chip>
@@ -337,7 +338,12 @@ function ActionSlot({
 
 function SpecRow({ label, value, theme }: { label: string; value: string; theme: AppTheme }) {
   return (
-    <View style={[styles.specRow, { borderBottomColor: theme.colors.outlineVariant + '40' }]}>
+    <View
+      style={[
+        styles.specRow,
+        { borderBottomColor: colorWithAlpha(theme.colors.outlineVariant, 0.25) },
+      ]}
+    >
       <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
         {label}
       </Text>
@@ -417,9 +423,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   breadcrumb: {
-    letterSpacing: 1,
     marginBottom: spacing.xs,
-    textTransform: 'uppercase',
   },
   title: {
     marginBottom: spacing.md,
@@ -438,8 +442,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.full,
   },
   sectionHeader: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
     marginBottom: spacing.md,
   },
   specsTable: {

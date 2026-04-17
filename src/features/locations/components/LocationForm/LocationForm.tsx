@@ -14,6 +14,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { geocodePostcode } from '../../utils/geocoding';
 import type { GeocodeResult } from '../../utils/geocoding';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
@@ -54,7 +55,7 @@ export function LocationForm({
       }),
     [theme],
   );
-  const underlineColor = theme.colors.outlineVariant + '26';
+  const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 
   const [postcode, setPostcode] = useState(initialData?.postcode ?? '');

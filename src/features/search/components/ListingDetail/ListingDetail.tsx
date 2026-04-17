@@ -92,10 +92,7 @@ export function ListingDetail({
                 compact
                 style={[styles.availabilityChip, { backgroundColor: theme.colors.primary }]}
               >
-                <Text
-                  variant="labelSmall"
-                  style={{ color: theme.colors.onPrimary, textTransform: 'uppercase' }}
-                >
+                <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
                   {t(`availability.${type}`)}
                   {type === 'sellable' && item.price !== undefined
                     ? ` \u00B7 \u20AC${item.price}`
@@ -267,9 +264,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.base,
   },
   breadcrumb: {
-    letterSpacing: 1,
     marginBottom: spacing.xs,
-    textTransform: 'uppercase',
   },
   title: {
     marginBottom: spacing.md,

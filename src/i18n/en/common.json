@@ -55,7 +55,10 @@
     "borrowCancelled": "Borrow request cancelled."
   },
   "photo": {
-    "label": "Photo {{index}}"
+    "label": "Photo {{index}}",
+    "noPhotos": "No photos",
+    "previousPhoto": "Previous photo",
+    "nextPhoto": "Next photo"
   },
   "unsavedChanges": {
     "title": "Discard changes?",

@@ -26,6 +26,7 @@ const AnimatedCachedGalleryImage = Animated.createAnimatedComponent(Image);
 const MAX_GALLERY_WIDTH = 500;
 const ASPECT_RATIO = 0.75; // 4:3
 const PLACEHOLDER_MAX_HEIGHT = 280;
+const ARROW_BUTTON_SIZE = 48; // satisfies iOS 44pt + Android 48dp touch targets
 
 interface PhotoGalleryProps {
   readonly photos: GalleryPhoto[];
@@ -102,6 +103,7 @@ function ParallaxPhoto({
 
 export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: PhotoGalleryProps) {
   const theme = useTheme<AppTheme>();
+  const { t } = useTranslation('common');
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useMemo(() => new Animated.Value(0), []);
@@ -136,7 +138,7 @@ export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: Phot
           color={theme.colors.onSurfaceVariant}
         />
         <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
-          No photos
+          {t('photo.noPhotos')}
         </Text>
       </View>
     );
@@ -178,7 +180,7 @@ export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: Phot
               style={[styles.arrow, styles.arrowLeft, { backgroundColor: theme.colors.surface }]}
               onPress={() => scrollToIndex(activeIndex - 1)}
               accessibilityRole="button"
-              accessibilityLabel="Previous photo"
+              accessibilityLabel={t('photo.previousPhoto')}
             >
               <MaterialCommunityIcons
                 name="chevron-left"
@@ -192,7 +194,7 @@ export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: Phot
               style={[styles.arrow, styles.arrowRight, { backgroundColor: theme.colors.surface }]}
               onPress={() => scrollToIndex(activeIndex + 1)}
               accessibilityRole="button"
-              accessibilityLabel="Next photo"
+              accessibilityLabel={t('photo.nextPhoto')}
             >
               <MaterialCommunityIcons
                 name="chevron-right"
@@ -255,9 +257,9 @@ const styles = StyleSheet.create({
   arrow: {
     position: 'absolute',
     top: '50%',
-    transform: [{ translateY: -20 }],
-    width: 40,
-    height: 40,
+    transform: [{ translateY: -ARROW_BUTTON_SIZE / 2 }],
+    width: ARROW_BUTTON_SIZE,
+    height: ARROW_BUTTON_SIZE,
     borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',

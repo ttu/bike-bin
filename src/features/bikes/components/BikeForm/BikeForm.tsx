@@ -8,6 +8,7 @@ import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { useTranslation } from 'react-i18next';
 import { BikeType, ItemCondition } from '@/shared/types';
 import { spacing, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
@@ -91,7 +92,7 @@ export function BikeForm({
       }),
     [theme],
   );
-  const underlineColor = theme.colors.outlineVariant + '26';
+  const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 
   const [name, setName] = useState(initialData?.name ?? '');
@@ -316,7 +317,7 @@ export function BikeForm({
                 styles.conditionButton,
                 {
                   backgroundColor: active
-                    ? theme.colors.primary + '14'
+                    ? colorWithAlpha(theme.colors.primary, 0.08)
                     : theme.customColors.surfaceContainerLow,
                   borderColor: active ? theme.colors.primary : theme.colors.outlineVariant,
                   borderWidth: active ? 2 : 1,
@@ -332,8 +333,6 @@ export function BikeForm({
                 variant="labelSmall"
                 style={{
                   color: active ? theme.colors.primary : theme.colors.onSurfaceVariant,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
                   marginTop: spacing.xs,
                 }}
               >
@@ -455,10 +454,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
   },
-  sectionLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
+  sectionLabel: {},
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -473,10 +469,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   conditionValue: {
-    letterSpacing: 0.5,
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
-    textTransform: 'uppercase',
   },
   conditionRow: {
     flexDirection: 'row',

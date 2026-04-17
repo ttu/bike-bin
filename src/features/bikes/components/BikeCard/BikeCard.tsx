@@ -112,7 +112,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },
-  chipText: {
-    fontSize: 11,
-  },
+  chipText: {},
 });

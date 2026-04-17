@@ -1,30 +1,28 @@
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnreadCount } from '@/features/messaging';
+import { spacing } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { navigateToTabRoot } from '@/shared/utils/navigateToTabRoot';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useTheme<AppTheme>();
   const insets = useSafeAreaInsets();
-  const isDark = theme.dark;
 
   return (
-    <BlurView
+    <View
       accessibilityRole="tablist"
-      intensity={20}
-      tint={isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
       style={[
         tabBarStyles.container,
         {
           paddingBottom: insets.bottom,
-          backgroundColor: theme.colors.surface + 'CC',
+          backgroundColor: theme.customColors.surfaceContainer,
+          borderTopColor: theme.colors.outlineVariant,
           shadowColor: theme.colors.onSurface,
         },
       ]}
@@ -60,7 +58,7 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             style={tabBarStyles.tab}
           >
             {options.tabBarIcon?.({ focused: isFocused, color, size: 24 })}
-            <Text variant="labelSmall" style={[tabBarStyles.label, { color }]}>
+            <Text variant="labelSmall" style={{ color }}>
               {typeof options.title === 'string' ? options.title : route.name}
             </Text>
             {options.tabBarBadge !== undefined && (
@@ -71,7 +69,7 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           </Pressable>
         );
       })}
-    </BlurView>
+    </View>
   );
 }
 
@@ -82,22 +80,19 @@ const tabBarStyles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
-    shadowOffset: { width: 0, height: -12 },
-    shadowOpacity: 0.06,
-    shadowRadius: 24,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
     elevation: 0,
-    borderTopWidth: 0,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 8,
-    paddingBottom: 4,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
     gap: 2,
-  },
-  label: {
-    fontSize: 10,
   },
   badge: {
     position: 'absolute',
@@ -113,7 +108,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      tabBar={(props) => <GlassTabBar {...props} />}
+      tabBar={(props) => <AppTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,

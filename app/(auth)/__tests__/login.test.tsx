@@ -22,14 +22,6 @@ jest.mock('expo-router', () => ({
   },
 }));
 
-jest.mock('expo-linear-gradient', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require('react-native');
-  return {
-    LinearGradient: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
-  };
-});
-
 jest.mock('@/shared/utils/env', () => ({
   isPasswordDemoLoginEnabled: false,
 }));

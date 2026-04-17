@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Item } from '@/shared/types';
 import { ItemStatus } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
@@ -87,7 +88,9 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
             {item.name}
           </Text>
           {item.status !== ItemStatus.Stored && (
-            <View style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}>
+            <View
+              style={[styles.statusChip, { backgroundColor: colorWithAlpha(statusColor, 0.12) }]}
+            >
               <Text variant="labelSmall" style={{ color: statusColor }}>
                 {t(`status.${item.status}`)}
               </Text>
@@ -209,7 +212,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },
-  chipText: {
-    fontSize: 11,
-  },
+  chipText: {},
 });

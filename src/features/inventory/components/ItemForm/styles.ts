@@ -13,10 +13,7 @@ export const styles = StyleSheet.create({
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
   },
-  sectionLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
+  sectionLabel: {},
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -44,10 +41,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   conditionValue: {
-    letterSpacing: 0.5,
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
-    textTransform: 'uppercase',
   },
   conditionRow: {
     flexDirection: 'row',
