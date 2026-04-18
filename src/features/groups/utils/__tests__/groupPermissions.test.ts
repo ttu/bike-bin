@@ -116,8 +116,8 @@ describe('groupPermissions', () => {
       expect(canLeaveGroup(adminMember, [adminMember, regularMember])).toBe(false);
     });
 
-    it('returns true if member is the only member (and admin)', () => {
-      expect(canLeaveGroup(adminMember, [adminMember])).toBe(true);
+    it('returns false if member is the only member and admin', () => {
+      expect(canLeaveGroup(adminMember, [adminMember])).toBe(false);
     });
   });
 

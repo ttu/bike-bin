@@ -64,14 +64,14 @@ src/features/groups/
 
 ### Permission guards (groupPermissions.ts)
 
-| Guard                              | Condition          |
-| ---------------------------------- | ------------------ |
-| `canInvite(role)`                  | User is admin      |
-| `canRemoveMember(role)`            | User is admin      |
-| `canEditGroup(role)`               | User is admin      |
-| `canDeleteGroup(role)`             | User is admin      |
-| `canPromoteMember(role)`           | User is admin      |
-| `canLeaveGroup(role, isLastAdmin)` | Not the last admin |
+| Guard                             | Condition          |
+| --------------------------------- | ------------------ |
+| `canInvite(role)`                 | User is admin      |
+| `canRemoveMember(role)`           | User is admin      |
+| `canEditGroup(role)`              | User is admin      |
+| `canDeleteGroup(role)`            | User is admin      |
+| `canPromoteMember(role)`          | User is admin      |
+| `canLeaveGroup(role, allMembers)` | Not the last admin |
 
 ## Screens & Navigation
 

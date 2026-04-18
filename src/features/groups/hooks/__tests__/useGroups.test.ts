@@ -60,15 +60,18 @@ describe('useCreateGroup', () => {
   it('creates a group and adds creator as admin', async () => {
     const newGroup = createMockGroup({ name: 'Test Group', isPublic: true });
 
-    // First call: insert group
-    mockInsert.mockReturnValueOnce({
-      select: mockSelect.mockReturnValueOnce({
-        single: mockSingle.mockResolvedValueOnce({ data: newGroup, error: null }),
-      }),
-    });
+    // First call: insert group (no .select())
+    mockInsert.mockReturnValueOnce(Promise.resolve({ error: null }));
 
     // Second call: insert group_member
     mockInsert.mockReturnValueOnce(Promise.resolve({ error: null }));
+
+    // Third call: select the created group back
+    mockSelect.mockReturnValueOnce({
+      eq: mockEq.mockReturnValueOnce({
+        single: mockSingle.mockResolvedValueOnce({ data: newGroup, error: null }),
+      }),
+    });
 
     const { result } = renderHook(() => useCreateGroup(), {
       wrapper: createQueryClientHookWrapper(),
@@ -85,14 +88,8 @@ describe('useCreateGroup', () => {
   });
 
   it('throws on supabase error', async () => {
-    mockInsert.mockReturnValueOnce({
-      select: mockSelect.mockReturnValueOnce({
-        single: mockSingle.mockResolvedValueOnce({
-          data: null,
-          error: new Error('RLS violation'),
-        }),
-      }),
-    });
+    // First insert (group) fails
+    mockInsert.mockReturnValueOnce(Promise.resolve({ error: new Error('RLS violation') }));
 
     const { result } = renderHook(() => useCreateGroup(), {
       wrapper: createQueryClientHookWrapper(),

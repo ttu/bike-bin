@@ -43,27 +43,36 @@ export function useCreateGroup() {
 
   return useMutation({
     mutationFn: async (formData: GroupFormData) => {
-      // Create the group
-      const { data: group, error: groupError } = await supabase
-        .from('groups')
-        .insert({
-          name: formData.name,
-          description: formData.description,
-          is_public: formData.isPublic,
-        })
-        .select()
-        .single();
+      const groupId = crypto.randomUUID();
+
+      // Insert the group without .select() — for private groups the SELECT
+      // policy requires membership which doesn't exist yet.
+      const { error: groupError } = await supabase.from('groups').insert({
+        id: groupId,
+        name: formData.name,
+        description: formData.description,
+        is_public: formData.isPublic,
+      });
 
       if (groupError) throw groupError;
 
       // Add creator as admin
       const { error: memberError } = await supabase.from('group_members').insert({
-        group_id: group.id,
+        group_id: groupId,
         user_id: user!.id,
         role: GroupRole.Admin,
       });
 
       if (memberError) throw memberError;
+
+      // Now the user is a member, so the SELECT policy passes
+      const { data: group, error: fetchError } = await supabase
+        .from('groups')
+        .select()
+        .eq('id', groupId)
+        .single();
+
+      if (fetchError) throw fetchError;
 
       return mapGroupRow(group);
     },

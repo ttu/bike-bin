@@ -59,15 +59,11 @@ export function canPromoteMember(actor: MemberInfo, target: MemberInfo): boolean
 
 /**
  * Whether a member can leave the group.
- * True unless member is the last admin (and there are other members).
+ * The last admin cannot leave — they must promote another member or delete the group.
  */
 export function canLeaveGroup(member: MemberInfo, allMembers: MemberInfo[]): boolean {
   if (member.role !== GroupRole.Admin) return true;
 
-  // If they're the only member, they can leave (group effectively deleted)
-  if (allMembers.length <= 1) return true;
-
-  // If there are other admins, they can leave
   const adminCount = allMembers.filter((m) => m.role === GroupRole.Admin).length;
   return adminCount > 1;
 }
