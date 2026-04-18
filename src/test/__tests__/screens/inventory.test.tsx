@@ -130,7 +130,8 @@ describe('InventoryScreen', () => {
     mockUserTags.mockReturnValue({ data: ['brakes', 'wheels'] });
     const { rerender } = renderWithProviders(<InventoryScreen />);
 
-    // Select the "brakes" tag filter
+    // Expand the tag filter section first, then select "brakes"
+    fireEvent.press(screen.getByText('Tags'));
     fireEvent.press(screen.getByText('brakes'));
 
     // Simulate the tag being deleted (no longer returned by useUserTags)

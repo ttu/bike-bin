@@ -57,6 +57,7 @@ export default function InventoryScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
   const [viewMode, setViewMode] = useState<InventoryViewMode>('list');
+  const [tagFilterExpanded, setTagFilterExpanded] = useState(false);
   const { data: userTags } = useUserTags();
 
   const activeTags = useMemo(
@@ -160,76 +161,95 @@ export default function InventoryScreen() {
       ? t('searchPlaceholder', { count: filteredItems.length })
       : t('searchPlaceholderEmpty');
 
+  const hasTagsOrArchived = (userTags && userTags.length > 0) || hasTerminalItems;
+  const tagSectionVisible = tagFilterExpanded || selectedTags.length > 0;
+  const tagChipLabel =
+    selectedTags.length > 0 ? `${t('tagsLabel')} (${selectedTags.length})` : t('tagsLabel');
+  const tagChipActive = tagFilterExpanded || selectedTags.length > 0;
+
+  const toggleTagFilter = useCallback(() => {
+    setTagFilterExpanded((prev) => !prev);
+  }, []);
+
   const listHeader = useMemo(
     () => (
       <>
         <DemoBanner />
         <SyncBanner />
 
-        <Text
-          variant="labelLarge"
-          style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
-        >
-          {t('categoriesLabel')}
-        </Text>
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
 
-        {userTags && userTags.length > 0 && (
-          <>
-            <Text
-              variant="labelLarge"
-              style={[styles.sectionLabel, { color: theme.colors.onSurfaceVariant }]}
-            >
-              {t('tagsLabel')}
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.tagFilterScroll}
-              contentContainerStyle={styles.tagFilterRow}
-            >
-              {userTags.map((tag) => {
-                const active = selectedTags.includes(tag);
-                return (
-                  <Chip
-                    key={tag}
-                    selected={active}
-                    onPress={() => toggleTag(tag)}
-                    showSelectedCheck={false}
-                    compact
-                    textStyle={active ? { color: theme.colors.onPrimary } : undefined}
-                    style={[
-                      styles.tagFilterChip,
-                      {
-                        backgroundColor: active
-                          ? theme.colors.primary
-                          : theme.colors.secondaryContainer,
-                      },
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
-                  >
-                    {tag}
-                  </Chip>
-                );
-              })}
-            </ScrollView>
-          </>
+        {hasTagsOrArchived && (
+          <View style={styles.secondaryFilterRow}>
+            {userTags && userTags.length > 0 && (
+              <Chip
+                selected={tagChipActive}
+                onPress={toggleTagFilter}
+                showSelectedCheck={false}
+                compact
+                textStyle={tagChipActive ? { color: theme.colors.onPrimary } : undefined}
+                style={[
+                  styles.tagFilterChip,
+                  {
+                    backgroundColor: tagChipActive
+                      ? theme.colors.primary
+                      : theme.colors.secondaryContainer,
+                  },
+                ]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: tagChipActive }}
+              >
+                {tagChipLabel}
+              </Chip>
+            )}
+            {hasTerminalItems && (
+              <Chip
+                selected={showTerminal}
+                onPress={toggleTerminal}
+                showSelectedCheck={false}
+                compact
+                style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
+                textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
+              >
+                {t('filters.showInactive', { count: terminalCount })}
+              </Chip>
+            )}
+          </View>
         )}
 
-        {hasTerminalItems && (
-          <View style={styles.terminalChipRow}>
-            <Chip
-              selected={showTerminal}
-              onPress={toggleTerminal}
-              showSelectedCheck={false}
-              style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
-              textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
-              compact
-            >
-              {t('filters.showInactive', { count: terminalCount })}
-            </Chip>
-          </View>
+        {tagSectionVisible && userTags && userTags.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tagFilterScroll}
+            contentContainerStyle={styles.tagFilterRow}
+          >
+            {userTags.map((tag) => {
+              const active = selectedTags.includes(tag);
+              return (
+                <Chip
+                  key={tag}
+                  selected={active}
+                  onPress={() => toggleTag(tag)}
+                  showSelectedCheck={false}
+                  compact
+                  textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+                  style={[
+                    styles.tagChip,
+                    {
+                      backgroundColor: active
+                        ? theme.colors.primary
+                        : theme.colors.secondaryContainer,
+                    },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                >
+                  {tag}
+                </Chip>
+              );
+            })}
+          </ScrollView>
         )}
       </>
     ),
@@ -240,10 +260,15 @@ export default function InventoryScreen() {
       selectedTags,
       selectedCategory,
       hasTerminalItems,
+      hasTagsOrArchived,
       terminalCount,
       showTerminal,
+      tagChipActive,
+      tagChipLabel,
+      tagSectionVisible,
       toggleTag,
       toggleTerminal,
+      toggleTagFilter,
     ],
   );
 
@@ -405,7 +430,10 @@ const styles = StyleSheet.create({
   searchInput: {
     minHeight: 0,
   },
-  sectionLabel: {
+  secondaryFilterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
   },
@@ -430,9 +458,8 @@ const styles = StyleSheet.create({
   tagFilterChip: {
     height: 36,
   },
-  terminalChipRow: {
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.sm,
+  tagChip: {
+    height: 36,
   },
   galleryRow: {
     paddingHorizontal: spacing.base,
