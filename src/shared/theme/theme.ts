@@ -24,11 +24,29 @@ export interface AppTheme extends MD3Theme {
 
 const fonts = configureFonts({
   config: {
-    displayLarge: { fontFamily: 'Manrope-ExtraBold', fontWeight: '800' as const },
-    displayMedium: { fontFamily: 'Manrope-ExtraBold', fontWeight: '800' as const },
-    displaySmall: { fontFamily: 'Manrope-ExtraBold', fontWeight: '800' as const },
-    headlineLarge: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
-    headlineMedium: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
+    // Display & headline: Big Shoulders Display — condensed industrial, spec-sheet credibility
+    displayLarge: {
+      fontFamily: 'BigShoulders-Black',
+      fontWeight: '900' as const,
+      letterSpacing: 0.5,
+    },
+    displayMedium: {
+      fontFamily: 'BigShoulders-ExtraBold',
+      fontWeight: '800' as const,
+      letterSpacing: 0.5,
+    },
+    displaySmall: {
+      fontFamily: 'BigShoulders-ExtraBold',
+      fontWeight: '800' as const,
+      letterSpacing: 0.25,
+    },
+    headlineLarge: {
+      fontFamily: 'BigShoulders-Bold',
+      fontWeight: '700' as const,
+      letterSpacing: 0.25,
+    },
+    headlineMedium: { fontFamily: 'BigShoulders-Bold', fontWeight: '700' as const },
+    // UI text: Manrope — geometric workhorse
     headlineSmall: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
     titleLarge: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
     titleMedium: { fontFamily: 'Manrope-SemiBold', fontWeight: '600' as const },

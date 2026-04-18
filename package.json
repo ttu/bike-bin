@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.29.0",
+    "@expo-google-fonts/big-shoulders-display": "^0.2.3",
     "@expo-google-fonts/manrope": "^0.4.2",
     "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "^5.2.9",
@@ -135,7 +136,7 @@
     "lint-staged": "^16.4.0",
     "openai": "^6.32.0",
     "prettier": "^3.8.1",
-    "react-test-renderer": "19.2.0",
+    "react-test-renderer": "^19.2.0",
     "sharp": "^0.34.5",
     "ts-jest": "^29.4.6",
     "typescript": "^5.9.3"
