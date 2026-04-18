@@ -25,25 +25,27 @@ export interface AppTheme extends MD3Theme {
 const fonts = configureFonts({
   config: {
     // Display & headline: Big Shoulders Display — condensed industrial, spec-sheet credibility
+    // Negative tracking enforces the tight "stamped part number" feel; positive tracking spreads
+    // the condensed letterforms and defeats the purpose of using a compressed face.
     displayLarge: {
       fontFamily: 'BigShoulders-Black',
       fontWeight: '900' as const,
-      letterSpacing: 0.5,
+      letterSpacing: -0.5,
     },
     displayMedium: {
       fontFamily: 'BigShoulders-ExtraBold',
       fontWeight: '800' as const,
-      letterSpacing: 0.5,
+      letterSpacing: -0.25,
     },
     displaySmall: {
       fontFamily: 'BigShoulders-ExtraBold',
       fontWeight: '800' as const,
-      letterSpacing: 0.25,
+      letterSpacing: 0,
     },
     headlineLarge: {
       fontFamily: 'BigShoulders-Bold',
       fontWeight: '700' as const,
-      letterSpacing: 0.25,
+      letterSpacing: 0,
     },
     headlineMedium: { fontFamily: 'BigShoulders-Bold', fontWeight: '700' as const },
     // UI text: Manrope — geometric workhorse
@@ -51,12 +53,15 @@ const fonts = configureFonts({
     titleLarge: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
     titleMedium: { fontFamily: 'Manrope-SemiBold', fontWeight: '600' as const },
     titleSmall: { fontFamily: 'Manrope-SemiBold', fontWeight: '600' as const },
-    bodyLarge: { fontFamily: 'Manrope-Regular', fontWeight: '400' as const },
+    // Body: weight gradient from Medium → Regular as size decreases
+    bodyLarge: { fontFamily: 'Manrope-Medium', fontWeight: '500' as const },
     bodyMedium: { fontFamily: 'Manrope-Regular', fontWeight: '400' as const },
     bodySmall: { fontFamily: 'Manrope-Regular', fontWeight: '400' as const },
+    // Labels: weight gradient — Bold reserved for labelLarge (section headers, prominent UI);
+    // smaller labels use lighter weights so chip text and metadata don't over-assert at 11–12sp.
     labelLarge: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
-    labelMedium: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
-    labelSmall: { fontFamily: 'Manrope-Bold', fontWeight: '700' as const },
+    labelMedium: { fontFamily: 'Manrope-SemiBold', fontWeight: '600' as const },
+    labelSmall: { fontFamily: 'Manrope-Medium', fontWeight: '500' as const },
   },
 });
 
