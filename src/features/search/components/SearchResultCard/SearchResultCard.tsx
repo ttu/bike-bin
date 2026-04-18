@@ -177,6 +177,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: spacing.xs,
-    gap: 2,
+    gap: spacing.xs,
   },
 });

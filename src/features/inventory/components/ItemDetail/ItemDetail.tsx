@@ -82,7 +82,7 @@ export function ItemDetail({
   const detailContent = (
     <>
       {/* Category breadcrumb */}
-      <View style={styles.section}>
+      <View style={[styles.section, styles.sectionFirst]}>
         <Text variant="labelSmall" style={[styles.breadcrumb, { color: theme.colors.primary }]}>
           {categoryBreadcrumb}
         </Text>
@@ -405,9 +405,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
   },
+  sectionFirst: {
+    paddingTop: spacing.base,
+  },
   actionSection: {
     paddingHorizontal: spacing.base,
-    paddingVertical: spacing.base,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.base,
   },
   actionSectionWide: {
     flexDirection: 'row',

@@ -89,7 +89,7 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
           </Text>
           {item.status !== ItemStatus.Stored && (
             <View
-              style={[styles.statusChip, { backgroundColor: colorWithAlpha(statusColor, 0.12) }]}
+              style={[styles.statusChip, { backgroundColor: colorWithAlpha(statusColor, 0.2) }]}
             >
               <Text variant="labelSmall" style={{ color: statusColor }}>
                 {t(`status.${item.status}`)}
