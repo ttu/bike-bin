@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports -- jest.mock factories use require(); deferred require('./_layout') reads EXPO_PUBLIC_STORYBOOK_ENABLED before first load */
+/* eslint-disable @typescript-eslint/no-require-imports -- jest.mock factories use require(); deferred require('../_layout') reads EXPO_PUBLIC_STORYBOOK_ENABLED before first load */
 import React from 'react';
 import type { ReactNode } from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
@@ -32,7 +32,7 @@ jest.mock('@/storybook/shellQueryClient', () => ({
   storybookShellQueryClient: {},
 }));
 
-jest.mock('../.rnstorybook', () => {
+jest.mock('../../.rnstorybook', () => {
   const React = require('react');
   const { View } = require('react-native');
   const StorybookRoot = () => <View testID="storybook-ui-root" />;
@@ -116,7 +116,7 @@ describe('app/_layout', () => {
 
   /** Re-run `app/_layout` top-level (incl. `storybookEnabled`) without `jest.resetModules()`, which reloads React and breaks hooks in RTL. */
   function evictLayoutFromRequireCache(): void {
-    const layoutPath = require.resolve('./_layout');
+    const layoutPath = require.resolve('../_layout');
     Reflect.deleteProperty(require.cache as Record<string, NodeModule>, layoutPath);
   }
 
@@ -131,7 +131,7 @@ describe('app/_layout', () => {
   it('renders Storybook UI when EXPO_PUBLIC_STORYBOOK_ENABLED is true', () => {
     process.env.EXPO_PUBLIC_STORYBOOK_ENABLED = 'true';
     evictLayoutFromRequireCache();
-    const { default: RootLayout } = require('./_layout') as { default: React.ComponentType };
+    const { default: RootLayout } = require('../_layout') as { default: React.ComponentType };
     const { getByTestId } = render(<RootLayout />);
     expect(getByTestId('storybook-ui-root')).toBeTruthy();
     expect(getByTestId('gesture-root')).toBeTruthy();
@@ -140,7 +140,7 @@ describe('app/_layout', () => {
   it('hides the splash screen when the root SafeAreaProvider lays out', () => {
     process.env.EXPO_PUBLIC_STORYBOOK_ENABLED = 'true';
     evictLayoutFromRequireCache();
-    const { default: RootLayout } = require('./_layout') as { default: React.ComponentType };
+    const { default: RootLayout } = require('../_layout') as { default: React.ComponentType };
     const { getByTestId } = render(<RootLayout />);
     fireEvent(getByTestId('safe-area-root'), 'layout', {
       nativeEvent: { layout: { x: 0, y: 0, width: 100, height: 100 } },

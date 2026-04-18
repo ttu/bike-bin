@@ -16,6 +16,11 @@ import {
   Manrope_700Bold,
   Manrope_800ExtraBold,
 } from '@expo-google-fonts/manrope';
+import {
+  BigShouldersDisplay_700Bold,
+  BigShouldersDisplay_800ExtraBold,
+  BigShouldersDisplay_900Black,
+} from '@expo-google-fonts/big-shoulders-display';
 import { lightTheme, darkTheme } from '@/shared/theme';
 import '@/shared/i18n/config';
 import { queryClient } from '@/shared/api/queryClient';
@@ -77,6 +82,9 @@ function RootLayout() {
     'Manrope-SemiBold': Manrope_600SemiBold,
     'Manrope-Bold': Manrope_700Bold,
     'Manrope-ExtraBold': Manrope_800ExtraBold,
+    'BigShoulders-Bold': BigShouldersDisplay_700Bold,
+    'BigShoulders-ExtraBold': BigShouldersDisplay_800ExtraBold,
+    'BigShoulders-Black': BigShouldersDisplay_900Black,
   });
 
   const onLayoutRootView = useCallback(() => {
