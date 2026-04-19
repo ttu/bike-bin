@@ -134,6 +134,18 @@ CREATE POLICY "conversation_participants_insert"
           WHERE c.id = conversation_id AND i.owner_id = user_id
         )
       )
+      OR (
+        -- An existing participant may add a group admin (group items)
+        public.is_conversation_participant(conversation_id, (select auth.uid()))
+        AND EXISTS (
+          SELECT 1 FROM conversations c
+          JOIN items i ON i.id = c.item_id
+          JOIN group_members gm ON gm.group_id = i.group_id
+          WHERE c.id = conversation_id
+            AND gm.user_id = conversation_participants.user_id
+            AND gm.role = 'admin'
+        )
+      )
     )
   );
 

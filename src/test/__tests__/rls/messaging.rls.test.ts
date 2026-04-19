@@ -9,10 +9,18 @@ let itemAId: string;
 let conversationId: string;
 let messageAId: string;
 
+// Group messaging test data
+let groupId: string;
+let groupAdmin: TestUser;
+let groupAdmin2: TestUser;
+let groupItemId: string;
+
 beforeAll(async () => {
   userA = await createTestUser('msg-a');
   userB = await createTestUser('msg-b');
   userC = await createTestUser('msg-c');
+  groupAdmin = await createTestUser('msg-gadmin');
+  groupAdmin2 = await createTestUser('msg-gadmin2');
 
   // Create a public item for userA — required to create a conversation
   const { data: itemData, error: itemError } = await adminClient
@@ -54,6 +62,35 @@ beforeAll(async () => {
     .single();
   if (msgError) throw new Error(`Failed to seed message: ${msgError.message}`);
   messageAId = msgData.id;
+
+  // --- Group messaging setup ---
+  const { data: grp, error: grpErr } = await adminClient
+    .from('groups')
+    .insert({ name: 'Msg Test Group', is_public: true })
+    .select('id')
+    .single();
+  if (grpErr) throw new Error(`Failed to seed group: ${grpErr.message}`);
+  groupId = grp.id;
+
+  await adminClient.from('group_members').insert([
+    { group_id: groupId, user_id: groupAdmin.id, role: 'admin' },
+    { group_id: groupId, user_id: groupAdmin2.id, role: 'admin' },
+  ]);
+
+  const { data: gItem, error: gItemErr } = await adminClient
+    .from('items')
+    .insert({
+      group_id: groupId,
+      created_by: groupAdmin.id,
+      name: 'Group Brake Pads',
+      category: 'component',
+      condition: 'good',
+      visibility: 'all',
+    })
+    .select('id')
+    .single();
+  if (gItemErr) throw new Error(`Failed to seed group item: ${gItemErr.message}`);
+  groupItemId = gItem.id;
 }, 30_000);
 
 afterAll(async () => {
@@ -64,7 +101,11 @@ afterAll(async () => {
     .eq('conversation_id', conversationId);
   await adminClient.from('conversations').delete().eq('id', conversationId);
   await adminClient.from('items').delete().eq('id', itemAId);
-  await cleanupUsers([userA, userB, userC]);
+  // Group cleanup (cascades handle participants/conversations)
+  await adminClient.from('items').delete().eq('id', groupItemId);
+  await adminClient.from('group_members').delete().eq('group_id', groupId);
+  await adminClient.from('groups').delete().eq('id', groupId);
+  await cleanupUsers([userA, userB, userC, groupAdmin, groupAdmin2]);
 });
 
 // ============================================================
@@ -116,7 +157,7 @@ describe('conversations — INSERT', () => {
     }
   });
 
-  it('app flow: client-supplied conversation id, then both participants, then SELECT works', async () => {
+  it('app flow: client-supplied conversation id, add self then owner, then SELECT works', async () => {
     const newConvId = crypto.randomUUID();
     const { error: insertConvError } = await userB.client.from('conversations').insert({
       id: newConvId,
@@ -124,13 +165,17 @@ describe('conversations — INSERT', () => {
     });
     expect(insertConvError).toBeNull();
 
-    const { error: insertParticipantsError } = await userB.client
+    // Add self first — STABLE helpers can't see rows from the same INSERT
+    const { error: selfError } = await userB.client
       .from('conversation_participants')
-      .insert([
-        { conversation_id: newConvId, user_id: userB.id },
-        { conversation_id: newConvId, user_id: userA.id },
-      ]);
-    expect(insertParticipantsError).toBeNull();
+      .insert({ conversation_id: newConvId, user_id: userB.id });
+    expect(selfError).toBeNull();
+
+    // Then add the item owner
+    const { error: ownerError } = await userB.client
+      .from('conversation_participants')
+      .insert({ conversation_id: newConvId, user_id: userA.id });
+    expect(ownerError).toBeNull();
 
     const { data, error } = await userB.client
       .from('conversations')
@@ -204,18 +249,31 @@ describe('conversation_participants — SELECT', () => {
 // ============================================================
 
 describe('conversation_participants — INSERT', () => {
-  it('participant can add someone to their conversation', async () => {
+  it('participant can add the item owner to their conversation', async () => {
+    // Create a new conversation where only userB is a participant,
+    // then userB adds userA (the item owner) — allowed by policy.
+    const newConvId = crypto.randomUUID();
+    await adminClient.from('conversations').insert({ id: newConvId, item_id: itemAId });
+    await adminClient
+      .from('conversation_participants')
+      .insert({ conversation_id: newConvId, user_id: userB.id });
+
+    const { error } = await userB.client
+      .from('conversation_participants')
+      .insert({ conversation_id: newConvId, user_id: userA.id });
+    expect(error).toBeNull();
+
+    // Cleanup
+    await adminClient.from('conversation_participants').delete().eq('conversation_id', newConvId);
+    await adminClient.from('conversations').delete().eq('id', newConvId);
+  });
+
+  it('participant cannot add arbitrary third party to their conversation', async () => {
+    // userA tries to add userC who is neither the item owner nor a group admin
     const { error } = await userA.client
       .from('conversation_participants')
       .insert({ conversation_id: conversationId, user_id: userC.id });
-    expect(error).toBeNull();
-
-    // Cleanup — remove userC from the conversation
-    await adminClient
-      .from('conversation_participants')
-      .delete()
-      .eq('conversation_id', conversationId)
-      .eq('user_id', userC.id);
+    expect(error).toBeTruthy();
   });
 
   it('non-participant cannot add themselves to a conversation that already has participants', async () => {
@@ -389,5 +447,114 @@ describe('messages — UPDATE / DELETE', () => {
       .select('id')
       .eq('id', messageAId);
     expect(stillExists).toHaveLength(1);
+  });
+});
+
+// ============================================================
+// Group item: contact from search (end-to-end app flow)
+// ============================================================
+
+describe('group item — contact from search', () => {
+  it('outsider can create conversation, add self + group admins, and send message', async () => {
+    // Mirrors the app flow in useCreateConversation:
+    // 1. userB discovers a group item via search
+    // 2. Taps "Contact" → creates conversation with client-supplied id
+    // 3. Inserts self + all group admins as participants in one batch
+    // 4. Sends a message
+
+    const newConvId = crypto.randomUUID();
+
+    // Step 1: create conversation for the group item
+    const { error: convErr } = await userB.client.from('conversations').insert({
+      id: newConvId,
+      item_id: groupItemId,
+    });
+    expect(convErr).toBeNull();
+
+    // Step 2a: add self first (STABLE helpers can't see same-statement rows)
+    const { error: selfErr } = await userB.client
+      .from('conversation_participants')
+      .insert({ conversation_id: newConvId, user_id: userB.id });
+    expect(selfErr).toBeNull();
+
+    // Step 2b: add group admins
+    const { error: adminsErr } = await userB.client.from('conversation_participants').insert([
+      { conversation_id: newConvId, user_id: groupAdmin.id },
+      { conversation_id: newConvId, user_id: groupAdmin2.id },
+    ]);
+    expect(adminsErr).toBeNull();
+
+    // Step 3: requester sends a message
+    const { data: msg, error: msgErr } = await userB.client
+      .from('messages')
+      .insert({
+        conversation_id: newConvId,
+        sender_id: userB.id,
+        body: 'Hi, is this part still available?',
+      })
+      .select('id')
+      .single();
+    expect(msgErr).toBeNull();
+    expect(msg).not.toBeNull();
+
+    // Step 4: group admin can see the conversation and reply
+    const { data: adminConvs, error: adminConvErr } = await groupAdmin.client
+      .from('conversations')
+      .select('id')
+      .eq('id', newConvId);
+    expect(adminConvErr).toBeNull();
+    expect(adminConvs).toHaveLength(1);
+
+    const { error: replyErr } = await groupAdmin.client.from('messages').insert({
+      conversation_id: newConvId,
+      sender_id: groupAdmin.id,
+      body: 'Yes, come pick it up!',
+    });
+    expect(replyErr).toBeNull();
+
+    // Cleanup
+    await adminClient.from('messages').delete().eq('conversation_id', newConvId);
+    await adminClient.from('conversation_participants').delete().eq('conversation_id', newConvId);
+    await adminClient.from('conversations').delete().eq('id', newConvId);
+  });
+
+  it('outsider cannot add non-admin group member as participant', async () => {
+    // Add a regular member to the group
+    const member = await createTestUser('msg-gmember');
+    expect(member.id).toBeTruthy();
+    const { error: memberInsertErr } = await adminClient.from('group_members').insert({
+      group_id: groupId,
+      user_id: member.id,
+      role: 'member',
+    });
+    expect(memberInsertErr).toBeNull();
+
+    const newConvId = crypto.randomUUID();
+    const { error: convInsertErr } = await userB.client
+      .from('conversations')
+      .insert({ id: newConvId, item_id: groupItemId });
+    expect(convInsertErr).toBeNull();
+
+    // Add self first (allowed)
+    const { error: selfInsertErr } = await userB.client
+      .from('conversation_participants')
+      .insert({ conversation_id: newConvId, user_id: userB.id });
+    expect(selfInsertErr).toBeNull();
+
+    // Try to add a regular member (should fail — only admins allowed)
+    const { error } = await userB.client
+      .from('conversation_participants')
+      .insert({ conversation_id: newConvId, user_id: member.id });
+    expect(error).toBeTruthy();
+
+    // Cleanup
+    await adminClient.from('conversation_participants').delete().eq('conversation_id', newConvId);
+    await adminClient.from('conversations').delete().eq('id', newConvId);
+    await adminClient
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId)
+      .eq('user_id', member.id);
+    await cleanupUsers([member]);
   });
 });
