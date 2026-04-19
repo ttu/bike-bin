@@ -40,7 +40,7 @@ BEGIN
       RAISE EXCEPTION 'transfer_item_ownership: not authorized (not the item owner)';
     END IF;
   ELSIF v_item.group_id IS NOT NULL THEN
-    IF NOT public.is_group_admin(v_item.group_id, v_caller) THEN
+    IF NOT private.is_group_admin(v_item.group_id, v_caller) THEN
       RAISE EXCEPTION 'transfer_item_ownership: not authorized (not a group admin)';
     END IF;
   END IF;
@@ -52,7 +52,7 @@ BEGIN
 
   -- Personal -> Group: caller must be admin of target group
   IF p_to_group_id IS NOT NULL THEN
-    IF NOT public.is_group_admin(p_to_group_id, v_caller) THEN
+    IF NOT private.is_group_admin(p_to_group_id, v_caller) THEN
       RAISE EXCEPTION 'transfer_item_ownership: not authorized for target group';
     END IF;
   END IF;

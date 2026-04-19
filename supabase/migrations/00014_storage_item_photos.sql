@@ -22,7 +22,7 @@ CREATE POLICY "item_photos_storage_insert"
         (storage.foldername(name))[2] LIKE 'group-%'
         AND replace((storage.foldername(name))[2], 'group-', '') ~
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        AND public.is_group_admin(
+        AND private.is_group_admin(
           replace((storage.foldername(name))[2], 'group-', '')::uuid,
           (select auth.uid())
         )
@@ -46,7 +46,7 @@ CREATE POLICY "item_photos_storage_update"
         (storage.foldername(name))[2] LIKE 'group-%'
         AND replace((storage.foldername(name))[2], 'group-', '') ~
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        AND public.is_group_admin(
+        AND private.is_group_admin(
           replace((storage.foldername(name))[2], 'group-', '')::uuid,
           (select auth.uid())
         )
@@ -65,7 +65,7 @@ CREATE POLICY "item_photos_storage_delete"
         (storage.foldername(name))[2] LIKE 'group-%'
         AND replace((storage.foldername(name))[2], 'group-', '') ~
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        AND public.is_group_admin(
+        AND private.is_group_admin(
           replace((storage.foldername(name))[2], 'group-', '')::uuid,
           (select auth.uid())
         )

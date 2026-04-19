@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION get_user_tags()
 RETURNS SETOF text AS $$
   SELECT DISTINCT unnest(tags) FROM items
   WHERE (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
-     OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+     OR (group_id IS NOT NULL AND private.is_group_admin(group_id, (select auth.uid())))
   ORDER BY 1;
 $$ LANGUAGE sql SECURITY DEFINER STABLE
 SET search_path TO public, pg_temp;

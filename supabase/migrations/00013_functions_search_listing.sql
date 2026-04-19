@@ -90,28 +90,34 @@ BEGIN
     -- Non-owners cannot view archived, donated, or sold items
     AND (
       (i.owner_id IS NOT NULL AND i.owner_id = (select auth.uid()))
-      OR (i.group_id IS NOT NULL AND public.is_group_admin(i.group_id, (select auth.uid())))
+      OR (i.group_id IS NOT NULL AND private.is_group_admin(i.group_id, (select auth.uid())))
       OR i.status NOT IN ('archived', 'donated', 'sold')
     )
     AND (
       i.visibility = 'all'
       OR (i.owner_id IS NOT NULL AND i.owner_id = (select auth.uid()))
-      OR (i.group_id IS NOT NULL AND public.is_group_admin(i.group_id, (select auth.uid())))
+      OR (i.group_id IS NOT NULL AND private.is_group_admin(i.group_id, (select auth.uid())))
       OR (
         i.group_id IS NOT NULL
         AND i.visibility = 'groups'
-        AND public.is_group_member(i.group_id, (select auth.uid()))
+        AND private.is_group_member(i.group_id, (select auth.uid()))
       )
       OR (
         i.owner_id IS NOT NULL
         AND i.visibility = 'groups'
-        AND public.user_shares_group_with_item(i.id, (select auth.uid()))
+        AND private.user_shares_group_with_item(i.id, (select auth.uid()))
       )
     );
 END;
 $$;
 
+-- Restrict listing detail to authenticated users only
+REVOKE ALL ON FUNCTION public.get_listing_detail(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.get_listing_detail(uuid) TO authenticated;
+
 -- Search nearby items (authenticated only)
+-- Uses tsvector full-text search with GIN index instead of ILIKE.
+-- Limit capped at 100 to prevent excessive result sets.
 CREATE OR REPLACE FUNCTION search_nearby_items(
   query text DEFAULT NULL,
   lat float DEFAULT NULL,
@@ -149,10 +155,27 @@ STABLE
 SECURITY INVOKER
 SET search_path TO public, extensions
 AS $$
+DECLARE
+  v_tsquery tsquery;
+  v_safe_limit int := LEAST(GREATEST(p_limit, 1), 100);
 BEGIN
   IF (select auth.uid()) IS NULL THEN
     RAISE EXCEPTION 'search requires authentication'
       USING ERRCODE = '42501';
+  END IF;
+
+  -- Build tsquery: split on spaces, prefix-match each term, AND them together
+  IF query IS NOT NULL AND trim(query) != '' THEN
+    v_tsquery := to_tsquery('simple',
+      array_to_string(
+        array(
+          SELECT lexeme || ':*'
+          FROM unnest(string_to_array(trim(query), ' ')) AS lexeme
+          WHERE lexeme != ''
+        ),
+        ' & '
+      )
+    );
   END IF;
 
   RETURN QUERY
@@ -189,7 +212,7 @@ BEGIN
     -- Exclude the caller's own items: personal items they own, or group items in groups they admin
     (
       (i.owner_id IS NOT NULL AND i.owner_id != (select auth.uid()))
-      OR (i.group_id IS NOT NULL AND NOT public.is_group_admin(i.group_id, (select auth.uid())))
+      OR (i.group_id IS NOT NULL AND NOT private.is_group_admin(i.group_id, (select auth.uid())))
     )
     AND i.status NOT IN ('archived', 'donated', 'sold')
     AND (
@@ -197,21 +220,15 @@ BEGIN
       OR (
         i.visibility = 'groups'
         AND i.owner_id IS NOT NULL
-        AND public.user_shares_group_with_item(i.id, (select auth.uid()))
+        AND private.user_shares_group_with_item(i.id, (select auth.uid()))
       )
       OR (
         i.visibility = 'groups'
         AND i.group_id IS NOT NULL
-        AND public.is_group_member(i.group_id, (select auth.uid()))
+        AND private.is_group_member(i.group_id, (select auth.uid()))
       )
     )
-    AND (
-      query IS NULL
-      OR i.name ILIKE '%' || query || '%'
-      OR i.brand ILIKE '%' || query || '%'
-      OR i.model ILIKE '%' || query || '%'
-      OR i.description ILIKE '%' || query || '%'
-    )
+    AND (v_tsquery IS NULL OR i.search_vector @@ v_tsquery)
     AND (p_categories IS NULL OR i.category = ANY(p_categories))
     AND (p_conditions IS NULL OR i.condition = ANY(p_conditions))
     AND (p_status IS NULL OR i.status = p_status)
@@ -234,7 +251,7 @@ BEGIN
       ELSE 0
     END ASC,
     i.created_at DESC
-  LIMIT p_limit
+  LIMIT v_safe_limit
   OFFSET p_offset;
 END;
 $$;
@@ -243,4 +260,3 @@ $$;
 REVOKE ALL ON FUNCTION public.search_nearby_items(text, float, float, int, item_category[], item_condition[], item_status, int, int) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.search_nearby_items(text, float, float, int, item_category[], item_condition[], item_status, int, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.search_nearby_items(text, float, float, int, item_category[], item_condition[], item_status, int, int) TO authenticated;
-
