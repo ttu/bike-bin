@@ -20,8 +20,10 @@ import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory'
 import { useItems, useUserTags, useInventoryRowCapacity } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { ItemGalleryTile } from '@/features/inventory/components/ItemGalleryTile/ItemGalleryTile';
+import { FeaturedItemCard } from '@/features/inventory/components/FeaturedItemCard/FeaturedItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { isTerminalStatus } from '@/features/inventory/utils/status';
+import { sortItems, type InventorySortOption } from '@/features/inventory/utils/sortItems';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { DemoBanner } from '@/features/demo';
@@ -35,6 +37,8 @@ import {
 import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
 
 type InventoryViewMode = 'list' | 'gallery';
+
+const SORT_OPTIONS: InventorySortOption[] = ['recentlyAdded', 'recentlyUpdated', 'name'];
 
 function matchesSearch(item: Item, query: string): boolean {
   const q = query.toLowerCase();
@@ -57,6 +61,7 @@ export default function InventoryScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
   const [viewMode, setViewMode] = useState<InventoryViewMode>('list');
+  const [sortOption, setSortOption] = useState<InventorySortOption>('recentlyAdded');
   const [tagFilterExpanded, setTagFilterExpanded] = useState(false);
   const { data: userTags } = useUserTags();
 
@@ -96,8 +101,20 @@ export default function InventoryScreen() {
     if (!showTerminal) {
       result = result.filter((item) => !isTerminalStatus(item.status));
     }
-    return result;
-  }, [items, selectedCategory, searchQuery, activeTags, showTerminal]);
+    return sortItems(result, sortOption);
+  }, [items, selectedCategory, searchQuery, activeTags, showTerminal, sortOption]);
+
+  const heroItem = useMemo(() => {
+    if (sortOption !== 'recentlyAdded' || filteredItems.length === 0 || viewMode === 'gallery') {
+      return undefined;
+    }
+    return filteredItems[0];
+  }, [sortOption, filteredItems, viewMode]);
+
+  const listItems = useMemo(
+    () => (heroItem ? filteredItems.slice(1) : filteredItems),
+    [heroItem, filteredItems],
+  );
 
   const terminalCount = useMemo(
     () => items.filter((item) => isTerminalStatus(item.status)).length,
@@ -140,6 +157,13 @@ export default function InventoryScreen() {
     setViewMode((mode) => (mode === 'list' ? 'gallery' : 'list'));
   }, []);
 
+  const cycleSortOption = useCallback(() => {
+    setSortOption((current) => {
+      const idx = SORT_OPTIONS.indexOf(current);
+      return SORT_OPTIONS[(idx + 1) % SORT_OPTIONS.length];
+    });
+  }, []);
+
   const toggleTerminal = useCallback(() => {
     setShowTerminal((prev) => !prev);
   }, []);
@@ -178,6 +202,32 @@ export default function InventoryScreen() {
         <SyncBanner />
 
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+
+        {filteredItems.length > 0 && (
+          <View style={styles.sortRow}>
+            <Pressable
+              onPress={cycleSortOption}
+              style={({ pressed }) => [
+                styles.sortButton,
+                { backgroundColor: theme.colors.surfaceVariant },
+                pressed && styles.sortButtonPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={t('sort.label')}
+            >
+              <MaterialCommunityIcons
+                name="sort"
+                size={iconSize.sm}
+                color={theme.colors.onSurfaceVariant}
+              />
+              <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                {t(`sort.${sortOption}`)}
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
+        {heroItem && <FeaturedItemCard item={heroItem} onPress={handleItemPress} />}
 
         {hasTagsOrArchived && (
           <View style={styles.secondaryFilterRow}>
@@ -269,6 +319,11 @@ export default function InventoryScreen() {
       toggleTag,
       toggleTerminal,
       toggleTagFilter,
+      sortOption,
+      cycleSortOption,
+      filteredItems.length,
+      heroItem,
+      handleItemPress,
     ],
   );
 
@@ -292,9 +347,9 @@ export default function InventoryScreen() {
   const listContentContainerStyle = useMemo(
     () => [
       { paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
-      filteredItems.length === 0 ? styles.listContentContainerEmpty : undefined,
+      listItems.length === 0 && !heroItem ? styles.listContentContainerEmpty : undefined,
     ],
-    [insets.bottom, filteredItems.length],
+    [insets.bottom, listItems.length, heroItem],
   );
 
   return (
@@ -350,7 +405,7 @@ export default function InventoryScreen() {
           testID="inventory-items-list"
           key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
           style={styles.listContainer}
-          data={filteredItems}
+          data={listItems}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
@@ -429,6 +484,23 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     minHeight: 0,
+  },
+  sortRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.base,
+    paddingTop: spacing.sm,
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.xl,
+  },
+  sortButtonPressed: {
+    opacity: 0.72,
   },
   secondaryFilterRow: {
     flexDirection: 'row',

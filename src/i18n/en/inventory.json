@@ -248,6 +248,16 @@
   "viewMode": {
     "toggleA11y": "Switch between list and gallery layout"
   },
+  "sort": {
+    "label": "Sort",
+    "recentlyAdded": "Recently added",
+    "recentlyUpdated": "Recently updated",
+    "name": "Name"
+  },
+  "hero": {
+    "recentlyAdded": "Recently added",
+    "a11yLabel": "Latest item: {{name}}"
+  },
   "filters": {
     "showInactive": "Show inactive ({{count}})"
   },
