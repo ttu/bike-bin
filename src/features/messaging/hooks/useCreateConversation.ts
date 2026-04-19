@@ -135,7 +135,15 @@ export function useCreateConversation() {
           .insert(
             otherParticipantIds.map((uid) => ({ conversation_id: conversationId, user_id: uid })),
           );
-        if (othersError) throw othersError;
+        if (othersError) {
+          // Rollback: remove partial conversation to avoid one-sided state
+          await supabase
+            .from('conversation_participants')
+            .delete()
+            .eq('conversation_id', conversationId);
+          await supabase.from('conversations').delete().eq('id', conversationId);
+          throw othersError;
+        }
       }
 
       return {

@@ -78,8 +78,11 @@ describe('useCreateConversation', () => {
     mockEq.mockResolvedValue({ data: [] });
     mockSelect.mockReturnValue({ eq: mockEq });
 
-    // Conversation insert without RETURNING, then participants insert
-    mockInsert.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: null });
+    // Conversation insert, then self-participant insert, then other-participant insert
+    mockInsert
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: null });
 
     const { result } = renderHook(() => useCreateConversation(), {
       wrapper: createQueryClientHookWrapper(),
@@ -92,6 +95,16 @@ describe('useCreateConversation', () => {
       conversationId: 'conv-new',
       isExisting: false,
     });
+
+    // Verify three inserts: conversation, self-participant (owner), other-participant
+    expect(mockInsert).toHaveBeenCalledTimes(3);
+    expect(mockInsert).toHaveBeenNthCalledWith(2, {
+      conversation_id: 'conv-new',
+      user_id: 'user-123',
+    });
+    expect(mockInsert).toHaveBeenNthCalledWith(3, [
+      { conversation_id: 'conv-new', user_id: 'user-456' },
+    ]);
   });
 
   it('reuses existing conversation when group admin is a participant', async () => {

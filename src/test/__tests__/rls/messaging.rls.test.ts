@@ -521,19 +521,25 @@ describe('group item — contact from search', () => {
   it('outsider cannot add non-admin group member as participant', async () => {
     // Add a regular member to the group
     const member = await createTestUser('msg-gmember');
-    await adminClient.from('group_members').insert({
+    expect(member.id).toBeTruthy();
+    const { error: memberInsertErr } = await adminClient.from('group_members').insert({
       group_id: groupId,
       user_id: member.id,
       role: 'member',
     });
+    expect(memberInsertErr).toBeNull();
 
     const newConvId = crypto.randomUUID();
-    await userB.client.from('conversations').insert({ id: newConvId, item_id: groupItemId });
+    const { error: convInsertErr } = await userB.client
+      .from('conversations')
+      .insert({ id: newConvId, item_id: groupItemId });
+    expect(convInsertErr).toBeNull();
 
     // Add self first (allowed)
-    await userB.client
+    const { error: selfInsertErr } = await userB.client
       .from('conversation_participants')
       .insert({ conversation_id: newConvId, user_id: userB.id });
+    expect(selfInsertErr).toBeNull();
 
     // Try to add a regular member (should fail — only admins allowed)
     const { error } = await userB.client
