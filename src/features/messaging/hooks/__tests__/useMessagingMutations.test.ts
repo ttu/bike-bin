@@ -1,5 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import { mockInsert, mockSelect, mockSingle, mockEq, mockSupabase } from '@/test/supabaseMocks';
+import {
+  mockInsert,
+  mockDelete,
+  mockSelect,
+  mockSingle,
+  mockEq,
+  mockSupabase,
+} from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
 
 jest.mock('@/shared/utils/randomUuid', () => ({
@@ -105,6 +112,30 @@ describe('useCreateConversation', () => {
     expect(mockInsert).toHaveBeenNthCalledWith(3, [
       { conversation_id: 'conv-new', user_id: 'user-456' },
     ]);
+  });
+
+  it('rolls back conversation when other-participant insert fails', async () => {
+    mockEq.mockResolvedValue({ data: [] });
+    mockSelect.mockReturnValue({ eq: mockEq });
+
+    // Conversation insert OK, self-participant OK, other-participant fails
+    mockInsert
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: { message: 'RLS violation' } });
+
+    // Rollback: delete participants then delete conversation
+    mockDelete.mockReturnValue({ eq: mockEq });
+    mockEq.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: null });
+
+    const { result } = renderHook(() => useCreateConversation(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({ itemId: 'item-1' as never, otherUserId: 'user-456' as never });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockDelete).toHaveBeenCalledTimes(2);
   });
 
   it('reuses existing conversation when group admin is a participant', async () => {
