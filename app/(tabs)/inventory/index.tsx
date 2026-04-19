@@ -195,6 +195,15 @@ export default function InventoryScreen() {
     setTagFilterExpanded((prev) => !prev);
   }, []);
 
+  const sortButtonVariant = useMemo(
+    () => ({ backgroundColor: theme.colors.surfaceVariant }),
+    [theme.colors.surfaceVariant],
+  );
+  const sortLabel = useMemo(
+    () => ({ color: theme.colors.onSurfaceVariant }),
+    [theme.colors.onSurfaceVariant],
+  );
+
   const listHeader = useMemo(
     () => (
       <>
@@ -209,18 +218,18 @@ export default function InventoryScreen() {
               onPress={cycleSortOption}
               style={({ pressed }) => [
                 styles.sortButton,
-                { backgroundColor: theme.colors.surfaceVariant },
+                sortButtonVariant,
                 pressed && styles.sortButtonPressed,
               ]}
               accessibilityRole="button"
-              accessibilityLabel={t('sort.label')}
+              accessibilityLabel={`${t('sort.label')}, ${t(`sort.${sortOption}`)}, ${t('sort.hint')}`}
             >
               <MaterialCommunityIcons
                 name="sort"
                 size={iconSize.sm}
                 color={theme.colors.onSurfaceVariant}
               />
-              <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text variant="labelMedium" style={sortLabel}>
                 {t(`sort.${sortOption}`)}
               </Text>
             </Pressable>
@@ -320,6 +329,8 @@ export default function InventoryScreen() {
       toggleTerminal,
       toggleTagFilter,
       sortOption,
+      sortButtonVariant,
+      sortLabel,
       cycleSortOption,
       filteredItems.length,
       heroItem,

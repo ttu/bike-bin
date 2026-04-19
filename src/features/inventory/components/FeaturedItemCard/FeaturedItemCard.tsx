@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -26,6 +26,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
 }: FeaturedItemCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const styles = useMemo(() => getStyles(theme), [theme]);
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =
@@ -48,7 +49,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
 
   if (item.quantity > 1) {
     specs.push({
-      value: `\u00D7${item.quantity}`,
+      value: t('card.quantityChip', { count: item.quantity }),
       label: t('detail.quantityLabel'),
     });
   }
@@ -95,22 +96,18 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
             { backgroundColor: colorWithAlpha(theme.colors.primary, 0.9) },
           ]}
         >
-          <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
+          <Text variant="labelSmall" style={styles.recentBadgeText}>
             {t('hero.recentlyAdded')}
           </Text>
         </View>
       </View>
 
       <View style={styles.content}>
-        <Text variant="headlineMedium" numberOfLines={1} style={{ color: theme.colors.onSurface }}>
+        <Text variant="headlineMedium" numberOfLines={1} style={styles.titleText}>
           {item.name}
         </Text>
 
-        <Text
-          variant="bodyMedium"
-          style={{ color: theme.colors.onSurfaceVariant }}
-          numberOfLines={1}
-        >
+        <Text variant="bodyMedium" style={styles.metaText} numberOfLines={1}>
           {t(`category.${item.category}`)}
           {item.subcategory ? ` \u00B7 ${t(`subcategory.${item.subcategory}`)}` : ''}
           {item.brand ? ` \u00B7 ${item.brand}` : ''}
@@ -120,13 +117,10 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
           <View style={styles.specs}>
             {specs.map((spec) => (
               <View key={spec.label} style={styles.specItem}>
-                <Text variant="headlineSmall" style={{ color: theme.colors.onSurface }}>
+                <Text variant="headlineSmall" style={styles.specValue}>
                   {spec.value}
                 </Text>
-                <Text
-                  variant="labelSmall"
-                  style={[styles.specLabel, { color: theme.colors.onSurfaceVariant }]}
-                >
+                <Text variant="labelSmall" style={styles.specLabel}>
                   {spec.label}
                 </Text>
               </View>
@@ -138,59 +132,74 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: borderRadius.lg,
-    marginHorizontal: spacing.base,
-    marginVertical: spacing.xs,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
-    overflow: 'hidden' as const,
-  },
-  imageContainer: {
-    height: HERO_IMAGE_HEIGHT,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  image: {
-    width: '100%' as const,
-    height: '100%' as const,
-  },
-  statusBadge: {
-    position: 'absolute',
-    top: spacing.md,
-    left: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.sm,
-  },
-  statusText: {
-    color: '#FFFFFF',
-  },
-  recentBadge: {
-    position: 'absolute',
-    bottom: spacing.md,
-    right: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.sm,
-  },
-  content: {
-    padding: spacing.base,
-    gap: spacing.xs,
-  },
-  specs: {
-    flexDirection: 'row',
-    gap: spacing.base,
-    marginTop: spacing.sm,
-  },
-  specItem: {
-    alignItems: 'flex-start',
-  },
-  specLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-});
+function getStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      borderRadius: borderRadius.lg,
+      marginHorizontal: spacing.base,
+      marginVertical: spacing.xs,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 16,
+      elevation: 2,
+      overflow: 'hidden' as const,
+    },
+    imageContainer: {
+      height: HERO_IMAGE_HEIGHT,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    image: {
+      width: '100%' as const,
+      height: '100%' as const,
+    },
+    statusBadge: {
+      position: 'absolute',
+      top: spacing.md,
+      left: spacing.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    statusText: {
+      color: theme.colors.surface,
+    },
+    recentBadge: {
+      position: 'absolute',
+      bottom: spacing.md,
+      right: spacing.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    recentBadgeText: {
+      color: theme.colors.onPrimary,
+    },
+    content: {
+      padding: spacing.base,
+      gap: spacing.xs,
+    },
+    titleText: {
+      color: theme.colors.onSurface,
+    },
+    metaText: {
+      color: theme.colors.onSurfaceVariant,
+    },
+    specs: {
+      flexDirection: 'row',
+      gap: spacing.base,
+      marginTop: spacing.sm,
+    },
+    specItem: {
+      alignItems: 'flex-start',
+    },
+    specValue: {
+      color: theme.colors.onSurface,
+    },
+    specLabel: {
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      color: theme.colors.onSurfaceVariant,
+    },
+  });
+}
