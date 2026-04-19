@@ -18,5 +18,5 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA extensions;
 
 CREATE SCHEMA IF NOT EXISTS private;
 
-GRANT USAGE ON SCHEMA private TO authenticated;
+GRANT USAGE ON SCHEMA private TO authenticated, anon;
 

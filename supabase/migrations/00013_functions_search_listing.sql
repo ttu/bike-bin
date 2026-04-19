@@ -164,14 +164,15 @@ BEGIN
       USING ERRCODE = '42501';
   END IF;
 
-  -- Build tsquery: split on spaces, prefix-match each term, AND them together
+  -- Build tsquery: split on spaces, sanitize each token, prefix-match, AND together
   IF query IS NOT NULL AND trim(query) != '' THEN
     v_tsquery := to_tsquery('simple',
       array_to_string(
         array(
-          SELECT lexeme || ':*'
-          FROM unnest(string_to_array(trim(query), ' ')) AS lexeme
-          WHERE lexeme != ''
+          SELECT sanitized || ':*'
+          FROM unnest(string_to_array(trim(query), ' ')) AS raw_lexeme,
+               LATERAL (SELECT regexp_replace(raw_lexeme, '[^[:alnum:]_]', '', 'g') AS sanitized) s
+          WHERE sanitized != ''
         ),
         ' & '
       )

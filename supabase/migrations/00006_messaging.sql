@@ -75,6 +75,9 @@ AS $$
   );
 $$;
 
+-- Grant execute on messaging helpers created above (00004 GRANT ran before these existed)
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated, anon;
+
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;

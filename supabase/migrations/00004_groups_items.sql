@@ -205,7 +205,7 @@ AS $$
   );
 $$;
 
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated, anon;
 
 
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
