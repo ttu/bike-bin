@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Snackbar } from 'react-native-paper';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import type { ItemId } from '@/shared/types';
@@ -311,16 +312,13 @@ describe('ItemDetailScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/bikes/bike-from-array');
   });
 
-  it('dismisses photo limit snackbar via action', async () => {
+  it('dismisses photo limit snackbar via action', () => {
     mockRouteParams = { id: ITEM_ID, photoLimitWarning: '1' };
     renderWithProviders(<ItemDetailScreen />);
+    const photoSnackbar = screen.UNSAFE_getAllByType(Snackbar).find((s) => s.props.visible);
+    expect(photoSnackbar).toBeTruthy();
     fireEvent.press(screen.getByText(commonEn.actions.close));
-    await waitFor(
-      () => {
-        expect(screen.queryByText(/plan photo limit reached/i)).toBeNull();
-      },
-      { timeout: 4000 },
-    );
+    expect(photoSnackbar!.props.visible).toBe(false);
   });
 
   it('shows generic error when mark donated fails', async () => {
