@@ -10,3 +10,13 @@
 
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA extensions;
 
+-- ============================================================
+-- PRIVATE SCHEMA (not exposed via PostgREST)
+-- ============================================================
+-- Used for SECURITY DEFINER helper functions that should not be
+-- callable directly via the Data API.
+
+CREATE SCHEMA IF NOT EXISTS private;
+
+GRANT USAGE ON SCHEMA private TO authenticated, anon;
+

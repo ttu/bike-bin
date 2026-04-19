@@ -30,7 +30,7 @@ CREATE INDEX idx_messages_conversation ON messages(conversation_id);
 
 
 -- Check if a user is a participant in a conversation (bypasses RLS)
-CREATE OR REPLACE FUNCTION public.is_conversation_participant(p_conversation_id uuid, p_user_id uuid)
+CREATE OR REPLACE FUNCTION private.is_conversation_participant(p_conversation_id uuid, p_user_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -44,7 +44,7 @@ AS $$
 $$;
 
 -- Check if a conversation has no participants yet (just created)
-CREATE OR REPLACE FUNCTION public.conversation_has_no_participants(p_conversation_id uuid)
+CREATE OR REPLACE FUNCTION private.conversation_has_no_participants(p_conversation_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -60,7 +60,7 @@ $$;
 -- Check if a user can join a conversation as the first participant:
 -- the conversation must exist and its item must be visible to the user.
 -- SECURITY DEFINER so the caller can read the conversations table despite RLS.
-CREATE OR REPLACE FUNCTION public.can_join_conversation(p_conversation_id uuid, p_user_id uuid)
+CREATE OR REPLACE FUNCTION private.can_join_conversation(p_conversation_id uuid, p_user_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -71,9 +71,12 @@ AS $$
     SELECT 1 FROM conversations c
     JOIN items i ON i.id = c.item_id
     WHERE c.id = p_conversation_id
-      AND public.can_see_item(i.id, p_user_id)
+      AND private.can_see_item(i.id, p_user_id)
   );
 $$;
+
+-- Grant execute on messaging helpers created above (00004 GRANT ran before these existed)
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated, anon;
 
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
@@ -82,7 +85,7 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "conversations_select"
   ON conversations FOR SELECT
   USING (
-    public.is_conversation_participant(id, (select auth.uid()))
+    private.is_conversation_participant(id, (select auth.uid()))
   );
 
 CREATE POLICY "conversations_insert_authenticated"
@@ -90,7 +93,7 @@ CREATE POLICY "conversations_insert_authenticated"
   WITH CHECK (
     (select auth.uid()) IS NOT NULL
     AND item_id IS NOT NULL
-    AND public.can_see_item(item_id, (select auth.uid()))
+    AND private.can_see_item(item_id, (select auth.uid()))
   );
 
 -- ============================================================
@@ -101,7 +104,7 @@ CREATE POLICY "conversation_participants_select"
   ON conversation_participants FOR SELECT
   USING (
     user_id = (select auth.uid())
-    OR public.is_conversation_participant(conversation_id, (select auth.uid()))
+    OR private.is_conversation_participant(conversation_id, (select auth.uid()))
   );
 
 CREATE POLICY "conversation_participants_insert"
@@ -115,16 +118,16 @@ CREATE POLICY "conversation_participants_insert"
         AND (
           -- First participant: must also be able to see the underlying item
           (
-            public.conversation_has_no_participants(conversation_id)
-            AND public.can_join_conversation(conversation_id, (select auth.uid()))
+            private.conversation_has_no_participants(conversation_id)
+            AND private.can_join_conversation(conversation_id, (select auth.uid()))
           )
-          OR public.is_conversation_participant(conversation_id, (select auth.uid()))
+          OR private.is_conversation_participant(conversation_id, (select auth.uid()))
         )
       )
       OR (
         -- An existing participant may add the item owner as the other party
         -- (prevents adding arbitrary third parties to conversations)
-        public.is_conversation_participant(conversation_id, (select auth.uid()))
+        private.is_conversation_participant(conversation_id, (select auth.uid()))
         AND EXISTS (
           SELECT 1 FROM conversations c
           JOIN items i ON i.id = c.item_id
@@ -141,14 +144,14 @@ CREATE POLICY "conversation_participants_insert"
 CREATE POLICY "messages_select"
   ON messages FOR SELECT
   USING (
-    public.is_conversation_participant(conversation_id, (select auth.uid()))
+    private.is_conversation_participant(conversation_id, (select auth.uid()))
   );
 
 CREATE POLICY "messages_insert"
   ON messages FOR INSERT
   WITH CHECK (
     (select auth.uid()) = sender_id
-    AND public.is_conversation_participant(conversation_id, (select auth.uid()))
+    AND private.is_conversation_participant(conversation_id, (select auth.uid()))
   );
 
 -- ============================================================

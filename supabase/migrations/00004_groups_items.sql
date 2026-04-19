@@ -74,6 +74,7 @@ CREATE TABLE items (
   ),
   quantity integer NOT NULL DEFAULT 1,
   created_at timestamptz DEFAULT now() NOT NULL,
+  search_vector tsvector,
   updated_at timestamptz DEFAULT now() NOT NULL,
   CONSTRAINT items_tags_max_count
     CHECK (array_length(tags, 1) IS NULL OR array_length(tags, 1) <= 20),
@@ -99,6 +100,7 @@ CREATE INDEX idx_items_category ON items(category);
 CREATE INDEX idx_items_bike_id ON items(bike_id) WHERE bike_id IS NOT NULL;
 CREATE INDEX idx_items_tags ON items USING GIN (tags);
 CREATE INDEX idx_items_group ON items(group_id) WHERE group_id IS NOT NULL;
+CREATE INDEX idx_items_search_vector ON items USING GIN (search_vector);
 
 -- Item photos
 CREATE TABLE item_photos (
@@ -123,7 +125,8 @@ CREATE TABLE item_groups (
 -- ============================================================
 
 -- Check if a user shares a group with an item (bypasses RLS)
-CREATE OR REPLACE FUNCTION public.user_shares_group_with_item(p_item_id uuid, p_user_id uuid)
+-- In private schema: not exposed via PostgREST Data API.
+CREATE OR REPLACE FUNCTION private.user_shares_group_with_item(p_item_id uuid, p_user_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -138,7 +141,7 @@ AS $$
 $$;
 
 -- Check if a user is a member of a group (bypasses RLS)
-CREATE OR REPLACE FUNCTION public.is_group_member(p_group_id uuid, p_user_id uuid)
+CREATE OR REPLACE FUNCTION private.is_group_member(p_group_id uuid, p_user_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -152,7 +155,7 @@ AS $$
 $$;
 
 -- Check if a group is public (bypasses RLS)
-CREATE OR REPLACE FUNCTION public.is_public_group(p_group_id uuid)
+CREATE OR REPLACE FUNCTION private.is_public_group(p_group_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -165,7 +168,7 @@ AS $$
 $$;
 
 -- Check if a user is an admin of a group (bypasses RLS)
-CREATE OR REPLACE FUNCTION public.is_group_admin(p_group_id uuid, p_user_id uuid)
+CREATE OR REPLACE FUNCTION private.is_group_admin(p_group_id uuid, p_user_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -179,7 +182,7 @@ AS $$
 $$;
 
 -- Check if a user can see an item (same logic as items RLS)
-CREATE OR REPLACE FUNCTION public.can_see_item(p_item_id uuid, p_user_id uuid)
+CREATE OR REPLACE FUNCTION private.can_see_item(p_item_id uuid, p_user_id uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -191,19 +194,18 @@ AS $$
     WHERE id = p_item_id
       AND (
         visibility = 'all'
-        -- Personal item: owner can see
         OR (owner_id IS NOT NULL AND owner_id = p_user_id)
-        -- Group item: any group member can see
-        OR (group_id IS NOT NULL AND public.is_group_member(group_id, p_user_id))
-        -- Personal item shared with groups via item_groups junction
+        OR (group_id IS NOT NULL AND private.is_group_member(group_id, p_user_id))
         OR (
           owner_id IS NOT NULL
           AND visibility = 'groups'
-          AND public.user_shares_group_with_item(id, p_user_id)
+          AND private.user_shares_group_with_item(id, p_user_id)
         )
       )
   );
 $$;
+
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated, anon;
 
 
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
@@ -217,11 +219,11 @@ CREATE POLICY "items_select_public"
   USING (
     visibility = 'all'
     OR (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
-    OR (group_id IS NOT NULL AND public.is_group_member(group_id, (select auth.uid())))
+    OR (group_id IS NOT NULL AND private.is_group_member(group_id, (select auth.uid())))
     OR (
       owner_id IS NOT NULL
       AND visibility = 'groups'
-      AND public.user_shares_group_with_item(id, (select auth.uid()))
+      AND private.user_shares_group_with_item(id, (select auth.uid()))
     )
   );
 
@@ -235,7 +237,7 @@ CREATE POLICY "items_insert_own"
       group_id IS NOT NULL
       AND owner_id IS NULL
       AND created_by = (select auth.uid())
-      AND public.is_group_admin(group_id, (select auth.uid()))
+      AND private.is_group_admin(group_id, (select auth.uid()))
     )
   );
 
@@ -244,11 +246,11 @@ CREATE POLICY "items_update_owner"
   ON items FOR UPDATE
   USING (
     (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
-    OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+    OR (group_id IS NOT NULL AND private.is_group_admin(group_id, (select auth.uid())))
   )
   WITH CHECK (
     (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
-    OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+    OR (group_id IS NOT NULL AND private.is_group_admin(group_id, (select auth.uid())))
   );
 
 CREATE POLICY "items_delete_own"
@@ -256,7 +258,7 @@ CREATE POLICY "items_delete_own"
   USING (
     (
       (owner_id IS NOT NULL AND owner_id = (select auth.uid()))
-      OR (group_id IS NOT NULL AND public.is_group_admin(group_id, (select auth.uid())))
+      OR (group_id IS NOT NULL AND private.is_group_admin(group_id, (select auth.uid())))
     )
     AND status NOT IN ('loaned', 'reserved')
   );
@@ -274,11 +276,11 @@ CREATE POLICY "item_photos_select_via_item"
         AND (
           items.visibility = 'all'
           OR (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_member(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_member(items.group_id, (select auth.uid())))
           OR (
             items.owner_id IS NOT NULL
             AND items.visibility = 'groups'
-            AND public.user_shares_group_with_item(items.id, (select auth.uid()))
+            AND private.user_shares_group_with_item(items.id, (select auth.uid()))
           )
         )
     )
@@ -292,7 +294,7 @@ CREATE POLICY "item_photos_insert_own"
       WHERE items.id = item_photos.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -305,7 +307,7 @@ CREATE POLICY "item_photos_update_own"
       WHERE items.id = item_photos.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -318,7 +320,7 @@ CREATE POLICY "item_photos_delete_own"
       WHERE items.id = item_photos.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -327,7 +329,7 @@ CREATE POLICY "groups_select"
   ON groups FOR SELECT
   USING (
     is_public = true
-    OR public.is_group_member(id, (select auth.uid()))
+    OR private.is_group_member(id, (select auth.uid()))
   );
 
 CREATE POLICY "groups_insert_authenticated"
@@ -336,11 +338,11 @@ CREATE POLICY "groups_insert_authenticated"
 
 CREATE POLICY "groups_update_admin"
   ON groups FOR UPDATE
-  USING (public.is_group_admin(id, (select auth.uid())));
+  USING (private.is_group_admin(id, (select auth.uid())));
 
 CREATE POLICY "groups_delete_admin"
   ON groups FOR DELETE
-  USING (public.is_group_admin(id, (select auth.uid())));
+  USING (private.is_group_admin(id, (select auth.uid())));
 
 -- ============================================================
 -- RLS POLICIES: group_members
@@ -350,26 +352,26 @@ CREATE POLICY "group_members_select"
   ON group_members FOR SELECT
   USING (
     user_id = (select auth.uid())
-    OR public.is_public_group(group_id)
-    OR public.is_group_member(group_id, (select auth.uid()))
+    OR private.is_public_group(group_id)
+    OR private.is_group_member(group_id, (select auth.uid()))
   );
 
 CREATE POLICY "group_members_insert"
   ON group_members FOR INSERT
   WITH CHECK (
     user_id = (select auth.uid())
-    OR public.is_group_admin(group_id, (select auth.uid()))
+    OR private.is_group_admin(group_id, (select auth.uid()))
   );
 
 CREATE POLICY "group_members_update_admin"
   ON group_members FOR UPDATE
-  USING (public.is_group_admin(group_id, (select auth.uid())));
+  USING (private.is_group_admin(group_id, (select auth.uid())));
 
 CREATE POLICY "group_members_delete"
   ON group_members FOR DELETE
   USING (
     user_id = (select auth.uid())
-    OR public.is_group_admin(group_id, (select auth.uid()))
+    OR private.is_group_admin(group_id, (select auth.uid()))
   );
 
 -- ============================================================
@@ -399,7 +401,7 @@ CREATE POLICY "item_groups_insert_owner"
       WHERE items.id = item_groups.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -412,7 +414,7 @@ CREATE POLICY "item_groups_delete_owner"
       WHERE items.id = item_groups.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -420,6 +422,22 @@ CREATE POLICY "item_groups_delete_owner"
 -- ============================================================
 -- Triggers: items (tags length, borrow-lock edits)
 -- ============================================================
+
+-- Keep search_vector in sync with searchable text columns
+CREATE OR REPLACE FUNCTION public.items_update_search_vector()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO public
+AS $$
+BEGIN
+  NEW.search_vector :=
+    setweight(to_tsvector('simple', coalesce(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('simple', coalesce(NEW.brand, '')), 'B') ||
+    setweight(to_tsvector('simple', coalesce(NEW.model, '')), 'B') ||
+    setweight(to_tsvector('simple', coalesce(NEW.description, '')), 'C');
+  RETURN NEW;
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION check_tags_max_length()
 RETURNS trigger
@@ -450,8 +468,8 @@ DECLARE
   new_j jsonb;
 BEGIN
   IF OLD.status IN ('loaned', 'reserved') AND NEW.status = OLD.status THEN
-    old_j := to_jsonb(OLD) - 'updated_at';
-    new_j := to_jsonb(NEW) - 'updated_at';
+    old_j := to_jsonb(OLD) - 'updated_at' - 'search_vector';
+    new_j := to_jsonb(NEW) - 'updated_at' - 'search_vector';
     IF old_j IS DISTINCT FROM new_j THEN
       RAISE EXCEPTION 'Borrow-locked items may only change when releasing to stored';
     END IF;
@@ -461,6 +479,11 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+CREATE TRIGGER trg_items_update_search_vector
+  BEFORE INSERT OR UPDATE OF name, brand, model, description ON items
+  FOR EACH ROW
+  EXECUTE FUNCTION public.items_update_search_vector();
 
 CREATE TRIGGER trg_items_tags_max_length
   BEFORE INSERT OR UPDATE ON items

@@ -9,6 +9,11 @@
 -- =============================================================
 
 -- Clean up existing test data (idempotent re-seed)
+-- borrow_requests.owner_id has ON DELETE RESTRICT, so delete them before profiles/users.
+-- Ratings reference borrow_requests, but with CASCADE so they auto-delete.
+DELETE FROM borrow_requests
+WHERE requester_id IN (SELECT id FROM auth.users WHERE email LIKE '%@bikebin.dev')
+   OR owner_id IN (SELECT id FROM auth.users WHERE email LIKE '%@bikebin.dev');
 -- Conversations have no FK to profiles/auth.users so they survive user deletion;
 -- delete them explicitly (cascades to conversation_participants + messages).
 DELETE FROM conversations

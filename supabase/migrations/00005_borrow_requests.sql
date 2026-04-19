@@ -38,7 +38,7 @@ CREATE POLICY "borrow_requests_select"
       WHERE items.id = borrow_requests.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -58,7 +58,7 @@ CREATE POLICY "borrow_requests_insert"
       WHERE items.id = borrow_requests.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -73,7 +73,7 @@ CREATE POLICY "borrow_requests_update"
       WHERE items.id = borrow_requests.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   )
@@ -84,7 +84,7 @@ CREATE POLICY "borrow_requests_update"
       WHERE items.id = borrow_requests.item_id
         AND (
           (items.owner_id IS NOT NULL AND items.owner_id = (select auth.uid()))
-          OR (items.group_id IS NOT NULL AND public.is_group_admin(items.group_id, (select auth.uid())))
+          OR (items.group_id IS NOT NULL AND private.is_group_admin(items.group_id, (select auth.uid())))
         )
     )
   );
@@ -154,7 +154,7 @@ BEGIN
 
   v_is_owner_or_admin :=
     (v_item.owner_id IS NOT NULL AND v_item.owner_id = (select auth.uid()))
-    OR (v_item.group_id IS NOT NULL AND public.is_group_admin(v_item.group_id, (select auth.uid())));
+    OR (v_item.group_id IS NOT NULL AND private.is_group_admin(v_item.group_id, (select auth.uid())));
 
   IF OLD.status = 'pending' AND NEW.status IN ('accepted', 'rejected') THEN
     IF NOT v_is_owner_or_admin THEN
