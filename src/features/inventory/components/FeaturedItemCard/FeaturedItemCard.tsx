@@ -18,11 +18,13 @@ const HERO_IMAGE_HEIGHT = 200;
 interface FeaturedItemCardProps {
   item: Item;
   onPress?: (item: Item) => void;
+  badgeLabel?: string;
 }
 
 export const FeaturedItemCard = memo(function FeaturedItemCard({
   item,
   onPress,
+  badgeLabel,
 }: FeaturedItemCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -90,16 +92,18 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
           </View>
         )}
 
-        <View
-          style={[
-            styles.recentBadge,
-            { backgroundColor: colorWithAlpha(theme.colors.primary, 0.9) },
-          ]}
-        >
-          <Text variant="labelSmall" style={styles.recentBadgeText}>
-            {t('hero.recentlyAdded')}
-          </Text>
-        </View>
+        {badgeLabel && (
+          <View
+            style={[
+              styles.recentBadge,
+              { backgroundColor: colorWithAlpha(theme.colors.primary, 0.9) },
+            ]}
+          >
+            <Text variant="labelSmall" style={styles.recentBadgeText}>
+              {badgeLabel}
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.content}>

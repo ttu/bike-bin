@@ -105,7 +105,11 @@ export default function InventoryScreen() {
   }, [items, selectedCategory, searchQuery, activeTags, showTerminal, sortOption]);
 
   const heroItem = useMemo(() => {
-    if (sortOption !== 'recentlyAdded' || filteredItems.length === 0 || viewMode === 'gallery') {
+    if (
+      (sortOption !== 'recentlyAdded' && sortOption !== 'recentlyUpdated') ||
+      filteredItems.length === 0 ||
+      viewMode === 'gallery'
+    ) {
       return undefined;
     }
     return filteredItems[0];
@@ -236,8 +240,6 @@ export default function InventoryScreen() {
           </View>
         )}
 
-        {heroItem && <FeaturedItemCard item={heroItem} onPress={handleItemPress} />}
-
         {hasTagsOrArchived && (
           <View style={styles.secondaryFilterRow}>
             {userTags && userTags.length > 0 && (
@@ -274,6 +276,14 @@ export default function InventoryScreen() {
               </Chip>
             )}
           </View>
+        )}
+
+        {heroItem && (
+          <FeaturedItemCard
+            item={heroItem}
+            onPress={handleItemPress}
+            badgeLabel={t(`sort.${sortOption}`)}
+          />
         )}
 
         {tagSectionVisible && userTags && userTags.length > 0 && (
