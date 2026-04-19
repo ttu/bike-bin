@@ -28,5 +28,6 @@ export const e2eBlocks = {
     'borrow.spec.ts',
     'borrow-lifecycle.spec.ts',
     'profile-authenticated.spec.ts',
+    'public-profile-listings.spec.ts',
   ],
 } as const;

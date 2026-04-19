@@ -12,8 +12,8 @@ export function usePublicListings(userId: string | undefined) {
         .from('items')
         .select('id, name, category, condition, availability_types, price, created_at')
         .eq('owner_id', userId!)
-        .eq('visibility', 'public')
-        .eq('status', 'available')
+        .eq('visibility', 'all')
+        .not('status', 'in', '(loaned,reserved,donated)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
