@@ -161,4 +161,27 @@ describe('InventoryScreen (authenticated)', () => {
     fireEvent.press(screen.getByLabelText(inventoryEn.addItem));
     expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/inventory/new?category=component');
   });
+
+  it('shows hero card with recentlyAdded badge by default', () => {
+    renderWithProviders(<InventoryScreen />);
+    // Hero card has a unique a11y label
+    expect(screen.getByLabelText(/Latest item: Alpha Pedal/i)).toBeTruthy();
+  });
+
+  it('cycles sort to recentlyUpdated and still shows hero card', () => {
+    renderWithProviders(<InventoryScreen />);
+    const sortA11yLabel = `${inventoryEn.sort.label}, ${inventoryEn.sort.recentlyAdded}, ${inventoryEn.sort.hint}`;
+    fireEvent.press(screen.getByLabelText(sortA11yLabel));
+    expect(screen.getByLabelText(/Latest item: Alpha Pedal/i)).toBeTruthy();
+  });
+
+  it('hides hero card when sort is name', () => {
+    renderWithProviders(<InventoryScreen />);
+    const sortA11yLabel1 = `${inventoryEn.sort.label}, ${inventoryEn.sort.recentlyAdded}, ${inventoryEn.sort.hint}`;
+    const sortA11yLabel2 = `${inventoryEn.sort.label}, ${inventoryEn.sort.recentlyUpdated}, ${inventoryEn.sort.hint}`;
+    fireEvent.press(screen.getByLabelText(sortA11yLabel1));
+    fireEvent.press(screen.getByLabelText(sortA11yLabel2));
+    expect(screen.getByText(inventoryEn.sort.name)).toBeTruthy();
+    expect(screen.queryByLabelText(/Latest item:/i)).toBeNull();
+  });
 });
