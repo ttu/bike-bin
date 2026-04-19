@@ -122,15 +122,21 @@ export function useCreateConversation() {
 
       if (convError) throw convError;
 
-      const participantRows = [
-        { conversation_id: conversationId, user_id: user.id },
-        ...otherParticipantIds.map((uid) => ({ conversation_id: conversationId, user_id: uid })),
-      ];
-      const { error: partError } = await supabase
+      // Add self first — RLS STABLE helpers can't see rows from the same
+      // INSERT statement, so the "add others" step must be a separate call.
+      const { error: selfError } = await supabase
         .from('conversation_participants')
-        .insert(participantRows);
+        .insert({ conversation_id: conversationId, user_id: user.id });
+      if (selfError) throw selfError;
 
-      if (partError) throw partError;
+      if (otherParticipantIds.length > 0) {
+        const { error: othersError } = await supabase
+          .from('conversation_participants')
+          .insert(
+            otherParticipantIds.map((uid) => ({ conversation_id: conversationId, user_id: uid })),
+          );
+        if (othersError) throw othersError;
+      }
 
       return {
         conversationId,

@@ -170,7 +170,10 @@ describe('useCreateConversation', () => {
       return { select: mockSelect, insert: mockInsert };
     });
 
-    mockInsert.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: null });
+    mockInsert
+      .mockResolvedValueOnce({ error: null }) // conversation
+      .mockResolvedValueOnce({ error: null }) // self participant
+      .mockResolvedValueOnce({ error: null }); // other participants
 
     const { result } = renderHook(() => useCreateConversation(), {
       wrapper: createQueryClientHookWrapper(),
@@ -184,13 +187,15 @@ describe('useCreateConversation', () => {
       isExisting: false,
     });
 
-    // Second insert is the participants. Verify it included the requester and both admins.
-    const participantInsertArg = mockInsert.mock.calls[1][0] as Array<{ user_id: string }>;
-    const userIds = participantInsertArg.map((p) => p.user_id);
-    expect(userIds).toContain('user-123');
-    expect(userIds).toContain('admin-1');
-    expect(userIds).toContain('admin-2');
-    expect(userIds).toHaveLength(3);
+    // Second insert is self, third insert is the other participants (group admins).
+    const selfInsertArg = mockInsert.mock.calls[1][0] as { user_id: string };
+    expect(selfInsertArg.user_id).toBe('user-123');
+
+    const othersInsertArg = mockInsert.mock.calls[2][0] as Array<{ user_id: string }>;
+    const otherIds = othersInsertArg.map((p) => p.user_id);
+    expect(otherIds).toContain('admin-1');
+    expect(otherIds).toContain('admin-2');
+    expect(otherIds).toHaveLength(2);
   });
 
   it('excludes the current user when they are also a group admin', async () => {
@@ -220,7 +225,10 @@ describe('useCreateConversation', () => {
       return { select: mockSelect, insert: mockInsert };
     });
 
-    mockInsert.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: null });
+    mockInsert
+      .mockResolvedValueOnce({ error: null }) // conversation
+      .mockResolvedValueOnce({ error: null }) // self participant
+      .mockResolvedValueOnce({ error: null }); // other participants
 
     const { result } = renderHook(() => useCreateConversation(), {
       wrapper: createQueryClientHookWrapper(),
@@ -229,11 +237,16 @@ describe('useCreateConversation', () => {
     result.current.mutate({ itemId: 'item-1' as never, groupId: 'group-1' as never });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    const participantInsertArg = mockInsert.mock.calls[1][0] as Array<{ user_id: string }>;
-    const userIds = participantInsertArg.map((p) => p.user_id);
-    // user-123 appears once (as the requester), not twice
-    expect(userIds.filter((id) => id === 'user-123')).toHaveLength(1);
-    expect(userIds).toContain('admin-2');
-    expect(userIds).toHaveLength(2);
+
+    // Self insert (call[1]) should be the current user
+    const selfInsertArg = mockInsert.mock.calls[1][0] as { user_id: string };
+    expect(selfInsertArg.user_id).toBe('user-123');
+
+    // Others insert (call[2]) should only contain admin-2 (user-123 excluded as current user)
+    const othersInsertArg = mockInsert.mock.calls[2][0] as Array<{ user_id: string }>;
+    const otherIds = othersInsertArg.map((p) => p.user_id);
+    expect(otherIds).not.toContain('user-123');
+    expect(otherIds).toContain('admin-2');
+    expect(otherIds).toHaveLength(1);
   });
 });
