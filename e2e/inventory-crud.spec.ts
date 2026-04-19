@@ -58,7 +58,7 @@ test.describe('Add item', () => {
     await saveButton.scrollIntoViewIfNeeded();
     await saveButton.click();
 
-    await expect(loggedInPage.getByText('Name is required')).toBeVisible();
+    await expect(loggedInPage.getByText('Name is required').first()).toBeVisible();
   });
 });
 
@@ -74,7 +74,7 @@ test.describe('Edit item', () => {
     // Click edit button (second button in the header row, after "Back")
     await loggedInPage.getByRole('button').nth(1).click();
     await loggedInPage.waitForURL(/\/edit\//, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Edit item')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Edit item').first()).toBeVisible({ timeout: 10000 });
 
     // Change the name
     const nameInput = loggedInPage.getByPlaceholder('e.g. Shimano 105 Cassette');

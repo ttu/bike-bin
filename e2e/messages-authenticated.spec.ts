@@ -13,7 +13,7 @@ test.describe('Conversations list', () => {
   test('shows all 3 conversations', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
     await expect(loggedInPage.getByText('Marcus B.')).toBeVisible({
@@ -63,7 +63,7 @@ test.describe('Conversations list', () => {
     await navigateToMessages(loggedInPage);
 
     // Wait for conversations to load
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -75,7 +75,7 @@ test.describe('Conversations list', () => {
     await navigateToMessages(loggedInPage);
 
     // Wait for conversations to load
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -96,10 +96,10 @@ test.describe('Conversation detail', () => {
   test('opens conversation on click', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').click();
+    await loggedInPage.getByText('Kai R.').first().click();
 
     await expect(loggedInPage).toHaveURL(/\/messages\//, {
       timeout: 10000,
@@ -109,10 +109,10 @@ test.describe('Conversation detail', () => {
   test('shows message input', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').click();
+    await loggedInPage.getByText('Kai R.').first().click();
 
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
       timeout: 10000,
@@ -122,10 +122,10 @@ test.describe('Conversation detail', () => {
   test('shows chat messages', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').click();
+    await loggedInPage.getByText('Kai R.').first().click();
 
     // Wait for conversation detail to load
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
@@ -140,10 +140,10 @@ test.describe('Conversation detail', () => {
   test('shows item reference in thread', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').click();
+    await loggedInPage.getByText('Kai R.').first().click();
 
     await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand').first()).toBeVisible({
       timeout: 10000,
@@ -153,10 +153,10 @@ test.describe('Conversation detail', () => {
   test('header back button returns to conversations list', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').click();
+    await loggedInPage.getByText('Kai R.').first().click();
 
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
       timeout: 10000,
@@ -164,7 +164,7 @@ test.describe('Conversation detail', () => {
 
     await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
     await expect(loggedInPage.getByText('Marcus B.')).toBeVisible({
@@ -180,10 +180,10 @@ test.describe('Conversation detail', () => {
   }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.')).toBeVisible({
+    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').click();
+    await loggedInPage.getByText('Kai R.').first().click();
 
     await expect(
       loggedInPage.getByRole('textbox', { name: 'Type a message...' }).first(),

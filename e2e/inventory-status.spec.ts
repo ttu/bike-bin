@@ -23,7 +23,7 @@ test.describe('Mark as Sold', () => {
     await expect(loggedInPage.getByText('Mark as sold?')).toBeVisible({ timeout: 5000 });
     await loggedInPage.getByRole('button', { name: /^Mark Sold$/i }).click();
 
-    await expect(loggedInPage.getByText('Sold')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Sold').first()).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -39,7 +39,7 @@ test.describe('Mark as Donated', () => {
     await expect(loggedInPage.getByText('Mark as donated?')).toBeVisible({ timeout: 5000 });
     await loggedInPage.getByRole('button', { name: /^Mark Donated$/i }).click();
 
-    await expect(loggedInPage.getByText('Donated')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Donated').first()).toBeVisible({ timeout: 10000 });
   });
 });
 

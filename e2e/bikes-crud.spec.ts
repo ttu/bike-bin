@@ -26,7 +26,9 @@ test.describe('Add bike', () => {
     await saveButton.scrollIntoViewIfNeeded();
     await saveButton.click();
 
-    await expect(loggedInPage.getByText('Enter a valid distance in kilometers')).toBeVisible({
+    await expect(
+      loggedInPage.getByText('Enter a valid distance in kilometers').first(),
+    ).toBeVisible({
       timeout: 5000,
     });
   });

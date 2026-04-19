@@ -54,6 +54,6 @@ test.describe('Add item flow', () => {
     await page.getByRole('button', { name: /add item/i }).click();
 
     await page.getByRole('button', { name: /save/i }).click();
-    await expect(page.getByText('Name is required')).toBeVisible();
+    await expect(page.getByText('Name is required').first()).toBeVisible();
   });
 });
