@@ -87,15 +87,14 @@ test.describe('Edit item', () => {
     await updateButton.scrollIntoViewIfNeeded();
     await updateButton.click();
 
-    // Wait for the PATCH to complete, then navigate to inventory to verify
+    // Wait for the PATCH to complete and the app to navigate back to inventory
     await loggedInPage.waitForResponse(
       (resp) => resp.url().includes('/rest/v1/items') && resp.request().method() === 'PATCH',
       { timeout: 10000 },
     );
+    await loggedInPage.waitForURL(/\/(tabs\/)?inventory\/?$/, { timeout: 10000 });
 
-    // Navigate to inventory list and verify updated name
-    const tablist = loggedInPage.getByRole('tablist');
-    await tablist.getByRole('tab', { name: /Inventory/ }).click();
+    // Verify updated name in inventory list
     await expect(loggedInPage.getByRole('button', { name: 'RaceFace Cranks Updated' })).toBeVisible(
       {
         timeout: 10000,
