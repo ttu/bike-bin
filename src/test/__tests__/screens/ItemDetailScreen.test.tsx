@@ -1,11 +1,12 @@
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import type { ItemId } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemCondition, ItemStatus } from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import commonEn from '@/i18n/en/common.json';
+import inventoryEn from '@/i18n/en/inventory.json';
 import { mockAuthModule } from '@/test/authMocks';
 import ItemDetailScreen from '../../../../app/(tabs)/inventory/[id]';
 
@@ -312,15 +313,19 @@ describe('ItemDetailScreen', () => {
   });
 
   it('dismisses photo limit snackbar via action', async () => {
-    mockRouteParams = { id: ITEM_ID, photoLimitWarning: '1' };
-    renderWithProviders(<ItemDetailScreen />);
-    fireEvent.press(screen.getByText(commonEn.actions.close));
-    await waitFor(
-      () => {
-        expect(screen.queryByText(/plan photo limit reached/i)).toBeNull();
-      },
-      { timeout: 4000 },
-    );
+    jest.useFakeTimers();
+    try {
+      mockRouteParams = { id: ITEM_ID, photoLimitWarning: '1' };
+      renderWithProviders(<ItemDetailScreen />);
+      expect(screen.getByText(inventoryEn.limit.saveSnackbarPhoto)).toBeTruthy();
+      fireEvent.press(screen.getByText(commonEn.actions.close));
+      await act(async () => {
+        jest.advanceTimersByTime(500);
+      });
+      expect(screen.queryByText(inventoryEn.limit.saveSnackbarPhoto)).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('shows generic error when mark donated fails', async () => {

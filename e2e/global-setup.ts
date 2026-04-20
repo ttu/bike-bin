@@ -54,6 +54,20 @@ export default function globalSetup(config: FullConfig) {
     config.configFile !== undefined && config.configFile.length > 0
       ? dirname(config.configFile)
       : process.cwd();
+
+  // Skip local DB seeding when running against a remote deployment.
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? '';
+  if (baseURL.length > 0) {
+    let isLocal = false;
+    try {
+      const { hostname } = new URL(baseURL);
+      isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+    } catch {
+      // Unparseable URL — treat as remote to be safe
+    }
+    if (!isLocal) return;
+  }
+
   const dbUrl = resolveDbUrl(projectRoot);
   const psqlPath = resolvePsqlExecutable();
   const env = { ...process.env, PGPASSWORD: 'postgres' };

@@ -9,7 +9,7 @@ import { useGroup } from '@/features/groups';
 import { spacing, borderRadius } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
-import { getStatusColor } from '../../utils/status';
+import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 import { useDistanceUnit } from '@/features/profile';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
@@ -55,12 +55,12 @@ export function ItemDetail({
   const { data: ownerGroup } = useGroup(item.groupId);
 
   const statusColorToken = getStatusColor(item.status);
-  const statusColor =
-    statusColorToken === 'warning'
-      ? theme.customColors.warning
-      : statusColorToken === 'success'
-        ? theme.customColors.success
-        : theme.colors.outline;
+  const statusColorMap: Record<StatusColorToken, string> = {
+    warning: theme.customColors.warning,
+    success: theme.customColors.success,
+    outline: theme.colors.outline,
+  };
+  const statusColor = statusColorMap[statusColorToken];
 
   const canShowDonateAction =
     (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&

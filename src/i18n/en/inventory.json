@@ -241,12 +241,24 @@
   },
   "card": {
     "quantityChip": "×{{count}}",
-    "a11yNameWithQuantity": "{{name}}, {{count}} identical items"
+    "a11yNameWithQuantity": "{{name}}, {{count}} identical items",
+    "metaSeparator": " · "
   },
   "tagsLabel": "Tags",
   "tagsEmpty": "No tags",
   "viewMode": {
     "toggleA11y": "Switch between list and gallery layout"
+  },
+  "sort": {
+    "label": "Sort",
+    "recentlyAdded": "Recently added",
+    "recentlyUpdated": "Recently updated",
+    "name": "Name",
+    "hint": "Tap to cycle sort order"
+  },
+  "hero": {
+    "recentlyAdded": "Recently added",
+    "a11yLabel": "Latest item: {{name}}"
   },
   "filters": {
     "showInactive": "Show inactive ({{count}})"

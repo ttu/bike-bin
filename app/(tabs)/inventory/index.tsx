@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
   Pressable,
 } from 'react-native';
-import { Text, FAB, Chip, Searchbar, useTheme } from 'react-native-paper';
+import { Text, FAB, Chip, Searchbar, useTheme, type MD3Theme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -20,8 +20,10 @@ import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory'
 import { useItems, useUserTags, useInventoryRowCapacity } from '@/features/inventory';
 import { ItemCard } from '@/features/inventory/components/ItemCard/ItemCard';
 import { ItemGalleryTile } from '@/features/inventory/components/ItemGalleryTile/ItemGalleryTile';
+import { FeaturedItemCard } from '@/features/inventory/components/FeaturedItemCard/FeaturedItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { isTerminalStatus } from '@/features/inventory/utils/status';
+import { sortItems, type InventorySortOption } from '@/features/inventory/utils/sortItems';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { DemoBanner } from '@/features/demo';
@@ -35,6 +37,8 @@ import {
 import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
 
 type InventoryViewMode = 'list' | 'gallery';
+
+const SORT_OPTIONS: InventorySortOption[] = ['recentlyAdded', 'recentlyUpdated', 'name'];
 
 function matchesSearch(item: Item, query: string): boolean {
   const q = query.toLowerCase();
@@ -57,6 +61,7 @@ export default function InventoryScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
   const [viewMode, setViewMode] = useState<InventoryViewMode>('list');
+  const [sortOption, setSortOption] = useState<InventorySortOption>('recentlyAdded');
   const [tagFilterExpanded, setTagFilterExpanded] = useState(false);
   const { data: userTags } = useUserTags();
 
@@ -96,8 +101,20 @@ export default function InventoryScreen() {
     if (!showTerminal) {
       result = result.filter((item) => !isTerminalStatus(item.status));
     }
-    return result;
-  }, [items, selectedCategory, searchQuery, activeTags, showTerminal]);
+    return sortItems(result, sortOption);
+  }, [items, selectedCategory, searchQuery, activeTags, showTerminal, sortOption]);
+
+  const heroItem = useMemo(() => {
+    if (sortOption === 'name' || filteredItems.length === 0 || viewMode === 'gallery') {
+      return undefined;
+    }
+    return filteredItems[0];
+  }, [sortOption, filteredItems, viewMode]);
+
+  const listItems = useMemo(
+    () => (heroItem ? filteredItems.slice(1) : filteredItems),
+    [heroItem, filteredItems],
+  );
 
   const terminalCount = useMemo(
     () => items.filter((item) => isTerminalStatus(item.status)).length,
@@ -140,6 +157,13 @@ export default function InventoryScreen() {
     setViewMode((mode) => (mode === 'list' ? 'gallery' : 'list'));
   }, []);
 
+  const cycleSortOption = useCallback(() => {
+    setSortOption((current) => {
+      const idx = SORT_OPTIONS.indexOf(current);
+      return SORT_OPTIONS[(idx + 1) % SORT_OPTIONS.length];
+    });
+  }, []);
+
   const toggleTerminal = useCallback(() => {
     setShowTerminal((prev) => !prev);
   }, []);
@@ -171,6 +195,8 @@ export default function InventoryScreen() {
     setTagFilterExpanded((prev) => !prev);
   }, []);
 
+  const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
+
   const listHeader = useMemo(
     () => (
       <>
@@ -179,40 +205,68 @@ export default function InventoryScreen() {
 
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
 
-        {hasTagsOrArchived && (
-          <View style={styles.secondaryFilterRow}>
-            {userTags && userTags.length > 0 && (
-              <Chip
-                selected={tagChipActive}
-                onPress={toggleTagFilter}
-                showSelectedCheck={false}
-                compact
-                textStyle={tagChipActive ? { color: theme.colors.onPrimary } : undefined}
-                style={[
-                  styles.tagFilterChip,
-                  {
-                    backgroundColor: tagChipActive
-                      ? theme.colors.primary
-                      : theme.colors.secondaryContainer,
-                  },
-                ]}
-                accessibilityRole="button"
-                accessibilityState={{ selected: tagChipActive }}
-              >
-                {tagChipLabel}
-              </Chip>
+        {(hasTagsOrArchived || filteredItems.length > 0) && (
+          <View style={styles.filterRow}>
+            {hasTagsOrArchived && (
+              <>
+                {userTags && userTags.length > 0 && (
+                  <Chip
+                    selected={tagChipActive}
+                    onPress={toggleTagFilter}
+                    showSelectedCheck={false}
+                    compact
+                    textStyle={tagChipActive ? { color: theme.colors.onPrimary } : undefined}
+                    style={[
+                      styles.tagFilterChip,
+                      {
+                        backgroundColor: tagChipActive
+                          ? theme.colors.primary
+                          : theme.colors.secondaryContainer,
+                      },
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: tagChipActive }}
+                  >
+                    {tagChipLabel}
+                  </Chip>
+                )}
+                {hasTerminalItems && (
+                  <Chip
+                    selected={showTerminal}
+                    onPress={toggleTerminal}
+                    showSelectedCheck={false}
+                    compact
+                    style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
+                    textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
+                  >
+                    {t('filters.showInactive', { count: terminalCount })}
+                  </Chip>
+                )}
+              </>
             )}
-            {hasTerminalItems && (
-              <Chip
-                selected={showTerminal}
-                onPress={toggleTerminal}
-                showSelectedCheck={false}
-                compact
-                style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
-                textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
-              >
-                {t('filters.showInactive', { count: terminalCount })}
-              </Chip>
+            {filteredItems.length > 0 && (
+              <>
+                <View style={styles.filterRowSpacer} />
+                <Pressable
+                  onPress={cycleSortOption}
+                  style={({ pressed }) => [
+                    styles.sortButton,
+                    themeStyles.sortButtonVariant,
+                    pressed && styles.sortButtonPressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('sort.label')}, ${t(`sort.${sortOption}`)}, ${t('sort.hint')}`}
+                >
+                  <MaterialCommunityIcons
+                    name="sort"
+                    size={iconSize.sm}
+                    color={theme.colors.onSurfaceVariant}
+                  />
+                  <Text variant="labelMedium" style={themeStyles.sortLabel}>
+                    {t(`sort.${sortOption}`)}
+                  </Text>
+                </Pressable>
+              </>
             )}
           </View>
         )}
@@ -251,6 +305,14 @@ export default function InventoryScreen() {
             })}
           </ScrollView>
         )}
+
+        {heroItem && (
+          <FeaturedItemCard
+            item={heroItem}
+            onPress={handleItemPress}
+            badgeLabel={t(`sort.${sortOption}`)}
+          />
+        )}
       </>
     ),
     [
@@ -269,6 +331,12 @@ export default function InventoryScreen() {
       toggleTag,
       toggleTerminal,
       toggleTagFilter,
+      sortOption,
+      themeStyles,
+      cycleSortOption,
+      filteredItems.length,
+      heroItem,
+      handleItemPress,
     ],
   );
 
@@ -292,9 +360,9 @@ export default function InventoryScreen() {
   const listContentContainerStyle = useMemo(
     () => [
       { paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
-      filteredItems.length === 0 ? styles.listContentContainerEmpty : undefined,
+      listItems.length === 0 && !heroItem ? styles.listContentContainerEmpty : undefined,
     ],
-    [insets.bottom, filteredItems.length],
+    [insets.bottom, listItems.length, heroItem],
   );
 
   return (
@@ -350,7 +418,7 @@ export default function InventoryScreen() {
           testID="inventory-items-list"
           key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
           style={styles.listContainer}
-          data={filteredItems}
+          data={listItems}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
@@ -430,12 +498,27 @@ const styles = StyleSheet.create({
   searchInput: {
     minHeight: 0,
   },
-  secondaryFilterRow: {
+  filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
+  },
+  filterRowSpacer: {
+    flex: 1,
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.xl,
+  },
+  sortButtonPressed: {
+    opacity: 0.72,
   },
   listContainer: {
     flex: 1,
@@ -476,3 +559,10 @@ const styles = StyleSheet.create({
     bottom: spacing.base,
   },
 });
+
+function getThemeStyles(theme: MD3Theme) {
+  return StyleSheet.create({
+    sortButtonVariant: { backgroundColor: theme.colors.surfaceVariant },
+    sortLabel: { color: theme.colors.onSurfaceVariant },
+  });
+}
