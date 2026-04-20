@@ -96,9 +96,11 @@ test.describe('Edit item', () => {
     // Navigate to inventory list and verify updated name
     const tablist = loggedInPage.getByRole('tablist');
     await tablist.getByRole('tab', { name: /Inventory/ }).click();
-    await expect(loggedInPage.getByText('RaceFace Cranks Updated').first()).toBeVisible({
-      timeout: 10000,
-    });
+    await expect(loggedInPage.getByRole('button', { name: 'RaceFace Cranks Updated' })).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
   });
 });
 
