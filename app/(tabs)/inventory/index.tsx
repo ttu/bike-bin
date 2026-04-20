@@ -105,11 +105,7 @@ export default function InventoryScreen() {
   }, [items, selectedCategory, searchQuery, activeTags, showTerminal, sortOption]);
 
   const heroItem = useMemo(() => {
-    if (
-      (sortOption !== 'recentlyAdded' && sortOption !== 'recentlyUpdated') ||
-      filteredItems.length === 0 ||
-      viewMode === 'gallery'
-    ) {
+    if (sortOption !== 'recentlyAdded' || filteredItems.length === 0 || viewMode === 'gallery') {
       return undefined;
     }
     return filteredItems[0];
@@ -216,74 +212,70 @@ export default function InventoryScreen() {
 
         <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
 
-        {filteredItems.length > 0 && (
-          <View style={styles.sortRow}>
-            <Pressable
-              onPress={cycleSortOption}
-              style={({ pressed }) => [
-                styles.sortButton,
-                sortButtonVariant,
-                pressed && styles.sortButtonPressed,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel={`${t('sort.label')}, ${t(`sort.${sortOption}`)}, ${t('sort.hint')}`}
-            >
-              <MaterialCommunityIcons
-                name="sort"
-                size={iconSize.sm}
-                color={theme.colors.onSurfaceVariant}
-              />
-              <Text variant="labelMedium" style={sortLabel}>
-                {t(`sort.${sortOption}`)}
-              </Text>
-            </Pressable>
-          </View>
-        )}
-
-        {hasTagsOrArchived && (
-          <View style={styles.secondaryFilterRow}>
-            {userTags && userTags.length > 0 && (
-              <Chip
-                selected={tagChipActive}
-                onPress={toggleTagFilter}
-                showSelectedCheck={false}
-                compact
-                textStyle={tagChipActive ? { color: theme.colors.onPrimary } : undefined}
-                style={[
-                  styles.tagFilterChip,
-                  {
-                    backgroundColor: tagChipActive
-                      ? theme.colors.primary
-                      : theme.colors.secondaryContainer,
-                  },
-                ]}
-                accessibilityRole="button"
-                accessibilityState={{ selected: tagChipActive }}
-              >
-                {tagChipLabel}
-              </Chip>
+        {(hasTagsOrArchived || filteredItems.length > 0) && (
+          <View style={styles.filterRow}>
+            {hasTagsOrArchived && (
+              <>
+                {userTags && userTags.length > 0 && (
+                  <Chip
+                    selected={tagChipActive}
+                    onPress={toggleTagFilter}
+                    showSelectedCheck={false}
+                    compact
+                    textStyle={tagChipActive ? { color: theme.colors.onPrimary } : undefined}
+                    style={[
+                      styles.tagFilterChip,
+                      {
+                        backgroundColor: tagChipActive
+                          ? theme.colors.primary
+                          : theme.colors.secondaryContainer,
+                      },
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: tagChipActive }}
+                  >
+                    {tagChipLabel}
+                  </Chip>
+                )}
+                {hasTerminalItems && (
+                  <Chip
+                    selected={showTerminal}
+                    onPress={toggleTerminal}
+                    showSelectedCheck={false}
+                    compact
+                    style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
+                    textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
+                  >
+                    {t('filters.showInactive', { count: terminalCount })}
+                  </Chip>
+                )}
+              </>
             )}
-            {hasTerminalItems && (
-              <Chip
-                selected={showTerminal}
-                onPress={toggleTerminal}
-                showSelectedCheck={false}
-                compact
-                style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
-                textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
-              >
-                {t('filters.showInactive', { count: terminalCount })}
-              </Chip>
+            {filteredItems.length > 0 && (
+              <>
+                <View style={styles.filterRowSpacer} />
+                <Pressable
+                  onPress={cycleSortOption}
+                  style={({ pressed }) => [
+                    styles.sortButton,
+                    sortButtonVariant,
+                    pressed && styles.sortButtonPressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('sort.label')}, ${t(`sort.${sortOption}`)}, ${t('sort.hint')}`}
+                >
+                  <MaterialCommunityIcons
+                    name="sort"
+                    size={iconSize.sm}
+                    color={theme.colors.onSurfaceVariant}
+                  />
+                  <Text variant="labelMedium" style={sortLabel}>
+                    {t(`sort.${sortOption}`)}
+                  </Text>
+                </Pressable>
+              </>
             )}
           </View>
-        )}
-
-        {heroItem && (
-          <FeaturedItemCard
-            item={heroItem}
-            onPress={handleItemPress}
-            badgeLabel={t(`sort.${sortOption}`)}
-          />
         )}
 
         {tagSectionVisible && userTags && userTags.length > 0 && (
@@ -319,6 +311,14 @@ export default function InventoryScreen() {
               );
             })}
           </ScrollView>
+        )}
+
+        {heroItem && (
+          <FeaturedItemCard
+            item={heroItem}
+            onPress={handleItemPress}
+            badgeLabel={t(`sort.${sortOption}`)}
+          />
         )}
       </>
     ),
@@ -506,11 +506,16 @@ const styles = StyleSheet.create({
   searchInput: {
     minHeight: 0,
   },
-  sortRow: {
+  filterRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.sm,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
+  },
+  filterRowSpacer: {
+    flex: 1,
   },
   sortButton: {
     flexDirection: 'row',
@@ -522,13 +527,6 @@ const styles = StyleSheet.create({
   },
   sortButtonPressed: {
     opacity: 0.72,
-  },
-  secondaryFilterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.base,
-    paddingTop: spacing.sm,
   },
   listContainer: {
     flex: 1,

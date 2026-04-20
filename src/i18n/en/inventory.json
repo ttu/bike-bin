@@ -241,7 +241,8 @@
   },
   "card": {
     "quantityChip": "×{{count}}",
-    "a11yNameWithQuantity": "{{name}}, {{count}} identical items"
+    "a11yNameWithQuantity": "{{name}}, {{count}} identical items",
+    "metaSeparator": " · "
   },
   "tagsLabel": "Tags",
   "tagsEmpty": "No tags",

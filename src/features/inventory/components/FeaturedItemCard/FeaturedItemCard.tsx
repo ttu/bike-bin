@@ -28,7 +28,6 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
 }: FeaturedItemCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
-  const styles = useMemo(() => getStyles(theme), [theme]);
 
   const statusColorToken = getStatusColor(item.status);
   const statusColor =
@@ -37,6 +36,8 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
       : statusColorToken === 'success'
         ? theme.customColors.success
         : theme.colors.outline;
+
+  const styles = useMemo(() => getStyles(theme, statusColor), [theme, statusColor]);
 
   const thumbnailUri = getItemThumbnailPublicUrl(item.thumbnailStoragePath);
 
@@ -56,20 +57,21 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
     });
   }
 
+  const separator = t('card.metaSeparator');
+  const metaParts = [
+    t(`category.${item.category}`),
+    ...(item.subcategory ? [t(`subcategory.${item.subcategory}`)] : []),
+    ...(item.brand ? [item.brand] : []),
+  ];
+
   return (
     <AnimatedPressable
       onPress={() => onPress?.(item)}
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.customColors.surfaceContainerLowest,
-          shadowColor: theme.colors.onSurface,
-        },
-      ]}
-      accessibilityRole="button"
+      style={styles.container}
+      accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={t('hero.a11yLabel', { name: item.name })}
     >
-      <View style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
+      <View style={styles.imageContainer}>
         {thumbnailUri ? (
           <CachedListThumbnail
             uri={thumbnailUri}
@@ -85,7 +87,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
         )}
 
         {item.status !== ItemStatus.Stored && (
-          <View style={[styles.statusBadge, { backgroundColor: colorWithAlpha(statusColor, 0.9) }]}>
+          <View style={styles.statusBadge}>
             <Text variant="labelMedium" style={styles.statusText}>
               {t(`status.${item.status}`)}
             </Text>
@@ -93,12 +95,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
         )}
 
         {badgeLabel && (
-          <View
-            style={[
-              styles.recentBadge,
-              { backgroundColor: colorWithAlpha(theme.colors.primary, 0.9) },
-            ]}
-          >
+          <View style={styles.recentBadge}>
             <Text variant="labelSmall" style={styles.recentBadgeText}>
               {badgeLabel}
             </Text>
@@ -112,9 +109,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
         </Text>
 
         <Text variant="bodyMedium" style={styles.metaText} numberOfLines={1}>
-          {t(`category.${item.category}`)}
-          {item.subcategory ? ` \u00B7 ${t(`subcategory.${item.subcategory}`)}` : ''}
-          {item.brand ? ` \u00B7 ${item.brand}` : ''}
+          {metaParts.join(separator)}
         </Text>
 
         {specs.length > 0 && (
@@ -136,12 +131,14 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
   );
 });
 
-function getStyles(theme: AppTheme) {
+function getStyles(theme: AppTheme, statusColor: string) {
   return StyleSheet.create({
     container: {
       borderRadius: borderRadius.lg,
       marginHorizontal: spacing.base,
       marginVertical: spacing.xs,
+      backgroundColor: theme.customColors.surfaceContainerLowest,
+      shadowColor: theme.colors.onSurface,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.08,
       shadowRadius: 16,
@@ -152,6 +149,7 @@ function getStyles(theme: AppTheme) {
       height: HERO_IMAGE_HEIGHT,
       justifyContent: 'center',
       alignItems: 'center',
+      backgroundColor: theme.colors.surfaceVariant,
     },
     image: {
       width: '100%' as const,
@@ -164,6 +162,7 @@ function getStyles(theme: AppTheme) {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.xs,
       borderRadius: borderRadius.sm,
+      backgroundColor: colorWithAlpha(statusColor, 0.9),
     },
     statusText: {
       color: theme.colors.surface,
@@ -175,6 +174,7 @@ function getStyles(theme: AppTheme) {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.xs,
       borderRadius: borderRadius.sm,
+      backgroundColor: colorWithAlpha(theme.colors.primary, 0.9),
     },
     recentBadgeText: {
       color: theme.colors.onPrimary,
