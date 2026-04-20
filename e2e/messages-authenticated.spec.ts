@@ -132,9 +132,9 @@ test.describe('Conversation detail', () => {
       timeout: 10000,
     });
 
-    await expect(loggedInPage.getByText('Thanks! I will bring it back Monday.').last()).toBeVisible(
-      { timeout: 10000 },
-    );
+    await expect(
+      loggedInPage.getByText('Thanks! I will bring it back Monday.').first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('shows item reference in thread', async ({ loggedInPage }) => {

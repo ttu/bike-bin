@@ -71,8 +71,8 @@ test.describe('Edit item', () => {
       timeout: 10000,
     });
 
-    // Click edit button (second button in the header row, after "Back")
-    await loggedInPage.getByRole('button').nth(1).click();
+    // Click edit button (pencil icon in the header)
+    await loggedInPage.getByRole('button', { name: /pencil|edit/i }).click();
     await loggedInPage.waitForURL(/\/edit\//, { timeout: 10000 });
     await expect(loggedInPage.getByText('Edit item').first()).toBeVisible({ timeout: 10000 });
 
