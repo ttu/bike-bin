@@ -99,7 +99,7 @@ test.describe('Add bike', () => {
     await loggedInPage.getByText('E2E Usage Bike').click();
     await waitForBikeDetail(loggedInPage);
 
-    await expect(loggedInPage.getByText('Condition', { exact: true })).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
     await expect(loggedInPage.getByText('Worn', { exact: true })).toBeVisible();
@@ -222,7 +222,7 @@ test.describe('Mount item to bike', () => {
     await loggedInPage.getByRole('button', { name: /View Fox 36 Float Fork/i }).click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
-    await expect(loggedInPage.getByText('Condition', { exact: true })).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
 

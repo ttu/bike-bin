@@ -67,7 +67,7 @@ test.describe('Edit item', () => {
     // Open an item detail
     await loggedInPage.getByText('RaceFace Turbine R Cranks').first().click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition', { exact: true }).first()).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
 
@@ -117,7 +117,7 @@ test.describe('Delete item', () => {
     // Open the item
     await loggedInPage.getByText('Item To Delete').click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition', { exact: true }).first()).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
 
