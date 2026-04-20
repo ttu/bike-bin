@@ -58,7 +58,7 @@ test.describe('Add item', () => {
     await saveButton.scrollIntoViewIfNeeded();
     await saveButton.click();
 
-    await expect(loggedInPage.getByText('Name is required')).toBeVisible();
+    await expect(loggedInPage.getByText('Name is required').first()).toBeVisible();
   });
 });
 
@@ -67,14 +67,14 @@ test.describe('Edit item', () => {
     // Open an item detail
     await loggedInPage.getByText('RaceFace Turbine R Cranks').first().click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition', { exact: true }).first()).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
 
-    // Click edit button (second button in the header row, after "Back")
-    await loggedInPage.getByRole('button').nth(1).click();
+    // Click edit button
+    await loggedInPage.getByRole('button', { name: /edit item/i }).click();
     await loggedInPage.waitForURL(/\/edit\//, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Edit item')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Edit item').first()).toBeVisible({ timeout: 10000 });
 
     // Change the name
     const nameInput = loggedInPage.getByPlaceholder('e.g. Shimano 105 Cassette');
@@ -87,18 +87,19 @@ test.describe('Edit item', () => {
     await updateButton.scrollIntoViewIfNeeded();
     await updateButton.click();
 
-    // Wait for the PATCH to complete, then navigate to inventory to verify
+    // Wait for the PATCH to complete and the app to navigate back to inventory
     await loggedInPage.waitForResponse(
       (resp) => resp.url().includes('/rest/v1/items') && resp.request().method() === 'PATCH',
       { timeout: 10000 },
     );
+    await loggedInPage.waitForURL(/\/(tabs\/)?inventory\/?$/, { timeout: 10000 });
 
-    // Navigate to inventory list and verify updated name
-    const tablist = loggedInPage.getByRole('tablist');
-    await tablist.getByRole('tab', { name: /Inventory/ }).click();
-    await expect(loggedInPage.getByText('RaceFace Cranks Updated').first()).toBeVisible({
-      timeout: 10000,
-    });
+    // Verify updated name in inventory list
+    await expect(loggedInPage.getByRole('button', { name: 'RaceFace Cranks Updated' })).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
   });
 });
 
@@ -115,7 +116,7 @@ test.describe('Delete item', () => {
     // Open the item
     await loggedInPage.getByText('Item To Delete').click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition', { exact: true }).first()).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
 

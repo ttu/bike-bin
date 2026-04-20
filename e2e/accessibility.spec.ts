@@ -95,11 +95,11 @@ test.describe('ARIA roles and landmarks', () => {
     await expect(tablist).toBeVisible({ timeout: 10000 });
 
     const tabs = loggedInPage.getByRole('tab');
-    await expect(tabs).toHaveCount(5, { timeout: 10000 });
+    await expect(tabs).toHaveCount(6, { timeout: 10000 });
   });
 
   test('tab bar tabs are labeled', async ({ loggedInPage }) => {
-    const expectedTabs = ['Inventory', 'Bikes', 'Search', 'Messages', 'Profile'];
+    const expectedTabs = ['Inventory', 'Bikes', 'Search', 'Groups', 'Messages', 'Profile'];
 
     for (const name of expectedTabs) {
       const tab = loggedInPage.getByRole('tab', { name });

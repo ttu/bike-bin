@@ -82,21 +82,27 @@ test.describe('Item detail', () => {
     await loggedInPage.getByText('Fox 36 Float Fork').first().click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('shows back navigation', async ({ loggedInPage }) => {
     await loggedInPage.getByText('Fox 36 Float Fork').first().click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('item detail shows condition', async ({ loggedInPage }) => {
     await loggedInPage.getByText('Fox 36 Float Fork').first().click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
+      timeout: 10000,
+    });
     // Verify detail fields are visible (Usage only appears on detail page)
     await expect(loggedInPage.getByText('Usage', { exact: true })).toBeVisible({ timeout: 10000 });
   });
@@ -122,10 +128,10 @@ test.describe('Bikes', () => {
 
     // Wait for bike detail to load — verify detail-only labels (seed bikes default to Good condition)
     await expect(loggedInPage.getByText('Model', { exact: true })).toBeVisible({ timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition', { exact: true })).toBeVisible({
+    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
-    await expect(loggedInPage.getByText('Good', { exact: true })).toBeVisible();
+    await expect(loggedInPage.getByText('Good', { exact: true }).last()).toBeVisible();
   });
 });
 

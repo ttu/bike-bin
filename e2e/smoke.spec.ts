@@ -55,7 +55,7 @@ test.describe('Unauthenticated flow', () => {
     expect(page.url()).toContain('/inventory');
   });
 
-  test('inventory tab shows 5 tabs after browse-in', async ({ page }) => {
+  test('inventory tab shows 6 tabs after browse-in', async ({ page }) => {
     await page.goto('/');
     await page.waitForURL(/\/login/);
 
@@ -64,6 +64,6 @@ test.describe('Unauthenticated flow', () => {
 
     const tablist = page.getByRole('tablist');
     await expect(tablist).toBeVisible();
-    await expect(tablist.getByRole('tab')).toHaveCount(5);
+    await expect(tablist.getByRole('tab')).toHaveCount(6);
   });
 });
