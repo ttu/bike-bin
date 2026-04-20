@@ -10,7 +10,7 @@ import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
-import { getStatusColor } from '../../utils/status';
+import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 
 const HERO_IMAGE_HEIGHT = 200;
@@ -30,12 +30,12 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
   const { t } = useTranslation('inventory');
 
   const statusColorToken = getStatusColor(item.status);
-  const statusColor =
-    statusColorToken === 'warning'
-      ? theme.customColors.warning
-      : statusColorToken === 'success'
-        ? theme.customColors.success
-        : theme.colors.outline;
+  const statusColorMap: Record<StatusColorToken, string> = {
+    warning: theme.customColors.warning,
+    success: theme.customColors.success,
+    outline: theme.colors.outline,
+  };
+  const statusColor = statusColorMap[statusColorToken];
 
   const styles = useMemo(() => getStyles(theme, statusColor), [theme, statusColor]);
 
@@ -66,7 +66,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
 
   return (
     <AnimatedPressable
-      onPress={() => onPress?.(item)}
+      onPress={onPress ? () => onPress(item) : undefined}
       style={styles.container}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={t('hero.a11yLabel', { name: item.name })}

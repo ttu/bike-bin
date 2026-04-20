@@ -10,7 +10,7 @@ import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
-import { getStatusColor } from '../../utils/status';
+import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { ITEM_INVENTORY_THUMBNAIL } from '../../constants';
 import { availabilityTypesForList } from '../../utils/availabilityList';
 import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
@@ -26,12 +26,12 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
   const { t } = useTranslation('inventory');
 
   const statusColorToken = getStatusColor(item.status);
-  const statusColor =
-    statusColorToken === 'warning'
-      ? theme.customColors.warning
-      : statusColorToken === 'success'
-        ? theme.customColors.success
-        : theme.colors.outline;
+  const statusColorMap: Record<StatusColorToken, string> = {
+    warning: theme.customColors.warning,
+    success: theme.customColors.success,
+    outline: theme.colors.outline,
+  };
+  const statusColor = statusColorMap[statusColorToken];
 
   const listAvailability = availabilityTypesForList(item.availabilityTypes);
   const thumbnailUri = getItemThumbnailPublicUrl(item.thumbnailStoragePath);

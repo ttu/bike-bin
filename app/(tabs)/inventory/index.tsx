@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
   Pressable,
 } from 'react-native';
-import { Text, FAB, Chip, Searchbar, useTheme } from 'react-native-paper';
+import { Text, FAB, Chip, Searchbar, useTheme, type MD3Theme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -105,7 +105,7 @@ export default function InventoryScreen() {
   }, [items, selectedCategory, searchQuery, activeTags, showTerminal, sortOption]);
 
   const heroItem = useMemo(() => {
-    if (sortOption !== 'recentlyAdded' || filteredItems.length === 0 || viewMode === 'gallery') {
+    if (sortOption === 'name' || filteredItems.length === 0 || viewMode === 'gallery') {
       return undefined;
     }
     return filteredItems[0];
@@ -195,14 +195,7 @@ export default function InventoryScreen() {
     setTagFilterExpanded((prev) => !prev);
   }, []);
 
-  const sortButtonVariant = useMemo(
-    () => ({ backgroundColor: theme.colors.surfaceVariant }),
-    [theme.colors.surfaceVariant],
-  );
-  const sortLabel = useMemo(
-    () => ({ color: theme.colors.onSurfaceVariant }),
-    [theme.colors.onSurfaceVariant],
-  );
+  const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
 
   const listHeader = useMemo(
     () => (
@@ -258,7 +251,7 @@ export default function InventoryScreen() {
                   onPress={cycleSortOption}
                   style={({ pressed }) => [
                     styles.sortButton,
-                    sortButtonVariant,
+                    themeStyles.sortButtonVariant,
                     pressed && styles.sortButtonPressed,
                   ]}
                   accessibilityRole="button"
@@ -269,7 +262,7 @@ export default function InventoryScreen() {
                     size={iconSize.sm}
                     color={theme.colors.onSurfaceVariant}
                   />
-                  <Text variant="labelMedium" style={sortLabel}>
+                  <Text variant="labelMedium" style={themeStyles.sortLabel}>
                     {t(`sort.${sortOption}`)}
                   </Text>
                 </Pressable>
@@ -339,8 +332,7 @@ export default function InventoryScreen() {
       toggleTerminal,
       toggleTagFilter,
       sortOption,
-      sortButtonVariant,
-      sortLabel,
+      themeStyles,
       cycleSortOption,
       filteredItems.length,
       heroItem,
@@ -567,3 +559,10 @@ const styles = StyleSheet.create({
     bottom: spacing.base,
   },
 });
+
+function getThemeStyles(theme: MD3Theme) {
+  return StyleSheet.create({
+    sortButtonVariant: { backgroundColor: theme.colors.surfaceVariant },
+    sortLabel: { color: theme.colors.onSurfaceVariant },
+  });
+}

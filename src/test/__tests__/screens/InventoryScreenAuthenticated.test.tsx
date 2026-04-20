@@ -168,11 +168,11 @@ describe('InventoryScreen (authenticated)', () => {
     expect(screen.getByLabelText(/Latest item: Alpha Pedal/i)).toBeTruthy();
   });
 
-  it('hides hero card when sort is cycled to recentlyUpdated', () => {
+  it('shows hero card when sort is cycled to recentlyUpdated', () => {
     renderWithProviders(<InventoryScreen />);
     const sortA11yLabel = `${inventoryEn.sort.label}, ${inventoryEn.sort.recentlyAdded}, ${inventoryEn.sort.hint}`;
     fireEvent.press(screen.getByLabelText(sortA11yLabel));
-    expect(screen.queryByLabelText(/Latest item: Alpha Pedal/i)).toBeNull();
+    expect(screen.getByLabelText(/Latest item:/i)).toBeTruthy();
   });
 
   it('hides hero card when sort is name', () => {

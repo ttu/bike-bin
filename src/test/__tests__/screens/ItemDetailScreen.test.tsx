@@ -320,7 +320,7 @@ describe('ItemDetailScreen', () => {
       expect(screen.getByText(inventoryEn.limit.saveSnackbarPhoto)).toBeTruthy();
       fireEvent.press(screen.getByText(commonEn.actions.close));
       await act(async () => {
-        jest.runAllTimers();
+        jest.advanceTimersByTime(500);
       });
       expect(screen.queryByText(inventoryEn.limit.saveSnackbarPhoto)).toBeNull();
     } finally {

@@ -28,7 +28,7 @@ export function canEditAvailability(item: Pick<Item, 'status'>): boolean {
   return !NON_DELETABLE_STATUSES.has(item.status);
 }
 
-type StatusColorToken = 'outline' | 'warning' | 'success';
+export type StatusColorToken = 'outline' | 'warning' | 'success';
 
 export function getStatusColor(status: ItemStatus): StatusColorToken {
   switch (status) {

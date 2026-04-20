@@ -36,6 +36,11 @@ describe('FeaturedItemCard', () => {
     expect(onPress).toHaveBeenCalledWith(baseItem);
   });
 
+  it('is non-interactive when no onPress provided', () => {
+    renderWithProviders(<FeaturedItemCard item={baseItem} />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
   it('shows badgeLabel when provided', () => {
     renderWithProviders(<FeaturedItemCard item={baseItem} badgeLabel="Recently added" />);
     expect(screen.getByText('Recently added')).toBeTruthy();
