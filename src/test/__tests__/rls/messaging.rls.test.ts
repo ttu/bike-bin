@@ -72,10 +72,16 @@ beforeAll(async () => {
   if (grpErr) throw new Error(`Failed to seed group: ${grpErr.message}`);
   groupId = grp.id;
 
-  await adminClient.from('group_members').insert([
-    { group_id: groupId, user_id: groupAdmin.id, role: 'admin' },
-    { group_id: groupId, user_id: groupAdmin2.id, role: 'admin' },
-  ]);
+  const { data: memberData, error: memberErr } = await adminClient
+    .from('group_members')
+    .insert([
+      { group_id: groupId, user_id: groupAdmin.id, role: 'admin' },
+      { group_id: groupId, user_id: groupAdmin2.id, role: 'admin' },
+    ])
+    .select();
+  if (memberErr) throw new Error(`Failed to seed group_members: ${memberErr.message}`);
+  if (!memberData || memberData.length !== 2)
+    throw new Error(`Expected 2 group_members rows, got ${memberData?.length ?? 0}`);
 
   const { data: gItem, error: gItemErr } = await adminClient
     .from('items')
@@ -253,19 +259,20 @@ describe('conversation_participants — INSERT', () => {
     // Create a new conversation where only userB is a participant,
     // then userB adds userA (the item owner) — allowed by policy.
     const newConvId = crypto.randomUUID();
-    await adminClient.from('conversations').insert({ id: newConvId, item_id: itemAId });
-    await adminClient
-      .from('conversation_participants')
-      .insert({ conversation_id: newConvId, user_id: userB.id });
+    try {
+      await adminClient.from('conversations').insert({ id: newConvId, item_id: itemAId });
+      await adminClient
+        .from('conversation_participants')
+        .insert({ conversation_id: newConvId, user_id: userB.id });
 
-    const { error } = await userB.client
-      .from('conversation_participants')
-      .insert({ conversation_id: newConvId, user_id: userA.id });
-    expect(error).toBeNull();
-
-    // Cleanup
-    await adminClient.from('conversation_participants').delete().eq('conversation_id', newConvId);
-    await adminClient.from('conversations').delete().eq('id', newConvId);
+      const { error } = await userB.client
+        .from('conversation_participants')
+        .insert({ conversation_id: newConvId, user_id: userA.id });
+      expect(error).toBeNull();
+    } finally {
+      await adminClient.from('conversation_participants').delete().eq('conversation_id', newConvId);
+      await adminClient.from('conversations').delete().eq('id', newConvId);
+    }
   });
 
   it('participant cannot add arbitrary third party to their conversation', async () => {
@@ -459,7 +466,7 @@ describe('group item — contact from search', () => {
     // Mirrors the app flow in useCreateConversation:
     // 1. userB discovers a group item via search
     // 2. Taps "Contact" → creates conversation with client-supplied id
-    // 3. Inserts self + all group admins as participants in one batch
+    // 3. Inserts self first, then inserts all group admins in a separate call
     // 4. Sends a message
 
     const newConvId = crypto.randomUUID();

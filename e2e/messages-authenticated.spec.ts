@@ -132,7 +132,7 @@ test.describe('Conversation detail', () => {
       timeout: 10000,
     });
 
-    const chatMessage = loggedInPage.getByText('Thanks! I will bring it back Monday.').first();
+    const chatMessage = loggedInPage.getByText('Thanks! I will bring it back Monday.').last();
     await chatMessage.scrollIntoViewIfNeeded();
     await expect(chatMessage).toBeVisible({ timeout: 10000 });
   });
