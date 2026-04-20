@@ -35,7 +35,7 @@ onAccent: string; // '#ffffff' / '#2a0f00'
 accentTint: string; // 'rgba(184,87,46,0.18)' / 'rgba(232,152,104,0.20)'
 ```
 
-Usage rules:
+Usage rules (also add as comments in `theme.ts` next to the token definitions):
 
 - **Only at community seams** — groups, lending acceptance, messaging warmth
 - **Rare editorial emphasis** — "recently added" stamps, featured item highlights
@@ -60,6 +60,8 @@ Copy from design bundle to `assets/`:
 
 - `logo-mark.svg` — Socket BB: teal disc + rounded-hex socket cutout (r=6) + BB monogram
 - `logo-lockup.svg` — Socket BB + "BIKE BIN" wordmark + "WORKSHOP INVENTORY · BB/001" caption
+
+Note: `react-native-svg` is already installed. SVGs can be imported directly or rendered inline via `Svg`/`Path`/`Circle` components.
 
 ### Phase 2: Component Patterns
 
@@ -91,11 +93,13 @@ interface DisplayFigureProps {
 }
 ```
 
-Rendering:
+Rendering (all values in React Native logical pixels):
 
-- Value: `BigShoulders-ExtraBold` (fontWeight 800), negative tracking (-0.02em), `fontVariantNumeric: 'tabular-nums'`, `lineHeight: 0.95`
-- Unit: Manrope Bold (700), ~22% of value font size, uppercase, `letterSpacing: 0.4`
+- Value: `BigShoulders-ExtraBold` (fontWeight 800), `letterSpacing: -0.64` (for default 32px size), `lineHeight: Math.round(size * 0.95)` (computed from size prop, e.g. 30 for 32px). `fontVariantNumeric: 'tabular-nums'` is web-only progressive enhancement — omit on native or wrap in `Platform.select`.
+- Unit: Manrope Bold (700), `Math.round(size * 0.22)` font size, uppercase, `letterSpacing: 0.4`
 - Note: Manrope SemiBold (600), 11px, uppercase, `letterSpacing: 0.3`, `onSurfaceVariant` color
+
+The `note` prop expects an already-translated string — consumers call `t()` before passing. DisplayFigure itself has no i18n dependency.
 
 Consumers:
 
@@ -104,11 +108,16 @@ Consumers:
 
 #### 2c. Community accent at messaging seams
 
-| Location                                          | Current                        | New                             |
-| ------------------------------------------------- | ------------------------------ | ------------------------------- |
-| Chat header trust signal ("Borrowed 12 times...") | `onSurfaceVariant`             | `accent` color, 700 weight      |
-| Group affiliation chips                           | Grey chip (surfaceVariant bg)  | `accentTint` bg + `accent` text |
-| FeaturedItemCard "recently added" badge           | `colorWithAlpha(primary, 0.9)` | `accent` color bg               |
+| Location                                | Current                        | New                                       | Status       |
+| --------------------------------------- | ------------------------------ | ----------------------------------------- | ------------ |
+| FeaturedItemCard "recently added" badge | `colorWithAlpha(primary, 0.9)` | `accent` bg + `onAccent` text             | Restyle only |
+| Group affiliation chips (listings)      | Grey chip (surfaceVariant bg)  | `accentTint` bg + `accent` text           | Restyle only |
+| Chat header trust signal                | Does not exist yet             | New element: `accent` color, 700 weight   | New UI       |
+| Chat item context group chip            | Does not exist yet             | New chip: `accentTint` bg + `accent` text | New UI       |
+
+**Note on chat screen:** The trust signal ("Borrowed 12 times · always returned") and group affiliation chip in the chat header do not currently exist in the codebase. These are **new UI elements** to be added to `app/(tabs)/messages/[id].tsx` (or its header component). The trust signal renders below the user's name in the chat app bar when the other user has community history. The group chip renders in the item context bar when the conversation originates from a group listing. Both are aspirational from the design system and should be implemented as part of this work.
+
+File: `app/(tabs)/messages/[id].tsx` — add hairline dividers + trust signal + group chip
 
 ### Phase 3: Layout Refinements
 
@@ -129,11 +138,20 @@ Replace `FlatList numColumns={2}` with sectioned editorial layout:
 
 Implementation approach:
 
-- Extract hero item from results (same pattern as inventory)
+- Extract hero item from results (same pattern as inventory's `heroItem`)
 - Render hero in `ListHeaderComponent`
-- Group remaining items into pairs, render each pair as a row `View` with calculated widths
-- Update `searchGridDimensions.ts` to export `wideCardWidth` and `narrowCardWidth`
-- `SearchResultGridCard` gains `variant: 'hero' | 'wide' | 'narrow'` prop controlling image aspect ratio
+- Drop `numColumns={2}` — render remaining items as manually grouped pairs in row `View`s
+- Update `searchGridDimensions.ts`:
+  - Keep `SEARCH_GRID_COLUMN_GAP` (8px)
+  - Add `getSearchResultGridWideCardWidth(windowWidth)`: `(windowWidth - spacing.base * 2 - SEARCH_GRID_COLUMN_GAP) * 0.615` (~1.6 ratio)
+  - Add `getSearchResultGridNarrowCardWidth(windowWidth)`: remainder after wide + gap
+  - Hero card width: `windowWidth - spacing.base * 2` (full content width)
+- `SearchResultGridCard` gains `variant: 'hero' | 'wide' | 'narrow'` prop:
+  - `hero`: image aspect ratio 16:9, full-width, listing type + group chip overlays
+  - `wide`: image aspect ratio 4:3 (`cardWidth * 0.75`)
+  - `narrow`: image aspect ratio 1:1 (`cardWidth`)
+  - Default (no variant): current behavior for backwards compatibility
+- Pair grouping utility: a simple function that chunks the remaining items array into pairs, alternating `['wide-narrow', 'narrow-wide']` row types
 
 #### 3b. Inventory list — grouped rows with inset hairlines
 
@@ -146,20 +164,21 @@ Change from separated floating cards to grouped list:
 
 ## Files Modified
 
-| File                                                                           | Change                                                          |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| `src/shared/theme/theme.ts`                                                    | Add accent tokens to CustomColors + both themes                 |
-| `src/features/inventory/components/ItemCard/ItemCard.tsx`                      | Remove shadow, remove vertical margin                           |
-| `src/features/inventory/components/FeaturedItemCard/FeaturedItemCard.tsx`      | Remove shadow, use DisplayFigure, accent "recently added" badge |
-| `src/features/search/components/SearchResultGridCard/SearchResultGridCard.tsx` | Remove shadow, add variant prop                                 |
-| `app/(tabs)/_layout.tsx`                                                       | Remove tab bar shadow                                           |
-| `app/(tabs)/inventory/index.tsx`                                               | Add ItemSeparatorComponent, grouped list container              |
-| `app/(tabs)/search/index.tsx`                                                  | Asymmetric grid with hero extraction                            |
-| `src/features/search/utils/searchGridDimensions.ts`                            | Add wide/narrow card width calculations                         |
-| `src/features/inventory/components/ItemDetail/ItemDetail.tsx`                  | Hairlines on spec strip + sections, use DisplayFigure           |
-| Chat screen (header/composer areas)                                            | Hairline dividers                                               |
-| `assets/logo-mark.svg`                                                         | New file                                                        |
-| `assets/logo-lockup.svg`                                                       | New file                                                        |
+| File                                                                                          | Change                                                          |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `src/shared/theme/theme.ts`                                                                   | Add accent tokens to CustomColors + both themes (with comments) |
+| `src/features/inventory/components/ItemCard/ItemCard.tsx`                                     | Remove shadow, remove vertical margin                           |
+| `src/features/inventory/components/FeaturedItemCard/FeaturedItemCard.tsx`                     | Remove shadow, use DisplayFigure, accent "recently added" badge |
+| `src/features/search/components/SearchResultGridCard/SearchResultGridCard.tsx`                | Remove shadow, add variant prop                                 |
+| `app/(tabs)/_layout.tsx`                                                                      | Remove tab bar shadow                                           |
+| `app/(tabs)/inventory/index.tsx`                                                              | Add ItemSeparatorComponent, grouped list container              |
+| `app/(tabs)/search/index.tsx`                                                                 | Asymmetric grid with hero extraction, drop numColumns           |
+| `src/features/search/utils/searchGridDimensions.ts`                                           | Add wide/narrow/hero card width calculations                    |
+| `src/features/inventory/components/ItemDetail/ItemDetail.tsx`                                 | Hairlines on spec strip + sections, use DisplayFigure           |
+| `app/(tabs)/messages/[id].tsx`                                                                | Hairline dividers, trust signal, group chip                     |
+| `src/features/inventory/components/ItemCard/__tests__/ItemCard.test.tsx`                      | Update for shadow removal                                       |
+| `src/features/inventory/components/FeaturedItemCard/__tests__/FeaturedItemCard.test.tsx`      | Update for shadow removal + DisplayFigure + accent badge        |
+| `src/features/search/components/SearchResultGridCard/__tests__/SearchResultGridCard.test.tsx` | Update for shadow removal + variant prop                        |
 
 ## New Files
 
@@ -173,7 +192,10 @@ Change from separated floating cards to grouped list:
 
 ## Testing Strategy
 
-- Unit tests for `DisplayFigure` component (renders value/unit/note, respects size prop)
-- Update existing tests for components with shadow removal (snapshot updates if applicable)
-- Visual verification of hairline borders, asymmetric grid, accent colors
+- Unit tests for `DisplayFigure` component (renders value/unit/note, respects size prop, computes lineHeight from size)
+- Update `ItemCard.test.tsx` — verify shadow style properties are absent
+- Update `FeaturedItemCard.test.tsx` — verify shadow removed, DisplayFigure used in specs, accent badge color
+- Update `SearchResultGridCard.test.tsx` — verify shadow removed, variant prop controls image aspect ratio
+- Test asymmetric grid pair-grouping utility (pure function, easy to unit test)
 - Verify dark mode accent tokens render correctly
+- Visual verification of hairline borders, asymmetric grid, accent colors
