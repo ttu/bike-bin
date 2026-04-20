@@ -131,6 +131,7 @@ export default function ItemDetailScreen() {
         {canEdit && (
           <Appbar.Action
             icon="pencil"
+            accessibilityLabel={tInv('editItem')}
             onPress={() => router.push(`/(tabs)/inventory/edit/${item.id}`)}
           />
         )}
