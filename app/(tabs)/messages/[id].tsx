@@ -58,6 +58,19 @@ function useThemedStyles(theme: AppTheme) {
         trustSignalColor: { color: theme.customColors.accent },
         groupChipBg: { backgroundColor: theme.customColors.accentTint },
         groupChipText: { color: theme.customColors.accent },
+        headerBorder: {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.colors.outlineVariant,
+        },
+        itemContextBarBorder: {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.colors.outlineVariant,
+        },
+        composerBorder: {
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: theme.colors.outlineVariant,
+          backgroundColor: theme.colors.surface,
+        },
       }),
     [theme],
   );
@@ -298,7 +311,10 @@ export default function ConversationDetailScreen() {
         keyboardVerticalOffset={0}
       >
         {/* Header */}
-        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
+        <Appbar.Header
+          dark={theme.dark}
+          style={[{ backgroundColor: theme.colors.surface }, themed.headerBorder]}
+        >
           <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/messages')} />
           <Pressable
             style={styles.headerContent}
@@ -370,11 +386,13 @@ export default function ConversationDetailScreen() {
 
         {/* Pinned item reference card */}
         {conversation && conversation.itemId && (
-          <ItemReferenceCard
-            conversation={conversation}
-            isOwnItem={isOwner}
-            onViewItem={handleViewItem}
-          />
+          <View style={themed.itemContextBarBorder}>
+            <ItemReferenceCard
+              conversation={conversation}
+              isOwnItem={isOwner}
+              onViewItem={handleViewItem}
+            />
+          </View>
         )}
 
         {/* Group affiliation chip */}
@@ -415,7 +433,7 @@ export default function ConversationDetailScreen() {
         />
 
         {/* Input bar */}
-        <View style={{ backgroundColor: theme.colors.surface, paddingBottom: 60 + insets.bottom }}>
+        <View style={[themed.composerBorder, { paddingBottom: 60 + insets.bottom }]}>
           <View style={styles.inputBar}>
             <TextInput
               style={[
