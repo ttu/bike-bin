@@ -16,6 +16,12 @@ export interface CustomColors {
   inverseSurface: string;
   inverseOnSurface: string;
   inversePrimary: string;
+  // Oxidized orange accent — community seams only (groups, lending, messaging).
+  // Never on primary CTAs. Rare editorial emphasis ("recently added", featured highlights).
+  accent: string;
+  accentContainer: string;
+  onAccent: string;
+  accentTint: string;
 }
 
 export interface AppTheme extends MD3Theme {
@@ -113,6 +119,10 @@ export const lightTheme: AppTheme = {
     inverseSurface: '#312e2b',
     inverseOnSurface: '#f0ede6',
     inversePrimary: '#5ddbbe',
+    accent: '#b8572e',
+    accentContainer: '#e6c1ad',
+    onAccent: '#ffffff',
+    accentTint: 'rgba(184, 87, 46, 0.18)',
   },
 };
 
@@ -164,5 +174,9 @@ export const darkTheme: AppTheme = {
     inverseSurface: '#e6e3dd',
     inverseOnSurface: '#312e2b',
     inversePrimary: '#006857',
+    accent: '#e89868',
+    accentContainer: '#5a2a10',
+    onAccent: '#2a0f00',
+    accentTint: 'rgba(232, 152, 104, 0.20)',
   },
 };
