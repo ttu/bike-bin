@@ -138,11 +138,6 @@ function getStyles(theme: AppTheme, statusColor: string) {
       marginHorizontal: spacing.base,
       marginVertical: spacing.xs,
       backgroundColor: theme.customColors.surfaceContainerLowest,
-      shadowColor: theme.colors.onSurface,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 16,
-      elevation: 2,
       overflow: 'hidden' as const,
     },
     imageContainer: {

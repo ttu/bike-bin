@@ -40,7 +40,6 @@ export const SearchResultGridCard = memo(function SearchResultGridCard({
         styles.container,
         { width: cardWidth, marginBottom: SEARCH_GRID_COLUMN_GAP },
         themed.surfaceBg,
-        themed.shadow,
       ]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
@@ -121,13 +120,6 @@ function useThemedStyles(theme: AppTheme) {
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
         surfaceBg: { backgroundColor: theme.customColors.surfaceContainerLowest },
         surfaceVariantBg: { backgroundColor: theme.colors.surfaceVariant },
-        shadow: {
-          shadowColor: theme.colors.onSurface,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.04,
-          shadowRadius: 12,
-          elevation: 1,
-        },
       }),
     [theme],
   );

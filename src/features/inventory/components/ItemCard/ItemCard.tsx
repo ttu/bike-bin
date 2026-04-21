@@ -43,7 +43,6 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
         styles.container,
         {
           backgroundColor: theme.customColors.surfaceContainerLowest,
-          shadowColor: theme.colors.onSurface,
         },
       ]}
       accessibilityRole="button"
@@ -163,10 +162,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 1,
   },
   thumbnail: {
     borderRadius: borderRadius.sm,
