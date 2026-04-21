@@ -23,7 +23,21 @@ WHERE id = ANY (
     'f0000001-0002-4000-8000-000000000001',
     'f0000001-0003-4000-8000-000000000001',
     'f0000001-0004-4000-8000-000000000001',
-    'f0000001-0005-4000-8000-000000000001'
+    'f0000001-0005-4000-8000-000000000001',
+    'f0000001-0006-4000-8000-000000000001',
+    'f0000001-0007-4000-8000-000000000001',
+    'f0000001-0008-4000-8000-000000000001',
+    'f0000001-0009-4000-8000-000000000001',
+    'f0000001-000a-4000-8000-000000000001'
+  ]::uuid[]
+);
+-- Group-owned test items (idempotent re-seed): delete before profiles cascade runs.
+DELETE FROM items WHERE id = ANY (
+  ARRAY[
+    'd0000002-0001-4000-8000-000000000001','d0000002-0002-4000-8000-000000000001',
+    'd0000002-0003-4000-8000-000000000001','d0000002-0004-4000-8000-000000000001',
+    'd0000002-0001-4000-8000-000000000002','d0000002-0002-4000-8000-000000000002',
+    'd0000002-0003-4000-8000-000000000002','d0000002-0004-4000-8000-000000000002'
   ]::uuid[]
 );
 DELETE FROM auth.identities WHERE user_id IN (SELECT id FROM auth.users WHERE email LIKE '%@bikebin.dev');
@@ -188,8 +202,41 @@ ON CONFLICT (group_id, user_id) DO UPDATE SET
   joined_at = EXCLUDED.joined_at;
 
 INSERT INTO item_groups (item_id, group_id) VALUES
-  ('d0000001-0004-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001')
+  -- Berlin Bike Co-op: items from each member (Test, Marcus, Sarah, Jonas, Lisa)
+  ('d0000001-0003-4000-8000-000000000001', 'e0000001-0001-4000-8000-000000000001'), -- Test: Park Tool Chain Checker
+  ('d0000001-0006-4000-8000-000000000001', 'e0000001-0001-4000-8000-000000000001'), -- Test: PCS-10.3 Stand
+  ('d0000001-0001-4000-8000-000000000002', 'e0000001-0001-4000-8000-000000000001'), -- Marcus: Shimano 105 Cassette
+  ('d0000001-0003-4000-8000-000000000002', 'e0000001-0001-4000-8000-000000000001'), -- Marcus: Lezyne Micro Floor Drive
+  ('d0000001-0002-4000-8000-000000000003', 'e0000001-0001-4000-8000-000000000001'), -- Sarah: Kryptonite Evolution Mini-7
+  ('d0000001-0004-4000-8000-000000000003', 'e0000001-0001-4000-8000-000000000001'), -- Sarah: SKS Bluemels Fenders
+  ('d0000001-0001-4000-8000-000000000004', 'e0000001-0001-4000-8000-000000000001'), -- Jonas: Tubus Logo Rear Rack
+  ('d0000001-0005-4000-8000-000000000004', 'e0000001-0001-4000-8000-000000000001'), -- Jonas: Topeak Joe Blow Sport III
+  ('d0000001-0002-4000-8000-000000000005', 'e0000001-0001-4000-8000-000000000001'), -- Lisa: Vittoria Terreno Tires
+  ('d0000001-0003-4000-8000-000000000005', 'e0000001-0001-4000-8000-000000000001'), -- Lisa: Silca T-Ratchet Torque Kit
+  -- Berlin MTB Crew: items from each member (Test, Kai, Nina)
+  ('d0000001-0001-4000-8000-000000000001', 'e0000001-0002-4000-8000-000000000001'), -- Test: Fox 36 Float Fork
+  ('d0000001-0006-4000-8000-000000000001', 'e0000001-0002-4000-8000-000000000001'), -- Test: PCS-10.3 Stand (also shared here)
+  ('d0000001-0001-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001'), -- Kai: Fox DHX2 Rear Shock
+  ('d0000001-0003-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001'), -- Kai: Leatt DBX 4.0 Knee Pads
+  ('d0000001-0004-4000-8000-000000000006', 'e0000001-0002-4000-8000-000000000001'), -- Kai: Maxxis Assegai Tire (pre-existing)
+  ('d0000001-0003-4000-8000-000000000007', 'e0000001-0002-4000-8000-000000000001'), -- Nina: Wolf Tooth Master Link Pliers
+  ('d0000001-0004-4000-8000-000000000007', 'e0000001-0002-4000-8000-000000000001')  -- Nina: OneUp Dropper Post
 ON CONFLICT (item_id, group_id) DO NOTHING;
+
+-- Group-owned items (owner_id NULL, group_id set). These show up in the group
+-- inventory tab (which filters by items.group_id). Personal items shared via
+-- item_groups are a separate, lighter visibility mechanism.
+INSERT INTO items (id, owner_id, group_id, created_by, name, category, subcategory, brand, model, description, condition, status, availability_types, price, deposit, borrow_duration, storage_location, age, visibility, tags, created_at, updated_at) VALUES
+  -- Berlin Bike Co-op (admin: Test User)
+  ('d0000002-0001-4000-8000-000000000001', NULL, 'e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Co-op Workshop Torque Wrench',  'tool',     'torque_wrenches',   'Pedro''s',  'Demi Torque',        'Shared co-op torque wrench. Book it, use it, return it.',                                 'good', 'stored', '{borrowable}',            NULL, 25, '2_3_days', 'Co-op workshop', '1_to_2_years', 'groups', '{}', now() - interval '300 days', now() - interval '15 days'),
+  ('d0000002-0002-4000-8000-000000000001', NULL, 'e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Co-op Wheel Truing Stand',      'tool',     'stands',            'Park Tool','TS-2.3',             'Pro wheel truing stand kept at the co-op. Members only.',                                   'good', 'stored', '{borrowable}',            NULL, 40, '2_3_days', 'Co-op workshop', '3_to_5_years', 'groups', '{}', now() - interval '400 days', now() - interval '20 days'),
+  ('d0000002-0003-4000-8000-000000000001', NULL, 'e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Co-op Bottom Bracket Tools',    'tool',     'multi_tools',       'Park Tool','BBT Kit',            'Set covering Shimano, SRAM and T47. Kept with the torque wrench.',                          'good', 'stored', '{borrowable}',            NULL, 10, '1_week',   'Co-op workshop', '2_to_3_years', 'groups', '{}', now() - interval '280 days', now() - interval '8 days'),
+  ('d0000002-0004-4000-8000-000000000001', NULL, 'e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Co-op Spare Inner Tubes Stock', 'consumable', 'tires_tubes',     'Continental','Race 28 700x25-32', 'Free to members. Take one, log it in the shelf book.',                                      'new',  'stored', '{donatable}',             NULL, NULL, NULL,     'Co-op workshop', 'less_than_6_months', 'groups', '{}', now() - interval '60 days', now() - interval '3 days'),
+  -- Berlin MTB Crew (admin: Test User)
+  ('d0000002-0001-4000-8000-000000000002', NULL, 'e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'MTB Crew Shock Pump',           'tool',     'pumps',             'Fox',      'HP Shock Pump',      'Shared shock pump for the crew. Lives in Test''s garage.',                                  'good', 'stored', '{borrowable}',            NULL, 5,  '2_3_days', 'Kreuzberg garage', '1_to_2_years', 'groups', '{}', now() - interval '180 days', now() - interval '10 days'),
+  ('d0000002-0002-4000-8000-000000000002', NULL, 'e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'MTB Crew First Aid Kit',        'accessory', 'bags_racks',       NULL,       'Trail First Aid',    'Stocked trail first aid kit. Check before every crew ride.',                                'good', 'stored', '{borrowable}',            NULL, NULL, '2_3_days', 'Kreuzberg garage', '1_to_2_years', 'groups', '{}', now() - interval '160 days', now() - interval '7 days'),
+  ('d0000002-0003-4000-8000-000000000002', NULL, 'e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'MTB Crew Bleed Kit (Shimano)',  'tool',     'multi_tools',       'Shimano',  'Funnel Bleed Kit',   'Funnel bleed kit + mineral oil. Use it at the garage, do not take home.',                   'good', 'stored', '{borrowable}',            NULL, 15, '1_day',    'Kreuzberg garage', '2_to_3_years', 'groups', '{}', now() - interval '200 days', now() - interval '12 days'),
+  ('d0000002-0004-4000-8000-000000000002', NULL, 'e0000001-0002-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'MTB Crew Loaner Knee Pads L',   'clothing', 'knee_pads',         'Fox',      'Launch Pro',         'Crew loaner pads, size L. For newcomers trying the trails.',                                'worn', 'stored', '{borrowable}',            NULL, 10, '1_week',   'Kreuzberg garage', '2_to_3_years', 'groups', '{}', now() - interval '220 days', now() - interval '14 days');
 
 -- ── Consumable Remaining Fractions ─────────────────────────
 UPDATE items SET remaining_fraction = 0.5  WHERE id = 'd0000001-0008-4000-8000-000000000001'; -- Muc-Off Chain Lube: ~half bottle
@@ -255,6 +302,59 @@ INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
   ('f1000001-0003-4000-8000-000000000005', 'f0000001-0005-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'Good point! Let me think about it. What are you replacing it with?', now() - interval '6 days'),
   ('f1000001-0004-4000-8000-000000000005', 'f0000001-0005-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'Going to a Fox 34 Factory 140mm for the new Epic build. More travel for the Berlin trails.', now() - interval '6 days' + interval '1 hour');
 
+-- Conv 6: Sarah asking Marcus about 105 cassette (Berlin Bike Co-op)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-0006-4000-8000-000000000001', 'd0000001-0001-4000-8000-000000000002', now() - interval '4 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-0006-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002'),
+  ('f0000001-0006-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003');
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-000000000006', 'f0000001-0006-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003', 'Hi Marcus! Saw the 105 cassette in the co-op. Could I borrow it for a weekend swap test?', now() - interval '4 days'),
+  ('f1000001-0002-4000-8000-000000000006', 'f0000001-0006-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'Hey Sarah! Sure — it is a 11-28T, should fit most setups. When works?', now() - interval '4 days' + interval '3 hours'),
+  ('f1000001-0003-4000-8000-000000000006', 'f0000001-0006-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003', 'Next Saturday would be perfect.', now() - interval '1 day');
+
+-- Conv 7: Lisa borrowing Jonas's floor pump (Berlin Bike Co-op)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-0007-4000-8000-000000000001', 'd0000001-0005-4000-8000-000000000004', now() - interval '6 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-0007-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004'),
+  ('f0000001-0007-4000-8000-000000000001', 'a1b2c3d4-0005-4000-8000-000000000005');
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-000000000007', 'f0000001-0007-4000-8000-000000000001', 'a1b2c3d4-0005-4000-8000-000000000005', 'Jonas, any chance I could borrow the Joe Blow pump this week? My floor pump gauge just died.', now() - interval '6 days'),
+  ('f1000001-0002-4000-8000-000000000007', 'f0000001-0007-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004', 'Of course! Pick it up in Neukoelln any time.', now() - interval '6 days' + interval '45 minutes'),
+  ('f1000001-0003-4000-8000-000000000007', 'f0000001-0007-4000-8000-000000000001', 'a1b2c3d4-0005-4000-8000-000000000005', 'Got it, thanks so much. Will bring it back on Sunday.', now() - interval '5 days');
+
+-- Conv 8: Nina asking Kai about knee pads (Berlin MTB Crew)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-0008-4000-8000-000000000001', 'd0000001-0003-4000-8000-000000000006', now() - interval '2 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-0008-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006'),
+  ('f0000001-0008-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007');
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-000000000008', 'f0000001-0008-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'Kai, spotted your Leatt DBX pads in the MTB crew group. Could I borrow them for the enduro day next weekend?', now() - interval '2 days'),
+  ('f1000001-0002-4000-8000-000000000008', 'f0000001-0008-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'Absolutely — size L, fits most. Just confirm once the weather looks good.', now() - interval '2 days' + interval '1 hour'),
+  ('f1000001-0003-4000-8000-000000000008', 'f0000001-0008-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'Perfect. Will ping you Thursday.', now() - interval '18 hours');
+
+-- Conv 9: Marcus asking about the co-op torque wrench (group-owned item)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-0009-4000-8000-000000000001', 'd0000002-0001-4000-8000-000000000001', now() - interval '3 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002'), -- Marcus (requester)
+  ('f0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001'); -- Test (Co-op admin)
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-000000000009', 'f0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'Hey — can I book the co-op torque wrench for the weekend? Installing a new stem.', now() - interval '3 days'),
+  ('f1000001-0002-4000-8000-000000000009', 'f0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'It is free all Saturday. Log it in the shelf book when you grab it.', now() - interval '3 days' + interval '1 hour');
+
+-- Conv 10: Kai asking about the MTB crew shock pump (group-owned item)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-000a-4000-8000-000000000001', 'd0000002-0001-4000-8000-000000000002', now() - interval '1 day');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-000a-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006'), -- Kai (requester)
+  ('f0000001-000a-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001'); -- Test (MTB Crew admin)
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-00000000000a', 'f0000001-000a-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'Need the crew shock pump tonight — setting sag on the Spectral before the Harz trip.', now() - interval '1 day'),
+  ('f1000001-0002-4000-8000-00000000000a', 'f0000001-000a-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Swing by after 7, it is on the garage wall.', now() - interval '1 day' + interval '30 minutes');
+
 -- ── Borrow Requests ─────────────────────────────────────────
 
 INSERT INTO borrow_requests (id, item_id, requester_id, status, message, created_at, updated_at) VALUES
@@ -262,7 +362,14 @@ INSERT INTO borrow_requests (id, item_id, requester_id, status, message, created
   ('f2000001-0002-4000-8000-000000000001', 'd0000001-0003-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'pending', 'Hi! I need to check my chain wear before the race this weekend. Can I borrow it for a day?', now() - interval '45 minutes', now() - interval '45 minutes'),
   ('f2000001-0003-4000-8000-000000000001', 'd0000001-0002-4000-8000-000000000003', 'a1b2c3d4-0004-4000-8000-000000000004', 'returned', 'Need to borrow for a week-long trip. Will take good care of it!', now() - interval '14 days', now() - interval '6 days'),
   ('f2000001-0004-4000-8000-000000000001', 'd0000001-0009-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'accepted', 'Need accurate pressure for race wheels.', now() - interval '3 days', now() - interval '2 days'),
-  ('f2000001-0005-4000-8000-000000000001', 'd0000001-0004-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'returned', 'Need a multi-tool for a weekend ride.', now() - interval '35 days', now() - interval '30 days');
+  ('f2000001-0005-4000-8000-000000000001', 'd0000001-0004-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'returned', 'Need a multi-tool for a weekend ride.', now() - interval '35 days', now() - interval '30 days'),
+  -- Group-scoped borrow requests (items visible via item_groups)
+  ('f2000001-0006-4000-8000-000000000001', 'd0000001-0001-4000-8000-000000000002', 'a1b2c3d4-0003-4000-8000-000000000003', 'pending',  'Co-op request: would love to try the 105 cassette on my Brompton-swap build.', now() - interval '4 days', now() - interval '4 days'),
+  ('f2000001-0007-4000-8000-000000000001', 'd0000001-0005-4000-8000-000000000004', 'a1b2c3d4-0005-4000-8000-000000000005', 'accepted', 'Co-op request: my pump gauge died, borrowing for the week.', now() - interval '6 days', now() - interval '5 days'),
+  ('f2000001-0008-4000-8000-000000000001', 'd0000001-0003-4000-8000-000000000006', 'a1b2c3d4-0007-4000-8000-000000000007', 'pending',  'MTB crew request: enduro day next weekend, need knee pads.', now() - interval '2 days', now() - interval '2 days'),
+  -- Requests against group-owned items
+  ('f2000001-0009-4000-8000-000000000001', 'd0000002-0001-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'accepted', 'Booking the co-op torque wrench for a stem install this weekend.', now() - interval '3 days', now() - interval '3 days' + interval '1 hour'),
+  ('f2000001-000a-4000-8000-000000000001', 'd0000002-0001-4000-8000-000000000002', 'a1b2c3d4-0006-4000-8000-000000000006', 'pending',  'Need the crew shock pump tonight for sag setup.', now() - interval '1 day', now() - interval '1 day');
 
 -- ── Ratings ─────────────────────────────────────────────────
 
