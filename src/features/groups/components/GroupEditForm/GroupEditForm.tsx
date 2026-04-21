@@ -85,11 +85,11 @@ export function GroupEditForm({
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}
         />
-        {editNameError && (
+        {editNameError ? (
           <HelperText type="error" visible>
             {editNameError}
           </HelperText>
-        )}
+        ) : null}
 
         <Text variant="labelLarge" style={styles.label}>
           {t('create.descriptionLabel')}

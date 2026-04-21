@@ -59,11 +59,11 @@ export function GroupCreateForm({ onBack, onSubmit, isSubmitting }: GroupCreateF
           placeholder={t('create.namePlaceholder')}
           error={!!nameError}
         />
-        {nameError && (
+        {nameError ? (
           <HelperText type="error" visible>
             {nameError}
           </HelperText>
-        )}
+        ) : null}
 
         <Text variant="labelLarge" style={styles.label}>
           {t('create.descriptionLabel')}
