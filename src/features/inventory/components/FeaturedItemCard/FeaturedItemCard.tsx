@@ -10,6 +10,7 @@ import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
+import { DisplayFigure } from '@/shared/components/DisplayFigure';
 import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 
@@ -115,14 +116,7 @@ export const FeaturedItemCard = memo(function FeaturedItemCard({
         {specs.length > 0 && (
           <View style={styles.specs}>
             {specs.map((spec) => (
-              <View key={spec.label} style={styles.specItem}>
-                <Text variant="headlineSmall" style={styles.specValue}>
-                  {spec.value}
-                </Text>
-                <Text variant="labelSmall" style={styles.specLabel}>
-                  {spec.label}
-                </Text>
-              </View>
+              <DisplayFigure key={spec.label} value={spec.value} note={spec.label} size={22} />
             ))}
           </View>
         )}
@@ -169,10 +163,10 @@ function getStyles(theme: AppTheme, statusColor: string) {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.xs,
       borderRadius: borderRadius.sm,
-      backgroundColor: colorWithAlpha(theme.colors.primary, 0.9),
+      backgroundColor: theme.customColors.accent,
     },
     recentBadgeText: {
-      color: theme.colors.onPrimary,
+      color: theme.customColors.onAccent,
     },
     content: {
       padding: spacing.base,
@@ -188,17 +182,6 @@ function getStyles(theme: AppTheme, statusColor: string) {
       flexDirection: 'row',
       gap: spacing.base,
       marginTop: spacing.sm,
-    },
-    specItem: {
-      alignItems: 'flex-start',
-    },
-    specValue: {
-      color: theme.colors.onSurface,
-    },
-    specLabel: {
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
-      color: theme.colors.onSurfaceVariant,
     },
   });
 }
