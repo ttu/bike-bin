@@ -11,6 +11,7 @@ import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
+import { DisplayFigure } from '@/shared/components/DisplayFigure';
 import { useDistanceUnit } from '@/features/profile';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
@@ -197,6 +198,31 @@ export function ItemDetail({
               icon="map-marker-outline"
               label={t('detail.storageLabel')}
               value={item.storageLocation}
+            />
+          )}
+        </View>
+      </View>
+
+      {/* Spec figures — display-figure treatment */}
+      <View style={[styles.section, themed.sectionBorder]}>
+        <View style={styles.figureStrip}>
+          {item.category === ItemCategory.Consumable && item.remainingFraction !== undefined && (
+            <DisplayFigure
+              value={String(Math.round(item.remainingFraction * 100))}
+              unit="%"
+              note={t('detail.remainingLabel')}
+              size={28}
+            />
+          )}
+          {item.quantity > 1 && (
+            <DisplayFigure value={`×${item.quantity}`} note={t('detail.quantityLabel')} size={28} />
+          )}
+          {item.usageKm !== undefined && (
+            <DisplayFigure
+              value={String(kmToDisplayUnit(item.usageKm, distanceUnit))}
+              unit={distanceUnit}
+              note={t('detail.usageLabel')}
+              size={28}
             />
           )}
         </View>
@@ -441,6 +467,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     alignSelf: 'flex-start',
     borderRadius: borderRadius.full,
+  },
+  figureStrip: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.base,
   },
   sectionHeader: {
     marginBottom: spacing.md,
