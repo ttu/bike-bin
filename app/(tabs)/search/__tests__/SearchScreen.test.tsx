@@ -177,8 +177,11 @@ describe('SearchScreen - search results', () => {
     const input = screen.getByPlaceholderText(searchEn.searchPlaceholder);
     fireEvent.changeText(input, 'pedal');
     fireEvent(input, 'submitEditing');
-    expect(screen.getByText(searchEn.quickFilter.borrow)).toBeTruthy();
-    fireEvent.press(screen.getByText(searchEn.quickFilter.borrow));
-    expect(screen.getByText(searchEn.quickFilter.borrow)).toBeTruthy();
+    const getBorrowChip = () => screen.getByRole('button', { name: searchEn.quickFilter.borrow });
+    expect(getBorrowChip().props.accessibilityState?.selected).toBe(false);
+    fireEvent.press(getBorrowChip());
+    expect(getBorrowChip().props.accessibilityState?.selected).toBe(true);
+    fireEvent.press(getBorrowChip());
+    expect(getBorrowChip().props.accessibilityState?.selected).toBe(false);
   });
 });
