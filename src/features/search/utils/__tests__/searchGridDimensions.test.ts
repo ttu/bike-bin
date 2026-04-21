@@ -28,7 +28,7 @@ describe('asymmetric widths', () => {
   it('wide + narrow + gap = content width', () => {
     const wide = getSearchResultGridWideCardWidth(windowWidth);
     const narrow = getSearchResultGridNarrowCardWidth(windowWidth);
-    const contentWidth = windowWidth - 32; // spacing.base * 2
+    const contentWidth = windowWidth - spacing.base * 2;
     expect(wide + narrow + SEARCH_GRID_COLUMN_GAP).toBeCloseTo(contentWidth, 0);
   });
 
@@ -40,7 +40,7 @@ describe('asymmetric widths', () => {
 
   it('hero card fills content width', () => {
     const hero = getSearchResultGridHeroCardWidth(windowWidth);
-    const contentWidth = windowWidth - 32;
+    const contentWidth = windowWidth - spacing.base * 2;
     expect(hero).toBeCloseTo(contentWidth, 0);
   });
 

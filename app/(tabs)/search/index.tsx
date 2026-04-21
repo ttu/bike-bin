@@ -113,11 +113,9 @@ function SearchScreenContent() {
 
   // Separate hero item and remaining items for the asymmetric editorial grid
   const heroItem = showResults && results ? results[0] : undefined;
-  const remainingItems = showResults && results ? results.slice(1) : [];
   const resultPairs = useMemo(
-    () => groupSearchResultPairs(remainingItems),
-
-    [remainingItems],
+    () => groupSearchResultPairs(showResults && results ? results.slice(1) : []),
+    [showResults, results],
   );
 
   const heroCardWidth = getSearchResultGridHeroCardWidth(windowWidth);
@@ -133,7 +131,7 @@ function SearchScreenContent() {
       const secondWidth = item.type === 'wide-narrow' ? narrowWidth : wideWidth;
 
       return (
-        <View style={[styles.pairRow, { gap: SEARCH_GRID_COLUMN_GAP }]}>
+        <View style={[styles.pairRow, styles.pairRowGap]}>
           <SearchResultGridCard
             item={first}
             onPress={handleResultPress}
@@ -367,7 +365,7 @@ function SearchScreenContent() {
             style={styles.resultsList}
             data={resultPairs}
             renderItem={renderPairItem}
-            keyExtractor={(_, index) => String(index)}
+            keyExtractor={(pair) => pair.items.map((i) => i.id).join('-')}
             ListHeaderComponent={listHeader}
             ListEmptyComponent={listEmpty}
             contentContainerStyle={listContentContainerStyle}
@@ -456,6 +454,9 @@ const styles = StyleSheet.create({
   },
   pairRow: {
     flexDirection: 'row',
+  },
+  pairRowGap: {
+    gap: SEARCH_GRID_COLUMN_GAP,
   },
   filterModal: {
     margin: spacing.base,

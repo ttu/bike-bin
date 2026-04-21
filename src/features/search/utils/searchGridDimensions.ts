@@ -3,6 +3,13 @@ import { spacing } from '@/shared/theme';
 /** Matches `COLUMN_GAP` between two columns in the search results grid. */
 export const SEARCH_GRID_COLUMN_GAP = spacing.sm;
 
+/** Aspect ratios (height/width) for each card variant in the search results grid. */
+export const SEARCH_RESULT_IMAGE_ASPECT_RATIOS = {
+  hero: 9 / 16,
+  wide: 0.75,
+  narrow: 1,
+} as const;
+
 /** Content width after horizontal padding. */
 function contentWidth(windowWidth: number): number {
   return windowWidth - spacing.base * 2;

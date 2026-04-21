@@ -16,7 +16,7 @@ interface DisplayFigureProps {
 
 export function DisplayFigure({ value, unit, note, size = 32 }: DisplayFigureProps) {
   const theme = useTheme<AppTheme>();
-  const unitSize = Math.round(size * 0.22);
+  const unitSize = Math.max(Math.round(size * 0.4), 11);
   const letterSpacing = size * -0.02;
   const lineHeight = Math.round(size * 0.95);
 
@@ -54,7 +54,11 @@ export function DisplayFigure({ value, unit, note, size = 32 }: DisplayFigurePro
           </Text>
         )}
       </View>
-      {note && <Text style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>{note}</Text>}
+      {note && (
+        <Text variant="labelSmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
+          {note}
+        </Text>
+      )}
     </View>
   );
 }
@@ -79,7 +83,6 @@ const styles = StyleSheet.create({
   note: {
     fontFamily: 'Manrope-SemiBold',
     fontWeight: '600',
-    fontSize: 11,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
     marginTop: spacing.xs / 2,

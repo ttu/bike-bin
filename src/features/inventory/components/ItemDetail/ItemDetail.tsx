@@ -200,29 +200,37 @@ export function ItemDetail({
       </View>
 
       {/* Spec figures — display-figure treatment */}
-      <View style={[styles.section, themed.sectionBorder]}>
-        <View style={styles.figureStrip}>
-          {item.category === ItemCategory.Consumable && item.remainingFraction !== undefined && (
-            <DisplayFigure
-              value={String(Math.round(item.remainingFraction * 100))}
-              unit="%"
-              note={t('detail.remainingLabel')}
-              size={28}
-            />
-          )}
-          {item.quantity > 1 && (
-            <DisplayFigure value={`×${item.quantity}`} note={t('detail.quantityLabel')} size={28} />
-          )}
-          {item.usageKm !== undefined && (
-            <DisplayFigure
-              value={String(kmToDisplayUnit(item.usageKm, distanceUnit))}
-              unit={distanceUnit}
-              note={t('detail.usageLabel')}
-              size={28}
-            />
-          )}
+      {(item.category === ItemCategory.Consumable && item.remainingFraction !== undefined) ||
+      item.quantity > 1 ||
+      item.usageKm !== undefined ? (
+        <View style={[styles.section, themed.sectionBorder]}>
+          <View style={styles.figureStrip}>
+            {item.category === ItemCategory.Consumable && item.remainingFraction !== undefined && (
+              <DisplayFigure
+                value={String(Math.round(item.remainingFraction * 100))}
+                unit="%"
+                note={t('detail.remainingLabel')}
+                size={28}
+              />
+            )}
+            {item.quantity > 1 && (
+              <DisplayFigure
+                value={String(item.quantity)}
+                note={t('detail.quantityLabel')}
+                size={28}
+              />
+            )}
+            {item.usageKm !== undefined && (
+              <DisplayFigure
+                value={String(kmToDisplayUnit(item.usageKm, distanceUnit))}
+                unit={distanceUnit}
+                note={t('detail.usageLabel')}
+                size={28}
+              />
+            )}
+          </View>
         </View>
-      </View>
+      ) : null}
 
       {/* Technical Specifications */}
       {(item.brand || item.model) && (

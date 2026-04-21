@@ -13,15 +13,10 @@ import type { SearchResultItem } from '../../types';
 import {
   getSearchResultGridCardWidth,
   SEARCH_GRID_COLUMN_GAP,
+  SEARCH_RESULT_IMAGE_ASPECT_RATIOS,
 } from '../../utils/searchGridDimensions';
 
 type SearchResultGridCardVariant = 'hero' | 'wide' | 'narrow';
-
-const IMAGE_ASPECT_RATIOS: Record<SearchResultGridCardVariant, number> = {
-  hero: 9 / 16,
-  wide: 0.75, // 4:3
-  narrow: 1, // 1:1
-};
 
 interface SearchResultGridCardProps {
   item: SearchResultItem;
@@ -46,7 +41,7 @@ export const SearchResultGridCard = memo(function SearchResultGridCard({
     [cardWidthProp, windowWidth],
   );
   const imageHeight = useMemo(() => {
-    const aspectRatio = variant ? IMAGE_ASPECT_RATIOS[variant] : 0.75;
+    const aspectRatio = variant ? SEARCH_RESULT_IMAGE_ASPECT_RATIOS[variant] : 0.75;
     return Math.round(cardWidth * aspectRatio);
   }, [cardWidth, variant]);
 

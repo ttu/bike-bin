@@ -42,8 +42,8 @@ import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
 
 type InventoryViewMode = 'list' | 'gallery';
 
-// 80px = spacing.md (12) + thumbnail width (56) + spacing.md (12) — inset past thumbnail
-const SEPARATOR_LEFT_INSET = 80;
+// padding + thumbnail width + gap to text
+const SEPARATOR_LEFT_INSET = spacing.md * 2 + ITEM_INVENTORY_THUMBNAIL.width;
 
 const separatorStyles = StyleSheet.create({
   separator: {
@@ -463,6 +463,8 @@ export default function InventoryScreen() {
         )}
       </View>
 
+      {!showInitialLoading && listHeader}
+
       {showInitialLoading ? (
         <CenteredLoadingIndicator />
       ) : (
@@ -485,7 +487,6 @@ export default function InventoryScreen() {
             numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
             columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
             extraData={viewMode}
-            ListHeaderComponent={listHeader}
             ListEmptyComponent={listEmpty}
             ItemSeparatorComponent={viewMode === 'list' ? ItemSeparator : undefined}
             CellRendererComponent={viewMode === 'list' ? GroupedCell : undefined}

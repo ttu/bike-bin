@@ -395,8 +395,8 @@ export default function ConversationDetailScreen() {
           </View>
         )}
 
-        {/* Group affiliation chip */}
-        {groupName && (
+        {/* Group affiliation chip — only for DM conversations where the item has a group owner */}
+        {groupName && conversation && !isGroupConversation(conversation) && (
           <View style={[styles.groupChipBar, { backgroundColor: theme.colors.surface }]}>
             <View style={[styles.groupChip, themed.groupChipBg]}>
               <Text variant="labelSmall" style={themed.groupChipText}>

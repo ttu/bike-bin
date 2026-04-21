@@ -14,10 +14,9 @@ export function groupSearchResultPairs<T>(items: T[]): SearchResultPair<T>[] {
   const rowTypes: RowType[] = ['wide-narrow', 'narrow-wide'];
 
   for (let i = 0; i < items.length; i += 2) {
-    pairs.push({
-      type: rowTypes[(i / 2) % 2],
-      items: items.slice(i, i + 2),
-    });
+    const group = items.slice(i, i + 2);
+    const type: RowType = group.length === 1 ? 'wide-narrow' : rowTypes[(i / 2) % 2];
+    pairs.push({ type, items: group });
   }
 
   return pairs;
