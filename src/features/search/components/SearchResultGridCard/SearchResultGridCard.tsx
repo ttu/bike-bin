@@ -12,26 +12,43 @@ import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import type { SearchResultItem } from '../../types';
 import {
   getSearchResultGridCardWidth,
-  getSearchResultGridImageHeight,
   SEARCH_GRID_COLUMN_GAP,
 } from '../../utils/searchGridDimensions';
+
+type SearchResultGridCardVariant = 'hero' | 'wide' | 'narrow';
+
+const IMAGE_ASPECT_RATIOS: Record<SearchResultGridCardVariant, number> = {
+  hero: 9 / 16,
+  wide: 0.75, // 4:3
+  narrow: 1, // 1:1
+};
 
 interface SearchResultGridCardProps {
   item: SearchResultItem;
   onPress?: (item: SearchResultItem) => void;
+  variant?: SearchResultGridCardVariant;
+  cardWidth?: number;
 }
 
 export const SearchResultGridCard = memo(function SearchResultGridCard({
   item,
   onPress,
+  variant,
+  cardWidth: cardWidthProp,
 }: SearchResultGridCardProps) {
   const theme = useTheme<AppTheme>();
   const { width: windowWidth } = useWindowDimensions();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
   const distanceText = formatDistance(item.distanceMeters);
-  const cardWidth = useMemo(() => getSearchResultGridCardWidth(windowWidth), [windowWidth]);
-  const imageHeight = useMemo(() => getSearchResultGridImageHeight(cardWidth), [cardWidth]);
+  const cardWidth = useMemo(
+    () => cardWidthProp ?? getSearchResultGridCardWidth(windowWidth),
+    [cardWidthProp, windowWidth],
+  );
+  const imageHeight = useMemo(() => {
+    const aspectRatio = variant ? IMAGE_ASPECT_RATIOS[variant] : 0.75;
+    return Math.round(cardWidth * aspectRatio);
+  }, [cardWidth, variant]);
 
   return (
     <AnimatedPressable
