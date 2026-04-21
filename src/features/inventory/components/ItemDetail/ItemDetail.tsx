@@ -95,12 +95,8 @@ export function ItemDetail({
 
         {/* Group ownership indicator */}
         {ownerGroup && (
-          <Chip
-            compact
-            icon="account-group"
-            style={[styles.ownerChip, { backgroundColor: theme.colors.secondaryContainer }]}
-          >
-            <Text variant="labelSmall" style={{ color: theme.colors.onSecondaryContainer }}>
+          <Chip compact icon="account-group" style={[styles.ownerChip, themed.groupChipBg]}>
+            <Text variant="labelSmall" style={themed.groupChipText}>
               {ownerGroup.name}
             </Text>
           </Chip>
@@ -382,6 +378,8 @@ function useThemedStyles(theme: AppTheme) {
         onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
         sectionBorder: { borderBottomColor: theme.colors.outlineVariant },
+        groupChipBg: { backgroundColor: theme.customColors.accentTint },
+        groupChipText: { color: theme.customColors.accent },
       }),
     [theme],
   );

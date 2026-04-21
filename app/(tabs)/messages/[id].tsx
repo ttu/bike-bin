@@ -51,8 +51,21 @@ import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 
 type ExchangeConfirm = { kind: 'donate'; itemId: ItemId } | { kind: 'sell'; itemId: ItemId };
 
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        trustSignalColor: { color: theme.customColors.accent },
+        groupChipBg: { backgroundColor: theme.customColors.accentTint },
+        groupChipText: { color: theme.customColors.accent },
+      }),
+    [theme],
+  );
+}
+
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
+  const themed = useThemedStyles(theme);
   const { t } = useTranslation('messages');
   const { t: tExchange } = useTranslation('exchange');
   const router = useRouter();
@@ -269,6 +282,10 @@ export default function ConversationDetailScreen() {
 
   const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
 
+  // TODO: derive from user profile query
+  const otherUserBorrowCount = 0;
+  const groupName = conversation?.groupName;
+
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
   }
@@ -307,14 +324,23 @@ export default function ConversationDetailScreen() {
                 style={{ backgroundColor: theme.colors.surfaceVariant }}
               />
             )}
-            <Appbar.Content
-              title={
-                conversation && isGroupConversation(conversation)
+            <View style={styles.headerTextStack}>
+              <Text variant="titleMedium" style={styles.headerTitle} numberOfLines={1}>
+                {conversation && isGroupConversation(conversation)
                   ? (conversation.groupName ?? t('conversation.groupConversation'))
-                  : conversation?.otherParticipantName || t('conversation.anonymousUser')
-              }
-              subtitle={conversation?.itemName ?? ''}
-            />
+                  : conversation?.otherParticipantName || t('conversation.anonymousUser')}
+              </Text>
+              {conversation?.itemName ? (
+                <Text variant="bodySmall" style={styles.headerSubtitle} numberOfLines={1}>
+                  {conversation.itemName}
+                </Text>
+              ) : null}
+              {otherUserBorrowCount > 0 && (
+                <Text variant="labelSmall" style={[styles.trustSignal, themed.trustSignalColor]}>
+                  {t('chat.trustSignal', { count: otherUserBorrowCount })}
+                </Text>
+              )}
+            </View>
           </Pressable>
           {canExchange && (
             <Menu
@@ -349,6 +375,17 @@ export default function ConversationDetailScreen() {
             isOwnItem={isOwner}
             onViewItem={handleViewItem}
           />
+        )}
+
+        {/* Group affiliation chip */}
+        {groupName && (
+          <View style={[styles.groupChipBar, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.groupChip, themed.groupChipBg]}>
+              <Text variant="labelSmall" style={themed.groupChipText}>
+                {groupName}
+              </Text>
+            </View>
+          </View>
         )}
 
         {/* Messages list (inverted = newest at bottom) */}
@@ -453,6 +490,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  headerTextStack: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flexShrink: 1,
+  },
+  headerSubtitle: {
+    flexShrink: 1,
+    opacity: 0.7,
+  },
+  trustSignal: {
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  groupChipBar: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xs,
+    flexDirection: 'row',
+  },
+  groupChip: {
+    paddingHorizontal: spacing.sm,
+    height: 22,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center',
   },
   messagesContent: {
     paddingVertical: spacing.sm,
