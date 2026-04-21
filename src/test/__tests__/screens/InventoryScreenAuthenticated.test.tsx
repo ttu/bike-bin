@@ -175,6 +175,17 @@ describe('InventoryScreen (authenticated)', () => {
     expect(screen.getByLabelText(/Latest item:/i)).toBeTruthy();
   });
 
+  it('renders multiple list items below the hero card (exercises ItemSeparator and GroupedCell)', () => {
+    mockUseItemsState.data = [
+      createMockItem({ id: 'item-s1' as ItemId, name: 'Stem Alpha', status: ItemStatus.Stored }),
+      createMockItem({ id: 'item-s2' as ItemId, name: 'Stem Beta', status: ItemStatus.Stored }),
+      createMockItem({ id: 'item-s3' as ItemId, name: 'Stem Gamma', status: ItemStatus.Stored }),
+    ];
+    renderWithProviders(<InventoryScreen />);
+    expect(screen.getByText('Stem Beta')).toBeTruthy();
+    expect(screen.getByText('Stem Gamma')).toBeTruthy();
+  });
+
   it('hides hero card when sort is name', () => {
     renderWithProviders(<InventoryScreen />);
     const sortA11yLabel1 = `${inventoryEn.sort.label}, ${inventoryEn.sort.recentlyAdded}, ${inventoryEn.sort.hint}`;

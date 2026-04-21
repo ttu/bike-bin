@@ -55,7 +55,6 @@ function useThemedStyles(theme: AppTheme) {
   return useMemo(
     () =>
       StyleSheet.create({
-        trustSignalColor: { color: theme.customColors.accent },
         groupChipBg: { backgroundColor: theme.customColors.accentTint },
         groupChipText: { color: theme.customColors.accent },
         headerBorder: {
@@ -295,8 +294,6 @@ export default function ConversationDetailScreen() {
 
   const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
 
-  // TODO: derive from user profile query
-  const otherUserBorrowCount = 0;
   const groupName = conversation?.groupName;
 
   if (convLoading || msgsLoading) {
@@ -351,11 +348,6 @@ export default function ConversationDetailScreen() {
                   {conversation.itemName}
                 </Text>
               ) : null}
-              {otherUserBorrowCount > 0 && (
-                <Text variant="labelSmall" style={[styles.trustSignal, themed.trustSignalColor]}>
-                  {t('chat.trustSignal', { count: otherUserBorrowCount })}
-                </Text>
-              )}
             </View>
           </Pressable>
           {canExchange && (
@@ -395,8 +387,8 @@ export default function ConversationDetailScreen() {
           </View>
         )}
 
-        {/* Group affiliation chip — only for DM conversations where the item has a group owner */}
-        {groupName && conversation && !isGroupConversation(conversation) && (
+        {/* Group affiliation chip — shown when the item is owned by a group */}
+        {groupName && conversation && isGroupConversation(conversation) && (
           <View style={[styles.groupChipBar, { backgroundColor: theme.colors.surface }]}>
             <View style={[styles.groupChip, themed.groupChipBg]}>
               <Text variant="labelSmall" style={themed.groupChipText}>
@@ -519,10 +511,6 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     flexShrink: 1,
     opacity: 0.7,
-  },
-  trustSignal: {
-    fontWeight: '700',
-    letterSpacing: 0.2,
   },
   groupChipBar: {
     paddingHorizontal: spacing.base,

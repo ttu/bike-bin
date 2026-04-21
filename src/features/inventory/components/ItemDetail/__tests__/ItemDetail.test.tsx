@@ -179,6 +179,13 @@ describe('ItemDetail', () => {
     expect(queryByText('Restore to inventory')).toBeNull();
   });
 
+  it('renders item tags', () => {
+    const taggedItem = createMockItem({ ...baseItem, tags: ['Road', 'Gravel'] });
+    const { getByText } = renderWithProviders(<ItemDetail item={taggedItem} photos={[]} />);
+    expect(getByText('Road')).toBeTruthy();
+    expect(getByText('Gravel')).toBeTruthy();
+  });
+
   it('renders centered wide column layout on wide screens', () => {
     jest
       .spyOn(Dimensions, 'get')
