@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import {
   View,
   FlatList,
@@ -7,8 +7,12 @@ import {
   RefreshControl,
   useWindowDimensions,
   Pressable,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
 } from 'react-native';
 import { Text, FAB, Chip, Searchbar, useTheme, type MD3Theme } from 'react-native-paper';
+import type { AppTheme } from '@/shared/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -38,6 +42,54 @@ import { ITEM_INVENTORY_THUMBNAIL } from '@/features/inventory/constants';
 
 type InventoryViewMode = 'list' | 'gallery';
 
+// 80px = spacing.md (12) + thumbnail width (56) + spacing.md (12) — inset past thumbnail
+const SEPARATOR_LEFT_INSET = 80;
+
+const separatorStyles = StyleSheet.create({
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: SEPARATOR_LEFT_INSET,
+  },
+});
+
+function ItemSeparator() {
+  const theme = useTheme<AppTheme>();
+  return (
+    <View style={[separatorStyles.separator, { backgroundColor: theme.colors.outlineVariant }]} />
+  );
+}
+
+interface GroupedCellProps {
+  cellKey: string;
+  children: ReactNode;
+  index: number;
+  item: unknown;
+  onLayout?: (event: LayoutChangeEvent) => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+function GroupedCell({
+  children,
+  style,
+  onLayout,
+  cellKey: _cellKey,
+  index: _index,
+  item: _item,
+}: GroupedCellProps) {
+  return (
+    <View onLayout={onLayout} style={[style, groupedCellStyles.cell]}>
+      {children}
+    </View>
+  );
+}
+
+const groupedCellStyles = StyleSheet.create({
+  cell: {
+    marginHorizontal: 0,
+    marginVertical: 0,
+  },
+});
+
 const SORT_OPTIONS: InventorySortOption[] = ['recentlyAdded', 'recentlyUpdated', 'name'];
 
 function matchesSearch(item: Item, query: string): boolean {
@@ -50,7 +102,7 @@ function matchesSearch(item: Item, query: string): boolean {
 }
 
 export default function InventoryScreen() {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
@@ -414,35 +466,47 @@ export default function InventoryScreen() {
       {showInitialLoading ? (
         <CenteredLoadingIndicator />
       ) : (
-        <FlatList
-          testID="inventory-items-list"
-          key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
-          style={styles.listContainer}
-          data={listItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
-          columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
-          extraData={viewMode}
-          ListHeaderComponent={listHeader}
-          ListEmptyComponent={listEmpty}
-          refreshControl={
-            isAuthenticated ? (
-              <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
-            ) : undefined
-          }
-          contentContainerStyle={listContentContainerStyle}
-          ListFooterComponent={
-            filteredItems.length > 0 ? (
-              <Text
-                variant="bodySmall"
-                style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
-              >
-                {t('showingItems', { count: filteredItems.length })}
-              </Text>
-            ) : undefined
-          }
-        />
+        <View
+          style={[
+            styles.listContainer,
+            viewMode === 'list' && styles.groupedListContainer,
+            viewMode === 'list' && {
+              backgroundColor: theme.customColors.surfaceContainerLowest,
+            },
+          ]}
+        >
+          <FlatList
+            testID="inventory-items-list"
+            key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
+            style={styles.flatList}
+            data={listItems}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
+            columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
+            extraData={viewMode}
+            ListHeaderComponent={listHeader}
+            ListEmptyComponent={listEmpty}
+            ItemSeparatorComponent={viewMode === 'list' ? ItemSeparator : undefined}
+            CellRendererComponent={viewMode === 'list' ? GroupedCell : undefined}
+            refreshControl={
+              isAuthenticated ? (
+                <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
+              ) : undefined
+            }
+            contentContainerStyle={listContentContainerStyle}
+            ListFooterComponent={
+              filteredItems.length > 0 ? (
+                <Text
+                  variant="bodySmall"
+                  style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
+                >
+                  {t('showingItems', { count: filteredItems.length })}
+                </Text>
+              ) : undefined
+            }
+          />
+        </View>
       )}
 
       {filteredItems.length > 0 && (
@@ -521,6 +585,14 @@ const styles = StyleSheet.create({
     opacity: 0.72,
   },
   listContainer: {
+    flex: 1,
+  },
+  groupedListContainer: {
+    marginHorizontal: spacing.base,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+  },
+  flatList: {
     flex: 1,
   },
   listContentContainerEmpty: {
