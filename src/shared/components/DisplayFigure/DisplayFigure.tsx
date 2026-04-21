@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
@@ -16,46 +17,39 @@ interface DisplayFigureProps {
 
 export function DisplayFigure({ value, unit, note, size = 32 }: DisplayFigureProps) {
   const theme = useTheme<AppTheme>();
-  const unitSize = Math.max(Math.round(size * 0.4), 11);
-  const letterSpacing = size * -0.02;
-  const lineHeight = Math.round(size * 0.95);
+
+  const dynamicStyles = useMemo(() => {
+    const unitSize = Math.max(Math.round(size * 0.4), 11);
+    const platformNumeric = Platform.select({
+      web: { fontVariantNumeric: 'tabular-nums' } as Record<string, string>,
+      default: {},
+    });
+    return {
+      value: {
+        fontSize: size,
+        letterSpacing: size * -0.02,
+        lineHeight: Math.round(size * 0.95),
+        color: theme.colors.onBackground,
+        ...platformNumeric,
+      },
+      unit: {
+        fontSize: unitSize,
+        color: theme.colors.onSurfaceVariant,
+      },
+      note: {
+        color: theme.colors.onSurfaceVariant,
+      },
+    };
+  }, [size, theme.colors]);
 
   return (
     <View style={styles.container}>
       <View style={styles.valueRow}>
-        <Text
-          style={[
-            styles.value,
-            {
-              fontSize: size,
-              letterSpacing,
-              lineHeight,
-              color: theme.colors.onBackground,
-              ...Platform.select({
-                web: { fontVariantNumeric: 'tabular-nums' } as Record<string, string>,
-                default: {},
-              }),
-            },
-          ]}
-        >
-          {value}
-        </Text>
-        {unit && (
-          <Text
-            style={[
-              styles.unit,
-              {
-                fontSize: unitSize,
-                color: theme.colors.onSurfaceVariant,
-              },
-            ]}
-          >
-            {unit}
-          </Text>
-        )}
+        <Text style={[styles.value, dynamicStyles.value]}>{value}</Text>
+        {unit && <Text style={[styles.unit, dynamicStyles.unit]}>{unit}</Text>}
       </View>
       {note && (
-        <Text variant="labelSmall" style={[styles.note, { color: theme.colors.onSurfaceVariant }]}>
+        <Text variant="labelSmall" style={[styles.note, dynamicStyles.note]}>
           {note}
         </Text>
       )}
