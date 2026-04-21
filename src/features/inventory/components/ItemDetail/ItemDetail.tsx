@@ -82,7 +82,7 @@ export function ItemDetail({
   const detailContent = (
     <>
       {/* Category breadcrumb */}
-      <View style={[styles.section, styles.sectionFirst]}>
+      <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
         <Text variant="labelSmall" style={[styles.breadcrumb, { color: theme.colors.primary }]}>
           {categoryBreadcrumb}
         </Text>
@@ -149,7 +149,7 @@ export function ItemDetail({
       </View>
 
       {/* Detail cards */}
-      <View style={styles.section}>
+      <View style={[styles.section, themed.sectionBorder]}>
         <View
           style={[
             detailCardStyles.container,
@@ -204,7 +204,7 @@ export function ItemDetail({
 
       {/* Technical Specifications */}
       {(item.brand || item.model) && (
-        <View style={styles.section}>
+        <View style={[styles.section, themed.sectionBorder]}>
           <Text
             variant="labelMedium"
             style={[styles.sectionHeader, { color: theme.colors.onSurfaceVariant }]}
@@ -224,7 +224,7 @@ export function ItemDetail({
 
       {/* Description */}
       {item.description && (
-        <View style={styles.section}>
+        <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onSurface}>
             {item.description}
           </Text>
@@ -338,12 +338,7 @@ function ActionSlot({
 
 function SpecRow({ label, value, theme }: { label: string; value: string; theme: AppTheme }) {
   return (
-    <View
-      style={[
-        styles.specRow,
-        { borderBottomColor: colorWithAlpha(theme.colors.outlineVariant, 0.25) },
-      ]}
-    >
+    <View style={[styles.specRow, { borderBottomColor: theme.colors.outlineVariant }]}>
       <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
         {label}
       </Text>
@@ -360,6 +355,7 @@ function useThemedStyles(theme: AppTheme) {
       StyleSheet.create({
         onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        sectionBorder: { borderBottomColor: theme.colors.outlineVariant },
       }),
     [theme],
   );
@@ -404,6 +400,7 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   sectionFirst: {
     paddingTop: spacing.base,
