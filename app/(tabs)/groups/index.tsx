@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
+import { Appbar, Text, FAB, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import type { Href } from 'expo-router';
@@ -21,11 +21,14 @@ import {
   useCreateGroup,
   useSearchGroups,
   useJoinGroup,
+  useMyGroupInvitations,
+  useAcceptInvitation,
+  useRejectInvitation,
   GroupCreateForm,
   GroupSearchView,
 } from '@/features/groups';
-import type { GroupWithRole } from '@/features/groups';
-import type { GroupId } from '@/shared/types';
+import type { GroupWithRole, MyGroupInvitation } from '@/features/groups';
+import type { GroupId, GroupInvitationId } from '@/shared/types';
 
 type ScreenMode = 'list' | 'create' | 'search';
 
@@ -40,8 +43,16 @@ export default function GroupsScreen() {
 
   const { data: groups, isLoading, isRefetching, refetch } = useGroups();
   const { data: searchResults, isLoading: isSearching } = useSearchGroups(searchQuery);
+  const { data: invitations, refetch: refetchInvitations } = useMyGroupInvitations();
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+    refetchInvitations();
+  }, [refetch, refetchInvitations]);
   const createGroup = useCreateGroup();
   const joinGroup = useJoinGroup();
+  const acceptInvitation = useAcceptInvitation();
+  const rejectInvitation = useRejectInvitation();
 
   const handleBackToList = useCallback(() => {
     setMode('list');
@@ -87,6 +98,45 @@ export default function GroupsScreen() {
     router.push(`/(tabs)/groups/${group.id}` as Href);
   }, []);
 
+  const handleAcceptInvitation = useCallback(
+    async (invitation: MyGroupInvitation) => {
+      try {
+        await acceptInvitation.mutateAsync({
+          invitationId: invitation.id as GroupInvitationId,
+          groupId: invitation.groupId,
+        });
+        showSnackbarAlert({
+          message: tCommon('feedback.groupJoined'),
+          variant: 'success',
+        });
+      } catch {
+        showSnackbarAlert({
+          message: t('errors.acceptInvitationFailed'),
+          variant: 'error',
+          duration: 'long',
+        });
+      }
+    },
+    [acceptInvitation, showSnackbarAlert, t, tCommon],
+  );
+
+  const handleRejectInvitation = useCallback(
+    async (invitation: MyGroupInvitation) => {
+      try {
+        await rejectInvitation.mutateAsync({
+          invitationId: invitation.id as GroupInvitationId,
+        });
+      } catch {
+        showSnackbarAlert({
+          message: t('errors.rejectInvitationFailed'),
+          variant: 'error',
+          duration: 'long',
+        });
+      }
+    },
+    [rejectInvitation, showSnackbarAlert, t],
+  );
+
   if (mode === 'create') {
     return (
       <GroupCreateForm
@@ -123,9 +173,9 @@ export default function GroupsScreen() {
         />
       </Appbar.Header>
 
-      {isLoading && (groups ?? []).length === 0 ? (
+      {isLoading && (groups ?? []).length === 0 && (invitations ?? []).length === 0 ? (
         <CenteredLoadingIndicator />
-      ) : !isLoading && (groups ?? []).length === 0 ? (
+      ) : !isLoading && (groups ?? []).length === 0 && (invitations ?? []).length === 0 ? (
         <EmptyState
           icon="account-group-outline"
           title={t('empty.title')}
@@ -139,8 +189,19 @@ export default function GroupsScreen() {
           data={groups ?? []}
           renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />}
           contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
+          ListHeaderComponent={
+            (invitations ?? []).length > 0 ? (
+              <PendingInvitationsSection
+                invitations={invitations ?? []}
+                onAccept={handleAcceptInvitation}
+                onReject={handleRejectInvitation}
+                isAccepting={acceptInvitation.isPending}
+                isRejecting={rejectInvitation.isPending}
+              />
+            ) : null
+          }
         />
       )}
 
@@ -227,6 +288,76 @@ function GroupCard({
   );
 }
 
+function PendingInvitationsSection({
+  invitations,
+  onAccept,
+  onReject,
+  isAccepting,
+  isRejecting,
+}: {
+  invitations: MyGroupInvitation[];
+  onAccept: (inv: MyGroupInvitation) => void;
+  onReject: (inv: MyGroupInvitation) => void;
+  isAccepting: boolean;
+  isRejecting: boolean;
+}) {
+  const theme = useTheme();
+  const { t } = useTranslation('groups');
+
+  return (
+    <View style={styles.invitationsSection}>
+      <Text
+        variant="titleSmall"
+        style={[styles.invitationsTitle, { color: theme.colors.onBackground }]}
+      >
+        {t('invite.inboxTitle')}
+      </Text>
+      {invitations.map((inv) => (
+        <View
+          key={inv.id}
+          style={[styles.invitationCard, { backgroundColor: theme.colors.surfaceVariant }]}
+        >
+          <View style={styles.invitationIcon}>
+            <MaterialCommunityIcons
+              name="email-outline"
+              size={iconSize.md}
+              color={theme.colors.primary}
+            />
+          </View>
+          <View style={styles.invitationContent}>
+            <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+              {inv.group.name}
+            </Text>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              {inv.inviter.displayName
+                ? t('invite.invitedByNamed', { name: inv.inviter.displayName })
+                : t('invite.invitedBy')}
+            </Text>
+          </View>
+          <View style={styles.invitationActions}>
+            <Button
+              mode="contained"
+              compact
+              onPress={() => onAccept(inv)}
+              disabled={isAccepting || isRejecting}
+            >
+              {t('invite.accept')}
+            </Button>
+            <Button
+              mode="text"
+              compact
+              onPress={() => onReject(inv)}
+              disabled={isAccepting || isRejecting}
+            >
+              {t('invite.reject')}
+            </Button>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -268,5 +399,37 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: spacing.base,
     bottom: spacing.base,
+  },
+  invitationsSection: {
+    paddingHorizontal: spacing.base,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  invitationsTitle: {
+    marginBottom: spacing.xs,
+  },
+  invitationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    gap: spacing.md,
+  },
+  invitationIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  invitationContent: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  invitationActions: {
+    alignItems: 'flex-end',
+    gap: spacing.xs,
   },
 });

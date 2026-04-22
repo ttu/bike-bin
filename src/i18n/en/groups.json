@@ -59,7 +59,30 @@
     "deleteFailed": "Could not delete the group. Please try again.",
     "leaveFailed": "Could not leave the group. Please try again.",
     "promoteFailed": "Could not promote this member. Please try again.",
-    "removeFailed": "Could not remove this member. Please try again."
+    "removeFailed": "Could not remove this member. Please try again.",
+    "inviteFailed": "Could not send the invitation. Please try again.",
+    "cancelInvitationFailed": "Could not cancel the invitation. Please try again.",
+    "acceptInvitationFailed": "Could not accept the invitation. Please try again.",
+    "rejectInvitationFailed": "Could not decline the invitation. Please try again."
+  },
+  "invite": {
+    "inviteMember": "Invite",
+    "searchPlaceholder": "Search users by name...",
+    "promptTitle": "Find people to invite",
+    "promptDescription": "Type a name to search for users who aren't in this group yet.",
+    "noResults": "No matching users",
+    "noResultsDescription": "Try a different name, or they may already be a member or invited.",
+    "sendInvitation": "Invite",
+    "invitationSent": "Invitation sent",
+    "pendingTitle": "Pending invitations",
+    "pendingBadge": "Invitation pending",
+    "cancelInvitation": "Cancel invitation",
+    "cancelConfirm": "Cancel invitation to {{name}}?",
+    "inboxTitle": "Group invitations",
+    "invitedBy": "You've been invited to join this group",
+    "invitedByNamed": "Invited by {{name}}",
+    "accept": "Accept",
+    "reject": "Decline"
   },
   "visibility": {
     "selectGroups": "Select groups",

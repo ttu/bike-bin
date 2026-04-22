@@ -14,6 +14,7 @@ import {
   ReportId,
   SupportRequestId,
   ExportRequestId,
+  GroupInvitationId,
 } from './ids';
 import {
   ItemCategory,
@@ -23,6 +24,7 @@ import {
   Visibility,
   BorrowRequestStatus,
   GroupRole,
+  GroupInvitationStatus,
   BikeType,
   TransactionType,
   NotificationType,
@@ -154,6 +156,16 @@ export interface GroupMember {
   userId: UserId;
   role: GroupRole;
   joinedAt: string;
+}
+
+export interface GroupInvitation {
+  id: GroupInvitationId;
+  groupId: GroupId;
+  inviteeUserId: UserId;
+  inviterUserId: UserId | undefined;
+  status: GroupInvitationStatus;
+  createdAt: string;
+  respondedAt: string | undefined;
 }
 
 export interface BorrowRequest {

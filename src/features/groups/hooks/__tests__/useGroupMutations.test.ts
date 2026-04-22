@@ -9,7 +9,7 @@ import {
 } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
 import { useCreateGroup } from '../useCreateGroup';
-import { useInviteMember } from '../useInviteMember';
+import { useCreateInvitation } from '../useGroupInvitations';
 import { useJoinGroup, useLeaveGroup } from '../useJoinGroup';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
@@ -51,11 +51,11 @@ describe('useCreateGroup', () => {
   });
 });
 
-describe('useInviteMember', () => {
-  it('invites a user to a group', async () => {
+describe('useCreateInvitation', () => {
+  it('creates a pending invitation', async () => {
     mockInsert.mockResolvedValue({ error: null });
 
-    const { result } = renderHook(() => useInviteMember(), {
+    const { result } = renderHook(() => useCreateInvitation(), {
       wrapper: createQueryClientHookWrapper(),
     });
 

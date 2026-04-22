@@ -20,15 +20,18 @@ import {
   useLeaveGroup,
   usePromoteMember,
   useRemoveMember,
+  usePendingGroupInvitations,
+  useCancelInvitation,
   canDeleteGroup,
   canPromoteMember,
   canRemoveMember,
   canLeaveGroup,
   GroupEditForm,
+  GroupInviteView,
 } from '@/features/groups';
 import { GroupInventoryTab } from '@/features/groups/components/GroupInventoryTab';
-import type { GroupMemberWithProfile } from '@/features/groups';
-import type { GroupId, UserId } from '@/shared/types';
+import type { GroupMemberWithProfile, PendingGroupInvitation } from '@/features/groups';
+import type { GroupId, GroupInvitationId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 
 export default function GroupDetailScreen() {
@@ -42,6 +45,7 @@ export default function GroupDetailScreen() {
 
   const userId = (user?.id ?? '') as UserId;
   const [isEditing, setIsEditing] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
 
   const { data: group } = useGroup(groupId);
   const { data: members } = useGroupMembers(groupId);
@@ -51,6 +55,7 @@ export default function GroupDetailScreen() {
   const leaveGroup = useLeaveGroup();
   const promoteMember = usePromoteMember();
   const removeMember = useRemoveMember();
+  const cancelInvitation = useCancelInvitation();
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
@@ -60,6 +65,8 @@ export default function GroupDetailScreen() {
   );
 
   const isAdmin = currentMember?.role === GroupRole.Admin;
+
+  const { data: pendingInvitations } = usePendingGroupInvitations(isAdmin ? groupId : undefined);
 
   const handleEditSubmit = useCallback(
     async (data: { name: string; description: string | undefined; isPublic: boolean }) => {
@@ -177,6 +184,35 @@ export default function GroupDetailScreen() {
     [groupId, promoteMember, showSnackbarAlert, t, tCommon, openConfirm, closeConfirm],
   );
 
+  const handleCancelInvitation = useCallback(
+    (invitation: PendingGroupInvitation) => {
+      const name = invitation.invitee.displayName ?? t('detail.unknownMember');
+      openConfirm({
+        title: t('invite.cancelInvitation'),
+        message: t('invite.cancelConfirm', { name }),
+        cancelLabel: tCommon('actions.cancel'),
+        confirmLabel: t('invite.cancelInvitation'),
+        destructive: true,
+        onConfirm: async () => {
+          closeConfirm();
+          try {
+            await cancelInvitation.mutateAsync({
+              invitationId: invitation.id as GroupInvitationId,
+              groupId,
+            });
+          } catch {
+            showSnackbarAlert({
+              message: t('errors.cancelInvitationFailed'),
+              variant: 'error',
+              duration: 'long',
+            });
+          }
+        },
+      });
+    },
+    [cancelInvitation, closeConfirm, groupId, openConfirm, showSnackbarAlert, t, tCommon],
+  );
+
   const handleRemoveMember = useCallback(
     (member: GroupMemberWithProfile) => {
       const displayName = member.profile.displayName ?? t('detail.unknownMember');
@@ -223,6 +259,29 @@ export default function GroupDetailScreen() {
     );
   }
 
+  if (isInviting) {
+    return (
+      <GroupInviteView
+        groupId={groupId}
+        onBack={() => setIsInviting(false)}
+        onInvited={() => {
+          showSnackbarAlert({
+            message: t('invite.invitationSent'),
+            variant: 'success',
+          });
+          setIsInviting(false);
+        }}
+        onError={() => {
+          showSnackbarAlert({
+            message: t('errors.inviteFailed'),
+            variant: 'error',
+            duration: 'long',
+          });
+        }}
+      />
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
@@ -257,12 +316,22 @@ export default function GroupDetailScreen() {
         </View>
 
         {/* Members */}
-        <Text
-          variant="titleMedium"
-          style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
-        >
-          {t('detail.members')}
-        </Text>
+        <View style={styles.membersHeader}>
+          <Text variant="titleMedium" style={{ color: theme.colors.onBackground }}>
+            {t('detail.members')}
+          </Text>
+          {isAdmin && (
+            <Button
+              mode="text"
+              compact
+              icon="account-plus"
+              onPress={() => setIsInviting(true)}
+              accessibilityLabel={t('invite.inviteMember')}
+            >
+              {t('invite.inviteMember')}
+            </Button>
+          )}
+        </View>
 
         {(members ?? []).map((member) => (
           <MemberRow
@@ -274,6 +343,24 @@ export default function GroupDetailScreen() {
             onRemove={handleRemoveMember}
           />
         ))}
+
+        {isAdmin && (pendingInvitations ?? []).length > 0 && (
+          <>
+            <Text
+              variant="titleSmall"
+              style={[styles.pendingHeader, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {t('invite.pendingTitle')}
+            </Text>
+            {(pendingInvitations ?? []).map((invitation) => (
+              <PendingInvitationRow
+                key={invitation.id}
+                invitation={invitation}
+                onCancel={handleCancelInvitation}
+              />
+            ))}
+          </>
+        )}
 
         {/* Inventory */}
         <Text
@@ -376,6 +463,46 @@ function MemberRow({
   );
 }
 
+function PendingInvitationRow({
+  invitation,
+  onCancel,
+}: {
+  invitation: PendingGroupInvitation;
+  onCancel: (invitation: PendingGroupInvitation) => void;
+}) {
+  const theme = useTheme();
+  const { t } = useTranslation('groups');
+
+  return (
+    <View style={styles.memberRow}>
+      <MaterialCommunityIcons
+        name="email-outline"
+        size={36}
+        color={theme.colors.onSurfaceVariant}
+      />
+      <View style={styles.memberInfo}>
+        <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
+          {invitation.invitee.displayName ?? t('detail.unknownMember')}
+        </Text>
+        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+          {t('invite.pendingBadge')}
+        </Text>
+      </View>
+      <Pressable
+        onPress={() => onCancel(invitation)}
+        accessibilityRole="button"
+        accessibilityLabel={t('invite.cancelInvitation')}
+      >
+        <MaterialCommunityIcons
+          name="close-circle-outline"
+          size={iconSize.sm}
+          color={theme.colors.error}
+        />
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -398,6 +525,16 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: spacing.sm,
+  },
+  membersHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  pendingHeader: {
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
   },
   memberRow: {
     flexDirection: 'row',

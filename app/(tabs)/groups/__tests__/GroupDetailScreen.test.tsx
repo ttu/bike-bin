@@ -57,9 +57,17 @@ const mockUseGroup = jest.fn();
 const mockUseGroupMembers = jest.fn();
 const mockDeleteMutateAsync = jest.fn().mockResolvedValue(undefined);
 const mockLeaveMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockPromoteMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockRemoveMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockCancelInvitationMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockUsePendingGroupInvitations = jest.fn();
 
 jest.mock('@/features/groups', () => {
   // Avoid jest.requireActual('@/features/groups'): it pulls hooks that import Supabase.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text, Pressable } = require('react-native');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const permissions = require('@/features/groups/utils/groupPermissions');
   return {
@@ -75,9 +83,28 @@ jest.mock('@/features/groups', () => {
     useUpdateGroup: () => ({ mutateAsync: jest.fn(), isPending: false }),
     useDeleteGroup: () => ({ mutateAsync: mockDeleteMutateAsync, isPending: false }),
     useLeaveGroup: () => ({ mutateAsync: mockLeaveMutateAsync, isPending: false }),
-    usePromoteMember: () => ({ mutateAsync: jest.fn(), isPending: false }),
-    useRemoveMember: () => ({ mutateAsync: jest.fn(), isPending: false }),
+    usePromoteMember: () => ({ mutateAsync: mockPromoteMutateAsync, isPending: false }),
+    useRemoveMember: () => ({ mutateAsync: mockRemoveMutateAsync, isPending: false }),
+    usePendingGroupInvitations: () => mockUsePendingGroupInvitations(),
+    useCancelInvitation: () => ({ mutateAsync: mockCancelInvitationMutateAsync, isPending: false }),
     GroupEditForm: () => null,
+    GroupInviteView: (props: {
+      onBack: () => void;
+      onInvited: () => void;
+      onError: () => void;
+    }) => (
+      <View testID="group-invite-view">
+        <Pressable testID="invite-view-back" onPress={props.onBack}>
+          <Text>back</Text>
+        </Pressable>
+        <Pressable testID="invite-view-invited" onPress={props.onInvited}>
+          <Text>invited</Text>
+        </Pressable>
+        <Pressable testID="invite-view-error" onPress={props.onError}>
+          <Text>error</Text>
+        </Pressable>
+      </View>
+    ),
   };
 });
 
@@ -137,8 +164,12 @@ describe('GroupDetailScreen', () => {
     jest.clearAllMocks();
     mockSearchParams.id = 'group-abc';
     mockUseGroup.mockReturnValue({ data: baseGroup, isLoading: false });
+    mockUsePendingGroupInvitations.mockReturnValue({ data: [] });
     mockDeleteMutateAsync.mockResolvedValue(undefined);
     mockLeaveMutateAsync.mockResolvedValue(undefined);
+    mockPromoteMutateAsync.mockResolvedValue(undefined);
+    mockRemoveMutateAsync.mockResolvedValue(undefined);
+    mockCancelInvitationMutateAsync.mockResolvedValue(undefined);
   });
 
   it('calls tabScopedBack when the app bar back action is pressed', () => {
@@ -177,5 +208,111 @@ describe('GroupDetailScreen', () => {
       expect(mockLeaveMutateAsync).toHaveBeenCalledWith('group-abc');
       expect(mockTabScopedBack).toHaveBeenCalledWith('/(tabs)/groups');
     });
+  });
+
+  it('opens the invite view when an admin presses the invite button', () => {
+    mockUseGroupMembers.mockReturnValue({
+      data: [buildMember({ userId: 'user-1' as UserId, role: GroupRole.Admin })],
+      isLoading: false,
+    });
+    const { getAllByText, getByTestId } = renderWithProviders(<GroupDetailScreen />);
+    fireEvent.press(getAllByText(groupsEn.invite.inviteMember)[0]);
+    expect(getByTestId('group-invite-view')).toBeTruthy();
+  });
+
+  it('returns from the invite view when back is pressed', () => {
+    mockUseGroupMembers.mockReturnValue({
+      data: [buildMember({ userId: 'user-1' as UserId, role: GroupRole.Admin })],
+      isLoading: false,
+    });
+    const { getAllByText, queryByTestId, getByTestId } = renderWithProviders(<GroupDetailScreen />);
+    fireEvent.press(getAllByText(groupsEn.invite.inviteMember)[0]);
+    fireEvent.press(getByTestId('invite-view-back'));
+    expect(queryByTestId('group-invite-view')).toBeNull();
+  });
+
+  it('closes the invite view and no-ops onInvited/onError safely', () => {
+    mockUseGroupMembers.mockReturnValue({
+      data: [buildMember({ userId: 'user-1' as UserId, role: GroupRole.Admin })],
+      isLoading: false,
+    });
+    const { getAllByText, getByTestId, queryByTestId } = renderWithProviders(<GroupDetailScreen />);
+    fireEvent.press(getAllByText(groupsEn.invite.inviteMember)[0]);
+    fireEvent.press(getByTestId('invite-view-error'));
+    expect(getByTestId('group-invite-view')).toBeTruthy();
+    fireEvent.press(getByTestId('invite-view-invited'));
+    expect(queryByTestId('group-invite-view')).toBeNull();
+  });
+
+  it('renders the pending invitations section for admins', () => {
+    mockUseGroupMembers.mockReturnValue({
+      data: [buildMember({ userId: 'user-1' as UserId, role: GroupRole.Admin })],
+      isLoading: false,
+    });
+    mockUsePendingGroupInvitations.mockReturnValue({
+      data: [
+        {
+          id: 'inv-1',
+          groupId: 'group-abc',
+          inviteeUserId: 'user-2',
+          inviterUserId: 'user-1',
+          status: 'pending',
+          createdAt: '2024-01-03T00:00:00.000Z',
+          respondedAt: undefined,
+          invitee: { displayName: 'Bob', avatarUrl: undefined },
+        },
+      ],
+    });
+    const { getByText } = renderWithProviders(<GroupDetailScreen />);
+    expect(getByText(groupsEn.invite.pendingTitle)).toBeTruthy();
+    expect(getByText('Bob')).toBeTruthy();
+    expect(getByText(groupsEn.invite.pendingBadge)).toBeTruthy();
+  });
+
+  it('falls back to unknownMember label for pending invitees without a name', () => {
+    mockUseGroupMembers.mockReturnValue({
+      data: [buildMember({ userId: 'user-1' as UserId, role: GroupRole.Admin })],
+      isLoading: false,
+    });
+    mockUsePendingGroupInvitations.mockReturnValue({
+      data: [
+        {
+          id: 'inv-1',
+          groupId: 'group-abc',
+          inviteeUserId: 'user-2',
+          inviterUserId: 'user-1',
+          status: 'pending',
+          createdAt: '2024-01-03T00:00:00.000Z',
+          respondedAt: undefined,
+          invitee: { displayName: undefined, avatarUrl: undefined },
+        },
+      ],
+    });
+    const { getByText } = renderWithProviders(<GroupDetailScreen />);
+    expect(getByText(groupsEn.detail.unknownMember)).toBeTruthy();
+  });
+
+  it('hides invite UI and pending invitations for non-admins', () => {
+    mockUseGroupMembers.mockReturnValue({
+      data: [buildMember({ userId: 'user-1' as UserId, role: GroupRole.Member })],
+      isLoading: false,
+    });
+    mockUsePendingGroupInvitations.mockReturnValue({
+      data: [
+        {
+          id: 'inv-1',
+          groupId: 'group-abc',
+          inviteeUserId: 'user-2',
+          inviterUserId: 'user-1',
+          status: 'pending',
+          createdAt: '2024-01-03T00:00:00.000Z',
+          respondedAt: undefined,
+          invitee: { displayName: 'Bob', avatarUrl: undefined },
+        },
+      ],
+    });
+    const { queryByLabelText, queryByText } = renderWithProviders(<GroupDetailScreen />);
+    expect(queryByLabelText(groupsEn.invite.inviteMember)).toBeNull();
+    expect(queryByText(groupsEn.invite.pendingTitle)).toBeNull();
   });
 });
