@@ -4,7 +4,7 @@
  */
 import { appendFileSync, readFileSync } from 'node:fs';
 
-import { easPreviewDeploymentIdFromPrComment } from './easPreviewDeploymentIdFromPrComment';
+import { easPreviewDeploymentIdFromPrComment } from './easPreviewDeploymentIdFromPrComment.ts';
 
 const commentPath = process.argv[2] ?? 'pr-preview-comment.md';
 const body = readFileSync(commentPath, 'utf8');
