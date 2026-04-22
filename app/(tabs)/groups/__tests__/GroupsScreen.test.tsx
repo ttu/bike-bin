@@ -48,6 +48,9 @@ const mockUseGroups = jest.fn();
 const mockUseSearchGroups = jest.fn();
 const mockCreateMutateAsync = jest.fn().mockResolvedValue(undefined);
 const mockJoinMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockUseMyGroupInvitations = jest.fn();
+const mockAcceptMutateAsync = jest.fn().mockResolvedValue(undefined);
+const mockRejectMutateAsync = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('@/features/groups', () => ({
   /* eslint-disable @typescript-eslint/no-require-imports */
@@ -60,9 +63,9 @@ jest.mock('@/features/groups', () => ({
   useSearchGroups: (query: string) => mockUseSearchGroups(query),
   useCreateGroup: () => ({ mutateAsync: mockCreateMutateAsync, isPending: false }),
   useJoinGroup: () => ({ mutateAsync: mockJoinMutateAsync, isPending: false }),
-  useMyGroupInvitations: () => ({ data: [] }),
-  useAcceptInvitation: () => ({ mutateAsync: jest.fn(), isPending: false }),
-  useRejectInvitation: () => ({ mutateAsync: jest.fn(), isPending: false }),
+  useMyGroupInvitations: () => mockUseMyGroupInvitations(),
+  useAcceptInvitation: () => ({ mutateAsync: mockAcceptMutateAsync, isPending: false }),
+  useRejectInvitation: () => ({ mutateAsync: mockRejectMutateAsync, isPending: false }),
 }));
 
 describe('GroupsScreen', () => {
@@ -87,8 +90,11 @@ describe('GroupsScreen', () => {
       refetch: jest.fn(),
     });
     mockUseSearchGroups.mockReturnValue({ data: [], isLoading: false });
+    mockUseMyGroupInvitations.mockReturnValue({ data: [] });
     mockCreateMutateAsync.mockResolvedValue(undefined);
     mockJoinMutateAsync.mockResolvedValue(undefined);
+    mockAcceptMutateAsync.mockResolvedValue(undefined);
+    mockRejectMutateAsync.mockResolvedValue(undefined);
   });
 
   it('shows loading when groups list is empty and loading', () => {
@@ -148,6 +154,132 @@ describe('GroupsScreen', () => {
       });
       expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
         expect.objectContaining({ message: commonEn.feedback.groupCreated, variant: 'success' }),
+      );
+    });
+  });
+
+  const sampleInvitation = {
+    id: 'inv-1',
+    groupId: 'group-abc' as GroupId,
+    inviteeUserId: 'me',
+    inviterUserId: 'admin',
+    status: 'pending',
+    createdAt: '2024-01-03T00:00:00.000Z',
+    respondedAt: undefined,
+    group: { name: 'Club Name', isPublic: false },
+    inviter: { displayName: 'Admin' },
+  };
+
+  it('shows the inbox title and inviter name when invitations exist', () => {
+    mockUseMyGroupInvitations.mockReturnValue({ data: [sampleInvitation] });
+    renderWithProviders(<GroupsScreen />);
+    expect(screen.getByText(groupsEn.invite.inboxTitle)).toBeTruthy();
+    expect(screen.getByText('Club Name')).toBeTruthy();
+    expect(
+      screen.getByText(groupsEn.invite.invitedByNamed.replace('{{name}}', 'Admin')),
+    ).toBeTruthy();
+  });
+
+  it('falls back to generic invitedBy text when no inviter name', () => {
+    mockUseMyGroupInvitations.mockReturnValue({
+      data: [{ ...sampleInvitation, inviter: { displayName: undefined } }],
+    });
+    renderWithProviders(<GroupsScreen />);
+    expect(screen.getByText(groupsEn.invite.invitedBy)).toBeTruthy();
+  });
+
+  it('accepts an invitation and shows a success snackbar', async () => {
+    mockUseMyGroupInvitations.mockReturnValue({ data: [sampleInvitation] });
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByText(groupsEn.invite.accept));
+    await waitFor(() => {
+      expect(mockAcceptMutateAsync).toHaveBeenCalledWith({
+        invitationId: 'inv-1',
+        groupId: 'group-abc',
+      });
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({ message: commonEn.feedback.groupJoined, variant: 'success' }),
+      );
+    });
+  });
+
+  it('rejects an invitation without showing a success snackbar', async () => {
+    mockUseMyGroupInvitations.mockReturnValue({ data: [sampleInvitation] });
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByText(groupsEn.invite.reject));
+    await waitFor(() => {
+      expect(mockRejectMutateAsync).toHaveBeenCalledWith({ invitationId: 'inv-1' });
+    });
+    expect(mockShowSnackbarAlert).not.toHaveBeenCalled();
+  });
+
+  it('shows an error snackbar when accepting an invitation fails', async () => {
+    mockUseMyGroupInvitations.mockReturnValue({ data: [sampleInvitation] });
+    mockAcceptMutateAsync.mockRejectedValue(new Error('boom'));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByText(groupsEn.invite.accept));
+    await waitFor(() => {
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: groupsEn.errors.acceptInvitationFailed,
+          variant: 'error',
+        }),
+      );
+    });
+  });
+
+  it('shows an error snackbar when rejecting an invitation fails', async () => {
+    mockUseMyGroupInvitations.mockReturnValue({ data: [sampleInvitation] });
+    mockRejectMutateAsync.mockRejectedValue(new Error('boom'));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByText(groupsEn.invite.reject));
+    await waitFor(() => {
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: groupsEn.errors.rejectInvitationFailed,
+          variant: 'error',
+        }),
+      );
+    });
+  });
+
+  it('shows an error snackbar when creating a group fails', async () => {
+    mockCreateMutateAsync.mockRejectedValue(new Error('boom'));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByLabelText(groupsEn.empty.cta));
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.create.namePlaceholder), 'Boom');
+    fireEvent.press(screen.getByTestId('groups-create-save'));
+    await waitFor(() => {
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({ message: groupsEn.errors.createFailed, variant: 'error' }),
+      );
+    });
+  });
+
+  it('shows an error snackbar when joining a group fails', async () => {
+    const searchHit: SearchGroupResult = {
+      id: 'join-me' as GroupId,
+      name: 'Join Me',
+      description: undefined,
+      isPublic: true,
+      ratingAvg: 0,
+      ratingCount: 0,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      memberCount: 2,
+      isMember: false,
+    };
+    mockUseSearchGroups.mockImplementation((q: string) => ({
+      data: q.length >= 2 ? [searchHit] : [],
+      isLoading: false,
+    }));
+    mockJoinMutateAsync.mockRejectedValue(new Error('boom'));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByTestId('groups-search-button'));
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'jo');
+    fireEvent.press(screen.getByText(groupsEn.detail.joinGroup));
+    await waitFor(() => {
+      expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
+        expect.objectContaining({ message: groupsEn.errors.joinFailed, variant: 'error' }),
       );
     });
   });
