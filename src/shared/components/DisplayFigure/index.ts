@@ -1,0 +1,1 @@
+export { DisplayFigure } from './DisplayFigure';

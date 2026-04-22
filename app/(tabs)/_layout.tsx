@@ -23,7 +23,6 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           paddingBottom: insets.bottom,
           backgroundColor: theme.customColors.surfaceContainer,
           borderTopColor: theme.colors.outlineVariant,
-          shadowColor: theme.colors.onSurface,
         },
       ]}
     >
@@ -81,10 +80,6 @@ const tabBarStyles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     borderTopWidth: StyleSheet.hairlineWidth,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 0,
   },
   tab: {
     flex: 1,

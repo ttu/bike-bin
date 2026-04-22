@@ -224,6 +224,31 @@ describe('ConversationDetailScreen', () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it('defers ConfirmDialog after opening mark sold so confirmation is not swallowed', () => {
+    const setTimeoutSpy = jest
+      .spyOn(global, 'setTimeout')
+      .mockImplementation((fn: TimerHandler) => {
+        if (typeof fn === 'function') fn();
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      });
+    conversationQueryState.data = {
+      ...mockConversation,
+      itemId: 'item-1' as ItemId,
+      itemOwnerId: 'user-123' as UserId,
+      itemName: 'Chain',
+      itemStatus: 'stored',
+    };
+
+    const { getByLabelText, getByText } = renderWithProviders(<ConversationDetailScreen />);
+
+    fireEvent.press(getByLabelText('More actions'));
+    fireEvent.press(getByText('Mark as Sold'));
+
+    expect(getByText('Mark as sold?')).toBeTruthy();
+
+    setTimeoutSpy.mockRestore();
+  });
+
   it('opens report dialog on long-press of another user message', () => {
     mockMessages.push({
       id: 'msg-other' as MessageId,

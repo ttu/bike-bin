@@ -28,6 +28,9 @@
     },
     "loadMore": "Load older messages"
   },
+  "chat": {
+    "trustSignal": "Borrowed {{count}} times · always returned"
+  },
   "time": {
     "justNow": "Just now",
     "minutesAgo": "{{count}}m ago",

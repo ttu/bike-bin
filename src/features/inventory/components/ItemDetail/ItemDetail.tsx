@@ -11,6 +11,7 @@ import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
+import { DisplayFigure } from '@/shared/components/DisplayFigure';
 import { useDistanceUnit } from '@/features/profile';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
@@ -82,7 +83,7 @@ export function ItemDetail({
   const detailContent = (
     <>
       {/* Category breadcrumb */}
-      <View style={[styles.section, styles.sectionFirst]}>
+      <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
         <Text variant="labelSmall" style={[styles.breadcrumb, { color: theme.colors.primary }]}>
           {categoryBreadcrumb}
         </Text>
@@ -94,12 +95,8 @@ export function ItemDetail({
 
         {/* Group ownership indicator */}
         {ownerGroup && (
-          <Chip
-            compact
-            icon="account-group"
-            style={[styles.ownerChip, { backgroundColor: theme.colors.secondaryContainer }]}
-          >
-            <Text variant="labelSmall" style={{ color: theme.colors.onSecondaryContainer }}>
+          <Chip compact icon="account-group" style={[styles.ownerChip, themed.groupChipBg]}>
+            <Text variant="labelSmall" style={themed.groupChipText}>
               {ownerGroup.name}
             </Text>
           </Chip>
@@ -149,7 +146,7 @@ export function ItemDetail({
       </View>
 
       {/* Detail cards */}
-      <View style={styles.section}>
+      <View style={[styles.section, themed.sectionBorder]}>
         <View
           style={[
             detailCardStyles.container,
@@ -202,9 +199,42 @@ export function ItemDetail({
         </View>
       </View>
 
+      {/* Spec figures — display-figure treatment */}
+      {(item.category === ItemCategory.Consumable && item.remainingFraction !== undefined) ||
+      item.quantity > 1 ||
+      item.usageKm !== undefined ? (
+        <View style={[styles.section, themed.sectionBorder]}>
+          <View style={styles.figureStrip}>
+            {item.category === ItemCategory.Consumable && item.remainingFraction !== undefined && (
+              <DisplayFigure
+                value={String(Math.round(item.remainingFraction * 100))}
+                unit="%"
+                note={t('detail.remainingLabel')}
+                size={28}
+              />
+            )}
+            {item.quantity > 1 && (
+              <DisplayFigure
+                value={String(item.quantity)}
+                note={t('detail.quantityLabel')}
+                size={28}
+              />
+            )}
+            {item.usageKm !== undefined && (
+              <DisplayFigure
+                value={String(kmToDisplayUnit(item.usageKm, distanceUnit))}
+                unit={distanceUnit}
+                note={t('detail.usageLabel')}
+                size={28}
+              />
+            )}
+          </View>
+        </View>
+      ) : null}
+
       {/* Technical Specifications */}
       {(item.brand || item.model) && (
-        <View style={styles.section}>
+        <View style={[styles.section, themed.sectionBorder]}>
           <Text
             variant="labelMedium"
             style={[styles.sectionHeader, { color: theme.colors.onSurfaceVariant }]}
@@ -224,7 +254,7 @@ export function ItemDetail({
 
       {/* Description */}
       {item.description && (
-        <View style={styles.section}>
+        <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onSurface}>
             {item.description}
           </Text>
@@ -338,12 +368,7 @@ function ActionSlot({
 
 function SpecRow({ label, value, theme }: { label: string; value: string; theme: AppTheme }) {
   return (
-    <View
-      style={[
-        styles.specRow,
-        { borderBottomColor: colorWithAlpha(theme.colors.outlineVariant, 0.25) },
-      ]}
-    >
+    <View style={[styles.specRow, { borderBottomColor: theme.colors.outlineVariant }]}>
       <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
         {label}
       </Text>
@@ -360,6 +385,9 @@ function useThemedStyles(theme: AppTheme) {
       StyleSheet.create({
         onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        sectionBorder: { borderBottomColor: theme.colors.outlineVariant },
+        groupChipBg: { backgroundColor: theme.customColors.accentTint },
+        groupChipText: { color: theme.customColors.accent },
       }),
     [theme],
   );
@@ -404,6 +432,7 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   sectionFirst: {
     paddingTop: spacing.base,
@@ -444,6 +473,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     alignSelf: 'flex-start',
     borderRadius: borderRadius.full,
+  },
+  figureStrip: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.base,
   },
   sectionHeader: {
     marginBottom: spacing.md,

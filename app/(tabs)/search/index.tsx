@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, Chip, useTheme, Portal, Modal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -23,11 +23,20 @@ import { AvailabilityType } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { useDemoMode, DemoBanner } from '@/features/demo';
 import { DEMO_SEARCH_RESULTS } from '@/features/demo/data';
+import { groupSearchResultPairs } from '@/features/search/utils/groupSearchResultPairs';
+import {
+  getSearchResultGridWideCardWidth,
+  getSearchResultGridNarrowCardWidth,
+  getSearchResultGridHeroCardWidth,
+  SEARCH_GRID_COLUMN_GAP,
+} from '@/features/search/utils/searchGridDimensions';
+import type { SearchResultPair } from '@/features/search/utils/groupSearchResultPairs';
 
 function SearchScreenContent() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
   const router = useRouter();
+  const { width: windowWidth } = useWindowDimensions();
   const { filters, updateFilters, resetFilters, hasActiveFilters, hasSearched, setHasSearched } =
     useSearchFilters();
   const { data: primaryLocation } = usePrimaryLocation();
@@ -98,18 +107,50 @@ function SearchScreenContent() {
     updateFilters({ sortBy: next });
   }, [filters.sortBy, updateFilters]);
 
-  const renderItem = useCallback(
-    ({ item }: { item: SearchResultItem }) => (
-      <SearchResultGridCard item={item} onPress={handleResultPress} />
-    ),
-    [handleResultPress],
-  );
-
   const showResults = effectiveHasSearched && !effectiveIsLoading && results && results.length > 0;
   const showEmpty = effectiveHasSearched && !effectiveIsLoading && results && results.length === 0;
   const showInitial = !effectiveHasSearched;
 
-  const listData = showResults && results ? results : [];
+  // Separate hero item and remaining items for the asymmetric editorial grid
+  const heroItem = showResults && results ? results[0] : undefined;
+  const resultPairs = useMemo(
+    () => groupSearchResultPairs(showResults && results ? results.slice(1) : []),
+    [showResults, results],
+  );
+
+  const heroCardWidth = getSearchResultGridHeroCardWidth(windowWidth);
+  const wideWidth = getSearchResultGridWideCardWidth(windowWidth);
+  const narrowWidth = getSearchResultGridNarrowCardWidth(windowWidth);
+
+  const renderPairItem = useCallback(
+    ({ item }: { item: SearchResultPair<SearchResultItem> }) => {
+      const [first, second] = item.items;
+      const firstVariant = item.type === 'wide-narrow' ? 'wide' : 'narrow';
+      const secondVariant = item.type === 'wide-narrow' ? 'narrow' : 'wide';
+      const firstWidth = item.type === 'wide-narrow' ? wideWidth : narrowWidth;
+      const secondWidth = item.type === 'wide-narrow' ? narrowWidth : wideWidth;
+
+      return (
+        <View style={[styles.pairRow, styles.pairRowGap]}>
+          <SearchResultGridCard
+            item={first}
+            onPress={handleResultPress}
+            variant={firstVariant}
+            cardWidth={firstWidth}
+          />
+          {second ? (
+            <SearchResultGridCard
+              item={second}
+              onPress={handleResultPress}
+              variant={secondVariant}
+              cardWidth={secondWidth}
+            />
+          ) : null}
+        </View>
+      );
+    },
+    [handleResultPress, wideWidth, narrowWidth],
+  );
 
   const listHeader = useMemo(
     () => (
@@ -227,6 +268,17 @@ function SearchScreenContent() {
             </Text>
           </View>
         )}
+
+        {heroItem && (
+          <View style={styles.heroRow}>
+            <SearchResultGridCard
+              item={heroItem}
+              onPress={handleResultPress}
+              variant="hero"
+              cardWidth={heroCardWidth}
+            />
+          </View>
+        )}
       </>
     ),
     [
@@ -241,6 +293,9 @@ function SearchScreenContent() {
       t,
       theme.colors,
       toggleQuickFilter,
+      heroItem,
+      handleResultPress,
+      heroCardWidth,
     ],
   );
 
@@ -308,11 +363,9 @@ function SearchScreenContent() {
 
           <FlatList
             style={styles.resultsList}
-            data={listData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            columnWrapperStyle={styles.columnWrapper}
+            data={resultPairs}
+            renderItem={renderPairItem}
+            keyExtractor={(pair) => pair.items.map((i) => i.id).join('-')}
             ListHeaderComponent={listHeader}
             ListEmptyComponent={listEmpty}
             contentContainerStyle={listContentContainerStyle}
@@ -396,8 +449,14 @@ const styles = StyleSheet.create({
     paddingBottom: tabBarListScrollPaddingBottom,
     paddingHorizontal: spacing.base,
   },
-  columnWrapper: {
-    justifyContent: 'space-between' as const,
+  heroRow: {
+    marginBottom: SEARCH_GRID_COLUMN_GAP,
+  },
+  pairRow: {
+    flexDirection: 'row',
+  },
+  pairRowGap: {
+    gap: SEARCH_GRID_COLUMN_GAP,
   },
   filterModal: {
     margin: spacing.base,

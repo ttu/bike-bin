@@ -51,8 +51,33 @@ import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 
 type ExchangeConfirm = { kind: 'donate'; itemId: ItemId } | { kind: 'sell'; itemId: ItemId };
 
+function useThemedStyles(theme: AppTheme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        groupChipBg: { backgroundColor: theme.customColors.accentTint },
+        groupChipText: { color: theme.customColors.accent },
+        headerBorder: {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.colors.outlineVariant,
+        },
+        itemContextBarBorder: {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.colors.outlineVariant,
+        },
+        composerBorder: {
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: theme.colors.outlineVariant,
+          backgroundColor: theme.colors.surface,
+        },
+      }),
+    [theme],
+  );
+}
+
 export default function ConversationDetailScreen() {
   const theme = useTheme<AppTheme>();
+  const themed = useThemedStyles(theme);
   const { t } = useTranslation('messages');
   const { t: tExchange } = useTranslation('exchange');
   const router = useRouter();
@@ -269,6 +294,8 @@ export default function ConversationDetailScreen() {
 
   const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
 
+  const groupName = conversation?.groupName;
+
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
   }
@@ -281,7 +308,10 @@ export default function ConversationDetailScreen() {
         keyboardVerticalOffset={0}
       >
         {/* Header */}
-        <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
+        <Appbar.Header
+          dark={theme.dark}
+          style={[{ backgroundColor: theme.colors.surface }, themed.headerBorder]}
+        >
           <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/messages')} />
           <Pressable
             style={styles.headerContent}
@@ -307,14 +337,18 @@ export default function ConversationDetailScreen() {
                 style={{ backgroundColor: theme.colors.surfaceVariant }}
               />
             )}
-            <Appbar.Content
-              title={
-                conversation && isGroupConversation(conversation)
+            <View style={styles.headerTextStack}>
+              <Text variant="titleMedium" style={styles.headerTitle} numberOfLines={1}>
+                {conversation && isGroupConversation(conversation)
                   ? (conversation.groupName ?? t('conversation.groupConversation'))
-                  : conversation?.otherParticipantName || t('conversation.anonymousUser')
-              }
-              subtitle={conversation?.itemName ?? ''}
-            />
+                  : conversation?.otherParticipantName || t('conversation.anonymousUser')}
+              </Text>
+              {conversation?.itemName ? (
+                <Text variant="bodySmall" style={styles.headerSubtitle} numberOfLines={1}>
+                  {conversation.itemName}
+                </Text>
+              ) : null}
+            </View>
           </Pressable>
           {canExchange && (
             <Menu
@@ -344,11 +378,24 @@ export default function ConversationDetailScreen() {
 
         {/* Pinned item reference card */}
         {conversation && conversation.itemId && (
-          <ItemReferenceCard
-            conversation={conversation}
-            isOwnItem={isOwner}
-            onViewItem={handleViewItem}
-          />
+          <View style={themed.itemContextBarBorder}>
+            <ItemReferenceCard
+              conversation={conversation}
+              isOwnItem={isOwner}
+              onViewItem={handleViewItem}
+            />
+          </View>
+        )}
+
+        {/* Group affiliation chip — shown when the item is owned by a group */}
+        {groupName && conversation && isGroupConversation(conversation) && (
+          <View style={[styles.groupChipBar, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.groupChip, themed.groupChipBg]}>
+              <Text variant="labelSmall" style={themed.groupChipText}>
+                {groupName}
+              </Text>
+            </View>
+          </View>
         )}
 
         {/* Messages list (inverted = newest at bottom) */}
@@ -378,7 +425,7 @@ export default function ConversationDetailScreen() {
         />
 
         {/* Input bar */}
-        <View style={{ backgroundColor: theme.colors.surface, paddingBottom: 60 + insets.bottom }}>
+        <View style={[themed.composerBorder, { paddingBottom: 60 + insets.bottom }]}>
           <View style={styles.inputBar}>
             <TextInput
               style={[
@@ -453,6 +500,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  headerTextStack: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flexShrink: 1,
+  },
+  headerSubtitle: {
+    flexShrink: 1,
+    opacity: 0.7,
+  },
+  groupChipBar: {
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xs,
+    flexDirection: 'row',
+  },
+  groupChip: {
+    paddingHorizontal: spacing.sm,
+    height: 22,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center',
   },
   messagesContent: {
     paddingVertical: spacing.sm,
