@@ -23,16 +23,15 @@
 
 1. **Ensure main is up to date** (from the primary clone): `git fetch origin && git checkout main && git pull`
 2. **In the worktree:** `git checkout <branch-name>` then `git rebase main`
-3. **Squash all commits into one:** `git reset --soft main && git commit -m "<conventional commit message>"`
-4. **Push and set upstream** (from the worktree): `git push -u origin <branch-name>` on first push. **Always** keep the branch tracking the remote: `git branch -vv` should list `[origin/<branch-name>]` next to your branch. If the remote branch already exists but yours has no upstream (common when switching clones or worktrees), run `git branch -u origin/<branch-name>` — do **not** treat Cursor or VS Code **Publish Branch** as “commits are missing on GitHub”; it only means **no upstream is configured** for the current local branch, which is confusing when `origin/<branch>` already exists and matches.
-5. **Open a pull request** to `main`. Integration happens on GitHub after CI/review; do not leave finished work only on a local branch.
-6. **After the PR is merged:** From the primary clone: `git fetch origin && git checkout main && git pull`, then `git worktree remove .worktrees/<slug>` and `git branch -d <branch-name>`.
+3. **Push and set upstream** (from the worktree): `git push -u origin <branch-name>` on first push. **Always** keep the branch tracking the remote: `git branch -vv` should list `[origin/<branch-name>]` next to your branch. If the remote branch already exists but yours has no upstream (common when switching clones or worktrees), run `git branch -u origin/<branch-name>` — do **not** treat Cursor or VS Code **Publish Branch** as “commits are missing on GitHub”; it only means **no upstream is configured** for the current local branch, which is confusing when `origin/<branch>` already exists and matches.
+4. **Open a pull request** to `main`. Do **not** squash locally — PRs are squash-merged on GitHub, so multiple commits on the branch are fine.
+5. **After the PR is merged:** From the primary clone: `git fetch origin && git checkout main && git pull`, then `git worktree remove .worktrees/<slug>` and `git branch -d <branch-name>`.
 
 ### Important Rules
 
 - **Pull requests** — when work in the worktree is complete, push (with upstream set) and open a PR to `main`
-- **Single commit per feature** — squash before opening the PR (or use one commit on the PR branch)
-- **Never work directly on main** — always use a worktree
+- **Do not squash locally** — GitHub squash-merges the PR, so multiple commits on the branch are fine
+- **Never commit directly to main** — only commit to `main` when the user explicitly directs you to; otherwise always use a worktree + PR
 - The worktree directory name should match the branch slug (e.g., branch `feat/dark-mode` → `.worktrees/dark-mode/`)
 - **Bootstrap checklist** — after `git worktree add`, always copy/link env from the primary clone **and** run `npm install` before running the app or tests in that worktree
 
