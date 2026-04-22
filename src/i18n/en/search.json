@@ -1,5 +1,11 @@
 {
   "title": "Search",
+  "masthead": {
+    "eyebrow": "Listings near you",
+    "title": "Nearby",
+    "locationUnknown": "Anywhere",
+    "radius": "within {{km}} km"
+  },
   "searchPlaceholder": "Parts, tools, bikes...",
   "locationLine": "within {{distance}} km",
   "changeLocation": "Change",

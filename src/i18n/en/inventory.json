@@ -1,5 +1,14 @@
 {
   "title": "Inventory",
+  "masthead": {
+    "eyebrow": "Your collection",
+    "title": "Inventory",
+    "counts": {
+      "items": "items",
+      "mounted": "mounted",
+      "listed": "listed"
+    }
+  },
   "searchPlaceholder_one": "Search {{count}} item in your collection...",
   "searchPlaceholder_other": "Search {{count}} items in your collection...",
   "searchPlaceholderEmpty": "Search your collection...",
