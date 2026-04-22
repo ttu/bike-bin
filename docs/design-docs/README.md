@@ -23,13 +23,14 @@ Comprehensive feature-level design documentation for Bike Bin. Each doc covers a
 
 ## Cross-Cutting Docs
 
-| #   | Topic                           | Doc                                                            |
-| --- | ------------------------------- | -------------------------------------------------------------- |
-| 015 | Design System (Kinetic Curator) | [015-design-system.md](015-design-system.md)                   |
-| 016 | RLS & Security                  | [016-rls-security.md](016-rls-security.md)                     |
-| 017 | Data Export (GDPR)              | [017-data-export.md](017-data-export.md)                       |
-| 018 | Subscription Limits             | [018-subscription-limits.md](018-subscription-limits.md)       |
-| 019 | Moderation Enforcement          | [019-moderation-enforcement.md](019-moderation-enforcement.md) |
+| #   | Topic                           | Doc                                                                |
+| --- | ------------------------------- | ------------------------------------------------------------------ |
+| 015 | Design System (Kinetic Curator) | [015-design-system.md](015-design-system.md)                       |
+| 016 | RLS & Security                  | [016-rls-security.md](016-rls-security.md)                         |
+| 017 | Data Export (GDPR)              | [017-data-export.md](017-data-export.md)                           |
+| 018 | Subscription Limits             | [018-subscription-limits.md](018-subscription-limits.md)           |
+| 019 | Moderation Enforcement          | [019-moderation-enforcement.md](019-moderation-enforcement.md)     |
+| 020 | Design Handoff Alignment        | [020-design-handoff-alignment.md](020-design-handoff-alignment.md) |
 
 ## Related Documents
 
