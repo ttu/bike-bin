@@ -60,6 +60,9 @@ jest.mock('@/features/groups', () => ({
   useSearchGroups: (query: string) => mockUseSearchGroups(query),
   useCreateGroup: () => ({ mutateAsync: mockCreateMutateAsync, isPending: false }),
   useJoinGroup: () => ({ mutateAsync: mockJoinMutateAsync, isPending: false }),
+  useMyGroupInvitations: () => ({ data: [] }),
+  useAcceptInvitation: () => ({ mutateAsync: jest.fn(), isPending: false }),
+  useRejectInvitation: () => ({ mutateAsync: jest.fn(), isPending: false }),
 }));
 
 describe('GroupsScreen', () => {

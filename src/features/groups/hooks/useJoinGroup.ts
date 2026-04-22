@@ -6,7 +6,7 @@ import { GroupRole } from '@/shared/types';
 
 /**
  * Join a group. For public groups, the user joins directly as a member.
- * For private groups, the user would need an invitation (handled via useInviteMember).
+ * For private groups, the user would need an invitation (see useGroupInvitations).
  */
 export function useJoinGroup() {
   const queryClient = useQueryClient();

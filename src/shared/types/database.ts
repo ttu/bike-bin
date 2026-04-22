@@ -346,6 +346,58 @@ export type Database = {
         };
         Relationships: [];
       };
+      group_invitations: {
+        Row: {
+          id: string;
+          group_id: string;
+          invitee_user_id: string;
+          inviter_user_id: string | null;
+          status: Database['public']['Enums']['group_invitation_status'];
+          created_at: string;
+          responded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          invitee_user_id: string;
+          inviter_user_id?: string | null;
+          status?: Database['public']['Enums']['group_invitation_status'];
+          created_at?: string;
+          responded_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          invitee_user_id?: string;
+          inviter_user_id?: string | null;
+          status?: Database['public']['Enums']['group_invitation_status'];
+          created_at?: string;
+          responded_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'group_invitations_group_id_fkey';
+            columns: ['group_id'];
+            isOneToOne: false;
+            referencedRelation: 'groups';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'group_invitations_invitee_user_id_fkey';
+            columns: ['invitee_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'group_invitations_inviter_user_id_fkey';
+            columns: ['inviter_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       group_members: {
         Row: {
           group_id: string;
@@ -1097,6 +1149,10 @@ export type Database = {
       };
     };
     Functions: {
+      accept_group_invitation: {
+        Args: { p_invitation_id: string };
+        Returns: undefined;
+      };
       can_see_item: {
         Args: { p_item_id: string; p_user_id: string };
         Returns: boolean;
@@ -1233,6 +1289,14 @@ export type Database = {
           visibility: Database['public']['Enums']['item_visibility'];
         }[];
       };
+      search_invitable_users: {
+        Args: { p_group_id: string; p_query: string; p_limit?: number };
+        Returns: {
+          id: string;
+          display_name: string;
+          avatar_url: string;
+        }[];
+      };
       transfer_item_ownership: {
         Args: {
           p_item_id: string;
@@ -1270,6 +1334,7 @@ export type Database = {
         | 'other';
       borrow_request_status: 'pending' | 'accepted' | 'rejected' | 'returned' | 'cancelled';
       export_request_status: 'pending' | 'processing' | 'completed' | 'failed';
+      group_invitation_status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
       group_role: 'admin' | 'member';
       item_category: 'component' | 'tool' | 'accessory' | 'consumable' | 'clothing' | 'bike';
       item_condition: 'new' | 'good' | 'worn' | 'broken';
@@ -1425,6 +1490,7 @@ export const Constants = {
       ],
       borrow_request_status: ['pending', 'accepted', 'rejected', 'returned', 'cancelled'],
       export_request_status: ['pending', 'processing', 'completed', 'failed'],
+      group_invitation_status: ['pending', 'accepted', 'rejected', 'cancelled'],
       group_role: ['admin', 'member'],
       item_category: ['component', 'tool', 'accessory', 'consumable', 'clothing', 'bike'],
       item_condition: ['new', 'good', 'worn', 'broken'],

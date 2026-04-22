@@ -77,7 +77,10 @@ jest.mock('@/features/groups', () => {
     useLeaveGroup: () => ({ mutateAsync: mockLeaveMutateAsync, isPending: false }),
     usePromoteMember: () => ({ mutateAsync: jest.fn(), isPending: false }),
     useRemoveMember: () => ({ mutateAsync: jest.fn(), isPending: false }),
+    usePendingGroupInvitations: () => ({ data: [] }),
+    useCancelInvitation: () => ({ mutateAsync: jest.fn(), isPending: false }),
     GroupEditForm: () => null,
+    GroupInviteView: () => null,
   };
 });
 

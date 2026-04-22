@@ -17,6 +17,7 @@ export type ReportId = Brand<string, 'ReportId'>;
 export type SupportRequestId = Brand<string, 'SupportRequestId'>;
 export type SubscriptionId = Brand<string, 'SubscriptionId'>;
 export type ExportRequestId = Brand<string, 'ExportRequestId'>;
+export type GroupInvitationId = Brand<string, 'GroupInvitationId'>;
 
 /** Sentinel ID for offline/guest items before server sync. */
 export const LOCAL_USER_ID = 'local' as UserId;

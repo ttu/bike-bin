@@ -57,6 +57,15 @@ export const GroupRole = {
 } as const;
 export type GroupRole = (typeof GroupRole)[keyof typeof GroupRole];
 
+export const GroupInvitationStatus = {
+  Pending: 'pending',
+  Accepted: 'accepted',
+  Rejected: 'rejected',
+  Cancelled: 'cancelled',
+} as const;
+export type GroupInvitationStatus =
+  (typeof GroupInvitationStatus)[keyof typeof GroupInvitationStatus];
+
 export const BikeType = {
   Road: 'road',
   Gravel: 'gravel',
