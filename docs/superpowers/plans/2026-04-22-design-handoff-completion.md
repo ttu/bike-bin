@@ -357,7 +357,7 @@ Aligns the bottom tab bar with the handoff icon table + unread-badge accent.
 
 ### Code-level checks (after each phase)
 
-```
+```shell
 npm run format
 npm run lint
 npm run type-check
