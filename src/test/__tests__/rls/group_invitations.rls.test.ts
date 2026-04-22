@@ -119,7 +119,7 @@ describe('group_invitations RLS', () => {
       .update({ status: 'rejected', responded_at: new Date().toISOString() })
       .eq('id', inv!.id);
     // Either error or simply no rows affected — both are acceptable denials.
-    expect(outsiderReject.error ?? { count: 0 }).toBeTruthy();
+    expect(outsiderReject.error !== null || outsiderReject.count === 0).toBe(true);
 
     const reject = await invitee.client
       .from('group_invitations')

@@ -43,7 +43,12 @@ export default function GroupsScreen() {
 
   const { data: groups, isLoading, isRefetching, refetch } = useGroups();
   const { data: searchResults, isLoading: isSearching } = useSearchGroups(searchQuery);
-  const { data: invitations } = useMyGroupInvitations();
+  const { data: invitations, refetch: refetchInvitations } = useMyGroupInvitations();
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+    refetchInvitations();
+  }, [refetch, refetchInvitations]);
   const createGroup = useCreateGroup();
   const joinGroup = useJoinGroup();
   const acceptInvitation = useAcceptInvitation();
@@ -184,7 +189,7 @@ export default function GroupsScreen() {
           data={groups ?? []}
           renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />}
           contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
           ListHeaderComponent={
             (invitations ?? []).length > 0 ? (

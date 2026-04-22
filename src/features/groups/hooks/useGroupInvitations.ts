@@ -181,6 +181,7 @@ export function useRejectInvitation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-group-invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['group-invitations'] });
     },
   });
 }

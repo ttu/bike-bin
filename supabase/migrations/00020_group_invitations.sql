@@ -151,6 +151,8 @@ STABLE
 SECURITY DEFINER
 SET search_path TO public, pg_temp
 AS $$
+DECLARE
+  v_escaped text;
 BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'Not authenticated' USING ERRCODE = '42501';
@@ -164,10 +166,19 @@ BEGIN
     RETURN;
   END IF;
 
+  -- Escape LIKE metacharacters so literal % and _ in user input match as characters.
+  v_escaped := replace(
+    replace(
+      replace(btrim(p_query), E'\\', E'\\\\'),
+      '%', E'\\%'
+    ),
+    '_', E'\\_'
+  );
+
   RETURN QUERY
     SELECT p.id, p.display_name, p.avatar_url
     FROM public.profiles p
-    WHERE p.display_name ILIKE (btrim(p_query) || '%')
+    WHERE p.display_name ILIKE (v_escaped || '%') ESCAPE E'\\'
       AND p.id <> auth.uid()
       AND NOT EXISTS (
         SELECT 1 FROM public.group_members gm

@@ -488,7 +488,11 @@ function PendingInvitationRow({
           {t('invite.pendingBadge')}
         </Text>
       </View>
-      <Pressable onPress={() => onCancel(invitation)} accessibilityRole="button">
+      <Pressable
+        onPress={() => onCancel(invitation)}
+        accessibilityRole="button"
+        accessibilityLabel={t('invite.cancelInvitation')}
+      >
         <MaterialCommunityIcons
           name="close-circle-outline"
           size={iconSize.sm}

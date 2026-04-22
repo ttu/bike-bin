@@ -1293,8 +1293,8 @@ export type Database = {
         Args: { p_group_id: string; p_query: string; p_limit?: number };
         Returns: {
           id: string;
-          display_name: string;
-          avatar_url: string;
+          display_name: string | null;
+          avatar_url: string | null;
         }[];
       };
       transfer_item_ownership: {
