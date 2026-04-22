@@ -19,3 +19,4 @@ export type { ReportReason } from './ReportDialog/ReportDialog';
 export { SnackbarAlertsProvider, useSnackbarAlerts } from './SnackbarAlerts';
 export type { ShowSnackbarAlertOptions, SnackbarAlertVariant } from './SnackbarAlerts';
 export { DisplayFigure } from './DisplayFigure';
+export { SocketBBMark } from './SocketBBMark';

@@ -47,7 +47,14 @@ describe('Login screen', () => {
 
   it('renders tagline', () => {
     const { getByText } = renderWithProviders(<LoginScreen />);
-    expect(getByText('From bikers to bikers')).toBeTruthy();
+    expect(getByText('From bikers to bikers.')).toBeTruthy();
+  });
+
+  it('renders welcome description', () => {
+    const { getByText } = renderWithProviders(<LoginScreen />);
+    expect(
+      getByText('Your parts, tools, and builds in one place. Share them when you want.'),
+    ).toBeTruthy();
   });
 
   it('renders Continue with Apple button', () => {

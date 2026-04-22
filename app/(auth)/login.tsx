@@ -9,12 +9,15 @@ import { useDemoMode } from '@/features/demo';
 import { supabase } from '@/shared/api/supabase';
 import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
 import { isPasswordDemoLoginEnabled } from '@/shared/utils/env';
+import { SocketBBMark } from '@/shared/components';
 import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
 const MAX_CONTENT_WIDTH = 480;
-const RULE_WIDTH = 56;
+const RULE_WIDTH = 72;
 const ACTION_HEIGHT = 48;
+const LOGO_SIZE = 64;
+const DESCRIPTION_MAX_WIDTH = 320;
 
 export default function LoginScreen() {
   const theme = useTheme<AppTheme>();
@@ -60,12 +63,16 @@ export default function LoginScreen() {
         <View style={styles.content}>
           {/* Masthead */}
           <View style={styles.masthead}>
+            <SocketBBMark size={LOGO_SIZE} />
+            <View style={[styles.rule, { backgroundColor: theme.colors.outlineVariant }]} />
             <Text variant="displayLarge" style={[styles.title, themed.onBackground]}>
               {t('welcome.title')}
             </Text>
-            <View style={[styles.rule, { backgroundColor: theme.colors.outline }]} />
-            <Text variant="bodyLarge" style={themed.onSurfaceVariant}>
+            <Text variant="bodyLarge" style={[styles.tagline, themed.onSurfaceVariant]}>
               {t('welcome.tagline')}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.description, themed.onSurfaceVariant]}>
+              {t('welcome.description')}
             </Text>
           </View>
 
@@ -258,12 +265,22 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   title: {
-    letterSpacing: -1,
-    marginBottom: spacing.base,
+    letterSpacing: -1.5,
+    textTransform: 'uppercase',
+    lineHeight: 56,
+  },
+  tagline: {
+    marginTop: spacing.base,
+    fontWeight: '600',
+  },
+  description: {
+    marginTop: spacing.sm,
+    maxWidth: DESCRIPTION_MAX_WIDTH,
   },
   rule: {
     width: RULE_WIDTH,
     height: StyleSheet.hairlineWidth,
+    marginTop: spacing.lg,
     marginBottom: spacing.md,
   },
   bottomGroup: {
