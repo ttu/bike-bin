@@ -26,9 +26,15 @@ describe('ReviewCard', () => {
     expect(getByText(/2026/)).toBeTruthy();
   });
 
-  it('renders stars accessibility label', () => {
-    const { getByLabelText } = renderWithProviders(<ReviewCard {...defaultProps} />);
-    expect(getByLabelText(/4/)).toBeTruthy();
+  it('renders sentence-form trust signal instead of stars (score ≥ 4 → on time)', () => {
+    const { getByText, queryByLabelText } = renderWithProviders(<ReviewCard {...defaultProps} />);
+    expect(getByText('Borrowed 1 times · 1 on time')).toBeTruthy();
+    expect(queryByLabelText(/out of 5 stars/)).toBeNull();
+  });
+
+  it('marks low-score reviews as not on time', () => {
+    const { getByText } = renderWithProviders(<ReviewCard {...defaultProps} score={2} />);
+    expect(getByText('Borrowed 1 times · 0 on time')).toBeTruthy();
   });
 
   it('handles undefined text (no comment)', () => {

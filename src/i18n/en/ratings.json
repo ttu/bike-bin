@@ -13,8 +13,9 @@
     "success": "Rating submitted!",
     "error": "Failed to submit rating"
   },
+  "reviewSummary": "Borrowed {{count}} times · {{onTime}} on time",
+  "reviewSummary_plural": "Borrowed {{count}} times · {{onTime}} on time",
   "review": {
-    "starLabel": "{{score}} out of 5 stars",
     "noText": "No comment",
     "editableUntil": "Editable until {{date}}",
     "edit": "Edit",

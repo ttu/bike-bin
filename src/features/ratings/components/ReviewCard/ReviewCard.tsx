@@ -1,8 +1,8 @@
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize, borderRadius } from '@/shared/theme';
+import { spacing, borderRadius } from '@/shared/theme';
+import type { AppTheme } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 
 interface ReviewCardProps {
@@ -23,7 +23,7 @@ export function ReviewCard({
   transactionType,
   createdAt,
 }: ReviewCardProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { t } = useTranslation('ratings');
   const { t: tCommon } = useTranslation('common');
 
@@ -52,16 +52,11 @@ export function ReviewCard({
         </Text>
       </View>
 
-      {/* Stars */}
-      <View style={styles.starsRow} accessibilityLabel={t('review.starLabel', { score })}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <MaterialCommunityIcons
-            key={star}
-            name={star <= score ? 'star' : 'star-outline'}
-            size={iconSize.sm}
-            color={star <= score ? theme.colors.primary : theme.colors.onSurfaceVariant}
-          />
-        ))}
+      {/* Trust signal — sentence form replaces star row per design handoff */}
+      <View style={styles.signalRow}>
+        <Text variant="bodySmall" style={[styles.signal, { color: theme.customColors.accent }]}>
+          {t('reviewSummary', { count: 1, onTime: score >= 4 ? 1 : 0 })}
+        </Text>
         <Text
           variant="bodySmall"
           style={[styles.transactionBadge, { color: theme.colors.onSurfaceVariant }]}
@@ -92,11 +87,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xs,
   },
-  starsRow: {
+  signalRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    flexWrap: 'wrap',
     marginBottom: spacing.xs,
+  },
+  signal: {
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
   transactionBadge: {
     marginLeft: spacing.sm,
