@@ -30,6 +30,7 @@ import { isTerminalStatus } from '@/features/inventory/utils/status';
 import { sortItems, type InventorySortOption } from '@/features/inventory/utils/sortItems';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
+import { ScreenMasthead, type ScreenMastheadCount } from '@/shared/components/ScreenMasthead';
 import { DemoBanner } from '@/features/demo';
 import {
   borderRadius,
@@ -174,6 +175,17 @@ export default function InventoryScreen() {
   );
   const hasTerminalItems = terminalCount > 0;
 
+  const mastheadCounts = useMemo<ScreenMastheadCount[]>(() => {
+    const activeItems = items.filter((item) => !isTerminalStatus(item.status));
+    const mounted = activeItems.filter((item) => item.status === 'mounted').length;
+    const listed = activeItems.filter((item) => item.availabilityTypes.length > 0).length;
+    return [
+      { value: activeItems.length, label: t('masthead.counts.items') },
+      { value: mounted, label: t('masthead.counts.mounted') },
+      { value: listed, label: t('masthead.counts.listed'), tone: 'accent' },
+    ];
+  }, [items, t]);
+
   const galleryColumnCount = useMemo(() => {
     const horizontalPadding = spacing.base * 2;
     const gap = spacing.xs;
@@ -267,13 +279,17 @@ export default function InventoryScreen() {
                     onPress={toggleTagFilter}
                     showSelectedCheck={false}
                     compact
-                    textStyle={tagChipActive ? { color: theme.colors.onPrimary } : undefined}
+                    textStyle={
+                      tagChipActive
+                        ? { color: theme.colors.surface }
+                        : { color: theme.colors.onSurfaceVariant }
+                    }
                     style={[
                       styles.tagFilterChip,
                       {
                         backgroundColor: tagChipActive
-                          ? theme.colors.primary
-                          : theme.colors.secondaryContainer,
+                          ? theme.colors.onBackground
+                          : theme.customColors.surfaceContainerHigh,
                       },
                     ]}
                     accessibilityRole="button"
@@ -288,8 +304,14 @@ export default function InventoryScreen() {
                     onPress={toggleTerminal}
                     showSelectedCheck={false}
                     compact
-                    style={showTerminal ? { backgroundColor: theme.colors.primary } : undefined}
-                    textStyle={showTerminal ? { color: theme.colors.onPrimary } : undefined}
+                    style={{
+                      backgroundColor: showTerminal
+                        ? theme.colors.onBackground
+                        : theme.customColors.surfaceContainerHigh,
+                    }}
+                    textStyle={{
+                      color: showTerminal ? theme.colors.surface : theme.colors.onSurfaceVariant,
+                    }}
                   >
                     {t('filters.showInactive', { count: terminalCount })}
                   </Chip>
@@ -339,13 +361,17 @@ export default function InventoryScreen() {
                   onPress={() => toggleTag(tag)}
                   showSelectedCheck={false}
                   compact
-                  textStyle={active ? { color: theme.colors.onPrimary } : undefined}
+                  textStyle={
+                    active
+                      ? { color: theme.colors.surface }
+                      : { color: theme.colors.onSurfaceVariant }
+                  }
                   style={[
                     styles.tagChip,
                     {
                       backgroundColor: active
-                        ? theme.colors.primary
-                        : theme.colors.secondaryContainer,
+                        ? theme.colors.onBackground
+                        : theme.customColors.surfaceContainerHigh,
                     },
                   ]}
                   accessibilityRole="button"
@@ -369,6 +395,7 @@ export default function InventoryScreen() {
     ),
     [
       theme.colors,
+      theme.customColors,
       t,
       userTags,
       selectedTags,
@@ -424,6 +451,12 @@ export default function InventoryScreen() {
         { backgroundColor: theme.colors.background, paddingTop: insets.top },
       ]}
     >
+      <ScreenMasthead
+        eyebrow={t('masthead.eyebrow')}
+        title={t('masthead.title')}
+        counts={mastheadCounts}
+      />
+
       <View style={styles.searchContainer}>
         <View style={styles.searchbarWrap}>
           <Searchbar
@@ -612,10 +645,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   tagFilterChip: {
-    height: 36,
+    height: 28,
+    borderRadius: borderRadius.sm,
   },
   tagChip: {
-    height: 36,
+    height: 28,
+    borderRadius: borderRadius.sm,
   },
   galleryRow: {
     paddingHorizontal: spacing.base,

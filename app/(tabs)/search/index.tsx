@@ -9,6 +9,8 @@ import { spacing, borderRadius, tabBarListScrollPaddingBottom } from '@/shared/t
 import type { AppTheme } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
+import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
+import { Stamp } from '@/shared/components/Stamp';
 import { usePrimaryLocation } from '@/features/locations';
 import {
   SearchFiltersProvider,
@@ -159,87 +161,55 @@ function SearchScreenContent() {
 
         {effectiveHasSearched && (
           <View style={styles.quickFilters}>
-            <Chip
-              selected={filters.offerTypes.includes(AvailabilityType.Borrowable)}
-              onPress={() => toggleQuickFilter(AvailabilityType.Borrowable)}
-              compact
-              showSelectedCheck={false}
-              textStyle={
-                filters.offerTypes.includes(AvailabilityType.Borrowable)
-                  ? { color: theme.colors.onPrimary }
-                  : undefined
-              }
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: filters.offerTypes.includes(AvailabilityType.Borrowable)
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('quickFilter.borrow')}
-            </Chip>
-            <Chip
-              selected={filters.offerTypes.includes(AvailabilityType.Donatable)}
-              onPress={() => toggleQuickFilter(AvailabilityType.Donatable)}
-              compact
-              showSelectedCheck={false}
-              textStyle={
-                filters.offerTypes.includes(AvailabilityType.Donatable)
-                  ? { color: theme.colors.onPrimary }
-                  : undefined
-              }
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: filters.offerTypes.includes(AvailabilityType.Donatable)
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('quickFilter.donate')}
-            </Chip>
-            <Chip
-              selected={filters.offerTypes.includes(AvailabilityType.Sellable)}
-              onPress={() => toggleQuickFilter(AvailabilityType.Sellable)}
-              compact
-              showSelectedCheck={false}
-              textStyle={
-                filters.offerTypes.includes(AvailabilityType.Sellable)
-                  ? { color: theme.colors.onPrimary }
-                  : undefined
-              }
-              style={[
-                styles.quickChip,
-                {
-                  backgroundColor: filters.offerTypes.includes(AvailabilityType.Sellable)
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
-            >
-              {t('quickFilter.sell')}
-            </Chip>
+            {[
+              { type: AvailabilityType.Borrowable, label: t('quickFilter.borrow') },
+              { type: AvailabilityType.Donatable, label: t('quickFilter.donate') },
+              { type: AvailabilityType.Sellable, label: t('quickFilter.sell') },
+            ].map(({ type, label }) => {
+              const active = filters.offerTypes.includes(type);
+              return (
+                <Chip
+                  key={type}
+                  selected={active}
+                  onPress={() => toggleQuickFilter(type)}
+                  compact
+                  showSelectedCheck={false}
+                  textStyle={{
+                    color: active ? theme.colors.surface : theme.colors.onSurfaceVariant,
+                  }}
+                  style={[
+                    styles.quickChip,
+                    {
+                      backgroundColor: active
+                        ? theme.colors.onBackground
+                        : theme.customColors.surfaceContainerHigh,
+                    },
+                  ]}
+                >
+                  {label}
+                </Chip>
+              );
+            })}
             <Chip
               icon={() => (
                 <MaterialCommunityIcons
                   name="filter-variant"
                   size={16}
-                  color={hasActiveFilters ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
+                  color={hasActiveFilters ? theme.colors.surface : theme.colors.onSurfaceVariant}
                 />
               )}
               onPress={() => setFilterVisible(true)}
               compact
               showSelectedCheck={false}
-              textStyle={hasActiveFilters ? { color: theme.colors.onPrimary } : undefined}
+              textStyle={{
+                color: hasActiveFilters ? theme.colors.surface : theme.colors.onSurfaceVariant,
+              }}
               style={[
                 styles.quickChip,
                 {
                   backgroundColor: hasActiveFilters
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
+                    ? theme.colors.onBackground
+                    : theme.customColors.surfaceContainerHigh,
                 },
               ]}
             >
@@ -292,6 +262,7 @@ function SearchScreenContent() {
       sortLabel,
       t,
       theme.colors,
+      theme.customColors,
       toggleQuickFilter,
       heroItem,
       handleResultPress,
@@ -331,11 +302,13 @@ function SearchScreenContent() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-          {t('title')}
+      <ScreenMasthead eyebrow={t('masthead.eyebrow')} title={t('masthead.title')} />
+      <View style={styles.locationRow}>
+        <MaterialCommunityIcons name="map-marker-outline" size={16} color={theme.colors.tertiary} />
+        <Text variant="bodySmall" style={{ color: theme.colors.onBackground }}>
+          {primaryLocation?.areaName ?? t('masthead.locationUnknown')}
         </Text>
+        <Stamp tone="dim">{t('masthead.radius', { km: filters.maxDistanceKm })}</Stamp>
       </View>
 
       {showAuthSpinner && <CenteredLoadingIndicator />}
@@ -412,9 +385,12 @@ const styles = StyleSheet.create({
   listContentGrow: {
     flexGrow: 1,
   },
-  header: {
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
     paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
+    paddingBottom: spacing.sm,
   },
   quickFilters: {
     flexDirection: 'row',
@@ -426,7 +402,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   quickChip: {
-    height: 32,
+    height: 28,
+    borderRadius: borderRadius.sm,
   },
   resultHeader: {
     flexDirection: 'row',
