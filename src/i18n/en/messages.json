@@ -1,13 +1,17 @@
 {
   "title": "Messages",
+  "masthead": {
+    "eyebrow": "Your threads",
+    "title": "Messages"
+  },
   "empty": {
     "title": "No conversations yet",
     "description": "Start one by contacting a listing owner."
   },
   "conversation": {
     "itemReference": "Re: {{itemName}}",
-    "itemSold": "(Sold) \u2713",
-    "itemDonated": "(Donated) \u2713",
+    "itemSold": "(Sold) ✓",
+    "itemDonated": "(Donated) ✓",
     "you": "You",
     "lastMessagePrefix": "{{name}}: {{message}}",
     "noMessages": "No messages yet",
@@ -29,7 +33,16 @@
     "loadMore": "Load older messages"
   },
   "chat": {
-    "trustSignal": "Borrowed {{count}} times · always returned"
+    "trustSignal": "Borrowed {{count}} times · always returned",
+    "context": {
+      "borrowPending": "Borrow request · pending",
+      "borrowAccepted": "Borrow · accepted",
+      "donationPending": "Donation · pending",
+      "donationAccepted": "Donation · accepted",
+      "saleAccepted": "Sale · accepted",
+      "stored": "Available",
+      "groupAffiliation": "Group · {{name}}"
+    }
   },
   "time": {
     "justNow": "Just now",

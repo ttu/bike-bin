@@ -9,19 +9,12 @@ import {
   Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  ActivityIndicator,
-  Appbar,
-  Avatar,
-  Menu,
-  Text,
-  IconButton,
-  useTheme,
-} from 'react-native-paper';
+import { ActivityIndicator, Avatar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { AppTheme } from '@/shared/theme';
-import { spacing, borderRadius } from '@/shared/theme';
+import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import {
   ItemStatus,
   type ConversationId,
@@ -34,8 +27,9 @@ import {
   useMessages,
   useSendMessage,
   useRealtimeMessages,
+  useUserBorrowHistory,
   ChatBubble,
-  ItemReferenceCard,
+  ItemContextStrip,
   isGroupConversation,
 } from '@/features/messaging';
 import type { MessageWithSender } from '@/features/messaging';
@@ -55,20 +49,25 @@ function useThemedStyles(theme: AppTheme) {
   return useMemo(
     () =>
       StyleSheet.create({
-        groupChipBg: { backgroundColor: theme.customColors.accentTint },
-        groupChipText: { color: theme.customColors.accent },
-        headerBorder: {
+        header: {
+          backgroundColor: theme.colors.surface,
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: theme.colors.outlineVariant,
         },
-        itemContextBarBorder: {
-          borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: theme.colors.outlineVariant,
+        avatarIcon: { backgroundColor: theme.colors.surfaceVariant },
+        headerName: { color: theme.colors.onSurface },
+        trustSignal: {
+          color: theme.customColors.accent,
+          fontWeight: '700',
+          letterSpacing: 0.2,
         },
         composerBorder: {
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: theme.colors.outlineVariant,
           backgroundColor: theme.colors.surface,
+        },
+        composerPlus: {
+          backgroundColor: theme.customColors.surfaceContainerHigh,
         },
       }),
     [theme],
@@ -148,6 +147,9 @@ export default function ConversationDetailScreen() {
 
   // Subscribe to realtime updates
   useRealtimeMessages(conversationId);
+
+  // Trust signal — currently a stub (returns 0/0) until borrow analytics ship
+  const { data: borrowHistory } = useUserBorrowHistory(conversation?.otherParticipantId);
 
   // Owner/status from conversation when `useItem` is still loading (same source as list/detail).
   const itemStatusForExchange =
@@ -294,8 +296,6 @@ export default function ConversationDetailScreen() {
 
   const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
 
-  const groupName = conversation?.groupName;
-
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
   }
@@ -307,12 +307,20 @@ export default function ConversationDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
-        {/* Header */}
-        <Appbar.Header
-          dark={theme.dark}
-          style={[{ backgroundColor: theme.colors.surface }, themed.headerBorder]}
-        >
-          <Appbar.BackAction onPress={() => tabScopedBack('/(tabs)/messages')} />
+        {/* Header — custom 48px row */}
+        <View style={[styles.header, themed.header]}>
+          <Pressable
+            onPress={() => tabScopedBack('/(tabs)/messages')}
+            style={styles.headerIconButton}
+            accessibilityRole="button"
+            accessibilityLabel={tCommon('actions.back')}
+          >
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={iconSize.md}
+              color={theme.colors.onSurface}
+            />
+          </Pressable>
           <Pressable
             style={styles.headerContent}
             onPress={handleOpenProfile}
@@ -323,29 +331,25 @@ export default function ConversationDetailScreen() {
             testID="conversation-header-profile"
           >
             {conversation && isGroupConversation(conversation) ? (
-              <Avatar.Icon
-                size={32}
-                icon="account-group"
-                style={{ backgroundColor: theme.colors.surfaceVariant }}
-              />
+              <Avatar.Icon size={36} icon="account-group" style={themed.avatarIcon} />
             ) : conversation?.otherParticipantAvatarUrl ? (
-              <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={32} />
+              <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={36} />
             ) : (
-              <Avatar.Icon
-                size={32}
-                icon="account"
-                style={{ backgroundColor: theme.colors.surfaceVariant }}
-              />
+              <Avatar.Icon size={36} icon="account" style={themed.avatarIcon} />
             )}
             <View style={styles.headerTextStack}>
-              <Text variant="titleMedium" style={styles.headerTitle} numberOfLines={1}>
+              <Text
+                variant="titleMedium"
+                style={[styles.headerTitle, themed.headerName]}
+                numberOfLines={1}
+              >
                 {conversation && isGroupConversation(conversation)
                   ? (conversation.groupName ?? t('conversation.groupConversation'))
                   : conversation?.otherParticipantName || t('conversation.anonymousUser')}
               </Text>
-              {conversation?.itemName ? (
-                <Text variant="bodySmall" style={styles.headerSubtitle} numberOfLines={1}>
-                  {conversation.itemName}
+              {borrowHistory && borrowHistory.borrowCount > 0 ? (
+                <Text variant="labelSmall" style={themed.trustSignal} numberOfLines={1}>
+                  {t('chat.trustSignal', { count: borrowHistory.borrowCount })}
                 </Text>
               ) : null}
             </View>
@@ -355,11 +359,18 @@ export default function ConversationDetailScreen() {
               visible={menuVisible}
               onDismiss={() => setMenuVisible(false)}
               anchor={
-                <Appbar.Action
-                  icon="dots-vertical"
+                <Pressable
                   onPress={() => setMenuVisible(true)}
+                  style={styles.headerIconButton}
+                  accessibilityRole="button"
                   accessibilityLabel={t('conversation.moreActions')}
-                />
+                >
+                  <MaterialCommunityIcons
+                    name="dots-horizontal"
+                    size={iconSize.md}
+                    color={theme.colors.onSurface}
+                  />
+                </Pressable>
               }
             >
               <Menu.Item
@@ -374,29 +385,12 @@ export default function ConversationDetailScreen() {
               />
             </Menu>
           )}
-        </Appbar.Header>
+        </View>
 
-        {/* Pinned item reference card */}
-        {conversation && conversation.itemId && (
-          <View style={themed.itemContextBarBorder}>
-            <ItemReferenceCard
-              conversation={conversation}
-              isOwnItem={isOwner}
-              onViewItem={handleViewItem}
-            />
-          </View>
-        )}
-
-        {/* Group affiliation chip — shown when the item is owned by a group */}
-        {groupName && conversation && isGroupConversation(conversation) && (
-          <View style={[styles.groupChipBar, { backgroundColor: theme.colors.surface }]}>
-            <View style={[styles.groupChip, themed.groupChipBg]}>
-              <Text variant="labelSmall" style={themed.groupChipText}>
-                {groupName}
-              </Text>
-            </View>
-          </View>
-        )}
+        {/* Item-context strip (slim hairline-bordered row) */}
+        {conversation && conversation.itemId ? (
+          <ItemContextStrip conversation={conversation} onPress={handleViewItem} />
+        ) : null}
 
         {/* Messages list (inverted = newest at bottom) */}
         <FlatList
@@ -495,6 +489,19 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 48,
+    paddingHorizontal: spacing.xs,
+    gap: spacing.sm,
+  },
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerContent: {
     flex: 1,
     flexDirection: 'row',
@@ -507,21 +514,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flexShrink: 1,
-  },
-  headerSubtitle: {
-    flexShrink: 1,
-    opacity: 0.7,
-  },
-  groupChipBar: {
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.xs,
-    flexDirection: 'row',
-  },
-  groupChip: {
-    paddingHorizontal: spacing.sm,
-    height: 22,
-    borderRadius: borderRadius.sm,
-    justifyContent: 'center',
   },
   messagesContent: {
     paddingVertical: spacing.sm,
@@ -543,7 +535,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.xl,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     maxHeight: 100,

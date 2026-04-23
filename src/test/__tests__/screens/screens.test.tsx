@@ -92,7 +92,7 @@ describe('Tab screens render visible content', () => {
 
   it('Messages screen shows heading', () => {
     renderWithProviders(<MessagesScreen />);
-    expect(screen.getByText('Messages')).toBeVisible();
+    expect(screen.getByText('MESSAGES')).toBeVisible();
   });
 
   it('Profile screen shows heading', () => {

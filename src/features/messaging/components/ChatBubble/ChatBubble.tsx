@@ -29,7 +29,7 @@ export function ChatBubble({ message, onLongPress }: ChatBubbleProps) {
           styles.bubble,
           isOwn
             ? [styles.bubbleOwn, { backgroundColor: theme.colors.primary }]
-            : [styles.bubbleOther, { backgroundColor: theme.colors.surfaceVariant }],
+            : [styles.bubbleOther, { backgroundColor: theme.customColors.surfaceContainerHigh }],
         ]}
       >
         <Text

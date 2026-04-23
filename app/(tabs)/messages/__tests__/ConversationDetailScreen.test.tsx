@@ -114,6 +114,9 @@ jest.mock('@/features/messaging', () => {
     }),
     useSendMessage: () => ({ mutate: mockSendMutate, isPending: false }),
     useRealtimeMessages: jest.fn(),
+    useUserBorrowHistory: () => ({
+      data: { borrowCount: 0, completedOnTimeCount: 0 },
+    }),
     ChatBubble: ({
       message,
       onLongPress,
@@ -129,7 +132,7 @@ jest.mock('@/features/messaging', () => {
         },
         React.createElement(Text, null, message.body),
       ),
-    ItemReferenceCard: () => null,
+    ItemContextStrip: () => null,
     isGroupConversation: jest.requireActual('@/features/messaging').isGroupConversation,
   };
 });

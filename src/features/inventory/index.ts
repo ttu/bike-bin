@@ -6,6 +6,7 @@ export {
   isTerminalStatus,
 } from './utils/status';
 export { validateItem } from './utils/validation';
+export { getItemThumbnailPublicUrl } from './utils/itemThumbnailPublicUrl';
 export type { ItemFormData, ItemFormErrors } from './types';
 export { SUBCATEGORIES, DEFAULT_BRANDS, AGE_OPTIONS, DURATION_OPTIONS } from './constants';
 export {

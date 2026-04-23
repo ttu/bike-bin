@@ -4,7 +4,7 @@ import { Text, Avatar, useTheme } from 'react-native-paper';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
-import { spacing, borderRadius } from '@/shared/theme';
+import { spacing } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
 import type { ConversationListItem } from '../../types';
@@ -27,15 +27,14 @@ export const ConversationCard = memo(function ConversationCard({
     () =>
       StyleSheet.create({
         containerSurface: {
-          backgroundColor: theme.colors.surface,
-          shadowColor: theme.colors.onSurface,
+          backgroundColor: theme.customColors.surfaceContainerLowest,
         },
         avatarIcon: {
           backgroundColor: theme.colors.surfaceVariant,
         },
         unreadDot: {
-          backgroundColor: theme.colors.primary,
-          borderColor: theme.colors.background,
+          backgroundColor: theme.customColors.accent,
+          borderColor: theme.customColors.surfaceContainerLowest,
         },
         name: {
           color: theme.colors.onSurface,
@@ -149,11 +148,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
     gap: spacing.md,
-    borderRadius: borderRadius.md,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 1,
   },
   dimmed: {
     opacity: 0.6,
