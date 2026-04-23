@@ -103,8 +103,12 @@ test.describe('Item detail', () => {
     await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
       timeout: 10000,
     });
-    // Verify detail fields are visible (Usage only appears on detail page)
-    await expect(loggedInPage.getByText('Usage', { exact: true })).toBeVisible({ timeout: 10000 });
+    // Verify detail fields are visible (Usage only appears on detail page).
+    // The detail layout shows the "Usage" label twice (value block + section header);
+    // asserting on the first occurrence avoids strict-mode violations.
+    await expect(loggedInPage.getByText('Usage', { exact: true }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
