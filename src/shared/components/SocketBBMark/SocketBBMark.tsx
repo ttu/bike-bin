@@ -33,7 +33,13 @@ export function SocketBBMark({
   const bg = background ?? theme.colors.primary;
   const fg = foreground ?? theme.colors.background;
   const a11yProps = accessibilityLabel
-    ? { accessibilityLabel, accessible: true }
+    ? Platform.OS === 'web'
+      ? ({ role: 'img', 'aria-label': accessibilityLabel } as const)
+      : ({
+          accessible: true,
+          accessibilityLabel,
+          importantForAccessibility: 'no-hide-descendants' as const,
+        } as const)
     : Platform.OS === 'web'
       ? ({ 'aria-hidden': true } as const)
       : ({
