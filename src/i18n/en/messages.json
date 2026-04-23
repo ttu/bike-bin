@@ -35,9 +35,7 @@
   "chat": {
     "trustSignal": "Borrowed {{count}} times · always returned",
     "context": {
-      "borrowPending": "Borrow request · pending",
       "borrowAccepted": "Borrow · accepted",
-      "donationPending": "Donation · pending",
       "donationAccepted": "Donation · accepted",
       "saleAccepted": "Sale · accepted",
       "stored": "Available",
