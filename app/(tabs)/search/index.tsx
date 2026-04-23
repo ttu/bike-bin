@@ -308,9 +308,6 @@ function SearchScreenContent() {
         <Text variant="bodySmall" style={{ color: theme.colors.onBackground }}>
           {primaryLocation?.areaName ?? t('masthead.locationUnknown')}
         </Text>
-        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-          {' · '}
-        </Text>
         <Stamp tone="dim">{t('masthead.radius', { km: filters.maxDistanceKm })}</Stamp>
       </View>
 

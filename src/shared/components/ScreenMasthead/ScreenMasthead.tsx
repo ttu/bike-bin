@@ -23,6 +23,10 @@ export function ScreenMasthead({ eyebrow, title, counts }: ScreenMastheadProps) 
   const dynamicStyles = useMemo(
     () => ({
       title: { color: theme.colors.onBackground },
+      countValue: {
+        fontFamily: theme.fonts.displaySmall.fontFamily,
+        fontWeight: theme.fonts.displaySmall.fontWeight,
+      },
       figureAccent: { color: theme.customColors.accent },
       figureInk: { color: theme.colors.onBackground },
     }),
@@ -48,6 +52,7 @@ export function ScreenMasthead({ eyebrow, title, counts }: ScreenMastheadProps) 
                 <Text
                   style={[
                     styles.countValue,
+                    dynamicStyles.countValue,
                     count.tone === 'accent' ? dynamicStyles.figureAccent : dynamicStyles.figureInk,
                   ]}
                 >
@@ -94,8 +99,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   countValue: {
-    fontFamily: 'BigShoulders-ExtraBold',
-    fontWeight: '800',
     fontSize: 22,
     lineHeight: 24,
   },
