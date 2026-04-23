@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import type { AppTheme } from '@/shared/theme';
@@ -33,11 +34,13 @@ export function SocketBBMark({
   const fg = foreground ?? theme.colors.background;
   const a11yProps = accessibilityLabel
     ? { accessibilityLabel, accessible: true }
-    : {
-        accessible: false,
-        accessibilityElementsHidden: true,
-        importantForAccessibility: 'no' as const,
-      };
+    : Platform.OS === 'web'
+      ? ({ 'aria-hidden': true } as const)
+      : ({
+          accessible: false,
+          accessibilityElementsHidden: true,
+          importantForAccessibility: 'no' as const,
+        } as const);
   return (
     <Svg width={size} height={size} viewBox="0 0 120 120" {...a11yProps}>
       <Circle cx={60} cy={60} r={56} fill={bg} />

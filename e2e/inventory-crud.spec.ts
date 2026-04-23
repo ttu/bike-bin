@@ -76,30 +76,29 @@ test.describe('Edit item', () => {
     await loggedInPage.waitForURL(/\/edit\//, { timeout: 10000 });
     await expect(loggedInPage.getByText('Edit item').first()).toBeVisible({ timeout: 10000 });
 
-    // Change the name
+    // Change the name — use fill() which sets the value atomically. Clearing the
+    // field first causes ItemForm to auto-populate from brand+model, so typing
+    // after a clear concatenates onto that fallback.
     const nameInput = loggedInPage.getByPlaceholder('e.g. Shimano 105 Cassette');
-    await nameInput.click({ clickCount: 3 });
-    await nameInput.press('Backspace');
-    await nameInput.pressSequentially('RaceFace Cranks Updated');
+    await nameInput.fill('RaceFace Cranks Updated');
 
     // Save
     const updateButton = loggedInPage.getByRole('button', { name: /update inventory/i });
     await updateButton.scrollIntoViewIfNeeded();
     await updateButton.click();
 
-    // Wait for the PATCH to complete and the app to navigate back to inventory
+    // Wait for the PATCH to complete. After save, tabScopedBack pops one screen so
+    // navigation returns to the item detail page (list → detail → edit → detail).
     await loggedInPage.waitForResponse(
       (resp) => resp.url().includes('/rest/v1/items') && resp.request().method() === 'PATCH',
       { timeout: 10000 },
     );
-    await loggedInPage.waitForURL(/\/(tabs\/)?inventory\/?$/, { timeout: 10000 });
+    await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+$/, { timeout: 10000 });
 
-    // Verify updated name in inventory list
-    await expect(loggedInPage.getByRole('button', { name: 'RaceFace Cranks Updated' })).toBeVisible(
-      {
-        timeout: 10000,
-      },
-    );
+    // Verify the updated name appears on the detail page
+    await expect(loggedInPage.getByText('RaceFace Cranks Updated').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
