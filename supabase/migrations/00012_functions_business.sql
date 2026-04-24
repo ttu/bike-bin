@@ -51,9 +51,6 @@ GRANT EXECUTE ON FUNCTION public.get_public_profile(uuid) TO authenticated, anon
 -- NOTE: p_new_item_status is accepted for API compatibility but the actual
 -- item status is derived server-side. A mismatch raises an error so callers
 -- notice stale mappings early.
--- Follow-up: the p_new_item_status parameter is redundant (server derives it)
--- and should be removed end-to-end once all clients stop passing it (requires
--- coordinated app-code + generated-types update).
 CREATE OR REPLACE FUNCTION transition_borrow_request(
   p_request_id UUID,
   p_new_request_status TEXT,
