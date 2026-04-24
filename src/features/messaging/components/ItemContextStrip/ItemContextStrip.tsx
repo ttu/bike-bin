@@ -59,11 +59,11 @@ export function ItemContextStrip({ conversation, onPress }: ItemContextStripProp
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: theme.customColors.surfaceContainerLow,
+          backgroundColor: theme.customColors.surfaceContainer,
           borderBottomColor: theme.colors.outlineVariant,
         },
         thumbnailFallback: {
-          backgroundColor: theme.colors.surfaceVariant,
+          backgroundColor: theme.customColors.surfaceContainerHighest,
         },
         itemName: {
           color: theme.colors.onSurface,
