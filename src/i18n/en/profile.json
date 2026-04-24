@@ -32,7 +32,8 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "openSourceLicenses": "Open Source Licenses",
-    "madeWith": "Made with love for the cycling community"
+    "madeWith": "Made with love for the cycling community",
+    "lockupCaption": "Workshop inventory · BB/001"
   },
   "signOutConfirm": {
     "title": "Sign Out",
