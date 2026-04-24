@@ -15,9 +15,19 @@ import type { AppTheme } from '@/shared/theme';
 import { AvailabilityType } from '@/shared/types';
 import type { ItemPhoto } from '@/shared/types';
 import { useAuth } from '@/features/auth';
-import { availabilityTypesForList } from '@/features/inventory/utils/availabilityList';
 import type { SearchResultItem } from '../../types';
 import { listingAvailabilityLayout } from '../../utils/listingAvailabilityLayout';
+
+// Private is an implicit default and is never shown as a public-facing chip.
+const visibleAvailabilityTypes = (types: AvailabilityType[]): AvailabilityType[] =>
+  types.filter((type) => type !== AvailabilityType.Private);
+
+const formatPrice = (price: number): string =>
+  new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  }).format(price);
 
 const MIDDLE_DOT = ' · ';
 
@@ -65,7 +75,7 @@ export function ListingDetail({
 
   const categoryLabel = t(`search:category.${item.category}`);
   const metaParts = [item.brand, item.model].filter(Boolean) as string[];
-  const listAvailability = availabilityTypesForList(item.availabilityTypes);
+  const listAvailability = visibleAvailabilityTypes(item.availabilityTypes);
   const hasLocation = Boolean(item.areaName || distanceText);
 
   const handlePhotoLongPress = onPhotoLongPress
@@ -84,7 +94,7 @@ export function ListingDetail({
             compact
             style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
           >
-            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="labelSmall" style={themed.onSurfaceVariant}>
               {categoryLabel}
             </Text>
           </Chip>
@@ -96,7 +106,7 @@ export function ListingDetail({
                 { backgroundColor: theme.customColors.surfaceContainerHigh },
               ]}
             >
-              <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text variant="labelSmall" style={themed.onSurfaceVariant}>
                 {`×${item.quantity}`}
               </Text>
             </Chip>
@@ -141,7 +151,7 @@ export function ListingDetail({
           {durationText && (
             <DetailCard
               icon="clock-outline"
-              label={t('search:listing.detail.ageLabel')}
+              label={t('search:listing.detail.durationLabel')}
               value={durationText}
             />
           )}
@@ -229,14 +239,14 @@ export function ListingDetail({
       {listAvailability.length > 0 && (
         <View style={[styles.section, themed.sectionBorder]}>
           <View style={styles.stampHeader}>
-            <Stamp tone="dim">{t('inventory:detail.listedFor')}</Stamp>
+            <Stamp tone="dim">{t('search:listing.listedFor')}</Stamp>
           </View>
           <View style={styles.chipRow}>
             {listAvailability.map((type) => {
               const label = t(`search:availability.${type}`);
               const suffix =
                 type === AvailabilityType.Sellable && item.price !== undefined
-                  ? `${MIDDLE_DOT}€${item.price}`
+                  ? `${MIDDLE_DOT}${formatPrice(item.price)}`
                   : '';
               return (
                 <Chip

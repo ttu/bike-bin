@@ -78,6 +78,7 @@
   },
   "listing": {
     "report": "Report",
+    "listedFor": "Listed for",
     "ownerCard": {
       "viewProfile": "View profile",
       "rating": "{{avg}} ({{count}})"
@@ -86,6 +87,7 @@
     "detail": {
       "conditionLabel": "Condition",
       "ageLabel": "Age",
+      "durationLabel": "Duration",
       "usageLabel": "Usage",
       "quantityLabel": "Quantity",
       "quantityValue": "{{count}}"
