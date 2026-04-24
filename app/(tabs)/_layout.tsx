@@ -160,8 +160,8 @@ export default function TabLayout() {
           ),
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
           tabBarBadgeStyle: {
-            backgroundColor: theme.colors.primary,
-            color: theme.colors.onPrimary,
+            backgroundColor: theme.customColors.accent,
+            color: theme.customColors.onAccent,
             fontSize: 10,
           },
         }}
