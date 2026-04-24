@@ -1,18 +1,35 @@
-import { useMemo } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { useMemo, type ReactNode } from 'react';
+import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, Chip, Button, Avatar, useTheme } from 'react-native-paper';
-import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
-import { GradientButton } from '@/shared/components/GradientButton';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
+import { GradientButton } from '@/shared/components/GradientButton';
+import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
+import { Stamp } from '@/shared/components/Stamp/Stamp';
+import { spacing, borderRadius } from '@/shared/theme';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { formatDistance } from '@/shared/utils';
+import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
+import type { AppTheme } from '@/shared/theme';
+import { AvailabilityType } from '@/shared/types';
+import type { ItemPhoto } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import type { SearchResultItem } from '../../types';
-import type { ItemPhoto } from '@/shared/types';
-import { DetailCard, detailCardStyles, PhotoGallery } from '@/shared/components';
 import { listingAvailabilityLayout } from '../../utils/listingAvailabilityLayout';
+
+// Private is an implicit default and is never shown as a public-facing chip.
+const visibleAvailabilityTypes = (types: AvailabilityType[]): AvailabilityType[] =>
+  types.filter((type) => type !== AvailabilityType.Private);
+
+const formatPrice = (price: number): string =>
+  new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  }).format(price);
+
+const MIDDLE_DOT = ' · ';
 
 const CONDITION_ICONS: Record<string, string> = {
   new: 'shield-check',
@@ -42,6 +59,8 @@ export function ListingDetail({
   const { t } = useTranslation(['search', 'inventory']);
   const { isAuthenticated } = useAuth();
   const themed = useThemedStyles(theme);
+  const { width: windowWidth } = useWindowDimensions();
+  const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
 
   const distanceText = formatDistance(item.distanceMeters);
   const durationText = item.borrowDuration
@@ -54,58 +73,63 @@ export function ListingDetail({
     item.availabilityTypes,
   );
 
-  const categoryBreadcrumb = [t(`category.${item.category}`), item.brand]
-    .filter(Boolean)
-    .join(' \u00B7 ');
+  const categoryLabel = t(`search:category.${item.category}`);
+  const metaParts = [item.brand, item.model].filter(Boolean) as string[];
+  const listAvailability = visibleAvailabilityTypes(item.availabilityTypes);
+  const hasLocation = Boolean(item.areaName || distanceText);
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Photo gallery */}
-      <PhotoGallery
-        photos={photos}
-        onPhotoLongPress={
-          onPhotoLongPress
-            ? (p) => {
-                const found = photos.find((x) => x.id === p.id);
-                if (found) onPhotoLongPress(found);
-              }
-            : undefined
-        }
-      />
+  const handlePhotoLongPress = onPhotoLongPress
+    ? (p: { id: string }) => {
+        const found = photos.find((x) => x.id === p.id);
+        if (found) onPhotoLongPress(found);
+      }
+    : undefined;
 
-      {/* Category breadcrumb + Title */}
-      <View style={styles.section}>
-        <Text variant="labelSmall" style={[styles.breadcrumb, { color: theme.colors.primary }]}>
-          {categoryBreadcrumb}
-        </Text>
+  const detailContent = (
+    <>
+      {/* Title block: chips → displayLarge title → meta row */}
+      <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
+        <View style={styles.chipRow}>
+          <Chip
+            compact
+            style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
+          >
+            <Text variant="labelSmall" style={themed.onSurfaceVariant}>
+              {categoryLabel}
+            </Text>
+          </Chip>
+          {item.quantity > 1 && (
+            <Chip
+              compact
+              style={[
+                styles.titleChip,
+                { backgroundColor: theme.customColors.surfaceContainerHigh },
+              ]}
+            >
+              <Text variant="labelSmall" style={themed.onSurfaceVariant}>
+                {`×${item.quantity}`}
+              </Text>
+            </Chip>
+          )}
+        </View>
 
-        <Text variant="headlineMedium" style={[styles.title, themed.onSurface]}>
+        <Text
+          variant="displayLarge"
+          style={[styles.title, themed.onBackground]}
+          accessibilityRole="header"
+        >
           {item.name}
         </Text>
 
-        {/* Availability chips */}
-        {item.availabilityTypes.length > 0 && (
-          <View style={styles.chipRow}>
-            {item.availabilityTypes.map((type) => (
-              <Chip
-                key={type}
-                compact
-                style={[styles.availabilityChip, { backgroundColor: theme.colors.primary }]}
-              >
-                <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
-                  {t(`availability.${type}`)}
-                  {type === 'sellable' && item.price !== undefined
-                    ? ` \u00B7 \u20AC${item.price}`
-                    : ''}
-                </Text>
-              </Chip>
-            ))}
-          </View>
+        {metaParts.length > 0 && (
+          <Text variant="bodyMedium" style={[styles.metaRow, themed.onSurfaceVariant]}>
+            {metaParts.join(MIDDLE_DOT)}
+          </Text>
         )}
       </View>
 
-      {/* Detail cards */}
-      <View style={styles.section}>
+      {/* Detail strip: condition, quantity, duration */}
+      <View style={[styles.section, themed.sectionBorder]}>
         <View
           style={[
             detailCardStyles.container,
@@ -114,28 +138,28 @@ export function ListingDetail({
         >
           <DetailCard
             icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
-            label={t('listing.detail.conditionLabel')}
-            value={t(`condition.${item.condition}`)}
+            label={t('search:listing.detail.conditionLabel')}
+            value={t(`search:condition.${item.condition}`)}
           />
           {item.quantity > 1 && (
             <DetailCard
               icon="package-variant"
-              label={t('listing.detail.quantityLabel')}
-              value={t('listing.detail.quantityValue', { count: item.quantity })}
+              label={t('search:listing.detail.quantityLabel')}
+              value={t('search:listing.detail.quantityValue', { count: item.quantity })}
             />
           )}
           {durationText && (
             <DetailCard
               icon="clock-outline"
-              label={t('listing.detail.ageLabel')}
-              value={durationText ?? ''}
+              label={t('search:listing.detail.durationLabel')}
+              value={durationText}
             />
           )}
         </View>
       </View>
 
       {/* Owner card */}
-      <View style={styles.section}>
+      <View style={[styles.section, themed.sectionBorder]}>
         <View
           style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}
         >
@@ -150,14 +174,14 @@ export function ListingDetail({
             />
           )}
           <View style={styles.ownerInfo}>
-            <Text variant="titleSmall" style={themed.primary} onPress={onOwnerPress}>
+            <Text variant="titleSmall" style={themed.onBackground} onPress={onOwnerPress}>
               {item.ownerDisplayName ?? ''}
             </Text>
             {item.ownerRatingCount > 0 && (
               <View style={styles.ratingRow}>
                 <MaterialCommunityIcons name="star" size={14} color={theme.customColors.warning} />
                 <Text variant="bodySmall" style={themed.onSurfaceVariant}>
-                  {t('listing.ownerCard.rating', {
+                  {t('search:listing.ownerCard.rating', {
                     avg: item.ownerRatingAvg.toFixed(1),
                     count: item.ownerRatingCount,
                   })}
@@ -166,72 +190,186 @@ export function ListingDetail({
             )}
           </View>
           <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
-            {t('listing.ownerCard.viewProfile')}
+            {t('search:listing.ownerCard.viewProfile')}
           </Text>
         </View>
       </View>
 
-      {/* Location + distance */}
-      {Boolean(item.areaName || distanceText) && (
-        <View style={[styles.section, styles.locationRow]} testID="location-row">
-          <MaterialCommunityIcons
-            name="map-marker-outline"
-            size={iconSize.sm}
-            color={theme.colors.onSurfaceVariant}
-          />
-          <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
-            {item.areaName ?? ''}
-            {item.areaName && distanceText ? ' · ' : ''}
-            {distanceText}
+      {/* Description */}
+      {item.description && (
+        <View style={[styles.section, themed.sectionBorder]}>
+          <Text variant="bodyMedium" style={themed.onBackground}>
+            {item.description}
           </Text>
         </View>
       )}
 
-      {/* Description */}
-      {item.description ? (
-        <View style={styles.section}>
-          <Text variant="bodyMedium" style={themed.onSurface}>
-            {item.description}
-          </Text>
+      {/* Location */}
+      {hasLocation && (
+        <View style={[styles.section, themed.sectionBorder]} testID="location-row">
+          <View
+            style={[
+              styles.locationBlock,
+              { backgroundColor: theme.customColors.surfaceContainerLow },
+            ]}
+          >
+            <MaterialCommunityIcons
+              name="map-marker-outline"
+              size={20}
+              color={theme.colors.tertiary}
+              style={styles.locationIcon}
+            />
+            <View style={styles.locationText}>
+              {item.areaName && (
+                <Text variant="titleSmall" style={themed.onBackground}>
+                  {item.areaName}
+                </Text>
+              )}
+              {distanceText && (
+                <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
+                  {distanceText}
+                </Text>
+              )}
+            </View>
+          </View>
         </View>
-      ) : null}
+      )}
 
-      {/* Action buttons */}
-      <View style={styles.actionSection}>
+      {/* Listed for — accent-tinted chips */}
+      {listAvailability.length > 0 && (
+        <View style={[styles.section, themed.sectionBorder]}>
+          <View style={styles.stampHeader}>
+            <Stamp tone="dim">{t('search:listing.listedFor')}</Stamp>
+          </View>
+          <View style={styles.chipRow}>
+            {listAvailability.map((type) => {
+              const label = t(`search:availability.${type}`);
+              const suffix =
+                type === AvailabilityType.Sellable && item.price !== undefined
+                  ? `${MIDDLE_DOT}${formatPrice(item.price)}`
+                  : '';
+              return (
+                <Chip
+                  key={type}
+                  compact
+                  style={[
+                    styles.listingChip,
+                    { backgroundColor: colorWithAlpha(theme.customColors.accent, 0.12) },
+                  ]}
+                >
+                  <Text variant="labelSmall" style={themed.accentChipText}>
+                    {`${label}${suffix}`}
+                  </Text>
+                </Chip>
+              );
+            })}
+          </View>
+        </View>
+      )}
+
+      {/* Actions */}
+      <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
         {!isAuthenticated ? (
-          <GradientButton disabled style={styles.actionButton}>
-            {t('listing.actions.signInToContact')}
-          </GradientButton>
+          <ActionSlot isWide={isWide} fullWidth>
+            <GradientButton
+              disabled
+              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+            >
+              {t('search:listing.actions.signInToContact')}
+            </GradientButton>
+          </ActionSlot>
         ) : (
           <>
             {(showContactOnly || showBoth) && (
-              <GradientButton onPress={onContact} disabled={!onContact} style={styles.actionButton}>
-                {t('listing.actions.contact')}
-              </GradientButton>
+              <ActionSlot isWide={isWide}>
+                <GradientButton
+                  onPress={onContact}
+                  disabled={!onContact}
+                  style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+                >
+                  {t('search:listing.actions.contact')}
+                </GradientButton>
+              </ActionSlot>
             )}
             {showBorrowOnly && (
-              <GradientButton
-                onPress={onRequestBorrow}
-                disabled={!onRequestBorrow}
-                style={styles.actionButton}
-              >
-                {t('listing.actions.requestBorrow')}
-              </GradientButton>
+              <ActionSlot isWide={isWide}>
+                <GradientButton
+                  onPress={onRequestBorrow}
+                  disabled={!onRequestBorrow}
+                  style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+                >
+                  {t('search:listing.actions.requestBorrow')}
+                </GradientButton>
+              </ActionSlot>
             )}
             {showBoth && (
-              <Button
-                mode="outlined"
-                onPress={onRequestBorrow}
-                disabled={!onRequestBorrow}
-                style={styles.actionButton}
-              >
-                {t('listing.actions.requestBorrow')}
-              </Button>
+              <ActionSlot isWide={isWide}>
+                <Button
+                  mode="outlined"
+                  onPress={onRequestBorrow}
+                  disabled={!onRequestBorrow}
+                  style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+                >
+                  {t('search:listing.actions.requestBorrow')}
+                </Button>
+              </ActionSlot>
             )}
           </>
         )}
       </View>
+    </>
+  );
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.content,
+        isWide && styles.wideScrollContent,
+        splitLayout && styles.wideSplitScrollContent,
+      ]}
+    >
+      {splitLayout ? (
+        <View style={styles.wideSplitRow}>
+          <View style={styles.wideSplitLeft}>
+            <PhotoGallery
+              photos={photos}
+              maxGalleryWidth={galleryMaxWidth}
+              onPhotoLongPress={handlePhotoLongPress}
+            />
+          </View>
+          <View style={[styles.wideSplitRight, { borderLeftColor: theme.colors.outlineVariant }]}>
+            {detailContent}
+          </View>
+        </View>
+      ) : (
+        <View style={isWide ? styles.widePageInner : undefined}>
+          <PhotoGallery
+            photos={photos}
+            maxGalleryWidth={galleryMaxWidth}
+            onPhotoLongPress={handlePhotoLongPress}
+          />
+          {detailContent}
+        </View>
+      )}
     </ScrollView>
+  );
+}
+
+function ActionSlot({
+  isWide,
+  fullWidth,
+  children,
+}: {
+  isWide: boolean;
+  fullWidth?: boolean;
+  children: ReactNode;
+}) {
+  if (!isWide) {
+    return <>{children}</>;
+  }
+  return (
+    <View style={[styles.actionGridCell, fullWidth && styles.actionGridCellFull]}>{children}</View>
   );
 }
 
@@ -239,10 +377,12 @@ function useThemedStyles(theme: AppTheme) {
   return useMemo(
     () =>
       StyleSheet.create({
-        onSurface: { color: theme.colors.onSurface },
+        onBackground: { color: theme.colors.onBackground },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
         primary: { color: theme.colors.primary },
         avatarBg: { backgroundColor: theme.colors.surfaceVariant },
+        sectionBorder: { borderBottomColor: theme.colors.outlineVariant },
+        accentChipText: { color: theme.customColors.accent, fontWeight: '700' },
       }),
     [theme],
   );
@@ -255,27 +395,85 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing['2xl'],
   },
+  wideScrollContent: {
+    flexGrow: 1,
+  },
+  widePageInner: {
+    width: '100%',
+    maxWidth: WIDE_DETAIL_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
+  },
+  wideSplitScrollContent: {
+    paddingHorizontal: spacing.base,
+  },
+  wideSplitRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.lg,
+    width: '100%',
+    maxWidth: WIDE_DETAIL_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
+  },
+  wideSplitLeft: {
+    flex: 1,
+    minWidth: 280,
+  },
+  wideSplitRight: {
+    flex: 1,
+    minWidth: 280,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    paddingLeft: spacing.lg,
+  },
   section: {
     paddingHorizontal: spacing.base,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.base,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  sectionFirst: {
+    paddingTop: spacing.base,
   },
   actionSection: {
     paddingHorizontal: spacing.base,
-    paddingVertical: spacing.base,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.base,
   },
-  breadcrumb: {
-    marginBottom: spacing.xs,
+  actionSectionWide: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    alignItems: 'stretch',
   },
-  title: {
-    marginBottom: spacing.md,
+  actionGridCell: {
+    width: '48%',
+  },
+  actionGridCellFull: {
+    width: '100%',
+    alignItems: 'center',
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
-  availabilityChip: {
-    borderRadius: borderRadius.full,
+  titleChip: {
+    borderRadius: borderRadius.sm,
+  },
+  title: {
+    fontFamily: 'BigShoulders-Black',
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: -1,
+    lineHeight: 44,
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  metaRow: {
+    marginTop: 0,
+  },
+  stampHeader: {
+    flexDirection: 'row',
+    marginBottom: spacing.sm,
   },
   ownerCard: {
     flexDirection: 'row',
@@ -293,13 +491,28 @@ const styles = StyleSheet.create({
     gap: 2,
     marginTop: 2,
   },
-  locationRow: {
+  locationBlock: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
     gap: spacing.sm,
+  },
+  locationIcon: {
+    marginTop: 2,
+  },
+  locationText: {
+    flex: 1,
+  },
+  listingChip: {
+    borderRadius: borderRadius.sm,
   },
   actionButton: {
     marginBottom: spacing.sm,
     borderRadius: borderRadius.md,
+  },
+  actionButtonInGrid: {
+    marginBottom: 0,
+    width: '100%',
   },
 });

@@ -18,12 +18,13 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-// Mock useAuth
+// Mock useAuth (mutable so individual tests can flip auth state)
+let mockAuthenticated = true;
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
-    user: { id: 'user-123' },
-    isAuthenticated: true,
-    session: {},
+    user: mockAuthenticated ? { id: 'user-123' } : undefined,
+    isAuthenticated: mockAuthenticated,
+    session: mockAuthenticated ? {} : undefined,
   }),
 }));
 
@@ -217,5 +218,31 @@ describe('ListingDetail', () => {
     );
     fireEvent(getByLabelText('Photo 1'), 'longPress');
     expect(onPhotoLongPress).toHaveBeenCalledWith(photos[0]);
+  });
+
+  it('formats price via Intl currency formatter for sellable items', () => {
+    const item = listingItem({
+      availabilityTypes: [AvailabilityType.Sellable],
+      price: 42,
+    });
+    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    // Intl.NumberFormat style:'currency', currency:'EUR' emits the EUR indicator
+    // (`€` or `EUR` depending on locale/ICU) next to the amount.
+    expect(getByText(/(?:€|EUR)\s?42|42\s?(?:€|EUR)/)).toBeTruthy();
+  });
+
+  it('renders disabled sign-in prompt when unauthenticated', () => {
+    mockAuthenticated = false;
+    try {
+      const item = listingItem({ availabilityTypes: [AvailabilityType.Borrowable] });
+      const { getByText, queryByText } = renderWithProviders(
+        <ListingDetail item={item} photos={[]} />,
+      );
+      expect(getByText(/Sign in to contact/)).toBeTruthy();
+      expect(queryByText(/Request Borrow/)).toBeNull();
+      expect(queryByText(/^Contact$/)).toBeNull();
+    } finally {
+      mockAuthenticated = true;
+    }
   });
 });
