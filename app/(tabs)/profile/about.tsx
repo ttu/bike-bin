@@ -1,9 +1,10 @@
-import { Linking, ScrollView, StyleSheet } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, List, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
+import { BrandLockup } from '@/shared/components/BrandLockup';
 import { spacing } from '@/shared/theme';
 
 export default function AboutScreen() {
@@ -50,9 +51,18 @@ export default function AboutScreen() {
           onPress={() => Linking.openURL('https://bikebin.app/licenses')}
         />
 
-        <Text variant="bodySmall" style={[styles.footer, { color: theme.colors.onSurfaceVariant }]}>
-          {t('about.madeWith')}
-        </Text>
+        <View style={styles.brandFooter}>
+          <BrandLockup
+            caption={t('about.lockupCaption')}
+            accessibilityLabel={`Bike Bin · ${t('about.lockupCaption')}`}
+          />
+          <Text
+            variant="bodySmall"
+            style={[styles.madeWith, { color: theme.colors.onSurfaceVariant }]}
+          >
+            {t('about.madeWith')}
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -65,9 +75,13 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xl,
   },
-  footer: {
-    textAlign: 'center',
-    marginTop: spacing.xl,
+  brandFooter: {
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing['2xl'],
     paddingHorizontal: spacing.base,
+  },
+  madeWith: {
+    textAlign: 'center',
   },
 });

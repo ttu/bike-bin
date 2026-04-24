@@ -59,4 +59,10 @@ describe('AboutScreen', () => {
     expect(getByText('App Version')).toBeTruthy();
     expect(getByText('Made with love for the cycling community')).toBeTruthy();
   });
+
+  it('renders the brand lockup in the footer', () => {
+    const { getByText } = renderWithProviders(<AboutScreen />);
+    expect(getByText('BIKE BIN')).toBeTruthy();
+    expect(getByText('Workshop inventory · BB/001')).toBeTruthy();
+  });
 });
