@@ -55,6 +55,23 @@ the handoff (`BBChatScreen`).
 - Composer: hairline top, flat teal send button (already mostly
   aligned — verify and adjust).
 
+## Tab bar — six tabs vs. handoff's five (intentional divergence)
+
+The handoff `TabBar` ships five tabs (Inventory / Bikes / Search / Messages
+/ Profile) with Groups reachable from inside Profile. The shipping app
+keeps six (adds Groups as a top-level tab):
+
+- Groups is a load-bearing workflow that users reach frequently —
+  collapsing it into Profile would add a hop to every group action.
+- The other five tab icons already match the handoff canonical mapping
+  (`home`, `bicycle`, `magnify`, `account-group`, `chat`, `account` at
+  `iconSize.md` 24 px).
+- The Messages unread badge uses `customColors.accent` /
+  `customColors.onAccent` — the one place the accent earns a top-level
+  appearance in chrome (community seam rule).
+
+Revisit only if user testing surfaces an overfull tab bar.
+
 ## Phase 4 — Editorial layouts (deferred, separate PRs)
 
 Out of scope for the alignment series; tracked here so it isn't lost.
