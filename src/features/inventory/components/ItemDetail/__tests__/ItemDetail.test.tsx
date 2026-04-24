@@ -36,9 +36,9 @@ describe('ItemDetail', () => {
     description: 'Good condition cassette',
   });
 
-  it('renders item name in uppercase displayLarge title', () => {
+  it('renders item name as-is (visual uppercase via CSS)', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('SHIMANO CASSETTE')).toBeTruthy();
+    expect(getByText('Shimano Cassette')).toBeTruthy();
   });
 
   it('renders meta row with brand · model · age', () => {
@@ -205,7 +205,7 @@ describe('ItemDetail', () => {
       .spyOn(Dimensions, 'get')
       .mockReturnValue({ width: 1024, height: 768, scale: 1, fontScale: 1 });
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('SHIMANO CASSETTE')).toBeTruthy();
+    expect(getByText('Shimano Cassette')).toBeTruthy();
     expect(getByText('No photos')).toBeTruthy();
   });
 
@@ -214,7 +214,7 @@ describe('ItemDetail', () => {
       .spyOn(Dimensions, 'get')
       .mockReturnValue({ width: 375, height: 812, scale: 1, fontScale: 1 });
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('SHIMANO CASSETTE')).toBeTruthy();
+    expect(getByText('Shimano Cassette')).toBeTruthy();
     expect(getByText('No photos')).toBeTruthy();
   });
 });

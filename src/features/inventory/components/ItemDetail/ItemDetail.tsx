@@ -17,6 +17,7 @@ import { DisplayFigure } from '@/shared/components/DisplayFigure';
 import { useDistanceUnit } from '@/features/profile';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
+import { availabilityTypesForList } from '../../utils/availabilityList';
 
 const MIDDLE_DOT = ' · ';
 
@@ -71,6 +72,7 @@ export function ItemDetail({
     : undefined;
 
   const metaParts = [item.brand, item.model, item.age].filter(Boolean) as string[];
+  const listAvailability = availabilityTypesForList(item.availabilityTypes);
 
   const detailContent = (
     <>
@@ -115,7 +117,7 @@ export function ItemDetail({
           style={[styles.title, themed.onBackground]}
           accessibilityRole="header"
         >
-          {item.name.toUpperCase()}
+          {item.name}
         </Text>
 
         {metaParts.length > 0 && (
@@ -239,13 +241,13 @@ export function ItemDetail({
       )}
 
       {/* Listed for — accent-tinted chips */}
-      {(item.availabilityTypes.length > 0 || ownerGroup) && (
+      {(listAvailability.length > 0 || ownerGroup) && (
         <View style={[styles.section, themed.sectionBorder]}>
           <View style={styles.stampHeader}>
             <Stamp tone="dim">{t('detail.listedFor')}</Stamp>
           </View>
           <View style={styles.chipRow}>
-            {item.availabilityTypes.map((type) => (
+            {listAvailability.map((type) => (
               <Chip key={type} compact style={[styles.listingChip, themed.accentChipBg]}>
                 <Text variant="labelSmall" style={themed.accentChipText}>
                   {t(`availability.${type}`)}

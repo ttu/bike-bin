@@ -172,7 +172,6 @@
     "quantityValue": "{{count}}",
     "serviceRecord": "Service record",
     "mountedOnLabel": "Mounted on",
-    "lastServiceLabel": "Last service",
     "listedFor": "Listed for"
   },
   "form": {
