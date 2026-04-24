@@ -173,10 +173,7 @@
     "serviceRecord": "Service record",
     "mountedOnLabel": "Mounted on",
     "lastServiceLabel": "Last service",
-    "listedFor": "Listed for",
-    "location": {
-      "areaLevelPrivacy": "Area-level · exact address shared on accept"
-    }
+    "listedFor": "Listed for"
   },
   "form": {
     "nameLabel": "Name",

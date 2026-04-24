@@ -53,11 +53,8 @@ describe('ItemDetail', () => {
     expect(getByText('Good')).toBeTruthy();
   });
 
-  it('renders location block with privacy stamp', () => {
-    const { getByText, getAllByText } = renderWithProviders(
-      <ItemDetail item={baseItem} photos={[]} />,
-    );
-    expect(getByText('Area-level · exact address shared on accept')).toBeTruthy();
+  it('renders location block', () => {
+    const { getAllByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
     expect(getAllByText('Garage shelf').length).toBeGreaterThan(0);
   });
 

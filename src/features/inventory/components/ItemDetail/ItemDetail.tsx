@@ -175,28 +175,35 @@ export function ItemDetail({
       ) : null}
 
       {/* Service record */}
-      <View style={[styles.section, themed.sectionBorder]}>
-        <View style={styles.stampHeader}>
-          <Stamp tone="dim">{t('detail.serviceRecord')}</Stamp>
-        </View>
-        <View style={styles.specsTable}>
-          <ServiceRow
-            label={t('detail.conditionLabel')}
-            value={t(`condition.${item.condition}`)}
-            theme={theme}
-          />
-          {item.mountedDate && (
-            <ServiceRow label={t('detail.mountedOnLabel')} value={item.mountedDate} theme={theme} />
-          )}
-          {item.storageLocation && (
-            <ServiceRow
-              label={t('detail.storageLabel')}
-              value={item.storageLocation}
-              theme={theme}
-            />
-          )}
-        </View>
-      </View>
+      {(() => {
+        const serviceRows: { label: string; value: string }[] = [
+          { label: t('detail.conditionLabel'), value: t(`condition.${item.condition}`) },
+        ];
+        if (item.mountedDate) {
+          serviceRows.push({ label: t('detail.mountedOnLabel'), value: item.mountedDate });
+        }
+        if (item.storageLocation) {
+          serviceRows.push({ label: t('detail.storageLabel'), value: item.storageLocation });
+        }
+        return (
+          <View style={[styles.section, themed.sectionBorder]}>
+            <View style={styles.stampHeader}>
+              <Stamp tone="dim">{t('detail.serviceRecord')}</Stamp>
+            </View>
+            <View style={styles.specsTable}>
+              {serviceRows.map((row, index) => (
+                <ServiceRow
+                  key={row.label}
+                  label={row.label}
+                  value={row.value}
+                  theme={theme}
+                  isLast={index === serviceRows.length - 1}
+                />
+              ))}
+            </View>
+          </View>
+        );
+      })()}
 
       {/* Description */}
       {item.description && (
@@ -226,9 +233,6 @@ export function ItemDetail({
               <Text variant="titleSmall" style={themed.onBackground}>
                 {item.storageLocation}
               </Text>
-              <View style={styles.locationPrivacy}>
-                <Stamp tone="dim">{t('detail.location.areaLevelPrivacy')}</Stamp>
-              </View>
             </View>
           </View>
         </View>
@@ -364,9 +368,25 @@ function ActionSlot({
   );
 }
 
-function ServiceRow({ label, value, theme }: { label: string; value: string; theme: AppTheme }) {
+function ServiceRow({
+  label,
+  value,
+  theme,
+  isLast = false,
+}: {
+  label: string;
+  value: string;
+  theme: AppTheme;
+  isLast?: boolean;
+}) {
   return (
-    <View style={[styles.serviceRow, { borderBottomColor: theme.colors.outlineVariant }]}>
+    <View
+      style={[
+        styles.serviceRow,
+        { borderBottomColor: theme.colors.outlineVariant },
+        isLast && styles.serviceRowLast,
+      ]}
+    >
       <Text
         variant="bodyMedium"
         style={[styles.serviceLabel, { color: theme.colors.onSurfaceVariant }]}
@@ -501,6 +521,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  serviceRowLast: {
+    borderBottomWidth: 0,
+  },
   serviceLabel: {
     width: 110,
   },
@@ -520,10 +543,6 @@ const styles = StyleSheet.create({
   },
   locationText: {
     flex: 1,
-  },
-  locationPrivacy: {
-    marginTop: spacing.xs,
-    flexDirection: 'row',
   },
   listingChip: {
     borderRadius: borderRadius.sm,
