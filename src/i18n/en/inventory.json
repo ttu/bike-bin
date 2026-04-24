@@ -169,7 +169,10 @@
     "storageLabel": "Storage",
     "subcategoryLabel": "Type",
     "quantityLabel": "Quantity",
-    "quantityValue": "{{count}}"
+    "quantityValue": "{{count}}",
+    "serviceRecord": "Service record",
+    "mountedOnLabel": "Mounted on",
+    "listedFor": "Listed for"
   },
   "form": {
     "nameLabel": "Name",

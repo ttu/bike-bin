@@ -36,9 +36,33 @@ describe('ItemDetail', () => {
     description: 'Good condition cassette',
   });
 
-  it('renders item name', () => {
+  it('renders item name as-is (visual uppercase via CSS)', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
     expect(getByText('Shimano Cassette')).toBeTruthy();
+  });
+
+  it('renders meta row with brand · model · age', () => {
+    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getByText('Shimano · 105 R7000 · 2 years')).toBeTruthy();
+  });
+
+  it('renders service record stamp and condition row', () => {
+    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getByText('Service record')).toBeTruthy();
+    expect(getByText('Condition')).toBeTruthy();
+    expect(getByText('Good')).toBeTruthy();
+  });
+
+  it('renders location block', () => {
+    const { getAllByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getAllByText('Garage shelf').length).toBeGreaterThan(0);
+  });
+
+  it('renders accent-tinted listing chips under Listed for', () => {
+    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getByText('Listed for')).toBeTruthy();
+    expect(getByText('Borrow')).toBeTruthy();
+    expect(getByText('Sell')).toBeTruthy();
   });
 
   it('hides stored status badge (default)', () => {
@@ -52,27 +76,17 @@ describe('ItemDetail', () => {
     expect(getByText('Mounted')).toBeTruthy();
   });
 
-  it('renders category breadcrumb and specs', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText(/Components · Shimano/)).toBeTruthy();
-    expect(getByText('105 R7000')).toBeTruthy();
+  it('renders storage location in service record and location block', () => {
+    const { getAllByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
+    expect(getAllByText('Garage shelf').length).toBeGreaterThan(0);
   });
 
-  it('renders availability chips', () => {
+  it('renders usage figure', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Borrow')).toBeTruthy();
-    expect(getByText('Sell')).toBeTruthy();
+    expect(getByText('3000')).toBeTruthy();
   });
 
-  it('renders detail grid', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Good')).toBeTruthy();
-    expect(getByText('2 years')).toBeTruthy();
-    expect(getByText('3000 km')).toBeTruthy();
-    expect(getByText('Garage shelf')).toBeTruthy();
-  });
-
-  it('shows amount left for consumables with remaining fraction', () => {
+  it('shows remaining fraction as display figure for consumables', () => {
     const item = createMockItem({
       category: ItemCategory.Consumable,
       subcategory: 'chain_lube',
@@ -81,7 +95,7 @@ describe('ItemDetail', () => {
       usageKm: undefined,
     });
     const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);
-    expect(getByText('40% left')).toBeTruthy();
+    expect(getByText('40')).toBeTruthy();
   });
 
   it('renders description', () => {
