@@ -7,11 +7,29 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { AppTheme } from '@/shared/theme';
-import { spacing, iconSize, tabBarListScrollPaddingBottom } from '@/shared/theme';
+import { spacing, iconSize, borderRadius, tabBarListScrollPaddingBottom } from '@/shared/theme';
 import { useConversations, ConversationCard } from '@/features/messaging';
 import type { ConversationListItem } from '@/features/messaging';
 import { LoadingScreen } from '@/shared/components';
+import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
 import { DemoBanner } from '@/features/demo';
+
+// padding (base) + avatar (44) + gap (md) — matches inventory list inset rhythm
+const SEPARATOR_LEFT_INSET = spacing.base + 44 + spacing.md;
+
+const separatorStyles = StyleSheet.create({
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: SEPARATOR_LEFT_INSET,
+  },
+});
+
+function ItemSeparator() {
+  const theme = useTheme<AppTheme>();
+  return (
+    <View style={[separatorStyles.separator, { backgroundColor: theme.colors.outlineVariant }]} />
+  );
+}
 
 export default function MessagesScreen() {
   const theme = useTheme<AppTheme>();
@@ -36,19 +54,15 @@ export default function MessagesScreen() {
     return <LoadingScreen />;
   }
 
+  const hasConversations = conversations && conversations.length > 0;
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: theme.colors.surface }]}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.onSurface }}>
-          {t('title')}
-        </Text>
-      </View>
+      <ScreenMasthead eyebrow={t('masthead.eyebrow')} title={t('masthead.title')} />
 
       <DemoBanner />
 
-      {/* Conversation list */}
-      {!conversations || conversations.length === 0 ? (
+      {!hasConversations ? (
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons
             name="chat-outline"
@@ -69,12 +83,20 @@ export default function MessagesScreen() {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={conversations}
-          keyExtractor={(item) => item.id}
-          renderItem={renderConversationItem}
-          contentContainerStyle={styles.listContent}
-        />
+        <View
+          style={[
+            styles.listContainer,
+            { backgroundColor: theme.customColors.surfaceContainerLowest },
+          ]}
+        >
+          <FlatList
+            data={conversations}
+            keyExtractor={(item) => item.id}
+            renderItem={renderConversationItem}
+            ItemSeparatorComponent={ItemSeparator}
+            contentContainerStyle={styles.listContent}
+          />
+        </View>
       )}
     </SafeAreaView>
   );
@@ -84,14 +106,14 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
+  listContainer: {
+    flex: 1,
+    marginHorizontal: spacing.base,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
   },
   listContent: {
     paddingBottom: tabBarListScrollPaddingBottom,
-    paddingHorizontal: spacing.sm,
-    gap: spacing.md,
   },
   emptyContainer: {
     flex: 1,

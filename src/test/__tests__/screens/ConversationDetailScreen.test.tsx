@@ -120,6 +120,9 @@ jest.mock('@/features/messaging', () => ({
   }),
   useSendMessage: () => ({ mutate: mockSendMutate, isPending: mockSendPending }),
   useRealtimeMessages: jest.fn(),
+  useUserBorrowHistory: () => ({
+    data: { borrowCount: 0, completedOnTimeCount: 0 },
+  }),
   ChatBubble: ({
     message,
     onLongPress,
@@ -135,11 +138,11 @@ jest.mock('@/features/messaging', () => ({
       </Pressable>
     );
   },
-  ItemReferenceCard: ({ onViewItem }: { onViewItem: () => void }) => {
+  ItemContextStrip: ({ onPress }: { onPress?: () => void }) => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- inline mock component
     const { Pressable, Text } = require('react-native');
     return (
-      <Pressable testID="view-item-card" onPress={onViewItem}>
+      <Pressable testID="view-item-card" onPress={onPress}>
         <Text>Item card</Text>
       </Pressable>
     );
