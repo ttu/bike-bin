@@ -40,24 +40,18 @@ export function useBorrowTransition({
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [BORROW_REQUESTS_QUERY_KEY],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['items'],
-      });
-      // Cover the case where the item is group-owned — the TanStack Query
-      // prefix match invalidates all `['group-items', groupId]` entries.
-      void queryClient.invalidateQueries({
-        queryKey: ['group-items'],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['search', 'items'],
-      });
-      for (const key of additionalInvalidateKeys) {
-        void queryClient.invalidateQueries({ queryKey: [key] });
-      }
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: ['items'] }),
+        // Cover the case where the item is group-owned — the TanStack Query
+        // prefix match invalidates all `['group-items', groupId]` entries.
+        queryClient.invalidateQueries({ queryKey: ['group-items'] }),
+        queryClient.invalidateQueries({ queryKey: ['search', 'items'] }),
+        ...additionalInvalidateKeys.map((key) =>
+          queryClient.invalidateQueries({ queryKey: [key] }),
+        ),
+      ]);
     },
   });
 }

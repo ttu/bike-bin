@@ -10,7 +10,7 @@ type CenteredLoadingIndicatorProps = {
   fill?: boolean;
 };
 
-export function CenteredLoadingIndicator({ fill = true }: CenteredLoadingIndicatorProps) {
+export function CenteredLoadingIndicator({ fill = true }: Readonly<CenteredLoadingIndicatorProps>) {
   const theme = useTheme();
   const { t } = useTranslation('common');
 

@@ -5,7 +5,7 @@ import { GroupRole, ItemStatus } from '@/shared/types';
  * Item statuses that represent an active borrow lifecycle.
  * Items in these states cannot be deleted or transferred.
  */
-const ACTIVE_BORROW_STATUSES: ItemStatus[] = [ItemStatus.Loaned, ItemStatus.Reserved];
+const ACTIVE_BORROW_STATUSES = new Set<ItemStatus>([ItemStatus.Loaned, ItemStatus.Reserved]);
 
 /**
  * Whether the viewer can edit this item's core fields.
@@ -32,7 +32,7 @@ export function canDeleteItem(
   userId: string,
   groupRole: GroupRole | undefined,
 ): boolean {
-  if (ACTIVE_BORROW_STATUSES.includes(item.status)) return false;
+  if (ACTIVE_BORROW_STATUSES.has(item.status)) return false;
   return canEditItem(item, userId, groupRole);
 }
 
@@ -45,7 +45,7 @@ export function canTransferItem(
   userId: string,
   groupRole: GroupRole | undefined,
 ): boolean {
-  if (ACTIVE_BORROW_STATUSES.includes(item.status)) return false;
+  if (ACTIVE_BORROW_STATUSES.has(item.status)) return false;
   return canEditItem(item, userId, groupRole);
 }
 

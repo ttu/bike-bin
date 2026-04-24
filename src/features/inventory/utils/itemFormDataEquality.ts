@@ -2,7 +2,7 @@ import { Visibility } from '@/shared/types';
 import type { ItemFormData } from './validation';
 
 function sortedStrings(ids: readonly string[] | undefined): string[] {
-  return [...(ids ?? [])].map(String).sort();
+  return [...(ids ?? [])].map(String).sort((a, b) => a.localeCompare(b));
 }
 
 function sortedStringsEqual(
@@ -24,49 +24,59 @@ function numClose(a: number | undefined, b: number | undefined, eps: number): bo
   return Math.abs(a - b) < eps;
 }
 
+type Comparator = (a: ItemFormData, b: ItemFormData) => boolean;
+
+const DIRECT_KEYS: readonly (keyof ItemFormData)[] = [
+  'name',
+  'quantity',
+  'category',
+  'condition',
+  'price',
+  'deposit',
+  'usageKm',
+  'pickupLocationId',
+  'visibility',
+];
+
+const NULLABLE_STRING_KEYS: readonly (keyof ItemFormData)[] = [
+  'subcategory',
+  'brand',
+  'model',
+  'description',
+  'borrowDuration',
+  'storageLocation',
+  'age',
+  'purchaseDate',
+  'mountedDate',
+];
+
+const COMPARATORS: readonly Comparator[] = [
+  ...DIRECT_KEYS.map(
+    (key): Comparator =>
+      (a, b) =>
+        a[key] === b[key],
+  ),
+  ...NULLABLE_STRING_KEYS.map(
+    (key): Comparator =>
+      (a, b) =>
+        ((a[key] as string | undefined) ?? '') === ((b[key] as string | undefined) ?? ''),
+  ),
+  (a, b) => sortedStringsEqual(a.availabilityTypes as string[], b.availabilityTypes as string[]),
+  (a, b) => numClose(a.remainingFraction, b.remainingFraction, 1e-7),
+  (a, b) => sortedStringsEqual(a.tags, b.tags),
+];
+
+function groupIdsEqual(baseline: ItemFormData, draft: ItemFormData): boolean {
+  const involvesGroups =
+    baseline.visibility === Visibility.Groups || draft.visibility === Visibility.Groups;
+  if (!involvesGroups) return true;
+  return sortedStringsEqual(
+    baseline.groupIds as string[] | undefined,
+    draft.groupIds as string[] | undefined,
+  );
+}
+
 /** True when `draft` matches `baseline` for persisted item fields (edit dirty detection). */
 export function areItemFormDataEqual(baseline: ItemFormData, draft: ItemFormData): boolean {
-  if (baseline.name !== draft.name) return false;
-  if (baseline.quantity !== draft.quantity) return false;
-  if (baseline.category !== draft.category) return false;
-  if ((baseline.subcategory ?? '') !== (draft.subcategory ?? '')) return false;
-  if (baseline.condition !== draft.condition) return false;
-  if ((baseline.brand ?? '') !== (draft.brand ?? '')) return false;
-  if ((baseline.model ?? '') !== (draft.model ?? '')) return false;
-  if ((baseline.description ?? '') !== (draft.description ?? '')) return false;
-
-  if (
-    !sortedStringsEqual(baseline.availabilityTypes as string[], draft.availabilityTypes as string[])
-  ) {
-    return false;
-  }
-
-  if (baseline.price !== draft.price) return false;
-  if (baseline.deposit !== draft.deposit) return false;
-  if ((baseline.borrowDuration ?? '') !== (draft.borrowDuration ?? '')) return false;
-  if ((baseline.storageLocation ?? '') !== (draft.storageLocation ?? '')) return false;
-  if ((baseline.age ?? '') !== (draft.age ?? '')) return false;
-  if (baseline.usageKm !== draft.usageKm) return false;
-  if (!numClose(baseline.remainingFraction, draft.remainingFraction, 1e-7)) return false;
-  if ((baseline.purchaseDate ?? '') !== (draft.purchaseDate ?? '')) return false;
-  if ((baseline.mountedDate ?? '') !== (draft.mountedDate ?? '')) return false;
-  if (baseline.pickupLocationId !== draft.pickupLocationId) return false;
-  if (baseline.visibility !== draft.visibility) return false;
-
-  if (baseline.visibility === Visibility.Groups || draft.visibility === Visibility.Groups) {
-    if (
-      !sortedStringsEqual(
-        baseline.groupIds as string[] | undefined,
-        draft.groupIds as string[] | undefined,
-      )
-    ) {
-      return false;
-    }
-  }
-
-  if (!sortedStringsEqual(baseline.tags, draft.tags)) {
-    return false;
-  }
-
-  return true;
+  return COMPARATORS.every((compare) => compare(baseline, draft)) && groupIdsEqual(baseline, draft);
 }

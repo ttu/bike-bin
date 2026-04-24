@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 const { withStorybook } = require('@storybook/react-native/metro/withStorybook');
 

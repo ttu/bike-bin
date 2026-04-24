@@ -1,7 +1,12 @@
-import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
-import type { GroupId } from '@/shared/types';
-import type { DistanceUnit } from '@/shared/types';
-import type { LocationId } from '@/shared/types';
+import {
+  ItemCategory,
+  ItemCondition,
+  AvailabilityType,
+  Visibility,
+  type GroupId,
+  type DistanceUnit,
+  type LocationId,
+} from '@/shared/types';
 import { resolveItemFormName } from './resolveItemFormName';
 import { parseRemainingPercentInput } from './remainingFractionInput';
 import { sanitizeTag, canAddTag } from './tagUtils';

@@ -74,8 +74,12 @@ export default function BorrowRequestsScreen() {
     [allRequests, userId],
   );
 
-  const currentList =
-    activeTab === 'incoming' ? incoming : activeTab === 'outgoing' ? outgoing : active;
+  const listsByTab: Record<Tab, BorrowRequestWithDetails[]> = {
+    incoming,
+    outgoing,
+    active,
+  };
+  const currentList = listsByTab[activeTab];
 
   const handleAccept = useCallback(
     (request: BorrowRequestWithDetails) => {
@@ -253,6 +257,31 @@ export default function BorrowRequestsScreen() {
     (r) => r.status === BorrowRequestStatus.Pending,
   ).length;
 
+  const renderContent = () => {
+    if (currentList.length === 0) {
+      if (isLoading) {
+        return <CenteredLoadingIndicator />;
+      }
+      return (
+        <EmptyState
+          icon={emptyConfig[activeTab].icon}
+          title={emptyConfig[activeTab].title}
+          description={emptyConfig[activeTab].description}
+        />
+      );
+    }
+    return (
+      <FlatList
+        testID="borrow-requests-list"
+        data={currentList}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+        contentContainerStyle={styles.list}
+      />
+    );
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
@@ -291,24 +320,7 @@ export default function BorrowRequestsScreen() {
       </View>
 
       {/* Content */}
-      {isLoading && currentList.length === 0 ? (
-        <CenteredLoadingIndicator />
-      ) : !isLoading && currentList.length === 0 ? (
-        <EmptyState
-          icon={emptyConfig[activeTab].icon}
-          title={emptyConfig[activeTab].title}
-          description={emptyConfig[activeTab].description}
-        />
-      ) : (
-        <FlatList
-          testID="borrow-requests-list"
-          data={currentList}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          contentContainerStyle={styles.list}
-        />
-      )}
+      {renderContent()}
 
       <ConfirmDialog
         {...confirmDialogProps}

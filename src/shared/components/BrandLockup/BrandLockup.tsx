@@ -13,7 +13,11 @@ interface BrandLockupProps {
   accessibilityLabel?: string;
 }
 
-export function BrandLockup({ size = 40, caption, accessibilityLabel }: BrandLockupProps) {
+export function BrandLockup({
+  size = 40,
+  caption,
+  accessibilityLabel,
+}: Readonly<BrandLockupProps>) {
   const theme = useTheme<AppTheme>();
   const wordmarkSize = Math.round(size * 0.85);
   const captionSize = Math.max(10, Math.round(size * 0.22));

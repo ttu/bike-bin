@@ -48,41 +48,38 @@ function extractAreaName(result: NominatimResult): string {
   );
 }
 
+const JSON_HEADERS = { 'Content-Type': 'application/json' } as const;
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
+}
+
+async function requireAuthenticatedUser(req: Request): Promise<Response | undefined> {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) return jsonResponse(401, { error: 'Unauthorized' });
+
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseAnon = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseAnon.auth.getUser();
+  if (authError || !user) return jsonResponse(401, { error: 'Unauthorized' });
+  return undefined;
+}
+
 Deno.serve(async (req) => {
   // Only allow POST
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  if (req.method !== 'POST') return jsonResponse(405, { error: 'Method not allowed' });
 
   try {
-    // Require authenticated user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    const authError = await requireAuthenticatedUser(req);
+    if (authError) return authError;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnon = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseAnon.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
     const { postcode, country } = await req.json();
 
     if (!postcode || typeof postcode !== 'string' || postcode.trim().length === 0) {

@@ -58,15 +58,16 @@ export function ListingDetailRoute({
 
   const thisListingPath = `${thisListingPathPrefix}/${item.id}`;
 
-  const handleContact = () => {
+  const resolveContactParams = () => {
     // Group items use the shared-inbox path (all admins as participants);
     // personal items use the direct owner path.
-    const params =
-      item.groupId !== undefined
-        ? { itemId: item.id, groupId: item.groupId }
-        : item.ownerId !== undefined
-          ? { itemId: item.id, otherUserId: item.ownerId }
-          : undefined;
+    if (item.groupId !== undefined) return { itemId: item.id, groupId: item.groupId };
+    if (item.ownerId !== undefined) return { itemId: item.id, otherUserId: item.ownerId };
+    return undefined;
+  };
+
+  const handleContact = () => {
+    const params = resolveContactParams();
     if (!params) return;
     createConversation(params, {
       onSuccess: (result) => {
@@ -169,7 +170,7 @@ export function ListingDetailRoute({
         onContact={isOwnItem ? undefined : handleContact}
         onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
         onOwnerPress={item.ownerId ? handleOwnerPress : undefined}
-        onPhotoLongPress={isOwnItem || !user ? undefined : handlePhotoLongPress}
+        onPhotoLongPress={isOwnItem || user === null ? undefined : handlePhotoLongPress}
       />
 
       <ConfirmDialog {...confirmDialogProps} />

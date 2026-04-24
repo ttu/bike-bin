@@ -23,7 +23,7 @@ export function GroupEditForm({
   onCancel,
   onSubmit,
   isSubmitting,
-}: GroupEditFormProps) {
+}: Readonly<GroupEditFormProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('groups');
 

@@ -32,5 +32,6 @@ export function formatValidationFeedbackBody(
   if (cleaned.length === 1) {
     return cleaned[0] ?? '';
   }
-  return `${intro}\n\n${cleaned.map((m) => `${bulletPrefix}${m}`).join('\n')}`;
+  const bulletList = cleaned.map((m) => `${bulletPrefix}${m}`).join('\n');
+  return `${intro}\n\n${bulletList}`;
 }

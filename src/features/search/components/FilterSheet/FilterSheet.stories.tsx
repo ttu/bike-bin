@@ -19,12 +19,12 @@ function FilterSheetPlayground({
   onFiltersChange: onFiltersChangeArg,
   onReset: onResetArg,
   onApply: onApplyArg,
-}: {
+}: Readonly<{
   initialFilters: SearchFilters;
   onFiltersChange?: (partial: Partial<SearchFilters>) => void;
   onReset?: () => void;
   onApply?: () => void;
-}) {
+}>) {
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
 
   return (

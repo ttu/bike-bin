@@ -18,9 +18,9 @@ export function mapItemRow(row: ItemRow): Item {
   const quantity = Number.isNaN(rawQty) ? 1 : Math.max(1, rawQty);
 
   const ownership: Ownership =
-    row.group_id != null
-      ? { groupId: row.group_id as GroupId, createdBy: row.created_by as UserId }
-      : { ownerId: row.owner_id as UserId };
+    row.group_id == null
+      ? { ownerId: row.owner_id as UserId }
+      : { groupId: row.group_id as GroupId, createdBy: row.created_by as UserId };
 
   return {
     ...ownership,

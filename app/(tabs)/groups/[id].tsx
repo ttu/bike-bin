@@ -31,7 +31,7 @@ import {
 } from '@/features/groups';
 import { GroupInventoryTab } from '@/features/groups/components/GroupInventoryTab';
 import type { GroupMemberWithProfile, PendingGroupInvitation } from '@/features/groups';
-import type { GroupId, GroupInvitationId, UserId } from '@/shared/types';
+import type { GroupId, UserId } from '@/shared/types';
 import { GroupRole } from '@/shared/types';
 
 export default function GroupDetailScreen() {
@@ -197,7 +197,7 @@ export default function GroupDetailScreen() {
           closeConfirm();
           try {
             await cancelInvitation.mutateAsync({
-              invitationId: invitation.id as GroupInvitationId,
+              invitationId: invitation.id,
               groupId,
             });
           } catch {
@@ -466,10 +466,10 @@ function MemberRow({
 function PendingInvitationRow({
   invitation,
   onCancel,
-}: {
+}: Readonly<{
   invitation: PendingGroupInvitation;
   onCancel: (invitation: PendingGroupInvitation) => void;
-}) {
+}>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 

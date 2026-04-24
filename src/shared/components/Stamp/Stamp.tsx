@@ -11,18 +11,19 @@ interface StampProps {
   size?: number;
 }
 
-export function Stamp({ children, tone = 'ink', size = 10 }: StampProps) {
+function resolveStampColor(tone: StampTone, theme: AppTheme): string {
+  if (tone === 'accent') return theme.customColors.accent;
+  if (tone === 'dim') return theme.colors.onSurfaceVariant;
+  return theme.colors.onBackground;
+}
+
+export function Stamp({ children, tone = 'ink', size = 10 }: Readonly<StampProps>) {
   const theme = useTheme<AppTheme>();
 
-  const dynamicStyle = useMemo(() => {
-    const color =
-      tone === 'accent'
-        ? theme.customColors.accent
-        : tone === 'dim'
-          ? theme.colors.onSurfaceVariant
-          : theme.colors.onBackground;
-    return { color, fontSize: size };
-  }, [tone, size, theme]);
+  const dynamicStyle = useMemo(
+    () => ({ color: resolveStampColor(tone, theme), fontSize: size }),
+    [tone, size, theme],
+  );
 
   return <Text style={[styles.stamp, dynamicStyle]}>{children}</Text>;
 }

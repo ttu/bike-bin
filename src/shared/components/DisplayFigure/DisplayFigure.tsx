@@ -15,7 +15,7 @@ interface DisplayFigureProps {
   size?: number;
 }
 
-export function DisplayFigure({ value, unit, note, size = 32 }: DisplayFigureProps) {
+export function DisplayFigure({ value, unit, note, size = 32 }: Readonly<DisplayFigureProps>) {
   const theme = useTheme<AppTheme>();
 
   const dynamicStyles = useMemo(() => {

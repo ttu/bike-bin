@@ -296,6 +296,16 @@ export default function ConversationDetailScreen() {
 
   const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
 
+  const renderHeaderAvatar = () => {
+    if (conversation && isGroupConversation(conversation)) {
+      return <Avatar.Icon size={36} icon="account-group" style={themed.avatarIcon} />;
+    }
+    if (conversation?.otherParticipantAvatarUrl) {
+      return <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={36} />;
+    }
+    return <Avatar.Icon size={36} icon="account" style={themed.avatarIcon} />;
+  };
+
   if (convLoading || msgsLoading) {
     return <LoadingScreen />;
   }
@@ -330,13 +340,7 @@ export default function ConversationDetailScreen() {
             accessibilityState={{ disabled: !conversation?.otherParticipantId }}
             testID="conversation-header-profile"
           >
-            {conversation && isGroupConversation(conversation) ? (
-              <Avatar.Icon size={36} icon="account-group" style={themed.avatarIcon} />
-            ) : conversation?.otherParticipantAvatarUrl ? (
-              <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={36} />
-            ) : (
-              <Avatar.Icon size={36} icon="account" style={themed.avatarIcon} />
-            )}
+            {renderHeaderAvatar()}
             <View style={styles.headerTextStack}>
               <Text
                 variant="titleMedium"
@@ -388,7 +392,7 @@ export default function ConversationDetailScreen() {
         </View>
 
         {/* Item-context strip (slim hairline-bordered row) */}
-        {conversation && conversation.itemId ? (
+        {conversation?.itemId ? (
           <ItemContextStrip conversation={conversation} onPress={handleViewItem} />
         ) : null}
 

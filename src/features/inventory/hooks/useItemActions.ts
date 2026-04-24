@@ -141,19 +141,19 @@ export function useItemActions(item: Item) {
       cancelLabel: tBorrow('confirm.markReturned.cancel'),
       confirmLabel: tBorrow('confirm.markReturned.confirm'),
       onConfirm: async () => {
-        if (acceptedBorrowRequestId != null) {
-          markReturned.mutate(
-            { requestId: acceptedBorrowRequestId, itemId: item.id },
-            { onSuccess: onDone, onError },
-          );
-        } else {
+        if (acceptedBorrowRequestId == null) {
           try {
             await updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
             onDone();
           } catch {
             onError();
           }
+          return;
         }
+        markReturned.mutate(
+          { requestId: acceptedBorrowRequestId, itemId: item.id },
+          { onSuccess: onDone, onError },
+        );
       },
     });
   };

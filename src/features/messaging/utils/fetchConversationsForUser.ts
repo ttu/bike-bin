@@ -3,6 +3,88 @@ import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import type { ConversationListItem } from '../types';
 import type { AvailabilityType, ConversationId, GroupId, ItemId, UserId } from '@/shared/types';
 
+type ConvItem = {
+  id: string;
+  owner_id: string | null;
+  group_id: string | null;
+  name: string;
+  status: string;
+  availability_types: string[];
+} | null;
+
+type ConvRow = {
+  id: string;
+  item_id: string | null;
+  created_at: string;
+  items: ConvItem | ConvItem[];
+};
+
+type LastMessage = { body: string; sender_id: string; created_at: string };
+
+function extractItem(row: ConvRow): ConvItem {
+  return Array.isArray(row.items) ? row.items[0] : row.items;
+}
+
+async function fetchParticipantsByConversation(
+  conversationIds: string[],
+  userId: string,
+): Promise<Map<string, { conversation_id: string; user_id: string }>> {
+  const { data, error } = await supabase
+    .from('conversation_participants')
+    .select('conversation_id, user_id')
+    .in('conversation_id', conversationIds)
+    .neq('user_id', userId);
+  if (error) throw error;
+  const map = new Map<string, { conversation_id: string; user_id: string }>();
+  for (const row of data ?? []) {
+    const cid = row.conversation_id as string;
+    if (!map.has(cid)) {
+      map.set(cid, { conversation_id: cid, user_id: row.user_id as string });
+    }
+  }
+  return map;
+}
+
+async function fetchLastMessages(conversationIds: string[]): Promise<Map<string, LastMessage>> {
+  const { data, error } = await supabase.rpc('latest_messages_for_conversations', {
+    p_conversation_ids: conversationIds,
+  });
+  if (error) throw error;
+  const map = new Map<string, LastMessage>();
+  for (const msg of data ?? []) {
+    map.set(msg.conversation_id as string, {
+      body: msg.body as string,
+      sender_id: msg.sender_id as string,
+      created_at: msg.created_at as string,
+    });
+  }
+  return map;
+}
+
+async function fetchPrimaryPhotos(itemIds: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (itemIds.length === 0) return map;
+  const { data, error } = await supabase.rpc('primary_photos_for_items', {
+    p_item_ids: itemIds,
+  });
+  if (error) throw error;
+  for (const photo of data ?? []) {
+    map.set(photo.item_id as string, photo.storage_path as string);
+  }
+  return map;
+}
+
+async function fetchGroupNames(groupIds: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (groupIds.length === 0) return map;
+  const uniqueGroupIds = [...new Set(groupIds)];
+  const { data } = await supabase.from('groups').select('id, name').in('id', uniqueGroupIds);
+  for (const g of data ?? []) {
+    map.set(g.id as string, g.name as string);
+  }
+  return map;
+}
+
 /** Loads the full conversation list for the signed-in user (Supabase + RPCs + profile map). */
 export async function fetchConversationsForUser(userId: string): Promise<ConversationListItem[]> {
   const { data: participantRows, error: pError } = await supabase
@@ -38,115 +120,38 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
   if (cError) throw cError;
   if (!conversations) return [];
 
-  const { data: allParticipants, error: apError } = await supabase
-    .from('conversation_participants')
-    .select('conversation_id, user_id')
-    .in('conversation_id', conversationIds)
-    .neq('user_id', userId);
-
-  if (apError) throw apError;
-
-  const participantsByConversationId = new Map<
-    string,
-    { conversation_id: string; user_id: string }
-  >();
-  for (const row of allParticipants ?? []) {
-    const cid = row.conversation_id as string;
-    if (!participantsByConversationId.has(cid)) {
-      participantsByConversationId.set(cid, row);
-    }
-  }
-
-  const conversationsWithOtherParticipant = conversations.filter((c) =>
-    participantsByConversationId.has(c.id as string),
+  const participantsByConversationId = await fetchParticipantsByConversation(
+    conversationIds,
+    userId,
   );
+
+  const rows = conversations as unknown as ConvRow[];
+  const convsWithOther = rows.filter((c) => participantsByConversationId.has(c.id));
 
   const otherUserIds = [
     ...new Set(
-      conversationsWithOtherParticipant
-        .map((c) => {
-          const p = participantsByConversationId.get(c.id as string);
-          return p?.user_id as string | undefined;
-        })
+      convsWithOther
+        .map((c) => participantsByConversationId.get(c.id)?.user_id)
         .filter((id): id is string => Boolean(id)),
     ),
   ];
   const profileByUserId = await fetchPublicProfilesMap(otherUserIds);
 
-  const { data: lastMessageRows, error: lastMessagesError } = await supabase.rpc(
-    'latest_messages_for_conversations',
-    { p_conversation_ids: conversationIds },
-  );
+  const lastMessageByConvId = await fetchLastMessages(conversationIds);
 
-  if (lastMessagesError) throw lastMessagesError;
+  const itemIds = convsWithOther.map((c) => c.item_id).filter((id): id is string => Boolean(id));
+  const photoByItemId = await fetchPrimaryPhotos(itemIds);
 
-  const lastMessageByConvId = new Map<
-    string,
-    { body: string; sender_id: string; created_at: string }
-  >();
-  for (const msg of lastMessageRows ?? []) {
-    lastMessageByConvId.set(msg.conversation_id as string, {
-      body: msg.body as string,
-      sender_id: msg.sender_id as string,
-      created_at: msg.created_at as string,
-    });
-  }
-
-  const itemIds = conversationsWithOtherParticipant
-    .map((c) => c.item_id)
-    .filter((id): id is string => Boolean(id));
-  const photoByItemId = new Map<string, string>();
-  if (itemIds.length > 0) {
-    const { data: primaryPhotoRows, error: primaryPhotosError } = await supabase.rpc(
-      'primary_photos_for_items',
-      { p_item_ids: itemIds },
-    );
-
-    if (primaryPhotosError) throw primaryPhotosError;
-
-    for (const photo of primaryPhotoRows ?? []) {
-      photoByItemId.set(photo.item_id as string, photo.storage_path as string);
-    }
-  }
-
-  // Enrich group-owned items with group names
-  const groupIds = conversationsWithOtherParticipant
-    .map((c) => {
-      const itm = (Array.isArray(c.items) ? c.items[0] : c.items) as {
-        group_id?: string | null;
-      } | null;
-      return itm?.group_id;
-    })
+  const groupIds = convsWithOther
+    .map((c) => extractItem(c)?.group_id)
     .filter((gid): gid is string => Boolean(gid));
+  const groupNameById = await fetchGroupNames(groupIds);
 
-  const groupNameById = new Map<string, string>();
-  if (groupIds.length > 0) {
-    const uniqueGroupIds = [...new Set(groupIds)];
-    const { data: groupRows } = await supabase
-      .from('groups')
-      .select('id, name')
-      .in('id', uniqueGroupIds);
-    for (const g of groupRows ?? []) {
-      groupNameById.set(g.id as string, g.name as string);
-    }
-  }
-
-  const results: ConversationListItem[] = conversationsWithOtherParticipant.map((conv) => {
-    const otherParticipant = participantsByConversationId.get(conv.id as string)!;
-    const lastMsg = lastMessageByConvId.get(conv.id as string);
-
-    const profile = profileByUserId.get(otherParticipant.user_id as string);
-    const otherName = profile?.displayName;
-    const otherAvatar = profile?.avatarUrl;
-
-    const item = (Array.isArray(conv.items) ? conv.items[0] : conv.items) as {
-      id: string;
-      owner_id: string | null;
-      group_id: string | null;
-      name: string;
-      status: string;
-      availability_types: string[];
-    } | null;
+  const results: ConversationListItem[] = convsWithOther.map((conv) => {
+    const otherParticipant = participantsByConversationId.get(conv.id)!;
+    const lastMsg = lastMessageByConvId.get(conv.id);
+    const profile = profileByUserId.get(otherParticipant.user_id);
+    const item = extractItem(conv);
 
     return {
       id: conv.id as ConversationId,
@@ -154,18 +159,18 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
       itemOwnerId: item?.owner_id ? (item.owner_id as UserId) : undefined,
       itemGroupId: item?.group_id ? (item.group_id as GroupId) : undefined,
       groupName: item?.group_id ? groupNameById.get(item.group_id) : undefined,
-      itemName: (item?.name as string) ?? undefined,
-      itemStatus: (item?.status as string) ?? undefined,
+      itemName: item?.name ?? undefined,
+      itemStatus: item?.status ?? undefined,
       itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
-      itemPhotoPath: conv.item_id ? photoByItemId.get(conv.item_id as string) : undefined,
+      itemPhotoPath: conv.item_id ? photoByItemId.get(conv.item_id) : undefined,
       otherParticipantId: otherParticipant.user_id as UserId,
-      otherParticipantName: otherName,
-      otherParticipantAvatarUrl: otherAvatar,
+      otherParticipantName: profile?.displayName,
+      otherParticipantAvatarUrl: profile?.avatarUrl,
       lastMessageBody: lastMsg?.body ?? undefined,
       lastMessageSenderId: (lastMsg?.sender_id as UserId) ?? undefined,
       lastMessageAt: lastMsg?.created_at ?? undefined,
       unreadCount: 0,
-      createdAt: conv.created_at as string,
+      createdAt: conv.created_at,
     };
   });
 

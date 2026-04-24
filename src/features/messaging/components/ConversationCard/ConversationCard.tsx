@@ -65,12 +65,13 @@ export const ConversationCard = memo(function ConversationCard({
   const isCompleted =
     conversation.itemStatus === ItemStatus.Sold || conversation.itemStatus === ItemStatus.Donated;
 
-  const statusSuffix =
+  const statusSuffixKey =
     conversation.itemStatus === ItemStatus.Sold
-      ? ` ${t('conversation.itemSold')}`
+      ? 'conversation.itemSold'
       : conversation.itemStatus === ItemStatus.Donated
-        ? ` ${t('conversation.itemDonated')}`
-        : '';
+        ? 'conversation.itemDonated'
+        : undefined;
+  const statusSuffix = statusSuffixKey ? ` ${t(statusSuffixKey)}` : '';
 
   const itemLabel = conversation.itemName
     ? t('conversation.itemReference', { itemName: conversation.itemName }) + statusSuffix

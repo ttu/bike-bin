@@ -76,7 +76,7 @@ function GroupedCell({
   cellKey: _cellKey,
   index: _index,
   item: _item,
-}: GroupedCellProps) {
+}: Readonly<GroupedCellProps>) {
   return (
     <View onLayout={onLayout} style={[style, groupedCellStyles.cell]}>
       {children}
@@ -261,6 +261,8 @@ export default function InventoryScreen() {
 
   const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
 
+  const sortLabelText = t(`sort.${sortOption}`);
+
   const listHeader = useMemo(
     () => (
       <>
@@ -335,7 +337,7 @@ export default function InventoryScreen() {
                     pressed && styles.sortButtonPressed,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel={`${t('sort.label')}, ${t(`sort.${sortOption}`)}, ${t('sort.hint')}`}
+                  accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
                 >
                   <MaterialCommunityIcons
                     name="sort"
@@ -343,7 +345,7 @@ export default function InventoryScreen() {
                     color={theme.colors.onSurfaceVariant}
                   />
                   <Text variant="labelMedium" style={themeStyles.sortLabel}>
-                    {t(`sort.${sortOption}`)}
+                    {sortLabelText}
                   </Text>
                 </Pressable>
               </>
@@ -418,6 +420,7 @@ export default function InventoryScreen() {
       toggleTerminal,
       toggleTagFilter,
       sortOption,
+      sortLabelText,
       themeStyles,
       cycleSortOption,
       filteredItems.length,

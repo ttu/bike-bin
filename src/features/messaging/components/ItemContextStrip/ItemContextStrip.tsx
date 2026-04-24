@@ -50,7 +50,7 @@ function deriveStatusTone(status: string | undefined): StatusTone | undefined {
   }
 }
 
-export function ItemContextStrip({ conversation, onPress }: ItemContextStripProps) {
+export function ItemContextStrip({ conversation, onPress }: Readonly<ItemContextStripProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('messages');
   const { t: tInventory } = useTranslation('inventory');
@@ -90,12 +90,12 @@ export function ItemContextStrip({ conversation, onPress }: ItemContextStripProp
   const statusTone = deriveStatusTone(conversation.itemStatus);
   const thumbnailUri = getItemThumbnailPublicUrl(conversation.itemPhotoPath);
 
-  const statusColor =
-    statusTone === 'warning'
-      ? theme.customColors.warning
-      : statusTone === 'success'
-        ? theme.customColors.success
-        : undefined;
+  const statusColorByTone: Record<StatusTone, string> = {
+    warning: theme.customColors.warning,
+    success: theme.customColors.success,
+    neutral: '',
+  };
+  const statusColor = statusTone ? statusColorByTone[statusTone] || undefined : undefined;
 
   const Wrapper = onPress ? Pressable : View;
 

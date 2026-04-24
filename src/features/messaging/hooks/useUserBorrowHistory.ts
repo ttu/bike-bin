@@ -9,9 +9,9 @@ export interface UserBorrowHistory {
 }
 
 /**
- * Trust-signal stub for the chat header. Real borrow analytics aren't
- * wired up yet; the chat header treats `borrowCount === 0` as "hide".
- * TODO(design): wire to borrow history when analytics tables are available.
+ * Trust-signal stub for the chat header. Real borrow analytics aren't wired up
+ * yet; the chat header treats `borrowCount === 0` as "hide". Tracked for
+ * follow-up once the borrow analytics tables are available.
  */
 export function useUserBorrowHistory(userId: UserId | undefined) {
   return useQuery({

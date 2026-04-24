@@ -45,17 +45,12 @@ export default function BikesScreen() {
     [theme.colors.background, theme.colors.primary, insets.top, insets.bottom],
   );
 
-  return (
-    <View style={[styles.container, insetsStyles.container]}>
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-          {t('title')}
-        </Text>
-      </View>
-
-      {isLoading && bikes.length === 0 ? (
-        <CenteredLoadingIndicator />
-      ) : !isLoading && bikes.length === 0 ? (
+  const renderBody = () => {
+    if (isLoading && bikes.length === 0) {
+      return <CenteredLoadingIndicator />;
+    }
+    if (bikes.length === 0) {
+      return (
         <EmptyState
           icon="bicycle"
           title={t('noBikes')}
@@ -68,14 +63,27 @@ export default function BikesScreen() {
           onCtaPress={handleAddPress}
           ctaDisabled={blockNewBikes}
         />
-      ) : (
-        <FlatList
-          data={bikes}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={insetsStyles.listContent}
-        />
-      )}
+      );
+    }
+    return (
+      <FlatList
+        data={bikes}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={insetsStyles.listContent}
+      />
+    );
+  };
+
+  return (
+    <View style={[styles.container, insetsStyles.container]}>
+      <View style={styles.header}>
+        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
+          {t('title')}
+        </Text>
+      </View>
+
+      {renderBody()}
 
       {bikes.length > 0 && (
         <FAB
