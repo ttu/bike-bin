@@ -264,6 +264,12 @@ export default function InventoryScreen() {
   const listHeader = useMemo(
     () => (
       <>
+        <ScreenMasthead
+          eyebrow={t('masthead.eyebrow')}
+          title={t('masthead.title')}
+          counts={mastheadCounts}
+        />
+
         <DemoBanner />
         <SyncBanner />
 
@@ -397,6 +403,7 @@ export default function InventoryScreen() {
       theme.colors,
       theme.customColors,
       t,
+      mastheadCounts,
       userTags,
       selectedTags,
       selectedCategory,
@@ -451,12 +458,6 @@ export default function InventoryScreen() {
         { backgroundColor: theme.colors.background, paddingTop: insets.top },
       ]}
     >
-      <ScreenMasthead
-        eyebrow={t('masthead.eyebrow')}
-        title={t('masthead.title')}
-        counts={mastheadCounts}
-      />
-
       <View style={styles.searchContainer}>
         <View style={styles.searchbarWrap}>
           <Searchbar
@@ -496,20 +497,10 @@ export default function InventoryScreen() {
         )}
       </View>
 
-      {!showInitialLoading && listHeader}
-
       {showInitialLoading ? (
         <CenteredLoadingIndicator />
       ) : (
-        <View
-          style={[
-            styles.listContainer,
-            viewMode === 'list' && styles.groupedListContainer,
-            viewMode === 'list' && {
-              backgroundColor: theme.customColors.surfaceContainerLowest,
-            },
-          ]}
-        >
+        <View style={styles.listContainer}>
           <FlatList
             testID="inventory-items-list"
             key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
@@ -520,6 +511,7 @@ export default function InventoryScreen() {
             numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
             columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
             extraData={viewMode}
+            ListHeaderComponent={listHeader}
             ListEmptyComponent={listEmpty}
             ItemSeparatorComponent={viewMode === 'list' ? ItemSeparator : undefined}
             CellRendererComponent={viewMode === 'list' ? GroupedCell : undefined}
@@ -620,11 +612,6 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-  },
-  groupedListContainer: {
-    marginHorizontal: spacing.base,
-    borderRadius: borderRadius.md,
-    overflow: 'hidden',
   },
   flatList: {
     flex: 1,
