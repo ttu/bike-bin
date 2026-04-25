@@ -78,7 +78,8 @@ async function fetchGroupNames(groupIds: string[]): Promise<Map<string, string>>
   const map = new Map<string, string>();
   if (groupIds.length === 0) return map;
   const uniqueGroupIds = [...new Set(groupIds)];
-  const { data } = await supabase.from('groups').select('id, name').in('id', uniqueGroupIds);
+  const { data, error } = await supabase.from('groups').select('id, name').in('id', uniqueGroupIds);
+  if (error) throw error;
   for (const g of data ?? []) {
     map.set(g.id as string, g.name as string);
   }
