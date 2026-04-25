@@ -67,6 +67,7 @@ beforeAll(async () => {
     .insert({
       from_user_id: userB.id,
       to_user_id: userA.id,
+      borrow_request_id: borrowRequestId,
       score: 4,
       transaction_type: 'borrow',
       item_id: itemId,

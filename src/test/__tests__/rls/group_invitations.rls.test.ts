@@ -117,9 +117,17 @@ describe('group_invitations RLS', () => {
     const outsiderReject = await outsider.client
       .from('group_invitations')
       .update({ status: 'rejected', responded_at: new Date().toISOString() })
-      .eq('id', inv!.id);
-    // Either error or simply no rows affected — both are acceptable denials.
-    expect(outsiderReject.error !== null || outsiderReject.count === 0).toBe(true);
+      .eq('id', inv!.id)
+      .select('id');
+    expect(outsiderReject.error).toBeNull();
+    expect(outsiderReject.data ?? []).toHaveLength(0);
+
+    const { data: stillPending } = await adminClient
+      .from('group_invitations')
+      .select('status')
+      .eq('id', inv!.id)
+      .single();
+    expect(stillPending?.status).toBe('pending');
 
     const reject = await invitee.client
       .from('group_invitations')

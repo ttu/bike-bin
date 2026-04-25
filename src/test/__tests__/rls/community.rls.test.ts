@@ -47,6 +47,7 @@ beforeAll(async () => {
     .insert({
       from_user_id: userB.id,
       to_user_id: userA.id,
+      borrow_request_id: borrowRequestId,
       score: 4,
       transaction_type: 'borrow',
       item_id: itemId,
@@ -166,6 +167,7 @@ describe('ratings — INSERT', () => {
       .insert({
         from_user_id: userB.id,
         to_user_id: userA.id,
+        borrow_request_id: br2Id,
         score: 5,
         transaction_type: 'borrow',
         item_id: item2Id,
@@ -188,8 +190,10 @@ describe('ratings — INSERT', () => {
     const { error } = await userC.client.from('ratings').insert({
       from_user_id: userC.id,
       to_user_id: userA.id,
+      borrow_request_id: borrowRequestId,
       score: 3,
       transaction_type: 'borrow',
+      item_id: itemId,
     });
     expect(error).toBeTruthy();
   });
@@ -198,8 +202,10 @@ describe('ratings — INSERT', () => {
     const { error } = await userA.client.from('ratings').insert({
       from_user_id: userA.id,
       to_user_id: userA.id,
+      borrow_request_id: borrowRequestId,
       score: 5,
       transaction_type: 'borrow',
+      item_id: itemId,
     });
     expect(error).toBeTruthy();
   });
@@ -235,14 +241,37 @@ describe('ratings — UPDATE', () => {
 
 describe('ratings — DELETE', () => {
   it('author can delete own rating', async () => {
+    const { data: item3, error: item3Err } = await adminClient
+      .from('items')
+      .insert({
+        owner_id: userA.id,
+        name: 'Community delete-test item',
+        category: 'tool',
+        condition: 'good',
+        visibility: 'all',
+      })
+      .select('id')
+      .single();
+    if (item3Err) throw new Error(`Failed to seed item for delete test: ${item3Err.message}`);
+    const item3Id = item3.id;
+
+    const { data: br3, error: br3Err } = await adminClient
+      .from('borrow_requests')
+      .insert({ item_id: item3Id, requester_id: userB.id, status: 'returned' })
+      .select('id')
+      .single();
+    if (br3Err) throw new Error(`Failed to seed borrow for delete test: ${br3Err.message}`);
+    const br3Id = br3.id;
+
     const { data: tempRating, error: insertError } = await adminClient
       .from('ratings')
       .insert({
         from_user_id: userB.id,
         to_user_id: userA.id,
+        borrow_request_id: br3Id,
         score: 2,
         transaction_type: 'borrow',
-        item_id: itemId,
+        item_id: item3Id,
       })
       .select('id')
       .single();
@@ -255,6 +284,9 @@ describe('ratings — DELETE', () => {
     // Verify it is gone
     const { data } = await adminClient.from('ratings').select('id').eq('id', tempRatingId);
     expect(data).toEqual([]);
+
+    await adminClient.from('borrow_requests').delete().eq('id', br3Id);
+    await adminClient.from('items').delete().eq('id', item3Id);
   });
 
   it('other user cannot delete a rating', async () => {

@@ -373,6 +373,7 @@ describe('group ratings', () => {
     const { error } = await userMember.client.from('ratings').insert({
       from_user_id: userMember.id,
       to_group_id: groupId,
+      borrow_request_id: reqId,
       item_id: groupItemId,
       transaction_type: 'borrow',
       score: 5,

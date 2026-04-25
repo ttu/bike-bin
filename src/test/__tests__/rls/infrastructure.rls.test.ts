@@ -16,7 +16,8 @@ describe('RLS: geocode_cache', () => {
   }, 30_000);
 
   afterAll(async () => {
-    await adminClient.from('geocode_cache').delete().eq('postcode', 'TEST-00100');
+    // Trigger normalizes postcode to lowercase (see normalize_geocode_cache_key)
+    await adminClient.from('geocode_cache').delete().eq('postcode', 'test-00100');
     await cleanupUsers([testUser]);
   });
 
@@ -55,7 +56,7 @@ describe('RLS: geocode_cache', () => {
       const { data: original } = await adminClient
         .from('geocode_cache')
         .select('area_name')
-        .eq('postcode', 'TEST-00100')
+        .eq('postcode', 'test-00100')
         .single();
       expect(original?.area_name).toBe('Helsinki');
     });
@@ -75,7 +76,7 @@ describe('RLS: geocode_cache', () => {
       const { data: stillExists } = await adminClient
         .from('geocode_cache')
         .select('*')
-        .eq('postcode', 'TEST-00100');
+        .eq('postcode', 'test-00100');
       expect(stillExists).toHaveLength(1);
     });
   });
@@ -85,10 +86,10 @@ describe('RLS: geocode_cache', () => {
       const { data, error } = await adminClient
         .from('geocode_cache')
         .select('*')
-        .eq('postcode', 'TEST-00100');
+        .eq('postcode', 'test-00100');
       expect(error).toBeNull();
       expect(data).toHaveLength(1);
-      expect(data![0].postcode).toBe('TEST-00100');
+      expect(data![0].postcode).toBe('test-00100');
     });
   });
 });
