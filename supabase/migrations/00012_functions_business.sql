@@ -51,8 +51,6 @@ GRANT EXECUTE ON FUNCTION public.get_public_profile(uuid) TO authenticated, anon
 -- NOTE: p_new_item_status is accepted for API compatibility but the actual
 -- item status is derived server-side. A mismatch raises an error so callers
 -- notice stale mappings early.
--- TODO: remove p_new_item_status parameter end-to-end once all clients derive
--- the value from the request status (requires app code + generated types update).
 CREATE OR REPLACE FUNCTION transition_borrow_request(
   p_request_id UUID,
   p_new_request_status TEXT,
@@ -62,6 +60,7 @@ DECLARE
   v_request RECORD;
   v_caller UUID := (select auth.uid());
   v_derived_item_status item_status;
+  status_stored constant item_status := 'stored';
 BEGIN
   -- Single authorized fetch: only returns a row if the caller is the
   -- requester or item owner, so we don't leak request existence.
@@ -81,9 +80,9 @@ BEGIN
   -- Derive the new item status from the request status transition (server-side)
   v_derived_item_status := CASE p_new_request_status
     WHEN 'accepted' THEN 'loaned'::item_status
-    WHEN 'rejected' THEN 'stored'::item_status
-    WHEN 'returned' THEN 'stored'::item_status
-    WHEN 'cancelled' THEN 'stored'::item_status
+    WHEN 'rejected' THEN status_stored
+    WHEN 'returned' THEN status_stored
+    WHEN 'cancelled' THEN status_stored
     ELSE NULL
   END;
 

@@ -17,7 +17,12 @@ type GroupInviteViewProps = {
   onError: () => void;
 };
 
-export function GroupInviteView({ groupId, onBack, onInvited, onError }: GroupInviteViewProps) {
+export function GroupInviteView({
+  groupId,
+  onBack,
+  onInvited,
+  onError,
+}: Readonly<GroupInviteViewProps>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
   const [query, setQuery] = useState('');
@@ -41,33 +46,19 @@ export function GroupInviteView({ groupId, onBack, onInvited, onError }: GroupIn
   const trimmed = query.trim();
   const showResults = trimmed.length > 0;
 
-  return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.BackAction onPress={onBack} />
-        <Searchbar
-          placeholder={t('invite.searchPlaceholder')}
-          value={query}
-          onChangeText={setQuery}
-          style={styles.searchBar}
-        />
-      </Appbar.Header>
-
-      {!showResults ? (
-        <EmptyState
-          icon="account-search-outline"
-          title={t('invite.promptTitle')}
-          description={t('invite.promptDescription')}
-        />
-      ) : isLoading ? (
-        <CenteredLoadingIndicator />
-      ) : (results ?? []).length === 0 ? (
-        <EmptyState
-          icon="account-off-outline"
-          title={t('invite.noResults')}
-          description={t('invite.noResultsDescription')}
-        />
-      ) : (
+  const renderBody = () => {
+    if (showResults) {
+      if (isLoading) return <CenteredLoadingIndicator />;
+      if ((results ?? []).length === 0) {
+        return (
+          <EmptyState
+            icon="account-off-outline"
+            title={t('invite.noResults')}
+            description={t('invite.noResultsDescription')}
+          />
+        );
+      }
+      return (
         <FlatList
           data={results ?? []}
           keyExtractor={(item) => item.id}
@@ -81,7 +72,30 @@ export function GroupInviteView({ groupId, onBack, onInvited, onError }: GroupIn
           )}
           contentContainerStyle={styles.list}
         />
-      )}
+      );
+    }
+    return (
+      <EmptyState
+        icon="account-search-outline"
+        title={t('invite.promptTitle')}
+        description={t('invite.promptDescription')}
+      />
+    );
+  };
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={onBack} />
+        <Searchbar
+          placeholder={t('invite.searchPlaceholder')}
+          value={query}
+          onChangeText={setQuery}
+          style={styles.searchBar}
+        />
+      </Appbar.Header>
+
+      {renderBody()}
     </View>
   );
 }
@@ -91,12 +105,12 @@ function InvitableUserRow({
   onInvite,
   isPending,
   disabled,
-}: {
+}: Readonly<{
   user: InvitableUser;
   onInvite: (id: UserId) => void;
   isPending: boolean;
   disabled: boolean;
-}) {
+}>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 

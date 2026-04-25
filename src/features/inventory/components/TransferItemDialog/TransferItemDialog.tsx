@@ -22,7 +22,7 @@ export function TransferItemDialog({
   visible,
   onDismiss,
   transferItem,
-}: TransferItemDialogProps) {
+}: Readonly<TransferItemDialogProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const { t: tCommon } = useTranslation('common');

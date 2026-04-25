@@ -205,6 +205,54 @@ export default function SavedLocationsScreen() {
     );
   }
 
+  const locationsList = locations ?? [];
+
+  const renderLocationsBody = () => {
+    if (locationsList.length === 0) {
+      if (isLoading) {
+        return <CenteredLoadingIndicator />;
+      }
+      return (
+        <EmptyState
+          icon="map-marker-plus"
+          title={t('empty.title')}
+          description={t('empty.description')}
+          ctaLabel={t('empty.cta')}
+          onCtaPress={handleAddPress}
+        />
+      );
+    }
+    return (
+      <FlatList
+        testID="saved-locations-list"
+        data={locationsList}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+        contentContainerStyle={listModeDynamicStyles.contentContainer}
+        ListFooterComponent={
+          <Pressable
+            onPress={handleAddPress}
+            style={[
+              styles.addCard,
+              {
+                borderColor: theme.colors.outline,
+                backgroundColor: theme.colors.surface,
+              },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={t('addLocation')}
+          >
+            <MaterialCommunityIcons name="plus" size={iconSize.lg} color={theme.colors.primary} />
+            <Text variant="bodyLarge" style={{ color: theme.colors.primary }}>
+              {t('addLocation')}
+            </Text>
+          </Pressable>
+        }
+      />
+    );
+  };
+
   // List mode
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -216,45 +264,7 @@ export default function SavedLocationsScreen() {
         <Appbar.Content title={t('title')} />
       </Appbar.Header>
 
-      {isLoading && (locations ?? []).length === 0 ? (
-        <CenteredLoadingIndicator />
-      ) : !isLoading && (locations ?? []).length === 0 ? (
-        <EmptyState
-          icon="map-marker-plus"
-          title={t('empty.title')}
-          description={t('empty.description')}
-          ctaLabel={t('empty.cta')}
-          onCtaPress={handleAddPress}
-        />
-      ) : (
-        <FlatList
-          testID="saved-locations-list"
-          data={locations ?? []}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
-          contentContainerStyle={listModeDynamicStyles.contentContainer}
-          ListFooterComponent={
-            <Pressable
-              onPress={handleAddPress}
-              style={[
-                styles.addCard,
-                {
-                  borderColor: theme.colors.outline,
-                  backgroundColor: theme.colors.surface,
-                },
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel={t('addLocation')}
-            >
-              <MaterialCommunityIcons name="plus" size={iconSize.lg} color={theme.colors.primary} />
-              <Text variant="bodyLarge" style={{ color: theme.colors.primary }}>
-                {t('addLocation')}
-              </Text>
-            </Pressable>
-          }
-        />
-      )}
+      {renderLocationsBody()}
 
       <FAB
         icon="plus"

@@ -269,7 +269,7 @@ interface MenuItemProps {
   testID?: string;
 }
 
-function MenuItem({ icon, label, badge, onPress, testID }: MenuItemProps) {
+function MenuItem({ icon, label, badge, onPress, testID }: Readonly<MenuItemProps>) {
   const theme = useTheme();
 
   return (

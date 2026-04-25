@@ -126,6 +126,11 @@ AS $$
 DECLARE
   v_item items%ROWTYPE;
   v_is_owner_or_admin boolean;
+  status_pending   constant borrow_request_status := 'pending';
+  status_accepted  constant borrow_request_status := 'accepted';
+  status_rejected  constant borrow_request_status := 'rejected';
+  status_returned  constant borrow_request_status := 'returned';
+  status_cancelled constant borrow_request_status := 'cancelled';
 BEGIN
   IF OLD.item_id IS DISTINCT FROM NEW.item_id
      OR OLD.requester_id IS DISTINCT FROM NEW.requester_id THEN
@@ -137,7 +142,8 @@ BEGIN
     RAISE EXCEPTION 'borrow_requests: cannot change ownership snapshot (owner_id, group_id)';
   END IF;
 
-  IF OLD.status IN ('rejected', 'returned', 'cancelled') AND OLD.status IS DISTINCT FROM NEW.status THEN
+  IF OLD.status IN (status_rejected, status_returned, status_cancelled)
+     AND OLD.status IS DISTINCT FROM NEW.status THEN
     RAISE EXCEPTION 'borrow_requests: cannot change status from terminal state %', OLD.status;
   END IF;
 
@@ -156,7 +162,7 @@ BEGIN
     (v_item.owner_id IS NOT NULL AND v_item.owner_id = (select auth.uid()))
     OR (v_item.group_id IS NOT NULL AND private.is_group_admin(v_item.group_id, (select auth.uid())));
 
-  IF OLD.status = 'pending' AND NEW.status IN ('accepted', 'rejected') THEN
+  IF OLD.status = status_pending AND NEW.status IN (status_accepted, status_rejected) THEN
     IF NOT v_is_owner_or_admin THEN
       RAISE EXCEPTION 'borrow_requests: only item owner or group admin may accept or reject';
     END IF;
@@ -166,14 +172,14 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  IF OLD.status = 'pending' AND NEW.status = 'cancelled' THEN
+  IF OLD.status = status_pending AND NEW.status = status_cancelled THEN
     IF OLD.requester_id IS DISTINCT FROM (select auth.uid()) THEN
       RAISE EXCEPTION 'borrow_requests: only requester may cancel a pending request';
     END IF;
     RETURN NEW;
   END IF;
 
-  IF OLD.status = 'accepted' AND NEW.status = 'returned' THEN
+  IF OLD.status = status_accepted AND NEW.status = status_returned THEN
     IF NOT v_is_owner_or_admin THEN
       RAISE EXCEPTION 'borrow_requests: only item owner or group admin may mark returned';
     END IF;
@@ -183,7 +189,7 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  IF OLD.status = 'accepted' AND NEW.status = 'cancelled' THEN
+  IF OLD.status = status_accepted AND NEW.status = status_cancelled THEN
     IF OLD.requester_id IS DISTINCT FROM (select auth.uid()) THEN
       RAISE EXCEPTION 'borrow_requests: only requester may cancel an accepted request';
     END IF;

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Appbar, Text, FAB, Button, useTheme } from 'react-native-paper';
+import { Appbar, Text, FAB as Fab, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import type { Href } from 'expo-router';
@@ -28,7 +28,7 @@ import {
   GroupSearchView,
 } from '@/features/groups';
 import type { GroupWithRole, MyGroupInvitation } from '@/features/groups';
-import type { GroupId, GroupInvitationId } from '@/shared/types';
+import type { GroupId } from '@/shared/types';
 
 type ScreenMode = 'list' | 'create' | 'search';
 
@@ -102,7 +102,7 @@ export default function GroupsScreen() {
     async (invitation: MyGroupInvitation) => {
       try {
         await acceptInvitation.mutateAsync({
-          invitationId: invitation.id as GroupInvitationId,
+          invitationId: invitation.id,
           groupId: invitation.groupId,
         });
         showSnackbarAlert({
@@ -124,7 +124,7 @@ export default function GroupsScreen() {
     async (invitation: MyGroupInvitation) => {
       try {
         await rejectInvitation.mutateAsync({
-          invitationId: invitation.id as GroupInvitationId,
+          invitationId: invitation.id,
         });
       } catch {
         showSnackbarAlert({
@@ -136,6 +136,48 @@ export default function GroupsScreen() {
     },
     [rejectInvitation, showSnackbarAlert, t],
   );
+
+  const renderBody = () => {
+    const groupsList = groups ?? [];
+    const invitationsList = invitations ?? [];
+    const isEmpty = groupsList.length === 0 && invitationsList.length === 0;
+
+    if (isLoading && isEmpty) {
+      return <CenteredLoadingIndicator />;
+    }
+    if (isEmpty) {
+      return (
+        <EmptyState
+          icon="account-group-outline"
+          title={t('empty.title')}
+          description={t('empty.description')}
+          ctaLabel={t('empty.cta')}
+          onCtaPress={() => setMode('create')}
+        />
+      );
+    }
+    return (
+      <FlatList
+        testID="groups-screen-list"
+        data={groupsList}
+        renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
+        keyExtractor={(item) => item.id}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />}
+        contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
+        ListHeaderComponent={
+          invitationsList.length > 0 ? (
+            <PendingInvitationsSection
+              invitations={invitationsList}
+              onAccept={handleAcceptInvitation}
+              onReject={handleRejectInvitation}
+              isAccepting={acceptInvitation.isPending}
+              isRejecting={rejectInvitation.isPending}
+            />
+          ) : null
+        }
+      />
+    );
+  };
 
   if (mode === 'create') {
     return (
@@ -173,39 +215,9 @@ export default function GroupsScreen() {
         />
       </Appbar.Header>
 
-      {isLoading && (groups ?? []).length === 0 && (invitations ?? []).length === 0 ? (
-        <CenteredLoadingIndicator />
-      ) : !isLoading && (groups ?? []).length === 0 && (invitations ?? []).length === 0 ? (
-        <EmptyState
-          icon="account-group-outline"
-          title={t('empty.title')}
-          description={t('empty.description')}
-          ctaLabel={t('empty.cta')}
-          onCtaPress={() => setMode('create')}
-        />
-      ) : (
-        <FlatList
-          testID="groups-screen-list"
-          data={groups ?? []}
-          renderItem={({ item }) => <GroupCard group={item} onPress={handleGroupPress} />}
-          keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />}
-          contentContainerStyle={{ paddingBottom: fabListScrollPaddingBottom(insets.bottom) }}
-          ListHeaderComponent={
-            (invitations ?? []).length > 0 ? (
-              <PendingInvitationsSection
-                invitations={invitations ?? []}
-                onAccept={handleAcceptInvitation}
-                onReject={handleRejectInvitation}
-                isAccepting={acceptInvitation.isPending}
-                isRejecting={rejectInvitation.isPending}
-              />
-            ) : null
-          }
-        />
-      )}
+      {renderBody()}
 
-      <FAB
+      <Fab
         icon="plus"
         style={[
           styles.fab,
@@ -227,10 +239,10 @@ export default function GroupsScreen() {
 function GroupCard({
   group,
   onPress,
-}: {
+}: Readonly<{
   group: GroupWithRole;
   onPress: (group: GroupWithRole) => void;
-}) {
+}>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 
@@ -294,13 +306,13 @@ function PendingInvitationsSection({
   onReject,
   isAccepting,
   isRejecting,
-}: {
+}: Readonly<{
   invitations: MyGroupInvitation[];
   onAccept: (inv: MyGroupInvitation) => void;
   onReject: (inv: MyGroupInvitation) => void;
   isAccepting: boolean;
   isRejecting: boolean;
-}) {
+}>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 

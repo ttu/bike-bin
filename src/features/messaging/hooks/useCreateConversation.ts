@@ -26,6 +26,111 @@ interface CreateConversationResult {
   isExisting: boolean;
 }
 
+type ExistingConv = {
+  id: string;
+  conversation_participants: { user_id: string }[] | undefined;
+};
+
+async function fetchGroupAdminIds(groupId: GroupId): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('group_members')
+    .select('user_id')
+    .eq('group_id', groupId)
+    .eq('role', 'admin');
+  if (error) throw error;
+  return (data ?? []).map((a) => a.user_id as string);
+}
+
+function participantIdsOf(conv: ExistingConv): string[] {
+  return conv.conversation_participants?.map((p) => p.user_id) ?? [];
+}
+
+function matchesGroup(conv: ExistingConv, userId: string, groupAdminIds: string[]): boolean {
+  const participantIds = participantIdsOf(conv);
+  if (!participantIds.includes(userId)) return false;
+  return groupAdminIds.some((id) => participantIds.includes(id));
+}
+
+function matchesUser(conv: ExistingConv, userId: string, otherUserId: string): boolean {
+  const participantIds = participantIdsOf(conv);
+  return participantIds.includes(userId) && participantIds.includes(otherUserId);
+}
+
+async function findExistingConversation(
+  itemId: ItemId,
+  userId: string,
+  otherUserId: UserId | undefined,
+  groupId: GroupId | undefined,
+): Promise<ConversationId | undefined> {
+  const { data } = await supabase
+    .from('conversations')
+    .select(`id, conversation_participants!inner (user_id)`)
+    .eq('item_id', itemId);
+  if (!data) return undefined;
+  const existing = data as unknown as ExistingConv[];
+
+  const groupAdminIds = groupId === undefined ? undefined : await fetchGroupAdminIds(groupId);
+
+  for (const conv of existing) {
+    if (groupAdminIds !== undefined) {
+      if (matchesGroup(conv, userId, groupAdminIds)) return conv.id as ConversationId;
+    } else if (otherUserId !== undefined && matchesUser(conv, userId, otherUserId)) {
+      return conv.id as ConversationId;
+    }
+  }
+  return undefined;
+}
+
+async function resolveOtherParticipantIds(
+  selfId: string,
+  otherUserId: UserId | undefined,
+  groupId: GroupId | undefined,
+): Promise<string[]> {
+  if (groupId !== undefined) {
+    const admins = await fetchGroupAdminIds(groupId);
+    return admins.filter((id) => id !== selfId);
+  }
+  return otherUserId === undefined ? [] : [otherUserId];
+}
+
+async function insertConversationAndParticipants(
+  itemId: ItemId,
+  selfId: string,
+  otherParticipantIds: string[],
+): Promise<ConversationId> {
+  const conversationId = randomUuidV4() as ConversationId;
+  const { error: convError } = await supabase.from('conversations').insert({
+    id: conversationId,
+    item_id: itemId,
+  });
+  if (convError) throw convError;
+
+  // Add self first — RLS STABLE helpers can't see rows from the same
+  // INSERT statement, so the "add others" step must be a separate call.
+  const { error: selfError } = await supabase
+    .from('conversation_participants')
+    .insert({ conversation_id: conversationId, user_id: selfId });
+  if (selfError) throw selfError;
+
+  if (otherParticipantIds.length > 0) {
+    const { error: othersError } = await supabase
+      .from('conversation_participants')
+      .insert(
+        otherParticipantIds.map((uid) => ({ conversation_id: conversationId, user_id: uid })),
+      );
+    if (othersError) {
+      // Rollback: remove partial conversation to avoid one-sided state
+      await supabase
+        .from('conversation_participants')
+        .delete()
+        .eq('conversation_id', conversationId);
+      await supabase.from('conversations').delete().eq('id', conversationId);
+      throw othersError;
+    }
+  }
+  return conversationId;
+}
+
 export function useCreateConversation() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -41,115 +146,17 @@ export function useCreateConversation() {
         throw new Error('Either otherUserId or groupId must be provided');
       }
 
-      // Check if a conversation already exists where the current user is a
-      // participant. For group items this is sufficient because the "other
-      // side" is the group itself (represented by its admin roster, which is
-      // kept in sync via trigger), so any conversation about the item that
-      // the current user is part of is reused.
-      const { data: existing } = await supabase
-        .from('conversations')
-        .select(
-          `
-          id,
-          conversation_participants!inner (user_id)
-        `,
-        )
-        .eq('item_id', itemId);
+      const existingId = await findExistingConversation(itemId, user.id, otherUserId, groupId);
+      if (existingId) return { conversationId: existingId, isExisting: true };
 
-      if (existing) {
-        // For group items, fetch the current admin roster so we can verify
-        // the conversation's participants match the group (not a stale set
-        // from a prior ownership).
-        let groupAdminIds: string[] | undefined;
-        if (groupId !== undefined) {
-          const { data: admins } = await supabase
-            .from('group_members')
-            .select('user_id')
-            .eq('group_id', groupId)
-            .eq('role', 'admin');
-          groupAdminIds = (admins ?? []).map((a) => a.user_id as string);
-        }
+      const otherParticipantIds = await resolveOtherParticipantIds(user.id, otherUserId, groupId);
+      const conversationId = await insertConversationAndParticipants(
+        itemId,
+        user.id,
+        otherParticipantIds,
+      );
 
-        for (const conv of existing) {
-          const participants = conv.conversation_participants as { user_id: string }[] | undefined;
-          const participantIds = participants?.map((p) => p.user_id) ?? [];
-          if (!participantIds.includes(user.id)) continue;
-          if (groupId !== undefined && groupAdminIds) {
-            // Reuse only if at least one current group admin is a participant
-            const hasGroupAdmin = groupAdminIds.some((id) => participantIds.includes(id));
-            if (hasGroupAdmin) {
-              return {
-                conversationId: conv.id as ConversationId,
-                isExisting: true,
-              };
-            }
-            continue;
-          }
-          if (otherUserId !== undefined && participantIds.includes(otherUserId)) {
-            return {
-              conversationId: conv.id as ConversationId,
-              isExisting: true,
-            };
-          }
-        }
-      }
-
-      // Determine participants to add alongside the requester.
-      // For group items: fetch all current admins and add them all.
-      // For personal items: add the item owner.
-      const otherParticipantIds: string[] = [];
-      if (groupId !== undefined) {
-        const { data: admins, error: adminErr } = await supabase
-          .from('group_members')
-          .select('user_id')
-          .eq('group_id', groupId)
-          .eq('role', 'admin');
-        if (adminErr) throw adminErr;
-        for (const admin of admins ?? []) {
-          const adminId = admin.user_id as string;
-          if (adminId !== user.id) otherParticipantIds.push(adminId);
-        }
-      } else if (otherUserId !== undefined) {
-        otherParticipantIds.push(otherUserId);
-      }
-
-      // Create new conversation (client id: INSERT…RETURNING is blocked by RLS until we are a participant)
-      const conversationId = randomUuidV4() as ConversationId;
-      const { error: convError } = await supabase.from('conversations').insert({
-        id: conversationId,
-        item_id: itemId,
-      });
-
-      if (convError) throw convError;
-
-      // Add self first — RLS STABLE helpers can't see rows from the same
-      // INSERT statement, so the "add others" step must be a separate call.
-      const { error: selfError } = await supabase
-        .from('conversation_participants')
-        .insert({ conversation_id: conversationId, user_id: user.id });
-      if (selfError) throw selfError;
-
-      if (otherParticipantIds.length > 0) {
-        const { error: othersError } = await supabase
-          .from('conversation_participants')
-          .insert(
-            otherParticipantIds.map((uid) => ({ conversation_id: conversationId, user_id: uid })),
-          );
-        if (othersError) {
-          // Rollback: remove partial conversation to avoid one-sided state
-          await supabase
-            .from('conversation_participants')
-            .delete()
-            .eq('conversation_id', conversationId);
-          await supabase.from('conversations').delete().eq('id', conversationId);
-          throw othersError;
-        }
-      }
-
-      return {
-        conversationId,
-        isExisting: false,
-      };
+      return { conversationId, isExisting: false };
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({

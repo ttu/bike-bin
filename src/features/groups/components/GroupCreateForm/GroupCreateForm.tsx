@@ -10,7 +10,11 @@ type GroupCreateFormProps = {
   isSubmitting: boolean;
 };
 
-export function GroupCreateForm({ onBack, onSubmit, isSubmitting }: GroupCreateFormProps) {
+export function GroupCreateForm({
+  onBack,
+  onSubmit,
+  isSubmitting,
+}: Readonly<GroupCreateFormProps>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 

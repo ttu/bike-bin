@@ -375,12 +375,12 @@ function ServiceRow({
   value,
   theme,
   isLast = false,
-}: {
+}: Readonly<{
   label: string;
   value: string;
   theme: AppTheme;
   isLast?: boolean;
-}) {
+}>) {
   return (
     <View
       style={[

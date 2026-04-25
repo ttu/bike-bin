@@ -14,6 +14,7 @@ AS $$
 DECLARE
   v_item items%ROWTYPE;
   v_caller uuid := (select auth.uid());
+  transfer_sentinel constant text := 'app.item_transfer_in_progress';
 BEGIN
   IF v_caller IS NULL THEN
     RAISE EXCEPTION 'transfer_item_ownership: authentication required';
@@ -73,7 +74,7 @@ BEGIN
   END IF;
 
   -- Set sentinel so the ownership-guard trigger allows the change
-  PERFORM set_config('app.item_transfer_in_progress', 'true', true);
+  PERFORM set_config(transfer_sentinel, 'true', true);
 
   UPDATE items SET
     owner_id = p_to_owner_id,
@@ -83,7 +84,7 @@ BEGIN
     updated_at = now()
   WHERE id = p_item_id;
 
-  PERFORM set_config('app.item_transfer_in_progress', 'false', true);
+  PERFORM set_config(transfer_sentinel, 'false', true);
 
   DELETE FROM item_groups WHERE item_id = p_item_id;
 
@@ -108,9 +109,11 @@ RETURNS trigger
 LANGUAGE plpgsql
 SET search_path TO public
 AS $$
+DECLARE
+  transfer_sentinel constant text := 'app.item_transfer_in_progress';
 BEGIN
   IF (OLD.owner_id IS DISTINCT FROM NEW.owner_id OR OLD.group_id IS DISTINCT FROM NEW.group_id) THEN
-    IF current_setting('app.item_transfer_in_progress', true) IS DISTINCT FROM 'true' THEN
+    IF current_setting(transfer_sentinel, true) IS DISTINCT FROM 'true' THEN
       RAISE EXCEPTION 'direct updates to owner_id / group_id are not allowed; use transfer_item_ownership()';
     END IF;
   END IF;

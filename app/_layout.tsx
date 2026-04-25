@@ -1,7 +1,6 @@
-import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -35,6 +34,7 @@ import StorybookUIRoot from '../.rnstorybook';
 const storybookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true';
 
 const layoutStyles = StyleSheet.create({
+  gestureRoot: { flex: 1 },
   storybookRoot: { flex: 1 },
 });
 
@@ -53,15 +53,17 @@ function AppContent() {
   const theme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
 
   return (
-    <PaperProvider theme={theme}>
-      <SnackbarAlertsProvider>
-        <DemoModeProvider>
-          <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </AuthProvider>
-        </DemoModeProvider>
-      </SnackbarAlertsProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={layoutStyles.gestureRoot}>
+      <PaperProvider theme={theme}>
+        <SnackbarAlertsProvider>
+          <DemoModeProvider>
+            <AuthProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+            </AuthProvider>
+          </DemoModeProvider>
+        </SnackbarAlertsProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
 

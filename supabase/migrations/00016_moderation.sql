@@ -32,21 +32,21 @@ CREATE TABLE moderation_enforcement_log (
 ALTER TABLE moderation_enforcement_log ENABLE ROW LEVEL SECURITY;
 -- No authenticated policies — service-role only
 
--- 4. Helper: find conversations with zero participants and zero messages
+-- 4. Helper: find conversations with zero participants and zero messages.
+-- Anti-joins (LEFT JOIN … IS NULL) keep the plan flat and avoid correlated
+-- EXISTS subqueries. DISTINCT guards against hypothetical duplicate joins.
 CREATE OR REPLACE FUNCTION find_empty_conversations()
 RETURNS TABLE(id uuid)
 LANGUAGE sql
 SECURITY DEFINER
 SET search_path TO public, pg_temp
 AS $$
-  SELECT c.id
+  SELECT DISTINCT c.id
   FROM conversations c
-  WHERE NOT EXISTS (
-    SELECT 1 FROM conversation_participants cp WHERE cp.conversation_id = c.id
-  )
-  AND NOT EXISTS (
-    SELECT 1 FROM messages m WHERE m.conversation_id = c.id
-  );
+  LEFT JOIN conversation_participants cp ON cp.conversation_id = c.id
+  LEFT JOIN messages m ON m.conversation_id = c.id
+  WHERE cp.conversation_id IS NULL
+    AND m.conversation_id IS NULL;
 $$;
 
 -- Grant/revoke for find_empty_conversations (service-role only, not callable by app users)

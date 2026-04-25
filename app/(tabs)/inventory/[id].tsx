@@ -177,13 +177,13 @@ function ItemDetailWithActions({
   removeInventoryOpen,
   onOpenRemoveInventory,
   onCloseRemoveInventory,
-}: {
+}: Readonly<{
   item: import('@/shared/types').Item;
   photos: import('@/shared/types').ItemPhoto[];
   removeInventoryOpen: boolean;
   onOpenRemoveInventory: () => void;
   onCloseRemoveInventory: () => void;
-}) {
+}>) {
   const {
     handleMarkDonated,
     handleMarkSold,

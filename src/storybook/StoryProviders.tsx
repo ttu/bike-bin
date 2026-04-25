@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
 });
 
-export function StoryProviders({ children }: { children: React.ReactNode }) {
+export function StoryProviders({ children }: Readonly<{ children: React.ReactNode }>) {
   const queryClient = useMemo(() => createStorybookQueryClient(), []);
 
   return (

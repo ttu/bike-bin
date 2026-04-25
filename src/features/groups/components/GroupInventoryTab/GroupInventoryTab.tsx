@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { FAB, useTheme } from 'react-native-paper';
+import { FAB as Fab, useTheme } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { Item, GroupId } from '@/shared/types';
@@ -16,7 +16,7 @@ interface GroupInventoryTabProps {
   groupId: GroupId;
 }
 
-export function GroupInventoryTab({ groupId }: GroupInventoryTabProps) {
+export function GroupInventoryTab({ groupId }: Readonly<GroupInventoryTabProps>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
   const { user } = useAuth();
@@ -38,7 +38,7 @@ export function GroupInventoryTab({ groupId }: GroupInventoryTabProps) {
   }, [groupId]);
 
   const renderItem = useCallback(
-    ({ item }: { item: Item }) => <ItemCard item={item} onPress={handleItemPress} />,
+    (info: { item: Item }) => <ItemCard item={info.item} onPress={handleItemPress} />,
     [handleItemPress],
   );
 
@@ -65,7 +65,7 @@ export function GroupInventoryTab({ groupId }: GroupInventoryTabProps) {
       )}
 
       {hasItems && isAdmin && (
-        <FAB
+        <Fab
           icon="plus"
           style={[styles.fab, { backgroundColor: theme.colors.primary }]}
           color={theme.colors.onPrimary}

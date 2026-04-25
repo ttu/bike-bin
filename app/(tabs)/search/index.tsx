@@ -125,7 +125,8 @@ function SearchScreenContent() {
   const narrowWidth = getSearchResultGridNarrowCardWidth(windowWidth);
 
   const renderPairItem = useCallback(
-    ({ item }: { item: SearchResultPair<SearchResultItem> }) => {
+    (info: { item: SearchResultPair<SearchResultItem> }) => {
+      const { item } = info;
       const [first, second] = item.items;
       const firstVariant = item.type === 'wide-narrow' ? 'wide' : 'narrow';
       const secondVariant = item.type === 'wide-narrow' ? 'narrow' : 'wide';

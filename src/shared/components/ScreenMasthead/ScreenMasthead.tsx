@@ -17,7 +17,7 @@ interface ScreenMastheadProps {
   counts?: ScreenMastheadCount[];
 }
 
-export function ScreenMasthead({ eyebrow, title, counts }: ScreenMastheadProps) {
+export function ScreenMasthead({ eyebrow, title, counts }: Readonly<ScreenMastheadProps>) {
   const theme = useTheme<AppTheme>();
 
   const dynamicStyles = useMemo(

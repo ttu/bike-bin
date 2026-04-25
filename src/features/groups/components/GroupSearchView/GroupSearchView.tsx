@@ -26,9 +26,33 @@ export function GroupSearchView({
   isSearching,
   onJoinGroup,
   isJoining,
-}: GroupSearchViewProps) {
+}: Readonly<GroupSearchViewProps>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
+
+  const renderSearchBody = () => {
+    const hasQuery = searchQuery.length >= 2;
+    if (hasQuery && isSearching) return <CenteredLoadingIndicator />;
+    if (hasQuery && searchResults.length === 0) {
+      return (
+        <EmptyState
+          icon="account-group-outline"
+          title={t('search.noResults')}
+          description={t('search.noResultsDescription')}
+        />
+      );
+    }
+    return (
+      <FlatList
+        data={searchResults}
+        renderItem={({ item }) => (
+          <SearchResultCard group={item} onJoin={onJoinGroup} isJoining={isJoining} />
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+      />
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -42,24 +66,7 @@ export function GroupSearchView({
         />
       </Appbar.Header>
 
-      {searchQuery.length >= 2 && isSearching ? (
-        <CenteredLoadingIndicator />
-      ) : searchQuery.length >= 2 && !isSearching && searchResults.length === 0 ? (
-        <EmptyState
-          icon="account-group-outline"
-          title={t('search.noResults')}
-          description={t('search.noResultsDescription')}
-        />
-      ) : (
-        <FlatList
-          data={searchResults}
-          renderItem={({ item }) => (
-            <SearchResultCard group={item} onJoin={onJoinGroup} isJoining={isJoining} />
-          )}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-        />
-      )}
+      {renderSearchBody()}
     </View>
   );
 }
@@ -68,11 +75,11 @@ function SearchResultCard({
   group,
   onJoin,
   isJoining,
-}: {
+}: Readonly<{
   group: SearchGroupResult;
   onJoin: (id: GroupId) => void;
   isJoining: boolean;
-}) {
+}>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 

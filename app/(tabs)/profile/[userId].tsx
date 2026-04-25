@@ -101,6 +101,74 @@ export default function PublicUserProfileScreen() {
     );
   };
 
+  const renderReviews = () => {
+    if (ratingsLoading) return <CenteredLoadingIndicator fill={false} />;
+    if (ratings && ratings.length > 0) {
+      return ratings.map((rating) => (
+        <ReviewCard
+          key={rating.id}
+          reviewerName={rating.reviewer.displayName}
+          isDeletedReviewer={rating.fromUserId === undefined}
+          score={rating.score}
+          text={rating.text}
+          transactionType={rating.transactionType}
+          createdAt={rating.createdAt}
+        />
+      ));
+    }
+    return (
+      <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        {t('profile.noReviews')}
+      </Text>
+    );
+  };
+
+  const renderListings = () => {
+    if (listingsLoading) return <CenteredLoadingIndicator fill={false} />;
+    if (listings && listings.length > 0) {
+      return listings.map((listing) => (
+        <Pressable
+          key={listing.id}
+          style={[styles.listingCard, { backgroundColor: theme.colors.surfaceVariant }]}
+          onPress={() =>
+            router.push({
+              pathname: '/(tabs)/search/[id]',
+              params: {
+                id: listing.id,
+                returnPath: encodeReturnPath(`/(tabs)/profile/${userId}`),
+              },
+            })
+          }
+          accessibilityRole="button"
+        >
+          <View style={styles.listingContent}>
+            <Text variant="titleSmall" style={{ color: theme.colors.onSurface }} numberOfLines={1}>
+              {listing.name}
+            </Text>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              {listing.category} · {listing.condition}
+            </Text>
+            {listing.availabilityTypes.length > 0 && (
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {listing.availabilityTypes.join(', ')}
+              </Text>
+            )}
+          </View>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={iconSize.md}
+            color={theme.colors.onSurfaceVariant}
+          />
+        </Pressable>
+      ));
+    }
+    return (
+      <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        {t('profile.noListings')}
+      </Text>
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.surface }}>
@@ -154,25 +222,7 @@ export default function PublicUserProfileScreen() {
             {t('profile.reviews')}
           </Text>
 
-          {ratingsLoading ? (
-            <CenteredLoadingIndicator fill={false} />
-          ) : ratings && ratings.length > 0 ? (
-            ratings.map((rating) => (
-              <ReviewCard
-                key={rating.id}
-                reviewerName={rating.reviewer.displayName}
-                isDeletedReviewer={rating.fromUserId === undefined}
-                score={rating.score}
-                text={rating.text}
-                transactionType={rating.transactionType}
-                createdAt={rating.createdAt}
-              />
-            ))
-          ) : (
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-              {t('profile.noReviews')}
-            </Text>
-          )}
+          {renderReviews()}
         </View>
 
         {/* Public Listings */}
@@ -184,53 +234,7 @@ export default function PublicUserProfileScreen() {
             {t('profile.publicListings')}
           </Text>
 
-          {listingsLoading ? (
-            <CenteredLoadingIndicator fill={false} />
-          ) : listings && listings.length > 0 ? (
-            listings.map((listing) => (
-              <Pressable
-                key={listing.id}
-                style={[styles.listingCard, { backgroundColor: theme.colors.surfaceVariant }]}
-                onPress={() =>
-                  router.push({
-                    pathname: '/(tabs)/search/[id]',
-                    params: {
-                      id: listing.id,
-                      returnPath: encodeReturnPath(`/(tabs)/profile/${userId}`),
-                    },
-                  })
-                }
-                accessibilityRole="button"
-              >
-                <View style={styles.listingContent}>
-                  <Text
-                    variant="titleSmall"
-                    style={{ color: theme.colors.onSurface }}
-                    numberOfLines={1}
-                  >
-                    {listing.name}
-                  </Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {listing.category} · {listing.condition}
-                  </Text>
-                  {listing.availabilityTypes.length > 0 && (
-                    <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                      {listing.availabilityTypes.join(', ')}
-                    </Text>
-                  )}
-                </View>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={iconSize.md}
-                  color={theme.colors.onSurfaceVariant}
-                />
-              </Pressable>
-            ))
-          ) : (
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-              {t('profile.noListings')}
-            </Text>
-          )}
+          {renderListings()}
         </View>
       </ScrollView>
 

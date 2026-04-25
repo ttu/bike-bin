@@ -23,30 +23,35 @@ interface SocketBBMarkProps {
  * monogram stamped inside. Read as a flat-top hex socket seen end-on.
  * Primary brand mark used at favicon, avatar, and masthead scales.
  */
-export function SocketBBMark({
-  size = 56,
-  background,
-  foreground,
-  accessibilityLabel,
-}: SocketBBMarkProps) {
-  const theme = useTheme<AppTheme>();
-  const bg = background ?? theme.colors.primary;
-  const fg = foreground ?? theme.colors.background;
-  const a11yProps = accessibilityLabel
-    ? Platform.OS === 'web'
+function resolveA11yProps(accessibilityLabel: string | undefined) {
+  if (accessibilityLabel) {
+    return Platform.OS === 'web'
       ? ({ role: 'img', 'aria-label': accessibilityLabel } as const)
       : ({
           accessible: true,
           accessibilityLabel,
           importantForAccessibility: 'no-hide-descendants' as const,
-        } as const)
-    : Platform.OS === 'web'
-      ? ({ 'aria-hidden': true } as const)
-      : ({
-          accessible: false,
-          accessibilityElementsHidden: true,
-          importantForAccessibility: 'no' as const,
         } as const);
+  }
+  return Platform.OS === 'web'
+    ? ({ 'aria-hidden': true } as const)
+    : ({
+        accessible: false,
+        accessibilityElementsHidden: true,
+        importantForAccessibility: 'no' as const,
+      } as const);
+}
+
+export function SocketBBMark({
+  size = 56,
+  background,
+  foreground,
+  accessibilityLabel,
+}: Readonly<SocketBBMarkProps>) {
+  const theme = useTheme<AppTheme>();
+  const bg = background ?? theme.colors.primary;
+  const fg = foreground ?? theme.colors.background;
+  const a11yProps = resolveA11yProps(accessibilityLabel);
   return (
     <Svg width={size} height={size} viewBox="0 0 120 120" {...a11yProps}>
       <Circle cx={60} cy={60} r={56} fill={bg} />

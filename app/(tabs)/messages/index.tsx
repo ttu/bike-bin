@@ -62,7 +62,22 @@ export default function MessagesScreen() {
 
       <DemoBanner />
 
-      {!hasConversations ? (
+      {hasConversations ? (
+        <View
+          style={[
+            styles.listContainer,
+            { backgroundColor: theme.customColors.surfaceContainerLowest },
+          ]}
+        >
+          <FlatList
+            data={conversations}
+            keyExtractor={(item) => item.id}
+            renderItem={renderConversationItem}
+            ItemSeparatorComponent={ItemSeparator}
+            contentContainerStyle={styles.listContent}
+          />
+        </View>
+      ) : (
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons
             name="chat-outline"
@@ -81,21 +96,6 @@ export default function MessagesScreen() {
           >
             {t('empty.description')}
           </Text>
-        </View>
-      ) : (
-        <View
-          style={[
-            styles.listContainer,
-            { backgroundColor: theme.customColors.surfaceContainerLowest },
-          ]}
-        >
-          <FlatList
-            data={conversations}
-            keyExtractor={(item) => item.id}
-            renderItem={renderConversationItem}
-            ItemSeparatorComponent={ItemSeparator}
-            contentContainerStyle={styles.listContent}
-          />
         </View>
       )}
     </SafeAreaView>

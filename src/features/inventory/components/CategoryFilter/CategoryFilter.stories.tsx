@@ -16,10 +16,10 @@ type Story = StoryObj<typeof meta>;
 function CategoryFilterPlayground({
   selected: initialSelected,
   onSelect,
-}: {
+}: Readonly<{
   selected?: ItemCategory;
   onSelect?: (category: ItemCategory | undefined) => void;
-}) {
+}>) {
   const [selected, setSelected] = useState<ItemCategory | undefined>(initialSelected);
   return (
     <CategoryFilter
