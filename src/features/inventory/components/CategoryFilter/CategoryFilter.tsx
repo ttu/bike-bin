@@ -37,7 +37,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
             key={label}
             compact
             selected={isActive}
-            onPress={() => onSelect(cat)}
+            onPress={() => onSelect(isActive ? undefined : cat)}
             showSelectedCheck={false}
             textStyle={isActive ? { color: theme.colors.onPrimary } : undefined}
             style={[
