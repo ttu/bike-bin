@@ -63,12 +63,7 @@ export function BrandAutocompleteInput({
           activeUnderlineColor={activeUnderlineColor}
         />
         {menuVisible && filteredBrands.length > 0 && (
-          <View
-            style={[
-              styles.suggestionsContainer,
-              { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
-            ]}
-          >
+          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
             <ScrollView
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled"
@@ -110,9 +105,6 @@ const styles = StyleSheet.create({
     right: 0,
     borderRadius: borderRadius.sm,
     elevation: 4,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     zIndex: 10,
   },
   suggestionsList: {

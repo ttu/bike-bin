@@ -21,10 +21,7 @@ export const BikeCard = memo(function BikeCard({ bike, onPress }: BikeCardProps)
   return (
     <Pressable
       onPress={() => onPress?.(bike)}
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
-      ]}
+      style={[styles.container, { backgroundColor: theme.colors.surface }]}
       accessibilityRole="button"
       accessibilityLabel={bike.name}
     >
@@ -84,9 +81,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
     elevation: 1,
   },
   thumbnail: {

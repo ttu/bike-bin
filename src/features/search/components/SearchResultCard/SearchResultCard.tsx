@@ -31,7 +31,7 @@ export const SearchResultCard = memo(function SearchResultCard({
   return (
     <AnimatedPressable
       onPress={() => onPress?.(item)}
-      style={[styles.container, themed.surfaceBg, { shadowColor: theme.colors.onSurface }]}
+      style={[styles.container, themed.surfaceBg]}
       accessibilityRole="button"
       accessibilityLabel={item.name}
     >
@@ -134,9 +134,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
     elevation: 1,
   },
   thumbnail: {
