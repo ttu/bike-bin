@@ -276,8 +276,7 @@ function AgeField({
               editable={false}
               placeholder={t('form.agePlaceholder')}
               right={<TextInput.Icon icon="chevron-down" />}
-              pointerEvents="none"
-              style={softInputStyle}
+              style={[softInputStyle, { pointerEvents: 'none' }]}
               underlineColor={underlineColor}
               activeUnderlineColor={activeUnderlineColor}
             />
