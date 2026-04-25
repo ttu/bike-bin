@@ -3,16 +3,14 @@ import { Tabs } from 'expo-router';
 import { Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnreadCount } from '@/features/messaging';
 import { spacing } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 import { navigateToTabRoot } from '@/shared/utils/navigateToTabRoot';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+function AppTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
   const theme = useTheme<AppTheme>();
-  const insets = useSafeAreaInsets();
 
   return (
     <View
@@ -103,7 +101,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      tabBar={AppTabBar}
+      tabBar={(props) => <AppTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
