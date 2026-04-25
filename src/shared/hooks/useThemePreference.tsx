@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -30,10 +31,15 @@ const ThemePreferenceContext = createContext<ThemePreferenceContextType | undefi
 export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
   const systemScheme = useSystemColorScheme();
   const [preference, setPreferenceState] = useState<ThemePreference>('system');
+  /** Once the user sets a preference, ignore late AsyncStorage hydration (avoids stomping the choice). */
+  const skipHydrationRef = useRef(false);
 
   // Load persisted preference on mount
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
+      if (skipHydrationRef.current) {
+        return;
+      }
       if (stored === 'light' || stored === 'dark' || stored === 'system') {
         setPreferenceState(stored);
       }
@@ -41,8 +47,9 @@ export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setPreference = useCallback((pref: ThemePreference) => {
+    skipHydrationRef.current = true;
     setPreferenceState(pref);
-    AsyncStorage.setItem(STORAGE_KEY, pref);
+    void AsyncStorage.setItem(STORAGE_KEY, pref);
   }, []);
 
   const effectiveTheme: EffectiveTheme =
