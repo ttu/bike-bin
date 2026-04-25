@@ -32,14 +32,22 @@ CREATE TRIGGER trg_export_requests_set_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.set_updated_at();
 
+-- Centralised bucket-name constant — change here once if the bucket is renamed.
+CREATE OR REPLACE FUNCTION private.bucket_data_exports()
+RETURNS text
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+AS $$ SELECT 'data-exports'::text $$;
+
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('data-exports', 'data-exports', false)
+VALUES (private.bucket_data_exports(), private.bucket_data_exports(), false)
 ON CONFLICT (id) DO NOTHING;
 
 CREATE POLICY "data_exports_select_own"
   ON storage.objects FOR SELECT
   USING (
-    bucket_id = 'data-exports'
+    bucket_id = private.bucket_data_exports()
     AND (select auth.uid())::text = (string_to_array(name, '/'))[2]
   );
 

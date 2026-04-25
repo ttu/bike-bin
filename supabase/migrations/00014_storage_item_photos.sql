@@ -2,8 +2,16 @@
 -- STORAGE
 -- ============================================================
 
+-- Centralised bucket-name constant — change here once if the bucket is renamed.
+CREATE OR REPLACE FUNCTION private.bucket_item_photos()
+RETURNS text
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+AS $$ SELECT 'item-photos'::text $$;
+
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('item-photos', 'item-photos', true)
+VALUES (private.bucket_item_photos(), private.bucket_item_photos(), true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies: enforce user-owned paths OR group-owned paths.
@@ -42,20 +50,20 @@ CREATE POLICY "item_photos_storage_insert"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (
-    bucket_id = 'item-photos'
+    bucket_id = private.bucket_item_photos()
     AND private.item_photo_owner_slot_matches(name, (select auth.uid()))
   );
 
 CREATE POLICY "item_photos_storage_select"
   ON storage.objects FOR SELECT
   TO public
-  USING (bucket_id = 'item-photos');
+  USING (bucket_id = private.bucket_item_photos());
 
 CREATE POLICY "item_photos_storage_update"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (
-    bucket_id = 'item-photos'
+    bucket_id = private.bucket_item_photos()
     AND private.item_photo_owner_slot_matches(name, (select auth.uid()))
   );
 
@@ -63,6 +71,6 @@ CREATE POLICY "item_photos_storage_delete"
   ON storage.objects FOR DELETE
   TO authenticated
   USING (
-    bucket_id = 'item-photos'
+    bucket_id = private.bucket_item_photos()
     AND private.item_photo_owner_slot_matches(name, (select auth.uid()))
   );
