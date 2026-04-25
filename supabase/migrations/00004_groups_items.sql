@@ -429,12 +429,14 @@ RETURNS trigger
 LANGUAGE plpgsql
 SET search_path TO public
 AS $$
+DECLARE
+  tsvector_config constant regconfig := 'simple';
 BEGIN
   NEW.search_vector :=
-    setweight(to_tsvector('simple', coalesce(NEW.name, '')), 'A') ||
-    setweight(to_tsvector('simple', coalesce(NEW.brand, '')), 'B') ||
-    setweight(to_tsvector('simple', coalesce(NEW.model, '')), 'B') ||
-    setweight(to_tsvector('simple', coalesce(NEW.description, '')), 'C');
+    setweight(to_tsvector(tsvector_config, coalesce(NEW.name, '')), 'A') ||
+    setweight(to_tsvector(tsvector_config, coalesce(NEW.brand, '')), 'B') ||
+    setweight(to_tsvector(tsvector_config, coalesce(NEW.model, '')), 'B') ||
+    setweight(to_tsvector(tsvector_config, coalesce(NEW.description, '')), 'C');
   RETURN NEW;
 END;
 $$;

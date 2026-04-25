@@ -11,23 +11,39 @@ ON CONFLICT (id) DO NOTHING;
 --   items/<user-id>/<item-id>/<filename>        -- personal items
 --   items/group-<group-id>/<item-id>/<filename> -- group items (group admins write)
 -- `storage.foldername(name)` is 1-indexed, so [2] is the second segment (owner slot).
+--
+-- Centralised predicate so the 3 write policies don't duplicate the regex/replace logic.
+CREATE OR REPLACE FUNCTION private.item_photo_owner_slot_matches(p_name text, p_caller uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SET search_path = public, storage, pg_temp
+AS $$
+  WITH folder AS (
+    SELECT (storage.foldername(p_name))[2] AS slot
+  ),
+  parsed AS (
+    SELECT
+      slot,
+      replace(slot, 'group-', '') AS group_id_text
+    FROM folder
+  )
+  SELECT
+    p.slot = p_caller::text
+    OR (
+      p.slot LIKE 'group-%'
+      AND p.group_id_text ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      AND private.is_group_admin(p.group_id_text::uuid, p_caller)
+    )
+  FROM parsed p;
+$$;
+
 CREATE POLICY "item_photos_storage_insert"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (
     bucket_id = 'item-photos'
-    AND (
-      (storage.foldername(name))[2] = (select auth.uid())::text
-      OR (
-        (storage.foldername(name))[2] LIKE 'group-%'
-        AND replace((storage.foldername(name))[2], 'group-', '') ~
-            '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        AND private.is_group_admin(
-          replace((storage.foldername(name))[2], 'group-', '')::uuid,
-          (select auth.uid())
-        )
-      )
-    )
+    AND private.item_photo_owner_slot_matches(name, (select auth.uid()))
   );
 
 CREATE POLICY "item_photos_storage_select"
@@ -40,18 +56,7 @@ CREATE POLICY "item_photos_storage_update"
   TO authenticated
   USING (
     bucket_id = 'item-photos'
-    AND (
-      (storage.foldername(name))[2] = (select auth.uid())::text
-      OR (
-        (storage.foldername(name))[2] LIKE 'group-%'
-        AND replace((storage.foldername(name))[2], 'group-', '') ~
-            '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        AND private.is_group_admin(
-          replace((storage.foldername(name))[2], 'group-', '')::uuid,
-          (select auth.uid())
-        )
-      )
-    )
+    AND private.item_photo_owner_slot_matches(name, (select auth.uid()))
   );
 
 CREATE POLICY "item_photos_storage_delete"
@@ -59,17 +64,5 @@ CREATE POLICY "item_photos_storage_delete"
   TO authenticated
   USING (
     bucket_id = 'item-photos'
-    AND (
-      (storage.foldername(name))[2] = (select auth.uid())::text
-      OR (
-        (storage.foldername(name))[2] LIKE 'group-%'
-        AND replace((storage.foldername(name))[2], 'group-', '') ~
-            '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        AND private.is_group_admin(
-          replace((storage.foldername(name))[2], 'group-', '')::uuid,
-          (select auth.uid())
-        )
-      )
-    )
+    AND private.item_photo_owner_slot_matches(name, (select auth.uid()))
   );
-

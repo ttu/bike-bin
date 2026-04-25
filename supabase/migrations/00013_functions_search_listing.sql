@@ -41,6 +41,8 @@ STABLE
 SECURITY DEFINER
 SET search_path TO public, extensions, pg_temp
 AS $$
+DECLARE
+  visibility_groups constant item_visibility := 'groups';
 BEGIN
   RETURN QUERY
   SELECT
@@ -99,12 +101,12 @@ BEGIN
       OR (i.group_id IS NOT NULL AND private.is_group_admin(i.group_id, (select auth.uid())))
       OR (
         i.group_id IS NOT NULL
-        AND i.visibility = 'groups'
+        AND i.visibility = visibility_groups
         AND private.is_group_member(i.group_id, (select auth.uid()))
       )
       OR (
         i.owner_id IS NOT NULL
-        AND i.visibility = 'groups'
+        AND i.visibility = visibility_groups
         AND private.user_shares_group_with_item(i.id, (select auth.uid()))
       )
     );
@@ -158,6 +160,7 @@ AS $$
 DECLARE
   v_tsquery tsquery;
   v_safe_limit int := LEAST(GREATEST(p_limit, 1), 100);
+  visibility_groups constant item_visibility := 'groups';
 BEGIN
   IF (select auth.uid()) IS NULL THEN
     RAISE EXCEPTION 'search requires authentication'
@@ -219,12 +222,12 @@ BEGIN
     AND (
       i.visibility = 'all'
       OR (
-        i.visibility = 'groups'
+        i.visibility = visibility_groups
         AND i.owner_id IS NOT NULL
         AND private.user_shares_group_with_item(i.id, (select auth.uid()))
       )
       OR (
-        i.visibility = 'groups'
+        i.visibility = visibility_groups
         AND i.group_id IS NOT NULL
         AND private.is_group_member(i.group_id, (select auth.uid()))
       )

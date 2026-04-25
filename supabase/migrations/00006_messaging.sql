@@ -140,10 +140,9 @@ CREATE POLICY "conversation_participants_insert"
         AND EXISTS (
           SELECT 1 FROM conversations c
           JOIN items i ON i.id = c.item_id
-          JOIN group_members gm ON gm.group_id = i.group_id
           WHERE c.id = conversation_id
-            AND gm.user_id = conversation_participants.user_id
-            AND gm.role = 'admin'
+            AND i.group_id IS NOT NULL
+            AND private.is_group_admin(i.group_id, conversation_participants.user_id)
         )
       )
     )
@@ -230,10 +229,13 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path TO public, pg_temp
 AS $$
+DECLARE
+  role_admin  constant group_role := 'admin';
+  role_member constant group_role := 'member';
 BEGIN
   -- New admin (INSERT) or promoted to admin (UPDATE): add to all group item conversations
-  IF (TG_OP = 'INSERT' AND NEW.role = 'admin')
-     OR (TG_OP = 'UPDATE' AND NEW.role = 'admin' AND OLD.role = 'member') THEN
+  IF (TG_OP = 'INSERT' AND NEW.role = role_admin)
+     OR (TG_OP = 'UPDATE' AND NEW.role = role_admin AND OLD.role = role_member) THEN
     INSERT INTO conversation_participants (conversation_id, user_id)
     SELECT c.id, NEW.user_id
     FROM conversations c
@@ -244,7 +246,7 @@ BEGIN
 
   -- Demoted or removed: remove from group item conversations,
   -- but preserve rows where the user is still the requester of a borrow_request.
-  IF (TG_OP = 'UPDATE' AND NEW.role = 'member' AND OLD.role = 'admin')
+  IF (TG_OP = 'UPDATE' AND NEW.role = role_member AND OLD.role = role_admin)
      OR TG_OP = 'DELETE' THEN
     DELETE FROM conversation_participants cp
     WHERE cp.user_id = COALESCE(OLD.user_id, NEW.user_id)

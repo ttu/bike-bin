@@ -97,9 +97,10 @@ DECLARE
   v_group_id uuid;
   v_invitee uuid;
   v_caller uuid := auth.uid();
+  err_not_authenticated constant text := 'Not authenticated';
 BEGIN
   IF v_caller IS NULL THEN
-    RAISE EXCEPTION 'Not authenticated' USING ERRCODE = '42501';
+    RAISE EXCEPTION '%', err_not_authenticated USING ERRCODE = '42501';
   END IF;
 
   SELECT group_id, invitee_user_id
@@ -153,9 +154,10 @@ SET search_path TO public, pg_temp
 AS $$
 DECLARE
   v_escaped text;
+  err_not_authenticated constant text := 'Not authenticated';
 BEGIN
   IF auth.uid() IS NULL THEN
-    RAISE EXCEPTION 'Not authenticated' USING ERRCODE = '42501';
+    RAISE EXCEPTION '%', err_not_authenticated USING ERRCODE = '42501';
   END IF;
 
   IF NOT private.is_group_admin(p_group_id, auth.uid()) THEN

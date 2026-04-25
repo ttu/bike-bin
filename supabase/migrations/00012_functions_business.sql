@@ -60,6 +60,7 @@ DECLARE
   v_request RECORD;
   v_caller UUID := (select auth.uid());
   v_derived_item_status item_status;
+  status_stored constant item_status := 'stored';
 BEGIN
   -- Single authorized fetch: only returns a row if the caller is the
   -- requester or item owner, so we don't leak request existence.
@@ -79,9 +80,9 @@ BEGIN
   -- Derive the new item status from the request status transition (server-side)
   v_derived_item_status := CASE p_new_request_status
     WHEN 'accepted' THEN 'loaned'::item_status
-    WHEN 'rejected' THEN 'stored'::item_status
-    WHEN 'returned' THEN 'stored'::item_status
-    WHEN 'cancelled' THEN 'stored'::item_status
+    WHEN 'rejected' THEN status_stored
+    WHEN 'returned' THEN status_stored
+    WHEN 'cancelled' THEN status_stored
     ELSE NULL
   END;
 
