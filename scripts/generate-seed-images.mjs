@@ -170,6 +170,18 @@ async function generateImage(entry, promptFn, index) {
   console.log(`  SAVED ${entry.name}`);
 }
 
+async function generateAll(label, entries, promptBuilder) {
+  if (!entries.length) return;
+  console.log(`${label}`);
+  for (let i = 0; i < entries.length; i++) {
+    try {
+      await generateImage(entries[i], promptBuilder, i);
+    } catch (err) {
+      console.error(`  FAILED ${entries[i].name}: ${err.message}`);
+    }
+  }
+}
+
 async function main() {
   if (!process.env.OPENAI_API_KEY) {
     console.error('Error: OPENAI_API_KEY environment variable is required');
@@ -178,32 +190,13 @@ async function main() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  const items = ITEMS_ONLY ? ITEMS : BIKES_ONLY ? [] : ITEMS;
-  const bikes = BIKES_ONLY ? BIKES : ITEMS_ONLY ? [] : BIKES;
+  const items = BIKES_ONLY ? [] : ITEMS;
+  const bikes = ITEMS_ONLY ? [] : BIKES;
   const total = items.length + bikes.length;
   console.log(`Generating images for ${items.length} items + ${bikes.length} bikes (${total} total)...\n`);
 
-  if (items.length) {
-    console.log('── Items ──');
-    for (let i = 0; i < items.length; i++) {
-      try {
-        await generateImage(items[i], buildItemPrompt, i);
-      } catch (err) {
-        console.error(`  FAILED ${items[i].name}: ${err.message}`);
-      }
-    }
-  }
-
-  if (bikes.length) {
-    console.log('\n── Bikes ──');
-    for (let i = 0; i < bikes.length; i++) {
-      try {
-        await generateImage(bikes[i], buildBikePrompt, i);
-      } catch (err) {
-        console.error(`  FAILED ${bikes[i].name}: ${err.message}`);
-      }
-    }
-  }
+  await generateAll('── Items ──', items, buildItemPrompt);
+  await generateAll('\n── Bikes ──', bikes, buildBikePrompt);
 
   const count = fs.readdirSync(OUT_DIR).filter(f => f.endsWith('.jpg') || f.endsWith('.png')).length;
   console.log(`\nDone! ${count} images in supabase/seed-images/`);

@@ -114,6 +114,56 @@ async function ensureBucket(supabase) {
   }
 }
 
+async function clearExistingPhotos(supabase, table) {
+  const { data: existing } = await supabase.from(table).select('id, storage_path');
+  if (!existing?.length) return;
+  const paths = existing.map((p) => p.storage_path);
+  await supabase.storage.from(BUCKET).remove(paths);
+  await supabase.from(table).delete().in('id', existing.map((p) => p.id));
+  console.log(`Cleared ${existing.length} existing ${table} rows`);
+}
+
+async function uploadSeedPhoto(supabase, kind, ownerId, id, ext, contentType, fileBuffer) {
+  const folder = kind === 'item' ? 'items' : 'bikes';
+  const table = kind === 'item' ? 'item_photos' : 'bike_photos';
+  const fkColumn = kind === 'item' ? 'item_id' : 'bike_id';
+  const storagePath = `${folder}/${ownerId}/${id}/seed-photo${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(storagePath, fileBuffer, { contentType, upsert: true });
+  if (uploadError) return `upload: ${uploadError.message}`;
+
+  const { error: dbError } = await supabase
+    .from(table)
+    .insert({ [fkColumn]: id, storage_path: storagePath, sort_order: 1 });
+  if (dbError) return `db insert: ${dbError.message}`;
+
+  return undefined;
+}
+
+async function processImageFile(supabase, file) {
+  const id = file.replace(/\.(png|jpg)$/, '');
+  const ext = path.extname(file);
+  const contentType = ext === '.jpg' ? 'image/jpeg' : 'image/png';
+  const fileBuffer = fs.readFileSync(path.join(IMAGES_DIR, file));
+
+  const itemOwnerId = ITEM_OWNERS[id];
+  const bikeOwnerId = BIKE_OWNERS[id];
+
+  if (itemOwnerId) {
+    const error = await uploadSeedPhoto(supabase, 'item', itemOwnerId, id, ext, contentType, fileBuffer);
+    if (error) return { ok: false, log: `  FAILED ${error} ${file}` };
+    return { ok: true, log: `  OK item ${id}` };
+  }
+  if (bikeOwnerId) {
+    const error = await uploadSeedPhoto(supabase, 'bike', bikeOwnerId, id, ext, contentType, fileBuffer);
+    if (error) return { ok: false, log: `  FAILED ${error} ${file}` };
+    return { ok: true, log: `  OK bike ${id}` };
+  }
+  return { ok: undefined, log: `  SKIP ${file} (no matching item or bike in seed data)` };
+}
+
 async function main() {
   const { apiUrl, serviceKey } = getSupabaseCredentials();
   const supabase = createClient(apiUrl, serviceKey, {
@@ -121,99 +171,19 @@ async function main() {
   });
 
   await ensureBucket(supabase);
+  await clearExistingPhotos(supabase, 'item_photos');
+  await clearExistingPhotos(supabase, 'bike_photos');
 
-  // Clear existing seed photos (items)
-  const { data: existingItemPhotos } = await supabase.from('item_photos').select('id, storage_path');
-  if (existingItemPhotos?.length) {
-    const paths = existingItemPhotos.map((p) => p.storage_path);
-    await supabase.storage.from(BUCKET).remove(paths);
-    await supabase.from('item_photos').delete().in('id', existingItemPhotos.map((p) => p.id));
-    console.log(`Cleared ${existingItemPhotos.length} existing item_photos rows`);
-  }
-
-  // Clear existing seed photos (bikes)
-  const { data: existingBikePhotos } = await supabase.from('bike_photos').select('id, storage_path');
-  if (existingBikePhotos?.length) {
-    const paths = existingBikePhotos.map((p) => p.storage_path);
-    await supabase.storage.from(BUCKET).remove(paths);
-    await supabase.from('bike_photos').delete().in('id', existingBikePhotos.map((p) => p.id));
-    console.log(`Cleared ${existingBikePhotos.length} existing bike_photos rows`);
-  }
-
-  // Get available images
   const imageFiles = fs.readdirSync(IMAGES_DIR).filter((f) => f.endsWith('.jpg') || f.endsWith('.png'));
   console.log(`Found ${imageFiles.length} images to upload\n`);
 
   let uploaded = 0;
   let failed = 0;
-
   for (const file of imageFiles) {
-    const id = file.replace(/\.(png|jpg)$/, '');
-    const ext = path.extname(file);
-    const contentType = ext === '.jpg' ? 'image/jpeg' : 'image/png';
-    const fileBuffer = fs.readFileSync(path.join(IMAGES_DIR, file));
-
-    // Determine if this is an item or bike image
-    const itemOwnerId = ITEM_OWNERS[id];
-    const bikeOwnerId = BIKE_OWNERS[id];
-
-    if (itemOwnerId) {
-      const storagePath = `items/${itemOwnerId}/${id}/seed-photo${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET)
-        .upload(storagePath, fileBuffer, { contentType, upsert: true });
-
-      if (uploadError) {
-        console.log(`  FAILED upload ${file}: ${uploadError.message}`);
-        failed++;
-        continue;
-      }
-
-      const { error: dbError } = await supabase.from('item_photos').insert({
-        item_id: id,
-        storage_path: storagePath,
-        sort_order: 1,
-      });
-
-      if (dbError) {
-        console.log(`  FAILED db insert ${file}: ${dbError.message}`);
-        failed++;
-        continue;
-      }
-
-      console.log(`  OK item ${id}`);
-      uploaded++;
-    } else if (bikeOwnerId) {
-      const storagePath = `bikes/${bikeOwnerId}/${id}/seed-photo${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET)
-        .upload(storagePath, fileBuffer, { contentType, upsert: true });
-
-      if (uploadError) {
-        console.log(`  FAILED upload ${file}: ${uploadError.message}`);
-        failed++;
-        continue;
-      }
-
-      const { error: dbError } = await supabase.from('bike_photos').insert({
-        bike_id: id,
-        storage_path: storagePath,
-        sort_order: 1,
-      });
-
-      if (dbError) {
-        console.log(`  FAILED db insert ${file}: ${dbError.message}`);
-        failed++;
-        continue;
-      }
-
-      console.log(`  OK bike ${id}`);
-      uploaded++;
-    } else {
-      console.log(`  SKIP ${file} (no matching item or bike in seed data)`);
-    }
+    const result = await processImageFile(supabase, file);
+    console.log(result.log);
+    if (result.ok === true) uploaded++;
+    else if (result.ok === false) failed++;
   }
 
   console.log(`\nDone! Uploaded: ${uploaded}, Failed: ${failed}`);

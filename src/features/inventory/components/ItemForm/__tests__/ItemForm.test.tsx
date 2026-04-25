@@ -3,12 +3,13 @@ import { renderWithProviders } from '@/test/utils';
 import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
 import { ItemForm } from '../ItemForm';
 
+const buildSingleResult = () => ({ data: null, error: null });
+const buildEqChain = () => ({ single: buildSingleResult });
+const buildSelectChain = () => ({ eq: buildEqChain });
+const buildFromChain = () => ({ select: buildSelectChain });
+
 jest.mock('@/shared/api/supabase', () => ({
-  supabase: {
-    from: () => ({
-      select: () => ({ eq: () => ({ single: () => ({ data: null, error: null }) }) }),
-    }),
-  },
+  supabase: { from: buildFromChain },
 }));
 
 jest.mock('@/features/auth', () => ({
