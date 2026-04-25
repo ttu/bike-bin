@@ -1,13 +1,13 @@
 import { Visibility } from '@/shared/types';
 import type { ItemFormData } from './validation';
 
-function sortedStrings(ids: readonly string[] | undefined): string[] {
-  return [...(ids ?? [])].map(String).sort((a, b) => a.localeCompare(b));
+function sortedStrings<T extends string>(ids: readonly T[] | undefined): T[] {
+  return [...(ids ?? [])].sort((a, b) => a.localeCompare(b));
 }
 
-function sortedStringsEqual(
-  a: readonly string[] | undefined,
-  b: readonly string[] | undefined,
+function sortedStringsEqual<T extends string>(
+  a: readonly T[] | undefined,
+  b: readonly T[] | undefined,
 ): boolean {
   const sa = sortedStrings(a);
   const sb = sortedStrings(b);
@@ -61,7 +61,7 @@ const COMPARATORS: readonly Comparator[] = [
       (a, b) =>
         ((a[key] as string | undefined) ?? '') === ((b[key] as string | undefined) ?? ''),
   ),
-  (a, b) => sortedStringsEqual(a.availabilityTypes as string[], b.availabilityTypes as string[]),
+  (a, b) => sortedStringsEqual(a.availabilityTypes, b.availabilityTypes),
   (a, b) => numClose(a.remainingFraction, b.remainingFraction, 1e-7),
   (a, b) => sortedStringsEqual(a.tags, b.tags),
 ];
@@ -70,10 +70,7 @@ function groupIdsEqual(baseline: ItemFormData, draft: ItemFormData): boolean {
   const involvesGroups =
     baseline.visibility === Visibility.Groups || draft.visibility === Visibility.Groups;
   if (!involvesGroups) return true;
-  return sortedStringsEqual(
-    baseline.groupIds as string[] | undefined,
-    draft.groupIds as string[] | undefined,
-  );
+  return sortedStringsEqual(baseline.groupIds, draft.groupIds);
 }
 
 /** True when `draft` matches `baseline` for persisted item fields (edit dirty detection). */

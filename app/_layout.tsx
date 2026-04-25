@@ -34,6 +34,7 @@ import StorybookUIRoot from '../.rnstorybook';
 const storybookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true';
 
 const layoutStyles = StyleSheet.create({
+  gestureRoot: { flex: 1 },
   storybookRoot: { flex: 1 },
 });
 
@@ -52,15 +53,17 @@ function AppContent() {
   const theme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
 
   return (
-    <PaperProvider theme={theme}>
-      <SnackbarAlertsProvider>
-        <DemoModeProvider>
-          <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </AuthProvider>
-        </DemoModeProvider>
-      </SnackbarAlertsProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={layoutStyles.gestureRoot}>
+      <PaperProvider theme={theme}>
+        <SnackbarAlertsProvider>
+          <DemoModeProvider>
+            <AuthProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+            </AuthProvider>
+          </DemoModeProvider>
+        </SnackbarAlertsProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
 

@@ -1,9 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUpdateItemStatus, useDeleteItem, canDelete, canUnarchive } from '@/features/inventory';
-import { useAcceptedBorrowRequestForItem, useMarkReturned } from '@/features/borrow';
+import {
+  useAcceptedBorrowRequestForItem,
+  useMarkReturned,
+  ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
+  BORROW_REQUESTS_QUERY_KEY,
+} from '@/features/borrow';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
 import { ItemStatus } from '@/shared/types';
 import type { Item } from '@/shared/types';
@@ -15,6 +21,7 @@ export function useItemActions(item: Item) {
   const { t: tCommon } = useTranslation('common');
   const { showSnackbarAlert } = useSnackbarAlerts();
 
+  const queryClient = useQueryClient();
   const updateStatus = useUpdateItemStatus();
   const deleteItem = useDeleteItem();
   const markDonated = useMarkDonated();
@@ -144,6 +151,18 @@ export function useItemActions(item: Item) {
         if (acceptedBorrowRequestId == null) {
           try {
             await updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
+            // useUpdateItemStatus only invalidates ['items'] and ['items', id];
+            // mirror the rest of the markReturned flow so borrow-related caches
+            // (borrow requests inbox, group/search lists, accepted-request lookup)
+            // don't go stale on this recovery path.
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
+              queryClient.invalidateQueries({ queryKey: ['group-items'] }),
+              queryClient.invalidateQueries({ queryKey: ['search', 'items'] }),
+              queryClient.invalidateQueries({
+                queryKey: [ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY, item.id],
+              }),
+            ]);
             onDone();
           } catch {
             onError();
