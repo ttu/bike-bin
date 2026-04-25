@@ -70,6 +70,19 @@ describe('useAuth', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
+  it('handles getSession rejection and still exits loading state', async () => {
+    (supabase.auth.getSession as jest.Mock).mockRejectedValueOnce(
+      new Error('Invalid Refresh Token'),
+    );
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {});
+
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.session).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
   it('signOut calls supabase signOut', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     await act(async () => {});
