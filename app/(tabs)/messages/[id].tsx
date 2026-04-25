@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import {
   View,
   FlatList,
@@ -27,6 +28,7 @@ import {
   useMessages,
   useSendMessage,
   useRealtimeMessages,
+  useMarkConversationRead,
   useUserBorrowHistory,
   ChatBubble,
   ItemContextStrip,
@@ -145,8 +147,20 @@ export default function ConversationDetailScreen() {
   const markDonated = useMarkDonated();
   const markSold = useMarkSold();
 
+  const isFocused = useIsFocused();
+  const { mutate: markConversationRead } = useMarkConversationRead();
+
+  // Mark the conversation as read whenever it becomes focused (mount, return from
+  // background nav, etc.). useRealtimeMessages handles subsequent in-conversation
+  // messages while the screen stays focused.
+  useEffect(() => {
+    if (conversationId && isFocused) {
+      markConversationRead(conversationId);
+    }
+  }, [conversationId, isFocused, markConversationRead]);
+
   // Subscribe to realtime updates
-  useRealtimeMessages(conversationId);
+  useRealtimeMessages(conversationId, { isFocused });
 
   // Trust signal — currently a stub (returns 0/0) until borrow analytics ship
   const { data: borrowHistory } = useUserBorrowHistory(conversation?.otherParticipantId);

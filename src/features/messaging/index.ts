@@ -9,7 +9,13 @@ export { useMessages, MESSAGES_QUERY_KEY } from './hooks/useMessages';
 export { useSendMessage } from './hooks/useSendMessage';
 export { useCreateConversation } from './hooks/useCreateConversation';
 export { useRealtimeMessages } from './hooks/useRealtimeMessages';
-export { useUnreadCount, UNREAD_COUNT_QUERY_KEY } from './hooks/useUnreadCount';
+export {
+  useUnreadCount,
+  useUnreadCountByConversation,
+  UNREAD_COUNT_QUERY_KEY,
+  type UnreadCountByConversation,
+} from './hooks/useUnreadCount';
+export { useMarkConversationRead } from './hooks/useMarkConversationRead';
 export {
   useUserBorrowHistory,
   USER_BORROW_HISTORY_QUERY_KEY,

@@ -211,14 +211,17 @@ export type Database = {
       conversation_participants: {
         Row: {
           conversation_id: string;
+          last_read_at: string;
           user_id: string;
         };
         Insert: {
           conversation_id: string;
+          last_read_at?: string;
           user_id: string;
         };
         Update: {
           conversation_id?: string;
+          last_read_at?: string;
           user_id?: string;
         };
         Relationships: [
@@ -1231,6 +1234,17 @@ export type Database = {
         Returns: boolean;
       };
       is_public_group: { Args: { p_group_id: string }; Returns: boolean };
+      mark_conversation_read: {
+        Args: { p_conversation_id: string };
+        Returns: undefined;
+      };
+      unread_message_count: {
+        Args: never;
+        Returns: {
+          conversation_id: string;
+          count: number;
+        }[];
+      };
       latest_messages_for_conversations: {
         Args: { p_conversation_ids: string[] };
         Returns: {

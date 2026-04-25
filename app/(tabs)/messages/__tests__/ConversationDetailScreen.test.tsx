@@ -59,6 +59,10 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+jest.mock('@react-navigation/native', () => ({
+  useIsFocused: () => true,
+}));
+
 jest.mock('@/features/auth', () => mockAuthModule);
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -114,6 +118,7 @@ jest.mock('@/features/messaging', () => {
     }),
     useSendMessage: () => ({ mutate: mockSendMutate, isPending: false }),
     useRealtimeMessages: jest.fn(),
+    useMarkConversationRead: () => ({ mutate: jest.fn(), isPending: false }),
     useUserBorrowHistory: () => ({
       data: { borrowCount: 0, completedOnTimeCount: 0 },
     }),

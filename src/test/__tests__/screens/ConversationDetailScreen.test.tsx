@@ -48,6 +48,10 @@ jest.mock('@/shared/utils/tabScopedBack', () => ({
 const mockUserId = 'user-self' as UserId;
 const mockOtherId = 'user-other' as UserId;
 
+jest.mock('@react-navigation/native', () => ({
+  useIsFocused: () => true,
+}));
+
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
     user: { id: mockUserId },
@@ -120,6 +124,7 @@ jest.mock('@/features/messaging', () => ({
   }),
   useSendMessage: () => ({ mutate: mockSendMutate, isPending: mockSendPending }),
   useRealtimeMessages: jest.fn(),
+  useMarkConversationRead: () => ({ mutate: jest.fn(), isPending: false }),
   useUserBorrowHistory: () => ({
     data: { borrowCount: 0, completedOnTimeCount: 0 },
   }),

@@ -1,30 +1,51 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
+import type { ConversationId } from '@/shared/types';
 
 export const UNREAD_COUNT_QUERY_KEY = 'unread_message_count';
 
+export type UnreadCountByConversation = ReadonlyMap<ConversationId, number>;
+
+async function fetchUnreadCounts(): Promise<UnreadCountByConversation> {
+  const { data, error } = await supabase.rpc('unread_message_count');
+  if (error) throw error;
+
+  const map = new Map<ConversationId, number>();
+  for (const row of data ?? []) {
+    map.set(row.conversation_id as ConversationId, Number(row.count));
+  }
+  return map;
+}
+
+function sumCounts(counts: UnreadCountByConversation): number {
+  let total = 0;
+  for (const n of counts.values()) total += n;
+  return total;
+}
+
 /**
- * Returns the total unread message count across all conversations.
- *
- * For MVP, returns 0 — full unread tracking requires a conversation_read_at
- * table (post-MVP enhancement). Real-time updates for the active conversation
- * are handled by useRealtimeMessages, which invalidates this query key when
- * new messages arrive.
- *
- * Note: A previous implementation subscribed to all message inserts without a
- * filter. Supabase postgres_changes does not enforce RLS, so this delivered
- * every message row to every authenticated client. Removed to prevent data leakage.
+ * Total unread messages across all the current user's conversations.
+ * Realtime invalidation is handled by useRealtimeMessages.
  */
 export function useUnreadCount() {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: [UNREAD_COUNT_QUERY_KEY, user?.id],
-    queryFn: async (): Promise<number> => {
-      if (!user) return 0;
-      // Full unread tracking is a post-MVP enhancement (requires conversation_read_at table).
-      return 0;
-    },
+    queryFn: fetchUnreadCounts,
+    enabled: !!user,
+    select: sumCounts,
+  });
+}
+
+/** Same query as useUnreadCount; exposes the per-conversation breakdown. */
+export function useUnreadCountByConversation() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: [UNREAD_COUNT_QUERY_KEY, user?.id],
+    queryFn: fetchUnreadCounts,
     enabled: !!user,
   });
 }
