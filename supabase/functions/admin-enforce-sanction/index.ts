@@ -333,6 +333,88 @@ async function purgeUserTables(
   );
 }
 
+async function fetchOwnedIdsByOwner(
+  supabase: SupabaseClient,
+  table: 'items' | 'bikes',
+  userId: string,
+): Promise<string[]> {
+  const { data, error } = await supabase.from(table).select('id').eq('owner_id', userId);
+  assertNoError(error, `load user ${table} for storage paths`);
+  return (data ?? []).map((row: { id: string }) => row.id);
+}
+
+async function collectAllStoragePaths(
+  supabase: SupabaseClient,
+  userId: string,
+  ownedItemIds: string[],
+  ownedBikeIds: string[],
+): Promise<{ bucket: string; path: string }[]> {
+  const paths: { bucket: string; path: string }[] = [];
+  const avatarPath = await collectAvatarPath(supabase, userId);
+  if (avatarPath) paths.push(avatarPath);
+  paths.push(...(await collectChildStoragePaths(supabase, ownedItemIds, 'item_photos', 'item_id')));
+  paths.push(...(await collectChildStoragePaths(supabase, ownedBikeIds, 'bike_photos', 'bike_id')));
+  paths.push(...(await collectExportPaths(supabase, userId)));
+  return paths;
+}
+
+async function purgeOwnedAggregates(
+  supabase: SupabaseClient,
+  userId: string,
+  ownedItemIds: string[],
+  ownedBikeIds: string[],
+  counts: PurgeCounts,
+): Promise<void> {
+  counts.itemPhotos = await purgeOwnedChildAndRoot(
+    supabase,
+    ownedItemIds,
+    'item_photos',
+    'item_id',
+  );
+  counts.items = deleteCount(
+    await supabase.from('items').delete().eq('owner_id', userId).select('id'),
+    'delete items',
+  );
+  counts.bikePhotos = await purgeOwnedChildAndRoot(
+    supabase,
+    ownedBikeIds,
+    'bike_photos',
+    'bike_id',
+  );
+  counts.bikes = deleteCount(
+    await supabase.from('bikes').delete().eq('owner_id', userId).select('id'),
+    'delete bikes',
+  );
+  counts.messages = deleteCount(
+    await supabase.from('messages').delete().eq('sender_id', userId).select('id'),
+    'delete messages',
+  );
+  counts.conversationParticipants = deleteCount(
+    await supabase.from('conversation_participants').delete().eq('user_id', userId).select('id'),
+    'delete conversation_participants',
+  );
+}
+
+async function finalizePurge(
+  supabase: SupabaseClient,
+  userId: string,
+  validatedReason: string | undefined,
+  validatedReportIds: string[] | undefined,
+): Promise<void> {
+  const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('id', userId);
+  assertNoError(profileDeleteError, 'delete profile');
+
+  const { error: logError } = await supabase.from('moderation_enforcement_log').insert({
+    sanctioned_user_id: userId,
+    reason: validatedReason ?? null,
+    report_ids: validatedReportIds ?? null,
+  });
+  assertNoError(logError, 'insert moderation_enforcement_log');
+
+  const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+  assertNoError(authDeleteError, 'delete auth user');
+}
+
 async function purgeSanctionedUser(
   supabase: SupabaseClient,
   userId: string,
@@ -350,82 +432,16 @@ async function purgeSanctionedUser(
     throw e;
   }
 
-  const storagePaths: { bucket: string; path: string }[] = [];
-
-  const avatarPath = await collectAvatarPath(supabase, userId);
-  if (avatarPath) storagePaths.push(avatarPath);
-
-  const { data: userItems, error: userItemsError } = await supabase
-    .from('items')
-    .select('id')
-    .eq('owner_id', userId);
-  assertNoError(userItemsError, 'load user items for storage paths');
-  const ownedItemIds = (userItems ?? []).map((i) => i.id);
-  storagePaths.push(
-    ...(await collectChildStoragePaths(supabase, ownedItemIds, 'item_photos', 'item_id')),
-  );
-
-  const { data: userBikes, error: userBikesError } = await supabase
-    .from('bikes')
-    .select('id')
-    .eq('owner_id', userId);
-  assertNoError(userBikesError, 'load user bikes for storage paths');
-  const ownedBikeIds = (userBikes ?? []).map((b) => b.id);
-  storagePaths.push(
-    ...(await collectChildStoragePaths(supabase, ownedBikeIds, 'bike_photos', 'bike_id')),
-  );
-
-  storagePaths.push(...(await collectExportPaths(supabase, userId)));
+  const ownedItemIds = await fetchOwnedIdsByOwner(supabase, 'items', userId);
+  const ownedBikeIds = await fetchOwnedIdsByOwner(supabase, 'bikes', userId);
+  const storagePaths = await collectAllStoragePaths(supabase, userId, ownedItemIds, ownedBikeIds);
 
   await deleteStorageObjects(supabase, storagePaths, counts);
   await closeReports(supabase, userId, ownedItemIds, counts);
-
-  counts.itemPhotos = await purgeOwnedChildAndRoot(
-    supabase,
-    ownedItemIds,
-    'item_photos',
-    'item_id',
-  );
-  counts.items = deleteCount(
-    await supabase.from('items').delete().eq('owner_id', userId).select('id'),
-    'delete items',
-  );
-
-  counts.bikePhotos = await purgeOwnedChildAndRoot(
-    supabase,
-    ownedBikeIds,
-    'bike_photos',
-    'bike_id',
-  );
-  counts.bikes = deleteCount(
-    await supabase.from('bikes').delete().eq('owner_id', userId).select('id'),
-    'delete bikes',
-  );
-
-  counts.messages = deleteCount(
-    await supabase.from('messages').delete().eq('sender_id', userId).select('id'),
-    'delete messages',
-  );
-  counts.conversationParticipants = deleteCount(
-    await supabase.from('conversation_participants').delete().eq('user_id', userId).select('id'),
-    'delete conversation_participants',
-  );
-
+  await purgeOwnedAggregates(supabase, userId, ownedItemIds, ownedBikeIds, counts);
   await purgeEmptyConversations(supabase, counts);
   await purgeUserTables(supabase, userId, counts);
-
-  const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('id', userId);
-  assertNoError(profileDeleteError, 'delete profile');
-
-  const { error: logError } = await supabase.from('moderation_enforcement_log').insert({
-    sanctioned_user_id: userId,
-    reason: validatedReason ?? null,
-    report_ids: validatedReportIds ?? null,
-  });
-  assertNoError(logError, 'insert moderation_enforcement_log');
-
-  const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
-  assertNoError(authDeleteError, 'delete auth user');
+  await finalizePurge(supabase, userId, validatedReason, validatedReportIds);
 
   return json(200, { success: true, counts });
 }
