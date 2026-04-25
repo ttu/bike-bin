@@ -30,6 +30,7 @@ import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useT
 import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
 import { APP_ENV } from '@/shared/utils/env';
 import { configureNavigationForWeb } from '@/shared/utils/configureNavigationForWeb';
+import { getWebViewportStyle } from '@/shared/utils/webViewportStyle';
 import StorybookUIRoot from '../.rnstorybook';
 
 configureNavigationForWeb();
@@ -56,7 +57,7 @@ function AppContent() {
   const theme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
 
   return (
-    <GestureHandlerRootView style={layoutStyles.gestureRoot}>
+    <GestureHandlerRootView style={[layoutStyles.gestureRoot, getWebViewportStyle()]}>
       <PaperProvider theme={theme}>
         <SnackbarAlertsProvider>
           <DemoModeProvider>
@@ -72,7 +73,7 @@ function AppContent() {
 
 function StorybookAppContent() {
   return (
-    <GestureHandlerRootView style={layoutStyles.storybookRoot}>
+    <GestureHandlerRootView style={[layoutStyles.storybookRoot, getWebViewportStyle()]}>
       <SafeAreaProvider>
         <StorybookUIRoot />
       </SafeAreaProvider>
@@ -104,7 +105,7 @@ function RootLayout() {
 
   if (storybookEnabled) {
     return (
-      <SafeAreaProvider onLayout={onLayoutRootView}>
+      <SafeAreaProvider onLayout={onLayoutRootView} style={getWebViewportStyle()}>
         <QueryClientProvider client={storybookShellQueryClient}>
           <ThemePreferenceProvider>
             <StorybookAppContent />
@@ -115,7 +116,7 @@ function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider onLayout={onLayoutRootView}>
+    <SafeAreaProvider onLayout={onLayoutRootView} style={getWebViewportStyle()}>
       <QueryClientProvider client={queryClient}>
         <ThemePreferenceProvider>
           <AppContent />
