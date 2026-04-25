@@ -29,7 +29,10 @@ import { DemoModeProvider } from '@/features/demo';
 import { ThemePreferenceProvider, useThemePreference } from '@/shared/hooks/useThemePreference';
 import { SnackbarAlertsProvider } from '@/shared/components/SnackbarAlerts';
 import { APP_ENV } from '@/shared/utils/env';
+import { configureNavigationForWeb } from '@/shared/utils/configureNavigationForWeb';
 import StorybookUIRoot from '../.rnstorybook';
+
+configureNavigationForWeb();
 
 const storybookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true';
 
