@@ -1,5 +1,15 @@
-import { test, expect, navigateToMessages } from './fixtures';
+import {
+  test,
+  expect,
+  navigateToMessages,
+  expectFirstVisibleByText,
+  clickFirstVisibleByRole,
+  clickFirstVisibleByText,
+} from './fixtures';
 import { expect as baseExpect } from '@playwright/test';
+
+/** Two seeded threads list "Kai R." — open this row for PCS-10 / "Thanks Monday" message tests. */
+const KAI_PARK_TOOL_LIST_LINE = 'Re: Park Tool PCS-10.3 Stand';
 
 test.describe('Conversations list', () => {
   test('shows Messages heading', async ({ loggedInPage }) => {
@@ -96,10 +106,10 @@ test.describe('Conversation detail', () => {
   test('opens conversation on click', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
+    await expect(loggedInPage.getByText(KAI_PARK_TOOL_LIST_LINE).first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').first().click();
+    await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
     await expect(loggedInPage).toHaveURL(/\/messages\//, {
       timeout: 10000,
@@ -109,10 +119,10 @@ test.describe('Conversation detail', () => {
   test('shows message input', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
+    await expect(loggedInPage.getByText(KAI_PARK_TOOL_LIST_LINE).first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').first().click();
+    await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
       timeout: 10000,
@@ -122,28 +132,28 @@ test.describe('Conversation detail', () => {
   test('shows chat messages', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
+    await expect(loggedInPage.getByText(KAI_PARK_TOOL_LIST_LINE).first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').first().click();
+    await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
     // Wait for conversation detail to load
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
       timeout: 10000,
     });
 
-    const chatMessage = loggedInPage.getByText('Thanks! I will bring it back Monday.').last();
-    await chatMessage.scrollIntoViewIfNeeded();
-    await expect(chatMessage).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, 'Thanks! I will bring it back Monday.', {
+      timeout: 10000,
+    });
   });
 
   test('shows item reference in thread', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
+    await expect(loggedInPage.getByText(KAI_PARK_TOOL_LIST_LINE).first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').first().click();
+    await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
     await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand').first()).toBeVisible({
       timeout: 10000,
@@ -153,10 +163,10 @@ test.describe('Conversation detail', () => {
   test('header back button returns to conversations list', async ({ loggedInPage }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
+    await expect(loggedInPage.getByText(KAI_PARK_TOOL_LIST_LINE).first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').first().click();
+    await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
     await expect(loggedInPage.getByPlaceholder('Type a message...')).toBeVisible({
       timeout: 10000,
@@ -180,10 +190,10 @@ test.describe('Conversation detail', () => {
   }) => {
     await navigateToMessages(loggedInPage);
 
-    await expect(loggedInPage.getByText('Kai R.').first()).toBeVisible({
+    await expect(loggedInPage.getByText(KAI_PARK_TOOL_LIST_LINE).first()).toBeVisible({
       timeout: 10000,
     });
-    await loggedInPage.getByText('Kai R.').first().click();
+    await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
     await expect(
       loggedInPage.getByRole('textbox', { name: 'Type a message...' }).first(),
@@ -191,7 +201,8 @@ test.describe('Conversation detail', () => {
       timeout: 10000,
     });
 
-    await loggedInPage.getByRole('link', { name: 'View' }).click();
+    // Substring match would hit "View profile" in the header; item strip is exactly "View".
+    await clickFirstVisibleByRole(loggedInPage, 'button', /^View$/);
 
     await loggedInPage.waitForURL(/\/messages\/item\/[^/]+/, { timeout: 10000 });
     await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });

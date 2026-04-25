@@ -1,4 +1,10 @@
-import { test, expect, navigateToSearch, navigateToTab } from './fixtures';
+import {
+  test,
+  expect,
+  navigateToSearch,
+  navigateToTab,
+  expectFirstVisibleByText,
+} from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -38,14 +44,14 @@ test.describe('Search with authenticated user', () => {
   test('shows user location', async ({ loggedInPage }) => {
     await navigateToSearch(loggedInPage);
 
-    await expect(loggedInPage.getByText(/Kreuzberg|Berlin/)).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /Kreuzberg|Berlin/, { timeout: 10000 });
   });
 
   test('shows distance selector', async ({ loggedInPage }) => {
     await navigateToSearch(loggedInPage);
 
-    await expect(loggedInPage.getByText(/within/)).toBeVisible({ timeout: 10000 });
-    await expect(loggedInPage.getByText(/km/)).toBeVisible();
+    await expectFirstVisibleByText(loggedInPage, /within/, { timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /km/);
   });
 
   test('search returns results', async ({ loggedInPage }) => {
