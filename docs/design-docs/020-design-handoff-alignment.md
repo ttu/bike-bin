@@ -63,9 +63,10 @@ keeps six (adds Groups as a top-level tab):
 
 - Groups is a load-bearing workflow that users reach frequently —
   collapsing it into Profile would add a hop to every group action.
-- The other five tab icons already match the handoff canonical mapping
-  (`home`, `bicycle`, `magnify`, `account-group`, `chat`, `account` at
-  `iconSize.md` 24 px).
+- Tab icons use the outlined MCI glyphs to match the handoff strokes:
+  `home-outline`, `bicycle`, `magnify`, `account-group-outline`,
+  `chat-outline`, `account-outline` at `iconSize.md` 24 px. (`bicycle`
+  and `magnify` have no separate outline variant in MCI.)
 - The Messages unread badge uses `customColors.accent` /
   `customColors.onAccent` — the one place the accent earns a top-level
   appearance in chrome (community seam rule).

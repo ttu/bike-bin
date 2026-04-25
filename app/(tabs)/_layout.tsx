@@ -116,7 +116,7 @@ export default function TabLayout() {
           title: t('tabs.inventory'),
           tabBarAccessibilityLabel: t('tabs.inventory'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" size={size} color={color} />
+            <MaterialCommunityIcons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -146,7 +146,7 @@ export default function TabLayout() {
           title: t('tabs.groups'),
           tabBarAccessibilityLabel: t('tabs.groups'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-group" size={size} color={color} />
+            <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />
           ),
         }}
       />
@@ -156,7 +156,7 @@ export default function TabLayout() {
           title: t('tabs.messages'),
           tabBarAccessibilityLabel: t('tabs.messages'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="chat" size={size} color={color} />
+            <MaterialCommunityIcons name="chat-outline" size={size} color={color} />
           ),
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
           tabBarBadgeStyle: {
@@ -172,7 +172,7 @@ export default function TabLayout() {
           title: t('tabs.profile'),
           tabBarAccessibilityLabel: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={size} color={color} />
+            <MaterialCommunityIcons name="account-outline" size={size} color={color} />
           ),
         }}
       />
