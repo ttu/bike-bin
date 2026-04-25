@@ -62,7 +62,13 @@ export default function PublicUserProfileScreen() {
           >
             {tProfile('publicProfile.notFoundMessage')}
           </Text>
-          <Button mode="contained" onPress={() => void refetchProfile()} loading={profileFetching}>
+          <Button
+            mode="contained"
+            onPress={() => {
+              refetchProfile();
+            }}
+            loading={profileFetching}
+          >
             {tProfile('publicProfile.retry')}
           </Button>
         </View>

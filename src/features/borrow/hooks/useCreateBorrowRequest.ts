@@ -39,17 +39,12 @@ export function useCreateBorrowRequest() {
 
       return request;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [BORROW_REQUESTS_QUERY_KEY],
-      });
-      // Invalidate items to reflect Reserved status
-      void queryClient.invalidateQueries({
-        queryKey: ['items'],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['search', 'items'],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: ['items'] }),
+        queryClient.invalidateQueries({ queryKey: ['search', 'items'] }),
+      ]);
     },
   });
 }

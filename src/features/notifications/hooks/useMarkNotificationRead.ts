@@ -16,13 +16,11 @@ export function useMarkNotificationRead() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [NOTIFICATIONS_QUERY_KEY],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY] }),
+      ]);
     },
   });
 }

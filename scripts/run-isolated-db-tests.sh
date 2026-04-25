@@ -182,6 +182,10 @@ case "$MODE" in
     run_rls
     run_e2e
     ;;
+  *)
+    echo "Unknown MODE: $MODE (expected: rls | e2e | both)" >&2
+    exit 1
+    ;;
 esac
 
 echo "Tests finished; cleaning up worktree and Supabase..."

@@ -10,7 +10,7 @@ const mockOn = jest.fn().mockImplementation((_event, _filter, handler: Handler) 
   return { subscribe: mockSubscribe };
 });
 const mockChannel = jest.fn().mockReturnValue({ on: mockOn });
-const mockRemoveChannel = jest.fn();
+const mockRemoveChannel = jest.fn().mockResolvedValue('ok');
 const mockRpc = jest.fn().mockResolvedValue({ error: null });
 
 jest.mock('@/shared/api/supabase', () => ({

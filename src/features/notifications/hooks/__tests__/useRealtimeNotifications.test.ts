@@ -5,7 +5,7 @@ const mockSubscribe = jest.fn().mockReturnValue({});
 const mockOn = jest.fn().mockReturnValue({ subscribe: mockSubscribe });
 const mockChannelObj = { on: mockOn };
 const mockChannel = jest.fn().mockReturnValue(mockChannelObj);
-const mockRemoveChannel = jest.fn();
+const mockRemoveChannel = jest.fn().mockResolvedValue('ok');
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {

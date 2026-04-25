@@ -28,18 +28,16 @@ export function useRealtimeNotifications() {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          void queryClient.invalidateQueries({
-            queryKey: [NOTIFICATIONS_QUERY_KEY],
-          });
-          void queryClient.invalidateQueries({
-            queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY],
-          });
+          Promise.all([
+            queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] }),
+            queryClient.invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY] }),
+          ]).catch(() => undefined);
         },
       )
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      supabase.removeChannel(channel).catch(() => undefined);
     };
   }, [user, queryClient]);
 }

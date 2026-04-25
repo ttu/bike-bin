@@ -23,12 +23,14 @@ export function useMarkSold() {
 
       if (statusError) throw statusError;
     },
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: ['items'] });
-      void queryClient.invalidateQueries({ queryKey: ['items', variables.itemId] });
-      void queryClient.invalidateQueries({ queryKey: ['searchItems'] });
-      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      void queryClient.invalidateQueries({ queryKey: ['conversation'] });
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['items'] }),
+        queryClient.invalidateQueries({ queryKey: ['items', variables.itemId] }),
+        queryClient.invalidateQueries({ queryKey: ['searchItems'] }),
+        queryClient.invalidateQueries({ queryKey: ['conversations'] }),
+        queryClient.invalidateQueries({ queryKey: ['conversation'] }),
+      ]);
     },
   });
 }
