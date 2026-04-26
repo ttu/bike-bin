@@ -25,7 +25,7 @@ export const test = base.extend<{ loggedInPage: Page }>({
   },
 });
 
-export { expect };
+export { expect } from '@playwright/test';
 
 // ---------------------------------------------------------------------------
 // Navigation helpers
@@ -38,7 +38,7 @@ export async function navigateToTab(
   const tablist = page.getByRole('tablist');
   await tablist.getByRole('tab', { name: new RegExp(tabName, 'i') }).click();
   const urlSegment = tabName.toLowerCase();
-  await page.waitForURL(new RegExp(`\\/${urlSegment}`));
+  await page.waitForURL(new RegExp(String.raw`\/${urlSegment}`));
 }
 
 export async function navigateToInventory(page: Page) {

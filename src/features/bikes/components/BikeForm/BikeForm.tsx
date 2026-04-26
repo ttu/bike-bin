@@ -110,10 +110,10 @@ export function BikeForm({
   const [bikeType, setBikeType] = useState<BikeType | undefined>(initialData?.type);
   const [year, setYear] = useState(initialData?.year?.toString() ?? '');
   const [distanceKmStr, setDistanceKmStr] = useState(
-    initialData?.distanceKm != null ? String(initialData.distanceKm) : '',
+    initialData?.distanceKm == null ? '' : String(initialData.distanceKm),
   );
   const [usageHoursStr, setUsageHoursStr] = useState(
-    initialData?.usageHours != null ? String(initialData.usageHours) : '',
+    initialData?.usageHours == null ? '' : String(initialData.usageHours),
   );
   const [bikeCondition, setBikeCondition] = useState<ItemCondition>(
     initialData?.condition ?? ItemCondition.New,

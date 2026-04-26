@@ -13,7 +13,8 @@ describe('buildFramedDeviceHtml', () => {
 
   it('strips invalid base64 characters from the data URL payload', () => {
     const html = buildFramedDeviceHtml('a\nb\t<c>', 100, 200);
-    const m = html.match(/data:image\/png;base64,([A-Za-z0-9+/=]+)/);
+    const dataUrlPattern = /data:image\/png;base64,([A-Za-z0-9+/=]+)/;
+    const m = dataUrlPattern.exec(html);
     expect(m?.[1]).toBe('abc');
   });
 });

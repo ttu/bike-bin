@@ -1,5 +1,4 @@
-import { test, expect } from './fixtures';
-import { navigateToSearch, navigateToMessages, navigateToProfile } from './fixtures';
+import { test, expect, navigateToSearch, navigateToMessages, navigateToProfile } from './fixtures';
 
 test.describe('Mobile viewport (375x812)', () => {
   test('inventory renders without overflow', async ({ loggedInPage }) => {
