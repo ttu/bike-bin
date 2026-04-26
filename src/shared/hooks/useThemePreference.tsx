@@ -52,8 +52,12 @@ export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
     void AsyncStorage.setItem(STORAGE_KEY, pref);
   }, []);
 
-  const effectiveTheme: EffectiveTheme =
-    preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference;
+  let effectiveTheme: EffectiveTheme;
+  if (preference === 'system') {
+    effectiveTheme = systemScheme === 'dark' ? 'dark' : 'light';
+  } else {
+    effectiveTheme = preference;
+  }
 
   const value = useMemo(
     () => ({ preference, effectiveTheme, setPreference }),

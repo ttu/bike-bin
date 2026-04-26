@@ -198,4 +198,4 @@ async function main() {
   console.log(`\nDone! Uploaded: ${uploaded}, Failed: ${failed}`);
 }
 
-main();
+await main();

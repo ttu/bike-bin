@@ -202,4 +202,4 @@ async function main() {
   console.log(`\nDone! ${count} images in supabase/seed-images/`);
 }
 
-main();
+await main();

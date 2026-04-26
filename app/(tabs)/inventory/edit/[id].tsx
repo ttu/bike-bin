@@ -167,13 +167,14 @@ export default function EditItemScreen() {
     return <LoadingScreen />;
   }
 
-  const thumbnailUri =
-    photos.length > 0
-      ? supabase.storage.from('item-photos').getPublicUrl(photos[0].storagePath).data.publicUrl
-      : item.thumbnailStoragePath
-        ? supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath).data
-            .publicUrl
-        : undefined;
+  let thumbnailUri: string | undefined;
+  if (photos.length > 0) {
+    thumbnailUri = supabase.storage.from('item-photos').getPublicUrl(photos[0].storagePath)
+      .data.publicUrl;
+  } else if (item.thumbnailStoragePath) {
+    thumbnailUri = supabase.storage.from('item-photos').getPublicUrl(item.thumbnailStoragePath)
+      .data.publicUrl;
+  }
   const thumbnailCacheKey = photos.length > 0 ? photos[0].storagePath : item.thumbnailStoragePath;
 
   const initialData: ItemFormData = {

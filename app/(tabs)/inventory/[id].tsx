@@ -33,12 +33,12 @@ export default function ItemDetailScreen() {
     () => params.photoLimitWarning === '1',
   );
   const fromBikeRaw = params.fromBike;
-  const fromBikeId =
-    typeof fromBikeRaw === 'string'
-      ? fromBikeRaw
-      : Array.isArray(fromBikeRaw)
-        ? fromBikeRaw[0]
-        : undefined;
+  let fromBikeId: string | undefined;
+  if (typeof fromBikeRaw === 'string') {
+    fromBikeId = fromBikeRaw;
+  } else if (Array.isArray(fromBikeRaw)) {
+    fromBikeId = fromBikeRaw[0];
+  }
 
   const { data: item, isLoading } = useItem(id as ItemId);
   const { data: photos } = useItemPhotos(id as ItemId);

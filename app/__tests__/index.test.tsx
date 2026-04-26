@@ -7,8 +7,6 @@ const mockUseDemoMode = jest.fn();
 
 jest.mock('expo-router', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text: RNText } = require('react-native');
   return {
     Redirect: ({ href }: { href: string }) => <RNText testID="redirect-href">{href}</RNText>,
@@ -28,8 +26,6 @@ jest.mock('@/features/auth', () => ({
 }));
 
 jest.mock('@/features/demo', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
   return {
     DemoModeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     useDemoMode: () => mockUseDemoMode(),

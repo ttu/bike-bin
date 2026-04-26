@@ -8,14 +8,13 @@ type ScreenProps = {
   name: string;
   options: {
     tabBarBadgeStyle?: { backgroundColor?: string; color?: string };
+    tabBarIcon?: (props: { color: string; size: number }) => React.ReactNode;
   };
 };
 
 const capturedScreens: ScreenProps[] = [];
 
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
   return {
     Tabs: Object.assign(({ children }: { children?: React.ReactNode }) => <>{children}</>, {
       Screen: (props: ScreenProps) => {
@@ -47,5 +46,20 @@ describe('(tabs)/_layout', () => {
       lightTheme.customColors.accent,
     );
     expect(messages?.options.tabBarBadgeStyle?.color).toBe(lightTheme.customColors.onAccent);
+  });
+
+  it('renders an icon for every tab', () => {
+    render(
+      <PaperProvider theme={lightTheme}>
+        <TabLayout />
+      </PaperProvider>,
+    );
+
+    const expectedTabs = ['inventory', 'bikes', 'search', 'groups', 'messages', 'profile'];
+    for (const name of expectedTabs) {
+      const screen = capturedScreens.find((s) => s.name === name);
+      const icon = screen?.options.tabBarIcon?.({ color: '#000', size: 24 });
+      expect(icon).toBeTruthy();
+    }
   });
 });

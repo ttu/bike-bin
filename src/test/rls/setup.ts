@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Local Supabase — isolated runs set BIKE_BIN_TEST_SUPABASE_URL (see scripts/run-isolated-db-tests.sh)
@@ -23,7 +24,7 @@ let userCounter = 0;
 export async function createTestUser(prefix = 'rls'): Promise<TestUser> {
   userCounter++;
   const email = `${prefix}-${userCounter}-${Date.now()}@test.local`;
-  const password = 'test-password-123!';
+  const password = `test-${randomUUID()}`;
 
   const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
     email,

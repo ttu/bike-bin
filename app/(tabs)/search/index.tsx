@@ -34,6 +34,10 @@ import {
 } from '@/features/search/utils/searchGridDimensions';
 import type { SearchResultPair } from '@/features/search/utils/groupSearchResultPairs';
 
+function FilterChipIcon({ color }: { color: string }) {
+  return <MaterialCommunityIcons name="filter-variant" size={16} color={color} />;
+}
+
 function SearchScreenContent() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('search');
@@ -95,12 +99,14 @@ function SearchScreenContent() {
     [filters.offerTypes, updateFilters],
   );
 
-  const sortLabel =
-    filters.sortBy === 'newest'
-      ? t('sort.newest')
-      : filters.sortBy === 'recently_available'
-        ? t('sort.recently_available')
-        : t('sort.distance');
+  let sortLabel: string;
+  if (filters.sortBy === 'newest') {
+    sortLabel = t('sort.newest');
+  } else if (filters.sortBy === 'recently_available') {
+    sortLabel = t('sort.recently_available');
+  } else {
+    sortLabel = t('sort.distance');
+  }
 
   const cycleSortBy = useCallback(() => {
     const order: SearchSortOption[] = ['distance', 'newest', 'recently_available'];
@@ -109,8 +115,16 @@ function SearchScreenContent() {
     updateFilters({ sortBy: next });
   }, [filters.sortBy, updateFilters]);
 
-  const showResults = effectiveHasSearched && !effectiveIsLoading && results && results.length > 0;
-  const showEmpty = effectiveHasSearched && !effectiveIsLoading && results && results.length === 0;
+  const filterChipIconColor = hasActiveFilters
+    ? theme.colors.surface
+    : theme.colors.onSurfaceVariant;
+  const renderFilterChipIcon = useCallback(
+    () => <FilterChipIcon color={filterChipIconColor} />,
+    [filterChipIconColor],
+  );
+
+  const showResults = effectiveHasSearched && !effectiveIsLoading && (results?.length ?? 0) > 0;
+  const showEmpty = effectiveHasSearched && !effectiveIsLoading && results?.length === 0;
   const showInitial = !effectiveHasSearched;
 
   // Separate hero item and remaining items for the asymmetric editorial grid
@@ -192,13 +206,7 @@ function SearchScreenContent() {
               );
             })}
             <Chip
-              icon={() => (
-                <MaterialCommunityIcons
-                  name="filter-variant"
-                  size={16}
-                  color={hasActiveFilters ? theme.colors.surface : theme.colors.onSurfaceVariant}
-                />
-              )}
+              icon={renderFilterChipIcon}
               onPress={() => setFilterVisible(true)}
               compact
               showSelectedCheck={false}
@@ -268,6 +276,7 @@ function SearchScreenContent() {
       heroItem,
       handleResultPress,
       heroCardWidth,
+      renderFilterChipIcon,
     ],
   );
 

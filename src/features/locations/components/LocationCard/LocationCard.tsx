@@ -15,7 +15,8 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
   const theme = useTheme();
   const { t } = useTranslation('locations');
 
-  const cardAccessibilityLabel = `${location.label}${location.isPrimary ? `, ${t('primaryBadge')}` : ''}`;
+  const primaryBadgeSuffix = location.isPrimary ? `, ${t('primaryBadge')}` : '';
+  const cardAccessibilityLabel = `${location.label}${primaryBadgeSuffix}`;
 
   const handleCardPress = () => onPress?.(location);
 
