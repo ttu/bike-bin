@@ -13,7 +13,7 @@ import type {
 } from '@/shared/types';
 import type { SearchResultItem } from '../types';
 
-export function useListingDetail(id: string | undefined) {
+export function useListingDetail(id: ItemId | undefined) {
   const itemQuery = useQuery({
     queryKey: ['listing', id],
     queryFn: async (): Promise<SearchResultItem> => {

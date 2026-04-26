@@ -16,10 +16,10 @@ import { useCreateConversation } from '@/features/messaging';
 import { useCreateBorrowRequest } from '@/features/borrow';
 import { useAuth } from '@/features/auth';
 import { useReport } from '@/shared/hooks/useReport';
-import type { ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
+import type { ItemId, ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
 
 export type ListingDetailRouteProps = {
-  listingId: string | undefined;
+  listingId: ItemId | undefined;
   returnPath: string | undefined;
   /** Used when `returnPath` is absent or invalid */
   fallbackHref: Href;
