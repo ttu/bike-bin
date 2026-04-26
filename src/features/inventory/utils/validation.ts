@@ -53,61 +53,82 @@ function isValidOptionalCalendarDate(value: string | undefined): boolean {
   return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
 }
 
-export function validateItem(data: ItemFormData, t: Translator): ItemFormErrors {
-  const errors: ItemFormErrors = {};
+function validateName(data: ItemFormData, t: Translator): string | undefined {
+  if (!data.name || data.name.trim().length === 0) return t('validation.nameRequired');
+  return undefined;
+}
 
-  if (!data.name || data.name.trim().length === 0) {
-    errors.name = t('validation.nameRequired');
-  }
+function validateQuantity(data: ItemFormData, t: Translator): string | undefined {
+  if (data.quantity === undefined) return t('validation.quantityRequired');
+  if (!Number.isInteger(data.quantity) || data.quantity < 1) return t('validation.quantityMin');
+  if (data.quantity > 9999) return t('validation.quantityMax');
+  return undefined;
+}
 
-  if (data.quantity === undefined) {
-    errors.quantity = t('validation.quantityRequired');
-  } else if (!Number.isInteger(data.quantity) || data.quantity < 1) {
-    errors.quantity = t('validation.quantityMin');
-  } else if (data.quantity > 9999) {
-    errors.quantity = t('validation.quantityMax');
-  }
-
-  if (!data.category) {
-    errors.category = t('validation.categoryRequired');
-  }
-
+function validateCondition(data: ItemFormData, t: Translator): string | undefined {
   const isConsumable = data.category === ItemCategoryEnum.Consumable;
+  if (!isConsumable && !data.condition) return t('validation.conditionRequired');
+  return undefined;
+}
 
-  if (!isConsumable && !data.condition) {
-    errors.condition = t('validation.conditionRequired');
+function validateRemainingFraction(data: ItemFormData, t: Translator): string | undefined {
+  if (data.category !== ItemCategoryEnum.Consumable) return undefined;
+  if (data.remainingFraction === undefined) return t('validation.remainingRequired');
+  if (data.remainingFraction < 0 || data.remainingFraction > 1) {
+    return t('validation.remainingRange');
   }
+  return undefined;
+}
 
-  if (isConsumable) {
-    if (data.remainingFraction === undefined) {
-      errors.remainingFraction = t('validation.remainingRequired');
-    } else if (data.remainingFraction < 0 || data.remainingFraction > 1) {
-      errors.remainingFraction = t('validation.remainingRange');
-    }
-  }
-
+function validatePrice(data: ItemFormData, t: Translator): string | undefined {
   const isSellable = data.availabilityTypes.includes(AvailabilityTypeEnum.Sellable);
   if (isSellable && (data.price === undefined || data.price === null)) {
-    errors.price = t('validation.priceRequired');
-  } else if (data.price !== undefined && data.price < 0) {
-    errors.price = t('validation.pricePositive');
+    return t('validation.priceRequired');
   }
+  if (data.price !== undefined && data.price < 0) return t('validation.pricePositive');
+  return undefined;
+}
 
-  if (data.deposit !== undefined && data.deposit < 0) {
-    errors.deposit = t('validation.depositPositive');
-  }
+function validateGroupIds(data: ItemFormData, t: Translator): string | undefined {
+  if (data.visibility !== VisibilityEnum.Groups) return undefined;
+  if (!data.groupIds || data.groupIds.length === 0) return t('validation.groupRequired');
+  return undefined;
+}
 
-  // Groups visibility requires at least one group selected
-  if (data.visibility === VisibilityEnum.Groups && (!data.groupIds || data.groupIds.length === 0)) {
-    errors.groupIds = t('validation.groupRequired');
-  }
+type FieldValidator = (data: ItemFormData, t: Translator) => string | undefined;
 
-  if (!isValidOptionalCalendarDate(data.purchaseDate)) {
-    errors.purchaseDate = t('validation.dateInvalid');
-  }
-  if (!isValidOptionalCalendarDate(data.mountedDate)) {
-    errors.mountedDate = t('validation.dateInvalid');
-  }
+const FIELD_VALIDATORS: ReadonlyArray<readonly [keyof ItemFormErrors, FieldValidator]> = [
+  ['name', validateName],
+  ['quantity', validateQuantity],
+  ['category', (d, t) => (d.category ? undefined : t('validation.categoryRequired'))],
+  ['condition', validateCondition],
+  ['remainingFraction', validateRemainingFraction],
+  ['price', validatePrice],
+  [
+    'deposit',
+    (d, t) =>
+      d.deposit !== undefined && d.deposit < 0 ? t('validation.depositPositive') : undefined,
+  ],
+  ['groupIds', validateGroupIds],
+  [
+    'purchaseDate',
+    (d, t) =>
+      isValidOptionalCalendarDate(d.purchaseDate) ? undefined : t('validation.dateInvalid'),
+  ],
+  [
+    'mountedDate',
+    (d, t) =>
+      isValidOptionalCalendarDate(d.mountedDate) ? undefined : t('validation.dateInvalid'),
+  ],
+];
 
+export function validateItem(data: ItemFormData, t: Translator): ItemFormErrors {
+  const errors: ItemFormErrors = {};
+  for (const [field, validator] of FIELD_VALIDATORS) {
+    const message = validator(data, t);
+    if (message !== undefined) {
+      (errors as Record<string, string>)[field] = message;
+    }
+  }
   return errors;
 }

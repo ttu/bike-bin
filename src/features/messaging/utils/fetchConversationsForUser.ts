@@ -86,18 +86,21 @@ async function fetchGroupNames(groupIds: string[]): Promise<Map<string, string>>
   return map;
 }
 
-/** Loads the full conversation list for the signed-in user (Supabase + RPCs + profile map). */
-export async function fetchConversationsForUser(userId: string): Promise<ConversationListItem[]> {
+async function fetchConversationsWithParticipants(userId: string): Promise<{
+  rows: ConvRow[];
+  conversationIds: string[];
+  participantsByConversationId: Map<string, { conversation_id: string; user_id: string }>;
+}> {
   const { data: participantRows, error: pError } = await supabase
     .from('conversation_participants')
     .select('conversation_id')
     .eq('user_id', userId);
-
   if (pError) throw pError;
-  if (!participantRows || participantRows.length === 0) return [];
+  if (!participantRows || participantRows.length === 0) {
+    return { rows: [], conversationIds: [], participantsByConversationId: new Map() };
+  }
 
   const conversationIds = participantRows.map((r) => r.conversation_id as string);
-
   const { data: conversations, error: cError } = await supabase
     .from('conversations')
     .select(
@@ -117,16 +120,67 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
     )
     .in('id', conversationIds)
     .order('created_at', { ascending: false });
-
   if (cError) throw cError;
-  if (!conversations) return [];
+  if (!conversations) return { rows: [], conversationIds, participantsByConversationId: new Map() };
 
   const participantsByConversationId = await fetchParticipantsByConversation(
     conversationIds,
     userId,
   );
+  return {
+    rows: conversations as unknown as ConvRow[],
+    conversationIds,
+    participantsByConversationId,
+  };
+}
 
-  const rows = conversations as unknown as ConvRow[];
+interface ConversationLookups {
+  participantsByConversationId: Map<string, { conversation_id: string; user_id: string }>;
+  profileByUserId: Awaited<ReturnType<typeof fetchPublicProfilesMap>>;
+  lastMessageByConvId: Map<string, LastMessage>;
+  photoByItemId: Map<string, string>;
+  groupNameById: Map<string, string>;
+}
+
+function toConversationListItem(conv: ConvRow, lookups: ConversationLookups): ConversationListItem {
+  const otherParticipant = lookups.participantsByConversationId.get(conv.id)!;
+  const lastMsg = lookups.lastMessageByConvId.get(conv.id);
+  const profile = lookups.profileByUserId.get(otherParticipant.user_id);
+  const item = extractItem(conv);
+
+  return {
+    id: conv.id as ConversationId,
+    itemId: (conv.item_id as ItemId) ?? undefined,
+    itemOwnerId: item?.owner_id ? (item.owner_id as UserId) : undefined,
+    itemGroupId: item?.group_id ? (item.group_id as GroupId) : undefined,
+    groupName: item?.group_id ? lookups.groupNameById.get(item.group_id) : undefined,
+    itemName: item?.name ?? undefined,
+    itemStatus: item?.status ?? undefined,
+    itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
+    itemPhotoPath: conv.item_id ? lookups.photoByItemId.get(conv.item_id) : undefined,
+    otherParticipantId: otherParticipant.user_id as UserId,
+    otherParticipantName: profile?.displayName,
+    otherParticipantAvatarUrl: profile?.avatarUrl,
+    lastMessageBody: lastMsg?.body ?? undefined,
+    lastMessageSenderId: (lastMsg?.sender_id as UserId) ?? undefined,
+    lastMessageAt: lastMsg?.created_at ?? undefined,
+    unreadCount: 0,
+    createdAt: conv.created_at,
+  };
+}
+
+function sortByMostRecent(a: ConversationListItem, b: ConversationListItem): number {
+  const aTime = a.lastMessageAt ?? a.createdAt;
+  const bTime = b.lastMessageAt ?? b.createdAt;
+  return new Date(bTime).getTime() - new Date(aTime).getTime();
+}
+
+/** Loads the full conversation list for the signed-in user (Supabase + RPCs + profile map). */
+export async function fetchConversationsForUser(userId: string): Promise<ConversationListItem[]> {
+  const { rows, conversationIds, participantsByConversationId } =
+    await fetchConversationsWithParticipants(userId);
+  if (rows.length === 0) return [];
+
   const convsWithOther = rows.filter((c) => participantsByConversationId.has(c.id));
 
   const otherUserIds = [
@@ -136,50 +190,25 @@ export async function fetchConversationsForUser(userId: string): Promise<Convers
         .filter((id): id is string => Boolean(id)),
     ),
   ];
-  const profileByUserId = await fetchPublicProfilesMap(otherUserIds);
-
-  const lastMessageByConvId = await fetchLastMessages(conversationIds);
-
   const itemIds = convsWithOther.map((c) => c.item_id).filter((id): id is string => Boolean(id));
-  const photoByItemId = await fetchPrimaryPhotos(itemIds);
-
   const groupIds = convsWithOther
     .map((c) => extractItem(c)?.group_id)
     .filter((gid): gid is string => Boolean(gid));
-  const groupNameById = await fetchGroupNames(groupIds);
 
-  const results: ConversationListItem[] = convsWithOther.map((conv) => {
-    const otherParticipant = participantsByConversationId.get(conv.id)!;
-    const lastMsg = lastMessageByConvId.get(conv.id);
-    const profile = profileByUserId.get(otherParticipant.user_id);
-    const item = extractItem(conv);
+  const [profileByUserId, lastMessageByConvId, photoByItemId, groupNameById] = await Promise.all([
+    fetchPublicProfilesMap(otherUserIds),
+    fetchLastMessages(conversationIds),
+    fetchPrimaryPhotos(itemIds),
+    fetchGroupNames(groupIds),
+  ]);
 
-    return {
-      id: conv.id as ConversationId,
-      itemId: (conv.item_id as ItemId) ?? undefined,
-      itemOwnerId: item?.owner_id ? (item.owner_id as UserId) : undefined,
-      itemGroupId: item?.group_id ? (item.group_id as GroupId) : undefined,
-      groupName: item?.group_id ? groupNameById.get(item.group_id) : undefined,
-      itemName: item?.name ?? undefined,
-      itemStatus: item?.status ?? undefined,
-      itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? undefined,
-      itemPhotoPath: conv.item_id ? photoByItemId.get(conv.item_id) : undefined,
-      otherParticipantId: otherParticipant.user_id as UserId,
-      otherParticipantName: profile?.displayName,
-      otherParticipantAvatarUrl: profile?.avatarUrl,
-      lastMessageBody: lastMsg?.body ?? undefined,
-      lastMessageSenderId: (lastMsg?.sender_id as UserId) ?? undefined,
-      lastMessageAt: lastMsg?.created_at ?? undefined,
-      unreadCount: 0,
-      createdAt: conv.created_at,
-    };
-  });
+  const lookups: ConversationLookups = {
+    participantsByConversationId,
+    profileByUserId,
+    lastMessageByConvId,
+    photoByItemId,
+    groupNameById,
+  };
 
-  results.sort((a, b) => {
-    const aTime = a.lastMessageAt ?? a.createdAt;
-    const bTime = b.lastMessageAt ?? b.createdAt;
-    return new Date(bTime).getTime() - new Date(aTime).getTime();
-  });
-
-  return results;
+  return convsWithOther.map((conv) => toConversationListItem(conv, lookups)).sort(sortByMostRecent);
 }

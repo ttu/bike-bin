@@ -4,7 +4,7 @@ import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
-import type { Item, ItemPhoto } from '@/shared/types';
+import type { DistanceUnit, Item, ItemPhoto } from '@/shared/types';
 import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
 import { useGroup } from '@/features/groups';
 import { spacing, borderRadius } from '@/shared/theme';
@@ -76,138 +76,18 @@ export function ItemDetail({
 
   const detailContent = (
     <>
-      {/* Title block: chips → displayLarge title → meta row */}
-      <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
-        <View style={styles.chipRow}>
-          {item.status !== ItemStatus.Stored && (
-            <Chip
-              compact
-              style={[styles.titleChip, { backgroundColor: colorWithAlpha(statusColor, 0.12) }]}
-            >
-              <Text variant="labelSmall" style={{ color: statusColor }}>
-                {t(`status.${item.status}`)}
-              </Text>
-            </Chip>
-          )}
-          <Chip
-            compact
-            style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
-          >
-            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              {subcategoryLabel ?? categoryLabel}
-            </Text>
-          </Chip>
-          {item.quantity > 1 && (
-            <Chip
-              compact
-              style={[
-                styles.titleChip,
-                { backgroundColor: theme.customColors.surfaceContainerHigh },
-              ]}
-            >
-              <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {`×${item.quantity}`}
-              </Text>
-            </Chip>
-          )}
-        </View>
-
-        <Text
-          variant="displayLarge"
-          style={[styles.title, themed.onBackground]}
-          accessibilityRole="header"
-        >
-          {item.name}
-        </Text>
-
-        {metaParts.length > 0 && (
-          <Text variant="bodyMedium" style={[styles.metaRow, themed.onSurfaceVariant]}>
-            {metaParts.join(MIDDLE_DOT)}
-          </Text>
-        )}
-
-        {item.tags.length > 0 && (
-          <View style={[styles.chipRow, styles.tagRow]}>
-            {item.tags.map((tag) => (
-              <Chip
-                key={tag}
-                compact
-                style={[styles.titleChip, { backgroundColor: theme.colors.surfaceVariant }]}
-              >
-                <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {tag}
-                </Text>
-              </Chip>
-            ))}
-          </View>
-        )}
-      </View>
-
-      {/* Figure strip (existing display figures) */}
-      {(item.category === ItemCategory.Consumable && item.remainingFraction !== undefined) ||
-      item.quantity > 1 ||
-      item.usageKm !== undefined ? (
-        <View style={[styles.section, themed.sectionBorder]}>
-          <View style={styles.figureStrip}>
-            {item.category === ItemCategory.Consumable && item.remainingFraction !== undefined && (
-              <DisplayFigure
-                value={String(Math.round(item.remainingFraction * 100))}
-                unit="%"
-                note={t('detail.remainingLabel')}
-                size={28}
-              />
-            )}
-            {item.quantity > 1 && (
-              <DisplayFigure
-                value={String(item.quantity)}
-                note={t('detail.quantityLabel')}
-                size={28}
-              />
-            )}
-            {item.usageKm !== undefined && (
-              <DisplayFigure
-                value={String(kmToDisplayUnit(item.usageKm, distanceUnit))}
-                unit={distanceUnit}
-                note={t('detail.usageLabel')}
-                size={28}
-              />
-            )}
-          </View>
-        </View>
-      ) : null}
-
-      {/* Service record */}
-      {(() => {
-        const serviceRows: { label: string; value: string }[] = [
-          { label: t('detail.conditionLabel'), value: t(`condition.${item.condition}`) },
-        ];
-        if (item.mountedDate) {
-          serviceRows.push({ label: t('detail.mountedOnLabel'), value: item.mountedDate });
-        }
-        if (item.storageLocation) {
-          serviceRows.push({ label: t('detail.storageLabel'), value: item.storageLocation });
-        }
-        return (
-          <View style={[styles.section, themed.sectionBorder]}>
-            <View style={styles.stampHeader}>
-              <Stamp tone="dim">{t('detail.serviceRecord')}</Stamp>
-            </View>
-            <View style={styles.specsTable}>
-              {serviceRows.map((row, index) => (
-                <ServiceRow
-                  key={row.label}
-                  label={row.label}
-                  value={row.value}
-                  theme={theme}
-                  isLast={index === serviceRows.length - 1}
-                />
-              ))}
-            </View>
-          </View>
-        );
-      })()}
-
-      {/* Description */}
+      <TitleBlock
+        item={item}
+        theme={theme}
+        themed={themed}
+        statusColor={statusColor}
+        categoryLabel={categoryLabel}
+        subcategoryLabel={subcategoryLabel}
+        metaParts={metaParts}
+        t={t}
+      />
+      <FigureStrip item={item} themed={themed} t={t} distanceUnit={distanceUnit} />
+      <ServiceRecord item={item} themed={themed} theme={theme} t={t} />
       {item.description && (
         <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onBackground}>
@@ -215,8 +95,6 @@ export function ItemDetail({
           </Text>
         </View>
       )}
-
-      {/* Location */}
       {item.storageLocation && (
         <View style={[styles.section, themed.sectionBorder]}>
           <View
@@ -239,89 +117,26 @@ export function ItemDetail({
           </View>
         </View>
       )}
-
-      {/* Listed for — accent-tinted chips */}
-      {(listAvailability.length > 0 || ownerGroup) && (
-        <View style={[styles.section, themed.sectionBorder]}>
-          <View style={styles.stampHeader}>
-            <Stamp tone="dim">{t('detail.listedFor')}</Stamp>
-          </View>
-          <View style={styles.chipRow}>
-            {listAvailability.map((type) => (
-              <Chip key={type} compact style={[styles.listingChip, themed.accentChipBg]}>
-                <Text variant="labelSmall" style={themed.accentChipText}>
-                  {t(`availability.${type}`)}
-                </Text>
-              </Chip>
-            ))}
-            {ownerGroup && (
-              <Chip compact icon="account-group" style={[styles.listingChip, themed.accentChipBg]}>
-                <Text variant="labelSmall" style={themed.accentChipText}>
-                  {ownerGroup.name}
-                </Text>
-              </Chip>
-            )}
-          </View>
-        </View>
-      )}
-
-      {/* Actions */}
-      <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
-        {canShowReturnedAction && onMarkReturned && (
-          <ActionSlot isWide={isWide}>
-            <GradientButton
-              onPress={onMarkReturned}
-              loading={markReturnedLoading}
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('detail.markReturned')}
-            </GradientButton>
-          </ActionSlot>
-        )}
-        {canShowDonateAction && onMarkDonated && (
-          <ActionSlot isWide={isWide}>
-            <Button
-              mode="outlined"
-              onPress={onMarkDonated}
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('detail.markDonated')}
-            </Button>
-          </ActionSlot>
-        )}
-        {canShowSoldAction && onMarkSold && (
-          <ActionSlot isWide={isWide}>
-            <Button
-              mode="outlined"
-              onPress={onMarkSold}
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('detail.markSold')}
-            </Button>
-          </ActionSlot>
-        )}
-        {item.status === ItemStatus.Archived && onUnarchive && (
-          <ActionSlot isWide={isWide}>
-            <GradientButton
-              onPress={onUnarchive}
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('detail.unarchive')}
-            </GradientButton>
-          </ActionSlot>
-        )}
-        {onRemoveFromBin && (
-          <ActionSlot isWide={isWide}>
-            <Button
-              mode="outlined"
-              onPress={onRemoveFromBin}
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('removeFromInventory')}
-            </Button>
-          </ActionSlot>
-        )}
-      </View>
+      <ListedForSection
+        listAvailability={listAvailability}
+        ownerGroup={ownerGroup}
+        themed={themed}
+        t={t}
+      />
+      <ActionsSection
+        item={item}
+        isWide={isWide}
+        t={t}
+        canShowReturnedAction={canShowReturnedAction}
+        canShowDonateAction={canShowDonateAction}
+        canShowSoldAction={canShowSoldAction}
+        onMarkReturned={onMarkReturned}
+        onMarkDonated={onMarkDonated}
+        onMarkSold={onMarkSold}
+        onUnarchive={onUnarchive}
+        onRemoveFromBin={onRemoveFromBin}
+        markReturnedLoading={markReturnedLoading}
+      />
     </>
   );
 
@@ -350,6 +165,298 @@ export function ItemDetail({
         </View>
       )}
     </ScrollView>
+  );
+}
+
+type Themed = ReturnType<typeof useThemedStyles>;
+type TFn = ReturnType<typeof useTranslation>['t'];
+
+function TitleBlock({
+  item,
+  theme,
+  themed,
+  statusColor,
+  categoryLabel,
+  subcategoryLabel,
+  metaParts,
+  t,
+}: {
+  item: Item;
+  theme: AppTheme;
+  themed: Themed;
+  statusColor: string;
+  categoryLabel: string;
+  subcategoryLabel: string | undefined;
+  metaParts: string[];
+  t: TFn;
+}) {
+  return (
+    <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
+      <View style={styles.chipRow}>
+        {item.status !== ItemStatus.Stored && (
+          <Chip
+            compact
+            style={[styles.titleChip, { backgroundColor: colorWithAlpha(statusColor, 0.12) }]}
+          >
+            <Text variant="labelSmall" style={{ color: statusColor }}>
+              {t(`status.${item.status}`)}
+            </Text>
+          </Chip>
+        )}
+        <Chip
+          compact
+          style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
+        >
+          <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            {subcategoryLabel ?? categoryLabel}
+          </Text>
+        </Chip>
+        {item.quantity > 1 && (
+          <Chip
+            compact
+            style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
+          >
+            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              {`×${item.quantity}`}
+            </Text>
+          </Chip>
+        )}
+      </View>
+      <Text
+        variant="displayLarge"
+        style={[styles.title, themed.onBackground]}
+        accessibilityRole="header"
+      >
+        {item.name}
+      </Text>
+      {metaParts.length > 0 && (
+        <Text variant="bodyMedium" style={[styles.metaRow, themed.onSurfaceVariant]}>
+          {metaParts.join(MIDDLE_DOT)}
+        </Text>
+      )}
+      {item.tags.length > 0 && (
+        <View style={[styles.chipRow, styles.tagRow]}>
+          {item.tags.map((tag) => (
+            <Chip
+              key={tag}
+              compact
+              style={[styles.titleChip, { backgroundColor: theme.colors.surfaceVariant }]}
+            >
+              <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {tag}
+              </Text>
+            </Chip>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+function FigureStrip({
+  item,
+  themed,
+  t,
+  distanceUnit,
+}: {
+  item: Item;
+  themed: Themed;
+  t: TFn;
+  distanceUnit: DistanceUnit;
+}) {
+  const showRemaining =
+    item.category === ItemCategory.Consumable && item.remainingFraction !== undefined;
+  const showQuantity = item.quantity > 1;
+  const showUsage = item.usageKm !== undefined;
+  if (!showRemaining && !showQuantity && !showUsage) return null;
+  return (
+    <View style={[styles.section, themed.sectionBorder]}>
+      <View style={styles.figureStrip}>
+        {showRemaining && item.remainingFraction !== undefined && (
+          <DisplayFigure
+            value={String(Math.round(item.remainingFraction * 100))}
+            unit="%"
+            note={t('detail.remainingLabel')}
+            size={28}
+          />
+        )}
+        {showQuantity && (
+          <DisplayFigure value={String(item.quantity)} note={t('detail.quantityLabel')} size={28} />
+        )}
+        {showUsage && item.usageKm !== undefined && (
+          <DisplayFigure
+            value={String(kmToDisplayUnit(item.usageKm, distanceUnit))}
+            unit={distanceUnit}
+            note={t('detail.usageLabel')}
+            size={28}
+          />
+        )}
+      </View>
+    </View>
+  );
+}
+
+function ServiceRecord({
+  item,
+  themed,
+  theme,
+  t,
+}: {
+  item: Item;
+  themed: Themed;
+  theme: AppTheme;
+  t: TFn;
+}) {
+  const serviceRows: { label: string; value: string }[] = [
+    { label: t('detail.conditionLabel'), value: t(`condition.${item.condition}`) },
+  ];
+  if (item.mountedDate) {
+    serviceRows.push({ label: t('detail.mountedOnLabel'), value: item.mountedDate });
+  }
+  if (item.storageLocation) {
+    serviceRows.push({ label: t('detail.storageLabel'), value: item.storageLocation });
+  }
+  return (
+    <View style={[styles.section, themed.sectionBorder]}>
+      <View style={styles.stampHeader}>
+        <Stamp tone="dim">{t('detail.serviceRecord')}</Stamp>
+      </View>
+      <View style={styles.specsTable}>
+        {serviceRows.map((row, index) => (
+          <ServiceRow
+            key={row.label}
+            label={row.label}
+            value={row.value}
+            theme={theme}
+            isLast={index === serviceRows.length - 1}
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function ListedForSection({
+  listAvailability,
+  ownerGroup,
+  themed,
+  t,
+}: {
+  listAvailability: AvailabilityType[];
+  ownerGroup: { name: string } | null | undefined;
+  themed: Themed;
+  t: TFn;
+}) {
+  if (listAvailability.length === 0 && !ownerGroup) return null;
+  return (
+    <View style={[styles.section, themed.sectionBorder]}>
+      <View style={styles.stampHeader}>
+        <Stamp tone="dim">{t('detail.listedFor')}</Stamp>
+      </View>
+      <View style={styles.chipRow}>
+        {listAvailability.map((type) => (
+          <Chip key={type} compact style={[styles.listingChip, themed.accentChipBg]}>
+            <Text variant="labelSmall" style={themed.accentChipText}>
+              {t(`availability.${type}`)}
+            </Text>
+          </Chip>
+        ))}
+        {ownerGroup && (
+          <Chip compact icon="account-group" style={[styles.listingChip, themed.accentChipBg]}>
+            <Text variant="labelSmall" style={themed.accentChipText}>
+              {ownerGroup.name}
+            </Text>
+          </Chip>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function ActionsSection({
+  item,
+  isWide,
+  t,
+  canShowReturnedAction,
+  canShowDonateAction,
+  canShowSoldAction,
+  onMarkReturned,
+  onMarkDonated,
+  onMarkSold,
+  onUnarchive,
+  onRemoveFromBin,
+  markReturnedLoading,
+}: {
+  item: Item;
+  isWide: boolean;
+  t: TFn;
+  canShowReturnedAction: boolean;
+  canShowDonateAction: boolean;
+  canShowSoldAction: boolean;
+  onMarkReturned?: () => void;
+  onMarkDonated?: () => void;
+  onMarkSold?: () => void;
+  onUnarchive?: () => void;
+  onRemoveFromBin?: () => void;
+  markReturnedLoading: boolean;
+}) {
+  return (
+    <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
+      {canShowReturnedAction && onMarkReturned && (
+        <ActionSlot isWide={isWide}>
+          <GradientButton
+            onPress={onMarkReturned}
+            loading={markReturnedLoading}
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('detail.markReturned')}
+          </GradientButton>
+        </ActionSlot>
+      )}
+      {canShowDonateAction && onMarkDonated && (
+        <ActionSlot isWide={isWide}>
+          <Button
+            mode="outlined"
+            onPress={onMarkDonated}
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('detail.markDonated')}
+          </Button>
+        </ActionSlot>
+      )}
+      {canShowSoldAction && onMarkSold && (
+        <ActionSlot isWide={isWide}>
+          <Button
+            mode="outlined"
+            onPress={onMarkSold}
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('detail.markSold')}
+          </Button>
+        </ActionSlot>
+      )}
+      {item.status === ItemStatus.Archived && onUnarchive && (
+        <ActionSlot isWide={isWide}>
+          <GradientButton
+            onPress={onUnarchive}
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('detail.unarchive')}
+          </GradientButton>
+        </ActionSlot>
+      )}
+      {onRemoveFromBin && (
+        <ActionSlot isWide={isWide}>
+          <Button
+            mode="outlined"
+            onPress={onRemoveFromBin}
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('removeFromInventory')}
+          </Button>
+        </ActionSlot>
+      )}
+    </View>
   );
 }
 

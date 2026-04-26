@@ -87,115 +87,27 @@ export function ListingDetail({
 
   const detailContent = (
     <>
-      {/* Title block: chips → displayLarge title → meta row */}
-      <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
-        <View style={styles.chipRow}>
-          <Chip
-            compact
-            style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
-          >
-            <Text variant="labelSmall" style={themed.onSurfaceVariant}>
-              {categoryLabel}
-            </Text>
-          </Chip>
-          {item.quantity > 1 && (
-            <Chip
-              compact
-              style={[
-                styles.titleChip,
-                { backgroundColor: theme.customColors.surfaceContainerHigh },
-              ]}
-            >
-              <Text variant="labelSmall" style={themed.onSurfaceVariant}>
-                {`×${item.quantity}`}
-              </Text>
-            </Chip>
-          )}
-        </View>
-
-        <Text
-          variant="displayLarge"
-          style={[styles.title, themed.onBackground]}
-          accessibilityRole="header"
-        >
-          {item.name}
-        </Text>
-
-        {metaParts.length > 0 && (
-          <Text variant="bodyMedium" style={[styles.metaRow, themed.onSurfaceVariant]}>
-            {metaParts.join(MIDDLE_DOT)}
-          </Text>
-        )}
-      </View>
-
-      {/* Detail strip: condition, quantity, duration */}
-      <View style={[styles.section, themed.sectionBorder]}>
-        <View
-          style={[
-            detailCardStyles.container,
-            { backgroundColor: theme.customColors.surfaceContainerLow },
-          ]}
-        >
-          <DetailCard
-            icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
-            label={t('search:listing.detail.conditionLabel')}
-            value={t(`search:condition.${item.condition}`)}
-          />
-          {item.quantity > 1 && (
-            <DetailCard
-              icon="package-variant"
-              label={t('search:listing.detail.quantityLabel')}
-              value={t('search:listing.detail.quantityValue', { count: item.quantity })}
-            />
-          )}
-          {durationText && (
-            <DetailCard
-              icon="clock-outline"
-              label={t('search:listing.detail.durationLabel')}
-              value={durationText}
-            />
-          )}
-        </View>
-      </View>
-
-      {/* Owner card */}
-      <View style={[styles.section, themed.sectionBorder]}>
-        <View
-          style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}
-        >
-          {item.ownerAvatarUrl ? (
-            <CachedAvatarImage testID="owner-avatar-image" uri={item.ownerAvatarUrl} size={40} />
-          ) : (
-            <Avatar.Icon
-              testID="owner-avatar-icon"
-              size={40}
-              icon="account"
-              style={themed.avatarBg}
-            />
-          )}
-          <View style={styles.ownerInfo}>
-            <Text variant="titleSmall" style={themed.onBackground} onPress={onOwnerPress}>
-              {item.ownerDisplayName ?? ''}
-            </Text>
-            {item.ownerRatingCount > 0 && (
-              <View style={styles.ratingRow}>
-                <MaterialCommunityIcons name="star" size={14} color={theme.customColors.warning} />
-                <Text variant="bodySmall" style={themed.onSurfaceVariant}>
-                  {t('search:listing.ownerCard.rating', {
-                    avg: item.ownerRatingAvg.toFixed(1),
-                    count: item.ownerRatingCount,
-                  })}
-                </Text>
-              </View>
-            )}
-          </View>
-          <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
-            {t('search:listing.ownerCard.viewProfile')}
-          </Text>
-        </View>
-      </View>
-
-      {/* Description */}
+      <ListingTitleBlock
+        item={item}
+        theme={theme}
+        themed={themed}
+        categoryLabel={categoryLabel}
+        metaParts={metaParts}
+      />
+      <ListingDetailStrip
+        item={item}
+        theme={theme}
+        themed={themed}
+        durationText={durationText}
+        t={t}
+      />
+      <ListingOwnerCard
+        item={item}
+        theme={theme}
+        themed={themed}
+        t={t}
+        onOwnerPress={onOwnerPress}
+      />
       {item.description && (
         <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onBackground}>
@@ -203,120 +115,30 @@ export function ListingDetail({
           </Text>
         </View>
       )}
-
-      {/* Location */}
-      {hasLocation && (
-        <View style={[styles.section, themed.sectionBorder]} testID="location-row">
-          <View
-            style={[
-              styles.locationBlock,
-              { backgroundColor: theme.customColors.surfaceContainerLow },
-            ]}
-          >
-            <MaterialCommunityIcons
-              name="map-marker-outline"
-              size={20}
-              color={theme.colors.tertiary}
-              style={styles.locationIcon}
-            />
-            <View style={styles.locationText}>
-              {item.areaName && (
-                <Text variant="titleSmall" style={themed.onBackground}>
-                  {item.areaName}
-                </Text>
-              )}
-              {distanceText && (
-                <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
-                  {distanceText}
-                </Text>
-              )}
-            </View>
-          </View>
-        </View>
-      )}
-
-      {/* Listed for — accent-tinted chips */}
-      {listAvailability.length > 0 && (
-        <View style={[styles.section, themed.sectionBorder]}>
-          <View style={styles.stampHeader}>
-            <Stamp tone="dim">{t('search:listing.listedFor')}</Stamp>
-          </View>
-          <View style={styles.chipRow}>
-            {listAvailability.map((type) => {
-              const label = t(`search:availability.${type}`);
-              const suffix =
-                type === AvailabilityType.Sellable && item.price !== undefined
-                  ? `${MIDDLE_DOT}${formatPrice(item.price)}`
-                  : '';
-              return (
-                <Chip
-                  key={type}
-                  compact
-                  style={[
-                    styles.listingChip,
-                    { backgroundColor: colorWithAlpha(theme.customColors.accent, 0.12) },
-                  ]}
-                >
-                  <Text variant="labelSmall" style={themed.accentChipText}>
-                    {`${label}${suffix}`}
-                  </Text>
-                </Chip>
-              );
-            })}
-          </View>
-        </View>
-      )}
-
-      {/* Actions */}
-      <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
-        {!isAuthenticated ? (
-          <ActionSlot isWide={isWide} fullWidth>
-            <GradientButton
-              disabled
-              style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-            >
-              {t('search:listing.actions.signInToContact')}
-            </GradientButton>
-          </ActionSlot>
-        ) : (
-          <>
-            {(showContactOnly || showBoth) && (
-              <ActionSlot isWide={isWide}>
-                <GradientButton
-                  onPress={onContact}
-                  disabled={!onContact}
-                  style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-                >
-                  {t('search:listing.actions.contact')}
-                </GradientButton>
-              </ActionSlot>
-            )}
-            {showBorrowOnly && (
-              <ActionSlot isWide={isWide}>
-                <GradientButton
-                  onPress={onRequestBorrow}
-                  disabled={!onRequestBorrow}
-                  style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-                >
-                  {t('search:listing.actions.requestBorrow')}
-                </GradientButton>
-              </ActionSlot>
-            )}
-            {showBoth && (
-              <ActionSlot isWide={isWide}>
-                <Button
-                  mode="outlined"
-                  onPress={onRequestBorrow}
-                  disabled={!onRequestBorrow}
-                  style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-                >
-                  {t('search:listing.actions.requestBorrow')}
-                </Button>
-              </ActionSlot>
-            )}
-          </>
-        )}
-      </View>
+      <ListingLocationRow
+        hasLocation={hasLocation}
+        item={item}
+        theme={theme}
+        themed={themed}
+        distanceText={distanceText}
+      />
+      <ListingListedFor
+        listAvailability={listAvailability}
+        item={item}
+        theme={theme}
+        themed={themed}
+        t={t}
+      />
+      <ListingActions
+        isAuthenticated={isAuthenticated}
+        isWide={isWide}
+        showContactOnly={showContactOnly}
+        showBorrowOnly={showBorrowOnly}
+        showBoth={showBoth}
+        onContact={onContact}
+        onRequestBorrow={onRequestBorrow}
+        t={t}
+      />
     </>
   );
 
@@ -353,6 +175,315 @@ export function ListingDetail({
         </View>
       )}
     </ScrollView>
+  );
+}
+
+type Themed = ReturnType<typeof useThemedStyles>;
+type TFn = ReturnType<typeof useTranslation>['t'];
+
+function ListingTitleBlock({
+  item,
+  theme,
+  themed,
+  categoryLabel,
+  metaParts,
+}: {
+  item: SearchResultItem;
+  theme: AppTheme;
+  themed: Themed;
+  categoryLabel: string;
+  metaParts: string[];
+}) {
+  return (
+    <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
+      <View style={styles.chipRow}>
+        <Chip
+          compact
+          style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
+        >
+          <Text variant="labelSmall" style={themed.onSurfaceVariant}>
+            {categoryLabel}
+          </Text>
+        </Chip>
+        {item.quantity > 1 && (
+          <Chip
+            compact
+            style={[styles.titleChip, { backgroundColor: theme.customColors.surfaceContainerHigh }]}
+          >
+            <Text variant="labelSmall" style={themed.onSurfaceVariant}>
+              {`×${item.quantity}`}
+            </Text>
+          </Chip>
+        )}
+      </View>
+      <Text
+        variant="displayLarge"
+        style={[styles.title, themed.onBackground]}
+        accessibilityRole="header"
+      >
+        {item.name}
+      </Text>
+      {metaParts.length > 0 && (
+        <Text variant="bodyMedium" style={[styles.metaRow, themed.onSurfaceVariant]}>
+          {metaParts.join(MIDDLE_DOT)}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+function ListingDetailStrip({
+  item,
+  theme,
+  themed,
+  durationText,
+  t,
+}: {
+  item: SearchResultItem;
+  theme: AppTheme;
+  themed: Themed;
+  durationText: string | undefined;
+  t: TFn;
+}) {
+  return (
+    <View style={[styles.section, themed.sectionBorder]}>
+      <View
+        style={[
+          detailCardStyles.container,
+          { backgroundColor: theme.customColors.surfaceContainerLow },
+        ]}
+      >
+        <DetailCard
+          icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
+          label={t('search:listing.detail.conditionLabel')}
+          value={t(`search:condition.${item.condition}`)}
+        />
+        {item.quantity > 1 && (
+          <DetailCard
+            icon="package-variant"
+            label={t('search:listing.detail.quantityLabel')}
+            value={t('search:listing.detail.quantityValue', { count: item.quantity })}
+          />
+        )}
+        {durationText && (
+          <DetailCard
+            icon="clock-outline"
+            label={t('search:listing.detail.durationLabel')}
+            value={durationText}
+          />
+        )}
+      </View>
+    </View>
+  );
+}
+
+function ListingOwnerCard({
+  item,
+  theme,
+  themed,
+  t,
+  onOwnerPress,
+}: {
+  item: SearchResultItem;
+  theme: AppTheme;
+  themed: Themed;
+  t: TFn;
+  onOwnerPress?: () => void;
+}) {
+  return (
+    <View style={[styles.section, themed.sectionBorder]}>
+      <View style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}>
+        {item.ownerAvatarUrl ? (
+          <CachedAvatarImage testID="owner-avatar-image" uri={item.ownerAvatarUrl} size={40} />
+        ) : (
+          <Avatar.Icon
+            testID="owner-avatar-icon"
+            size={40}
+            icon="account"
+            style={themed.avatarBg}
+          />
+        )}
+        <View style={styles.ownerInfo}>
+          <Text variant="titleSmall" style={themed.onBackground} onPress={onOwnerPress}>
+            {item.ownerDisplayName ?? ''}
+          </Text>
+          {item.ownerRatingCount > 0 && (
+            <View style={styles.ratingRow}>
+              <MaterialCommunityIcons name="star" size={14} color={theme.customColors.warning} />
+              <Text variant="bodySmall" style={themed.onSurfaceVariant}>
+                {t('search:listing.ownerCard.rating', {
+                  avg: item.ownerRatingAvg.toFixed(1),
+                  count: item.ownerRatingCount,
+                })}
+              </Text>
+            </View>
+          )}
+        </View>
+        <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
+          {t('search:listing.ownerCard.viewProfile')}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function ListingLocationRow({
+  hasLocation,
+  item,
+  theme,
+  themed,
+  distanceText,
+}: {
+  hasLocation: boolean;
+  item: SearchResultItem;
+  theme: AppTheme;
+  themed: Themed;
+  distanceText: string | undefined;
+}) {
+  if (!hasLocation) return null;
+  return (
+    <View style={[styles.section, themed.sectionBorder]} testID="location-row">
+      <View
+        style={[styles.locationBlock, { backgroundColor: theme.customColors.surfaceContainerLow }]}
+      >
+        <MaterialCommunityIcons
+          name="map-marker-outline"
+          size={20}
+          color={theme.colors.tertiary}
+          style={styles.locationIcon}
+        />
+        <View style={styles.locationText}>
+          {item.areaName && (
+            <Text variant="titleSmall" style={themed.onBackground}>
+              {item.areaName}
+            </Text>
+          )}
+          {distanceText && (
+            <Text variant="bodyMedium" style={themed.onSurfaceVariant}>
+              {distanceText}
+            </Text>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function ListingListedFor({
+  listAvailability,
+  item,
+  theme,
+  themed,
+  t,
+}: {
+  listAvailability: AvailabilityType[];
+  item: SearchResultItem;
+  theme: AppTheme;
+  themed: Themed;
+  t: TFn;
+}) {
+  if (listAvailability.length === 0) return null;
+  return (
+    <View style={[styles.section, themed.sectionBorder]}>
+      <View style={styles.stampHeader}>
+        <Stamp tone="dim">{t('search:listing.listedFor')}</Stamp>
+      </View>
+      <View style={styles.chipRow}>
+        {listAvailability.map((type) => {
+          const label = t(`search:availability.${type}`);
+          const suffix =
+            type === AvailabilityType.Sellable && item.price !== undefined
+              ? `${MIDDLE_DOT}${formatPrice(item.price)}`
+              : '';
+          return (
+            <Chip
+              key={type}
+              compact
+              style={[
+                styles.listingChip,
+                { backgroundColor: colorWithAlpha(theme.customColors.accent, 0.12) },
+              ]}
+            >
+              <Text variant="labelSmall" style={themed.accentChipText}>
+                {`${label}${suffix}`}
+              </Text>
+            </Chip>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+function ListingActions({
+  isAuthenticated,
+  isWide,
+  showContactOnly,
+  showBorrowOnly,
+  showBoth,
+  onContact,
+  onRequestBorrow,
+  t,
+}: {
+  isAuthenticated: boolean;
+  isWide: boolean;
+  showContactOnly: boolean;
+  showBorrowOnly: boolean;
+  showBoth: boolean;
+  onContact?: () => void;
+  onRequestBorrow?: () => void;
+  t: TFn;
+}) {
+  return (
+    <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
+      {!isAuthenticated ? (
+        <ActionSlot isWide={isWide} fullWidth>
+          <GradientButton
+            disabled
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('search:listing.actions.signInToContact')}
+          </GradientButton>
+        </ActionSlot>
+      ) : (
+        <>
+          {(showContactOnly || showBoth) && (
+            <ActionSlot isWide={isWide}>
+              <GradientButton
+                onPress={onContact}
+                disabled={!onContact}
+                style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+              >
+                {t('search:listing.actions.contact')}
+              </GradientButton>
+            </ActionSlot>
+          )}
+          {showBorrowOnly && (
+            <ActionSlot isWide={isWide}>
+              <GradientButton
+                onPress={onRequestBorrow}
+                disabled={!onRequestBorrow}
+                style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+              >
+                {t('search:listing.actions.requestBorrow')}
+              </GradientButton>
+            </ActionSlot>
+          )}
+          {showBoth && (
+            <ActionSlot isWide={isWide}>
+              <Button
+                mode="outlined"
+                onPress={onRequestBorrow}
+                disabled={!onRequestBorrow}
+                style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+              >
+                {t('search:listing.actions.requestBorrow')}
+              </Button>
+            </ActionSlot>
+          )}
+        </>
+      )}
+    </View>
   );
 }
 

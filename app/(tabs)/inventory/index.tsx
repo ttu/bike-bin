@@ -265,145 +265,36 @@ export default function InventoryScreen() {
 
   const listHeader = useMemo(
     () => (
-      <>
-        <ScreenMasthead
-          eyebrow={t('masthead.eyebrow')}
-          title={t('masthead.title')}
-          counts={mastheadCounts}
-        />
-
-        <DemoBanner />
-        <SyncBanner />
-
-        <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
-
-        {(hasTagsOrArchived || filteredItems.length > 0) && (
-          <View style={styles.filterRow}>
-            {hasTagsOrArchived && (
-              <>
-                {userTags && userTags.length > 0 && (
-                  <Chip
-                    selected={tagChipActive}
-                    onPress={toggleTagFilter}
-                    showSelectedCheck={false}
-                    compact
-                    textStyle={
-                      tagChipActive
-                        ? { color: theme.colors.surface }
-                        : { color: theme.colors.onSurfaceVariant }
-                    }
-                    style={[
-                      styles.tagFilterChip,
-                      {
-                        backgroundColor: tagChipActive
-                          ? theme.colors.onBackground
-                          : theme.customColors.surfaceContainerHigh,
-                      },
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: tagChipActive }}
-                  >
-                    {tagChipLabel}
-                  </Chip>
-                )}
-                {hasTerminalItems && (
-                  <Chip
-                    selected={showTerminal}
-                    onPress={toggleTerminal}
-                    showSelectedCheck={false}
-                    compact
-                    style={{
-                      backgroundColor: showTerminal
-                        ? theme.colors.onBackground
-                        : theme.customColors.surfaceContainerHigh,
-                    }}
-                    textStyle={{
-                      color: showTerminal ? theme.colors.surface : theme.colors.onSurfaceVariant,
-                    }}
-                  >
-                    {t('filters.showInactive', { count: terminalCount })}
-                  </Chip>
-                )}
-              </>
-            )}
-            {filteredItems.length > 0 && (
-              <>
-                <View style={styles.filterRowSpacer} />
-                <Pressable
-                  onPress={cycleSortOption}
-                  style={({ pressed }) => [
-                    styles.sortButton,
-                    themeStyles.sortButtonVariant,
-                    pressed && styles.sortButtonPressed,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
-                >
-                  <MaterialCommunityIcons
-                    name="sort"
-                    size={iconSize.sm}
-                    color={theme.colors.onSurfaceVariant}
-                  />
-                  <Text variant="labelMedium" style={themeStyles.sortLabel}>
-                    {sortLabelText}
-                  </Text>
-                </Pressable>
-              </>
-            )}
-          </View>
-        )}
-
-        {tagSectionVisible && userTags && userTags.length > 0 && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.tagFilterScroll}
-            contentContainerStyle={styles.tagFilterRow}
-          >
-            {userTags.map((tag) => {
-              const active = selectedTags.includes(tag);
-              return (
-                <Chip
-                  key={tag}
-                  selected={active}
-                  onPress={() => toggleTag(tag)}
-                  showSelectedCheck={false}
-                  compact
-                  textStyle={
-                    active
-                      ? { color: theme.colors.surface }
-                      : { color: theme.colors.onSurfaceVariant }
-                  }
-                  style={[
-                    styles.tagChip,
-                    {
-                      backgroundColor: active
-                        ? theme.colors.onBackground
-                        : theme.customColors.surfaceContainerHigh,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                >
-                  {tag}
-                </Chip>
-              );
-            })}
-          </ScrollView>
-        )}
-
-        {heroItem && (
-          <FeaturedItemCard
-            item={heroItem}
-            onPress={handleItemPress}
-            badgeLabel={t(`sort.${sortOption}`)}
-          />
-        )}
-      </>
+      <InventoryListHeader
+        theme={theme}
+        themeStyles={themeStyles}
+        t={t}
+        mastheadCounts={mastheadCounts}
+        userTags={userTags}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        selectedTags={selectedTags}
+        toggleTag={toggleTag}
+        hasTagsOrArchived={hasTagsOrArchived}
+        hasTerminalItems={hasTerminalItems}
+        terminalCount={terminalCount}
+        showTerminal={showTerminal}
+        toggleTerminal={toggleTerminal}
+        tagChipActive={tagChipActive}
+        tagChipLabel={tagChipLabel}
+        toggleTagFilter={toggleTagFilter}
+        tagSectionVisible={tagSectionVisible}
+        filteredItemsCount={filteredItems.length}
+        sortOption={sortOption}
+        sortLabelText={sortLabelText}
+        cycleSortOption={cycleSortOption}
+        heroItem={heroItem}
+        onHeroPress={handleItemPress}
+      />
     ),
     [
-      theme.colors,
-      theme.customColors,
+      theme,
+      themeStyles,
       t,
       mastheadCounts,
       userTags,
@@ -421,7 +312,6 @@ export default function InventoryScreen() {
       toggleTagFilter,
       sortOption,
       sortLabelText,
-      themeStyles,
       cycleSortOption,
       filteredItems.length,
       heroItem,
@@ -663,4 +553,216 @@ function getThemeStyles(theme: MD3Theme) {
     sortButtonVariant: { backgroundColor: theme.colors.surfaceVariant },
     sortLabel: { color: theme.colors.onSurfaceVariant },
   });
+}
+
+interface InventoryListHeaderProps {
+  theme: AppTheme;
+  themeStyles: ReturnType<typeof getThemeStyles>;
+  t: ReturnType<typeof useTranslation>['t'];
+  mastheadCounts: ScreenMastheadCount[];
+  userTags: string[] | undefined;
+  selectedCategory: ItemCategory | undefined;
+  onSelectCategory: (category: ItemCategory | undefined) => void;
+  selectedTags: string[];
+  toggleTag: (tag: string) => void;
+  hasTagsOrArchived: boolean;
+  hasTerminalItems: boolean;
+  terminalCount: number;
+  showTerminal: boolean;
+  toggleTerminal: () => void;
+  tagChipActive: boolean;
+  tagChipLabel: string;
+  toggleTagFilter: () => void;
+  tagSectionVisible: boolean;
+  filteredItemsCount: number;
+  sortOption: InventorySortOption;
+  sortLabelText: string;
+  cycleSortOption: () => void;
+  heroItem: Item | undefined;
+  onHeroPress: (item: Item) => void;
+}
+
+function InventoryListHeader(props: InventoryListHeaderProps) {
+  const {
+    t,
+    mastheadCounts,
+    userTags,
+    selectedCategory,
+    onSelectCategory,
+    hasTagsOrArchived,
+    filteredItemsCount,
+    tagSectionVisible,
+    heroItem,
+    onHeroPress,
+    sortOption,
+  } = props;
+  const showFilterRow = hasTagsOrArchived || filteredItemsCount > 0;
+  const showTagScroll = tagSectionVisible && userTags && userTags.length > 0;
+
+  return (
+    <>
+      <ScreenMasthead
+        eyebrow={t('masthead.eyebrow')}
+        title={t('masthead.title')}
+        counts={mastheadCounts}
+      />
+      <DemoBanner />
+      <SyncBanner />
+      <CategoryFilter selected={selectedCategory} onSelect={onSelectCategory} />
+      {showFilterRow && (
+        <View style={styles.filterRow}>
+          <FilterChips {...props} />
+          {filteredItemsCount > 0 && <SortControl {...props} />}
+        </View>
+      )}
+      {showTagScroll && <TagScrollRow {...props} userTags={userTags!} />}
+      {heroItem && (
+        <FeaturedItemCard
+          item={heroItem}
+          onPress={onHeroPress}
+          badgeLabel={t(`sort.${sortOption}`)}
+        />
+      )}
+    </>
+  );
+}
+
+function FilterChips({
+  theme,
+  t,
+  hasTagsOrArchived,
+  hasTerminalItems,
+  terminalCount,
+  showTerminal,
+  toggleTerminal,
+  tagChipActive,
+  tagChipLabel,
+  toggleTagFilter,
+  userTags,
+}: InventoryListHeaderProps) {
+  if (!hasTagsOrArchived) return null;
+  return (
+    <>
+      {userTags && userTags.length > 0 && (
+        <Chip
+          selected={tagChipActive}
+          onPress={toggleTagFilter}
+          showSelectedCheck={false}
+          compact
+          textStyle={
+            tagChipActive
+              ? { color: theme.colors.surface }
+              : { color: theme.colors.onSurfaceVariant }
+          }
+          style={[
+            styles.tagFilterChip,
+            {
+              backgroundColor: tagChipActive
+                ? theme.colors.onBackground
+                : theme.customColors.surfaceContainerHigh,
+            },
+          ]}
+          accessibilityRole="button"
+          accessibilityState={{ selected: tagChipActive }}
+        >
+          {tagChipLabel}
+        </Chip>
+      )}
+      {hasTerminalItems && (
+        <Chip
+          selected={showTerminal}
+          onPress={toggleTerminal}
+          showSelectedCheck={false}
+          compact
+          style={{
+            backgroundColor: showTerminal
+              ? theme.colors.onBackground
+              : theme.customColors.surfaceContainerHigh,
+          }}
+          textStyle={{
+            color: showTerminal ? theme.colors.surface : theme.colors.onSurfaceVariant,
+          }}
+        >
+          {t('filters.showInactive', { count: terminalCount })}
+        </Chip>
+      )}
+    </>
+  );
+}
+
+function SortControl({
+  theme,
+  themeStyles,
+  t,
+  cycleSortOption,
+  sortLabelText,
+}: InventoryListHeaderProps) {
+  return (
+    <>
+      <View style={styles.filterRowSpacer} />
+      <Pressable
+        onPress={cycleSortOption}
+        style={({ pressed }) => [
+          styles.sortButton,
+          themeStyles.sortButtonVariant,
+          pressed && styles.sortButtonPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
+      >
+        <MaterialCommunityIcons
+          name="sort"
+          size={iconSize.sm}
+          color={theme.colors.onSurfaceVariant}
+        />
+        <Text variant="labelMedium" style={themeStyles.sortLabel}>
+          {sortLabelText}
+        </Text>
+      </Pressable>
+    </>
+  );
+}
+
+function TagScrollRow({
+  theme,
+  selectedTags,
+  toggleTag,
+  userTags,
+}: InventoryListHeaderProps & { userTags: string[] }) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.tagFilterScroll}
+      contentContainerStyle={styles.tagFilterRow}
+    >
+      {userTags.map((tag) => {
+        const active = selectedTags.includes(tag);
+        return (
+          <Chip
+            key={tag}
+            selected={active}
+            onPress={() => toggleTag(tag)}
+            showSelectedCheck={false}
+            compact
+            textStyle={
+              active ? { color: theme.colors.surface } : { color: theme.colors.onSurfaceVariant }
+            }
+            style={[
+              styles.tagChip,
+              {
+                backgroundColor: active
+                  ? theme.colors.onBackground
+                  : theme.customColors.surfaceContainerHigh,
+              },
+            ]}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+          >
+            {tag}
+          </Chip>
+        );
+      })}
+    </ScrollView>
+  );
 }
