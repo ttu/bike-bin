@@ -31,15 +31,13 @@ export function useSendMessage() {
       if (error) throw error;
       return data;
     },
-    onSuccess: (_data, variables) => {
-      // Invalidate messages for this conversation to update the list
-      void queryClient.invalidateQueries({
-        queryKey: [MESSAGES_QUERY_KEY, variables.conversationId],
-      });
-      // Invalidate conversations list to update last message preview
-      void queryClient.invalidateQueries({
-        queryKey: [CONVERSATIONS_QUERY_KEY],
-      });
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [MESSAGES_QUERY_KEY, variables.conversationId],
+        }),
+        queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] }),
+      ]);
     },
   });
 }

@@ -69,8 +69,8 @@ export function useNotificationPreferences() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [NOTIFICATION_PREFERENCES_QUERY_KEY],
       });
     },

@@ -46,15 +46,15 @@ export function useUnreadNotificationCount() {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          void queryClient.invalidateQueries({
-            queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY],
-          });
+          queryClient
+            .invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY] })
+            .catch(() => undefined);
         },
       )
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      supabase.removeChannel(channel).catch(() => undefined);
     };
   }, [user, queryClient]);
 

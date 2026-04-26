@@ -158,8 +158,8 @@ export function useCreateConversation() {
 
       return { conversationId, isExisting: false };
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [CONVERSATIONS_QUERY_KEY],
       });
     },

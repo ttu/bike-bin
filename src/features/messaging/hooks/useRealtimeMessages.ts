@@ -49,26 +49,32 @@ export function useRealtimeMessages(
           filter: `conversation_id=eq.${conversationId}`,
         },
         () => {
-          void queryClient.invalidateQueries({
-            queryKey: [MESSAGES_QUERY_KEY, conversationId],
-          });
-          void queryClient.invalidateQueries({
-            queryKey: [CONVERSATIONS_QUERY_KEY, user.id],
-          });
+          const invalidations = [
+            queryClient.invalidateQueries({
+              queryKey: [MESSAGES_QUERY_KEY, conversationId],
+            }),
+            queryClient.invalidateQueries({
+              queryKey: [CONVERSATIONS_QUERY_KEY, user.id],
+            }),
+          ];
 
           if (isFocusedRef.current) {
             markRead(conversationId);
           } else {
-            void queryClient.invalidateQueries({
-              queryKey: [UNREAD_COUNT_QUERY_KEY],
-            });
+            invalidations.push(
+              queryClient.invalidateQueries({
+                queryKey: [UNREAD_COUNT_QUERY_KEY],
+              }),
+            );
           }
+
+          Promise.all(invalidations).catch(() => undefined);
         },
       )
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      supabase.removeChannel(channel).catch(() => undefined);
     };
   }, [conversationId, user, queryClient, markRead]);
 }

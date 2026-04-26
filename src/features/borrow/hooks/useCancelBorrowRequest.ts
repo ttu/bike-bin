@@ -35,16 +35,12 @@ export function useCancelBorrowRequest() {
 
       return request;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [BORROW_REQUESTS_QUERY_KEY],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['items'],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['searchItems'],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: ['items'] }),
+        queryClient.invalidateQueries({ queryKey: ['searchItems'] }),
+      ]);
     },
   });
 }
