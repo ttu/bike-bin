@@ -104,7 +104,8 @@ describe('compressImageForMobileUpload', () => {
     });
 
     mockGetInfo.mockImplementation(async (uri: string) => {
-      const n = Number((uri.match(/chunk-(\d+)/) ?? ['', '0'])[1]);
+      const chunkPattern = /chunk-(\d+)/;
+      const n = Number((chunkPattern.exec(uri) ?? ['', '0'])[1]);
       return fileInfo(uri, 600_000 + n);
     });
 

@@ -16,7 +16,7 @@ let mockFromChains: Record<string, unknown>[] = [];
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     from: jest.fn(() => {
-      const chain = mockFromChains[mockCallCount] ?? mockFromChains[mockFromChains.length - 1];
+      const chain = mockFromChains[mockCallCount] ?? mockFromChains.at(-1);
       mockCallCount++;
       return chain;
     }),
@@ -33,7 +33,7 @@ jest.mock('@/shared/utils/mapItemRow', () => ({
   mapItemRow: jest.fn((row: ItemRow) => ({
     id: row.id,
     name: row.name,
-    age: row.age != null ? row.age : undefined,
+    age: row.age ?? undefined,
   })),
   mapItemPhotoRow: jest.fn((row: ItemPhotoRow) => ({
     id: row.id,

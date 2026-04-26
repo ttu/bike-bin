@@ -20,7 +20,7 @@ export function mapRatingRow(row: RatingRow): Rating {
   return {
     ...recipient,
     id: row.id as RatingId,
-    fromUserId: row.from_user_id != null ? (row.from_user_id as UserId) : undefined,
+    fromUserId: (row.from_user_id as UserId | null) ?? undefined,
     itemId: (row.item_id as ItemId) ?? undefined,
     transactionType: row.transaction_type as TransactionType,
     score: row.score as number,

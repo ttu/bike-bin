@@ -18,8 +18,8 @@ export function useMarkConversationRead() {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [UNREAD_COUNT_QUERY_KEY] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [UNREAD_COUNT_QUERY_KEY] });
     },
   });
 }

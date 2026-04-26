@@ -105,12 +105,12 @@ function getSupabaseCredentials() {
 async function ensureBucket(supabase) {
   const { data: buckets } = await supabase.storage.listBuckets();
   const exists = buckets?.some((b) => b.name === BUCKET);
-  if (!exists) {
+  if (exists) {
+    console.log(`Storage bucket exists: ${BUCKET}`);
+  } else {
     const { error } = await supabase.storage.createBucket(BUCKET, { public: true });
     if (error) throw new Error(`Failed to create bucket: ${error.message}`);
     console.log(`Created storage bucket: ${BUCKET}`);
-  } else {
-    console.log(`Storage bucket exists: ${BUCKET}`);
   }
 }
 

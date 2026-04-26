@@ -19,6 +19,5 @@ export default function Index() {
     return <Redirect href="/(auth)/login" />;
   }
 
-  // TODO: Add onboarding check in Task 3.4
   return <Redirect href="/(tabs)/inventory" />;
 }
