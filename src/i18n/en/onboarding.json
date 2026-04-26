@@ -5,7 +5,8 @@
     "displayNameLabel": "Display name",
     "displayNamePlaceholder": "How others will see you",
     "skip": "Skip for now",
-    "continue": "Continue"
+    "continue": "Continue",
+    "saveError": "Couldn't save your profile. Please try again."
   },
   "location": {
     "title": "Add your location",
