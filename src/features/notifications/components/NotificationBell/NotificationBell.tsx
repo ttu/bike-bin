@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
 import { iconSize } from '@/shared/theme';
 
 interface NotificationBellProps {
@@ -14,14 +15,16 @@ interface NotificationBellProps {
  */
 export function NotificationBell({ unreadCount, onPress }: NotificationBellProps) {
   const theme = useTheme();
-  const unreadSuffix = unreadCount > 0 ? `, ${unreadCount} unread` : '';
+  const { t } = useTranslation('notifications');
+  const accessibilityLabel =
+    unreadCount > 0 ? `${t('title')}, ${t('unreadBadge', { count: unreadCount })}` : t('title');
 
   return (
     <Pressable
       onPress={onPress}
       style={styles.container}
       accessibilityRole="button"
-      accessibilityLabel={`Notifications${unreadSuffix}`}
+      accessibilityLabel={accessibilityLabel}
     >
       <MaterialCommunityIcons
         name="bell-outline"

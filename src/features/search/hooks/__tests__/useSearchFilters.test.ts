@@ -6,10 +6,6 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   return React.createElement(SearchFiltersProvider, null, children);
 }
 
-function createWrapper() {
-  return Wrapper;
-}
-
 describe('useSearchFilters', () => {
   it('throws when used outside provider', () => {
     expect(() => {
@@ -18,14 +14,14 @@ describe('useSearchFilters', () => {
   });
 
   it('returns default filters', () => {
-    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: Wrapper });
     expect(result.current.filters.categories).toEqual([]);
     expect(result.current.hasActiveFilters).toBe(false);
     expect(result.current.hasSearched).toBe(false);
   });
 
   it('updates hasSearched via setHasSearched', () => {
-    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: Wrapper });
 
     act(() => {
       result.current.setHasSearched(true);
@@ -35,7 +31,7 @@ describe('useSearchFilters', () => {
   });
 
   it('updates filters partially', () => {
-    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: Wrapper });
 
     act(() => {
       result.current.updateFilters({ categories: ['component'] });
@@ -46,7 +42,7 @@ describe('useSearchFilters', () => {
   });
 
   it('resets filters but keeps query', () => {
-    const { result } = renderHook(() => useSearchFilters(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSearchFilters(), { wrapper: Wrapper });
 
     act(() => {
       result.current.updateFilters({ query: 'pedals', categories: ['component'] });

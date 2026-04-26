@@ -104,7 +104,7 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
             numberOfLines={1}
           >
             {t(`category.${item.category}`)}
-            {item.subcategory ? ' · ' + t(`subcategory.${item.subcategory}`) : ''}
+            {item.subcategory ? t('card.metaSeparator') + t(`subcategory.${item.subcategory}`) : ''}
           </Text>
         )}
 

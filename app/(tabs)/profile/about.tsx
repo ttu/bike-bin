@@ -9,21 +9,21 @@ import { BrandLockup } from '@/shared/components/BrandLockup';
 import { spacing } from '@/shared/theme';
 
 type ListIconProps = ComponentProps<typeof List.Icon>;
-type LeftIconProps = Omit<ListIconProps, 'icon'>;
+type ListItemIconProps = Omit<ListIconProps, 'icon'>;
 
-function InfoIcon(props: LeftIconProps) {
+function InfoIcon(props: ListItemIconProps) {
   return <List.Icon {...props} icon="information-outline" />;
 }
-function TermsIcon(props: LeftIconProps) {
+function TermsIcon(props: ListItemIconProps) {
   return <List.Icon {...props} icon="file-document-outline" />;
 }
-function PrivacyIcon(props: LeftIconProps) {
+function PrivacyIcon(props: ListItemIconProps) {
   return <List.Icon {...props} icon="shield-lock-outline" />;
 }
-function LicensesIcon(props: LeftIconProps) {
+function LicensesIcon(props: ListItemIconProps) {
   return <List.Icon {...props} icon="open-source-initiative" />;
 }
-function ChevronRightIcon(props: LeftIconProps) {
+function ChevronRightIcon(props: ListItemIconProps) {
   return <List.Icon {...props} icon="chevron-right" />;
 }
 
