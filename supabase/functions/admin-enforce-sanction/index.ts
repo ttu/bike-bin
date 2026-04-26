@@ -349,12 +349,15 @@ async function collectAllStoragePaths(
   ownedItemIds: string[],
   ownedBikeIds: string[],
 ): Promise<{ bucket: string; path: string }[]> {
+  const [avatarPath, itemPhotoPaths, bikePhotoPaths, exportPaths] = await Promise.all([
+    collectAvatarPath(supabase, userId),
+    collectChildStoragePaths(supabase, ownedItemIds, 'item_photos', 'item_id'),
+    collectChildStoragePaths(supabase, ownedBikeIds, 'bike_photos', 'bike_id'),
+    collectExportPaths(supabase, userId),
+  ]);
   const paths: { bucket: string; path: string }[] = [];
-  const avatarPath = await collectAvatarPath(supabase, userId);
   if (avatarPath) paths.push(avatarPath);
-  paths.push(...(await collectChildStoragePaths(supabase, ownedItemIds, 'item_photos', 'item_id')));
-  paths.push(...(await collectChildStoragePaths(supabase, ownedBikeIds, 'bike_photos', 'bike_id')));
-  paths.push(...(await collectExportPaths(supabase, userId)));
+  paths.push(...itemPhotoPaths, ...bikePhotoPaths, ...exportPaths);
   return paths;
 }
 
@@ -432,8 +435,10 @@ async function purgeSanctionedUser(
     throw e;
   }
 
-  const ownedItemIds = await fetchOwnedIdsByOwner(supabase, 'items', userId);
-  const ownedBikeIds = await fetchOwnedIdsByOwner(supabase, 'bikes', userId);
+  const [ownedItemIds, ownedBikeIds] = await Promise.all([
+    fetchOwnedIdsByOwner(supabase, 'items', userId),
+    fetchOwnedIdsByOwner(supabase, 'bikes', userId),
+  ]);
   const storagePaths = await collectAllStoragePaths(supabase, userId, ownedItemIds, ownedBikeIds);
 
   await deleteStorageObjects(supabase, storagePaths, counts);

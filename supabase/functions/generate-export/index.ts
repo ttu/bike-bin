@@ -13,6 +13,32 @@ interface ExportPayload {
   userId: string;
 }
 
+interface ItemPhotoRow {
+  id: string;
+  storage_path: string;
+  item_id: string;
+}
+
+interface BikePhotoRow {
+  id: string;
+  storage_path: string;
+  bike_id: string;
+}
+
+interface SupportRequestRow {
+  id: string;
+  screenshot_path?: string | null;
+}
+
+async function runOrEmpty<T>(
+  hasIds: boolean,
+  fn: () => PromiseLike<{ data: T[] | null }>,
+): Promise<{ data: T[] }> {
+  if (!hasIds) return { data: [] };
+  const result = await fn();
+  return { data: result.data ?? [] };
+}
+
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
 }
@@ -27,11 +53,21 @@ function authorize(req: Request): Response | undefined {
 }
 
 async function parsePayload(req: Request): Promise<ExportPayload | Response> {
+  let raw: unknown;
   try {
-    return await req.json();
+    raw = await req.json();
   } catch {
     return jsonResponse(400, { error: 'Invalid payload' });
   }
+  if (
+    !raw ||
+    typeof raw !== 'object' ||
+    typeof (raw as Record<string, unknown>).exportRequestId !== 'string' ||
+    typeof (raw as Record<string, unknown>).userId !== 'string'
+  ) {
+    return jsonResponse(400, { error: 'Invalid payload' });
+  }
+  return raw as ExportPayload;
 }
 
 async function fetchPhase1(supabase: SupabaseClient, userId: string) {
@@ -91,7 +127,6 @@ async function fetchPhase2(
   userBikeIds: string[],
   conversationIds: string[],
 ) {
-  const empty = { data: [] as Record<string, unknown>[] };
   const [
     itemPhotosResult,
     bikePhotosResult,
@@ -100,28 +135,28 @@ async function fetchPhase2(
     messagesResult,
     borrowRequestsAsOwnerResult,
   ] = await Promise.all([
-    userItemIds.length > 0
-      ? supabase.from('item_photos').select('*').in('item_id', userItemIds)
-      : empty,
-    userBikeIds.length > 0
-      ? supabase.from('bike_photos').select('*').in('bike_id', userBikeIds)
-      : empty,
-    userItemIds.length > 0
-      ? supabase.from('item_groups').select('*').in('item_id', userItemIds)
-      : empty,
-    conversationIds.length > 0
-      ? supabase.from('conversations').select('*').in('id', conversationIds)
-      : empty,
-    conversationIds.length > 0
-      ? supabase
-          .from('messages')
-          .select('*')
-          .in('conversation_id', conversationIds)
-          .order('created_at')
-      : empty,
-    userItemIds.length > 0
-      ? supabase.from('borrow_requests').select('*').in('item_id', userItemIds)
-      : empty,
+    runOrEmpty<ItemPhotoRow>(userItemIds.length > 0, () =>
+      supabase.from('item_photos').select('*').in('item_id', userItemIds),
+    ),
+    runOrEmpty<BikePhotoRow>(userBikeIds.length > 0, () =>
+      supabase.from('bike_photos').select('*').in('bike_id', userBikeIds),
+    ),
+    runOrEmpty<Record<string, unknown>>(userItemIds.length > 0, () =>
+      supabase.from('item_groups').select('*').in('item_id', userItemIds),
+    ),
+    runOrEmpty<Record<string, unknown>>(conversationIds.length > 0, () =>
+      supabase.from('conversations').select('*').in('id', conversationIds),
+    ),
+    runOrEmpty<Record<string, unknown>>(conversationIds.length > 0, () =>
+      supabase
+        .from('messages')
+        .select('*')
+        .in('conversation_id', conversationIds)
+        .order('created_at'),
+    ),
+    runOrEmpty<{ id: string } & Record<string, unknown>>(userItemIds.length > 0, () =>
+      supabase.from('borrow_requests').select('*').in('item_id', userItemIds),
+    ),
   ]);
   return {
     itemPhotosResult,
@@ -247,19 +282,19 @@ async function buildPhotoFiles(
   await downloadAvatar(supabase, phase1.profileResult.data?.avatar_url, photoFiles);
   await downloadPhotoBatch(
     supabase,
-    (phase2.itemPhotosResult.data ?? []) as never[],
+    phase2.itemPhotosResult.data,
     (photo, filename) => `export/photos/items/${photo.item_id}/${filename}`,
     photoFiles,
   );
   await downloadPhotoBatch(
     supabase,
-    (phase2.bikePhotosResult.data ?? []) as never[],
+    phase2.bikePhotosResult.data,
     (photo, filename) => `export/photos/bikes/${photo.bike_id}/${filename}`,
     photoFiles,
   );
   await downloadSupportScreenshots(
     supabase,
-    (phase1.supportRequestsResult.data ?? []) as never[],
+    (phase1.supportRequestsResult.data ?? []) as SupportRequestRow[],
     photoFiles,
   );
   return photoFiles;
@@ -270,7 +305,7 @@ async function uploadAndComplete(
   zipped: Uint8Array,
   userId: string,
   exportRequestId: string,
-): Promise<Response | undefined> {
+): Promise<void> {
   const storagePath = `exports/${userId}/${exportRequestId}.zip`;
   const { error: uploadError } = await supabase.storage
     .from('data-exports')
@@ -292,7 +327,6 @@ async function uploadAndComplete(
     body: 'Your data export has been prepared and is ready to download.',
     data: { exportRequestId },
   });
-  return undefined;
 }
 
 async function processExport(
