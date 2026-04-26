@@ -1,5 +1,4 @@
-import type { BorrowRequest } from '@/shared/types';
-import type { UserId, ItemStatus, AvailabilityType } from '@/shared/types';
+import type { AvailabilityType, BorrowRequest, ItemStatus, UserId } from '@/shared/types';
 
 export interface BorrowRequestWithDetails extends BorrowRequest {
   itemName: string;

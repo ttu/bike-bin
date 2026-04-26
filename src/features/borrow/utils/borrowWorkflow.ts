@@ -1,6 +1,11 @@
-import type { BorrowRequest, Item } from '@/shared/types';
-import type { UserId } from '@/shared/types';
-import { ItemStatus, AvailabilityType, BorrowRequestStatus } from '@/shared/types';
+import {
+  AvailabilityType,
+  BorrowRequestStatus,
+  ItemStatus,
+  type BorrowRequest,
+  type Item,
+  type UserId,
+} from '@/shared/types';
 
 type BorrowableItem = Pick<Item, 'status' | 'availabilityTypes' | 'ownerId'>;
 type RequestInfo = Pick<BorrowRequest, 'status' | 'requesterId'>;

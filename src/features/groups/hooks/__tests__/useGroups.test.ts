@@ -10,8 +10,7 @@ import {
   mockSupabase,
 } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
-import { GroupRole } from '@/shared/types';
-import type { GroupId } from '@/shared/types';
+import { GroupRole, type GroupId } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);

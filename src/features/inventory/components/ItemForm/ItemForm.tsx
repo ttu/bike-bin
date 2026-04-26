@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import { Banner, Text, useTheme } from 'react-native-paper';
-import type { AppTheme } from '@/shared/theme';
-import { borderRadius } from '@/shared/theme';
+import { borderRadius, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { ItemCategory } from '@/shared/types';
 

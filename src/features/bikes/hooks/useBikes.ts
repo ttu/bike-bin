@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { BikeId } from '@/shared/types';
-import { ItemCondition } from '@/shared/types';
+import { ItemCondition, type BikeId } from '@/shared/types';
 import { fetchBikeThumbnailPaths } from '@/shared/utils/fetchBikeThumbnailPaths';
 import type { BikeFormData } from '../types';
 import { mapBikeRow } from '../utils/mapBikeRow';

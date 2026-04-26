@@ -2,8 +2,7 @@ import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Appbar, Text, FAB as Fab, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
-import type { Href } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {

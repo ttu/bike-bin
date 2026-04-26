@@ -14,8 +14,7 @@ import { ActivityIndicator, Avatar, Menu, Text, IconButton, useTheme } from 'rea
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import type { AppTheme } from '@/shared/theme';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 import {
   ItemStatus,
   type ConversationId,

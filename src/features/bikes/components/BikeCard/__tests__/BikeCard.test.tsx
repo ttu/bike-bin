@@ -1,7 +1,6 @@
 import { renderWithProviders } from '@/test/utils';
 import { BikeCard } from '../BikeCard';
-import type { Bike, BikeId, UserId } from '@/shared/types';
-import { ItemCondition } from '@/shared/types';
+import { ItemCondition, type Bike, type BikeId, type UserId } from '@/shared/types';
 import { fireEvent } from '@testing-library/react-native';
 
 jest.mock('@/shared/api/supabase', () => ({

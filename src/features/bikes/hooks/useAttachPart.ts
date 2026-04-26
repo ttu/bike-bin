@@ -1,8 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import { ItemStatus } from '@/shared/types';
-import type { ItemId, BikeId } from '@/shared/types';
-import type { Item } from '@/shared/types';
+import { ItemStatus, type BikeId, type Item, type ItemId } from '@/shared/types';
 
 export function useAttachPart() {
   const queryClient = useQueryClient();

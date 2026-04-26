@@ -1,5 +1,13 @@
-import type { Rating, TransactionType, UserProfile } from '@/shared/types';
-import type { RatingId, UserId, GroupId, ItemId, BorrowRequestId } from '@/shared/types';
+import type {
+  BorrowRequestId,
+  GroupId,
+  ItemId,
+  Rating,
+  RatingId,
+  TransactionType,
+  UserId,
+  UserProfile,
+} from '@/shared/types';
 
 interface CreateRatingBase {
   borrowRequestId: BorrowRequestId;

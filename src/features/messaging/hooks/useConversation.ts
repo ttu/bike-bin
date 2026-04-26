@@ -3,8 +3,7 @@ import { supabase } from '@/shared/api/supabase';
 import { fetchPublicProfile } from '@/shared/api/fetchPublicProfile';
 import { useAuth } from '@/features/auth';
 import type { ConversationListItem } from '../types';
-import type { ConversationId, ItemId, UserId, GroupId } from '@/shared/types';
-import type { AvailabilityType } from '@/shared/types';
+import type { AvailabilityType, ConversationId, GroupId, ItemId, UserId } from '@/shared/types';
 
 export function useConversation(conversationId: ConversationId | undefined) {
   const { user } = useAuth();

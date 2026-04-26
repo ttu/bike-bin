@@ -1,8 +1,12 @@
 import type { MutableRefObject } from 'react';
-import type { ItemCategory, ItemCondition, AvailabilityType, GroupId } from '@/shared/types';
-import { Visibility } from '@/shared/types';
-import type { ItemFormErrors } from '../../utils/validation';
-import type { ItemFormData } from '../../utils/validation';
+import {
+  Visibility,
+  type AvailabilityType,
+  type GroupId,
+  type ItemCategory,
+  type ItemCondition,
+} from '@/shared/types';
+import type { ItemFormData, ItemFormErrors } from '../../utils/validation';
 
 export type { ItemFormData, ItemFormErrors };
 

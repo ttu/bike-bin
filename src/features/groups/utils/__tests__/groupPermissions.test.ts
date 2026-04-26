@@ -8,8 +8,7 @@ import {
   getAdminActions,
 } from '../groupPermissions';
 import { createMockGroupMember } from '@/test/factories';
-import { GroupRole } from '@/shared/types';
-import type { UserId, GroupId } from '@/shared/types';
+import { GroupRole, type GroupId, type UserId } from '@/shared/types';
 
 describe('groupPermissions', () => {
   const groupId = 'group-123' as GroupId;

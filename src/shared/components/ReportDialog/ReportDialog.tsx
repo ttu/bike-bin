@@ -3,9 +3,8 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Portal, Dialog, Button, RadioButton, TextInput, Text, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
-import { spacing, borderRadius } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import type { AppTheme } from '@/shared/theme';
 
 /** All report reason keys, matching i18n profile.report.reasons.* */
 export const REPORT_REASONS = [

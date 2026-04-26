@@ -10,8 +10,7 @@ import { supabase } from '@/shared/api/supabase';
 import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
 import { isPasswordDemoLoginEnabled } from '@/shared/utils/env';
 import { SocketBBMark } from '@/shared/components';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 
 const MAX_CONTENT_WIDTH = 480;
 const RULE_WIDTH = 72;

@@ -1,8 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { GroupMember } from '@/shared/types';
-import type { GroupId, UserId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId, type GroupMember, type UserId } from '@/shared/types';
 import type { GroupMemberWithProfile } from '../types';
 
 /**

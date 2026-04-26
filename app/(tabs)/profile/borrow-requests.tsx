@@ -19,8 +19,7 @@ import {
   useMarkReturned,
 } from '@/features/borrow';
 import type { BorrowRequestWithDetails } from '@/features/borrow';
-import type { UserId } from '@/shared/types';
-import { BorrowRequestStatus } from '@/shared/types';
+import { BorrowRequestStatus, type UserId } from '@/shared/types';
 
 type Tab = 'incoming' | 'outgoing' | 'active';
 

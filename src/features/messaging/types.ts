@@ -1,5 +1,11 @@
-import type { ConversationId, ItemId, UserId, GroupId, MessageId } from '@/shared/types';
-import type { AvailabilityType } from '@/shared/types';
+import type {
+  AvailabilityType,
+  ConversationId,
+  GroupId,
+  ItemId,
+  MessageId,
+  UserId,
+} from '@/shared/types';
 
 /** A conversation with last message and participant info, used for list display. */
 export interface ConversationListItem {

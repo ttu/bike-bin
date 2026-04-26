@@ -7,8 +7,7 @@ import {
   getRequestActions,
 } from '../borrowWorkflow';
 import { createMockItem, createMockBorrowRequest } from '@/test/factories';
-import { ItemStatus, AvailabilityType, BorrowRequestStatus } from '@/shared/types';
-import type { UserId } from '@/shared/types';
+import { AvailabilityType, BorrowRequestStatus, ItemStatus, type UserId } from '@/shared/types';
 
 describe('borrowWorkflow', () => {
   const ownerId = 'owner-123' as UserId;

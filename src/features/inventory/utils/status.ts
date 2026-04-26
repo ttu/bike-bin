@@ -1,5 +1,4 @@
-import type { Item } from '@/shared/types';
-import { ItemStatus } from '@/shared/types';
+import { ItemStatus, type Item } from '@/shared/types';
 
 const NON_DELETABLE_STATUSES: ReadonlySet<ItemStatus> = new Set([
   ItemStatus.Loaned,

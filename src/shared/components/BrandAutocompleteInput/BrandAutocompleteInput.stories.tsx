@@ -2,8 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-native';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
-import { borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, type AppTheme } from '@/shared/theme';
 import { appendHexAlpha } from '@/shared/utils/appendHexAlpha';
 import { BrandAutocompleteInput } from './BrandAutocompleteInput';
 

@@ -12,11 +12,9 @@ import {
 import { GradientButton } from '@/shared/components/GradientButton';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import { geocodePostcode } from '../../utils/geocoding';
-import type { GeocodeResult } from '../../utils/geocoding';
+import { geocodePostcode, type GeocodeResult } from '../../utils/geocoding';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
 
 export interface LocationFormData {

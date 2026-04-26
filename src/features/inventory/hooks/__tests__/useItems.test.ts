@@ -11,8 +11,7 @@ import {
 } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
-import { ItemStatus } from '@/shared/types';
-import type { ItemId } from '@/shared/types';
+import { ItemStatus, type ItemId } from '@/shared/types';
 import { useItems, useItem, useCreateItem, useDeleteItem } from '../useItems';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 

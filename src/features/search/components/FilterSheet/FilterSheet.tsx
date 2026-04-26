@@ -4,9 +4,8 @@ import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
-import { spacing, borderRadius } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import type { AppTheme } from '@/shared/theme';
 import type { SearchFilters } from '../../types';
 
 interface FilterSheetProps {

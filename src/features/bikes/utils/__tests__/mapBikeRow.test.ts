@@ -1,5 +1,4 @@
-import { ItemCondition } from '@/shared/types';
-import type { BikeRow } from '@/shared/types';
+import { ItemCondition, type BikeRow } from '@/shared/types';
 import { mapBikeRow } from '../mapBikeRow';
 
 describe('mapBikeRow', () => {

@@ -4,8 +4,7 @@ import { Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '@/features/messaging';
-import { spacing } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { spacing, type AppTheme } from '@/shared/theme';
 import { navigateToTabRoot } from '@/shared/utils/navigateToTabRoot';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 

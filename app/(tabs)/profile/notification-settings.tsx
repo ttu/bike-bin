@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import { spacing, borderRadius } from '@/shared/theme';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
-import { useNotificationPreferences } from '@/features/notifications';
-import type { NotificationPreferences } from '@/features/notifications';
+import { useNotificationPreferences, type NotificationPreferences } from '@/features/notifications';
 
 type CategoryKey = keyof NotificationPreferences;
 type ChannelKey = 'push' | 'email';

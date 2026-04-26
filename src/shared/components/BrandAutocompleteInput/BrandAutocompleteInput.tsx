@@ -8,8 +8,7 @@ import {
   type TextStyle,
 } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
-import type { AppTheme } from '@/shared/theme';
-import { spacing, borderRadius } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 
 export interface BrandAutocompleteInputProps {
   label: string;

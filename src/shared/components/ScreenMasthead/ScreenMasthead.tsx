@@ -1,8 +1,7 @@
 import { Fragment, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import type { AppTheme } from '@/shared/theme';
-import { spacing } from '@/shared/theme';
+import { spacing, type AppTheme } from '@/shared/theme';
 import { Stamp, type StampTone } from '../Stamp/Stamp';
 
 export interface ScreenMastheadCount {

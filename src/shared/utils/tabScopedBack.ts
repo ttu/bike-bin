@@ -1,5 +1,4 @@
-import type { Href } from 'expo-router';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 
 /**
  * Pops one screen within the current tab's stack (Expo Router `dismiss`).

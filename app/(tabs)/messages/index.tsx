@@ -1,15 +1,22 @@
 import { useCallback } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
-import type { ListRenderItem } from 'react-native';
+import { FlatList, StyleSheet, View, type ListRenderItem } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import type { AppTheme } from '@/shared/theme';
-import { spacing, iconSize, borderRadius, tabBarListScrollPaddingBottom } from '@/shared/theme';
-import { useConversations, ConversationCard } from '@/features/messaging';
-import type { ConversationListItem } from '@/features/messaging';
+import {
+  borderRadius,
+  iconSize,
+  spacing,
+  tabBarListScrollPaddingBottom,
+  type AppTheme,
+} from '@/shared/theme';
+import {
+  ConversationCard,
+  useConversations,
+  type ConversationListItem,
+} from '@/features/messaging';
 import { LoadingScreen } from '@/shared/components';
 import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
 import { DemoBanner } from '@/features/demo';

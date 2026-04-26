@@ -3,8 +3,7 @@ import { Text, Chip, HelperText, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { Visibility } from '@/shared/types';
 import { useTranslation } from 'react-i18next';
-import { useGroups } from '@/features/groups';
-import type { GroupWithRole } from '@/features/groups';
+import { useGroups, type GroupWithRole } from '@/features/groups';
 import type { ItemFormState } from '../types';
 import { styles } from '../styles';
 

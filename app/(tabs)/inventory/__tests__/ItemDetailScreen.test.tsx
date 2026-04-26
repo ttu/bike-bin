@@ -2,8 +2,14 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
-import { ItemStatus, ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
-import type { Item, ItemId } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  ItemStatus,
+  type Item,
+  type ItemId,
+} from '@/shared/types';
 import commonEn from '@/i18n/en/common.json';
 import ItemDetailScreen from '../[id]';
 

@@ -2,8 +2,7 @@ import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
-import type { Item } from '@/shared/types';
-import { ItemCategory, ItemStatus } from '@/shared/types';
+import { ItemCategory, ItemStatus, type Item } from '@/shared/types';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 
 const mockRouterPush = jest.fn();

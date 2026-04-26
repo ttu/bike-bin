@@ -71,7 +71,7 @@ jest.mock('@/features/auth', () => mockAuthModule);
 
 // Mock fetch for blob conversion
 const mockBlob = { type: 'image/jpeg' };
-global.fetch = jest.fn().mockResolvedValue({
+globalThis.fetch = jest.fn().mockResolvedValue({
   blob: () => Promise.resolve(mockBlob),
 }) as jest.Mock;
 

@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { GroupId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId } from '@/shared/types';
 
 /**
  * Join a group. For public groups, the user joins directly as a member.

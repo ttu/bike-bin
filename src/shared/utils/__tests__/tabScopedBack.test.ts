@@ -1,5 +1,4 @@
-import type { Href } from 'expo-router';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { tabScopedBack } from '../tabScopedBack';
 
 jest.mock('expo-router', () => ({

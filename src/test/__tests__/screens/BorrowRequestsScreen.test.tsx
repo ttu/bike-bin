@@ -2,8 +2,14 @@ import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import type { BorrowRequestWithDetails } from '@/features/borrow/types';
-import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
-import { BorrowRequestStatus, ItemStatus, AvailabilityType } from '@/shared/types';
+import {
+  AvailabilityType,
+  BorrowRequestStatus,
+  ItemStatus,
+  type BorrowRequestId,
+  type ItemId,
+  type UserId,
+} from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import borrowEn from '@/i18n/en/borrow.json';
 import commonEn from '@/i18n/en/common.json';

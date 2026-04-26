@@ -1,11 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { mapItemPhotoRow } from '@/shared/utils/mapItemRow';
-import type { GroupId, ItemId, UserId, LocationId } from '@/shared/types';
-import type { ItemCategory, ItemCondition, AvailabilityType, ItemPhoto } from '@/shared/types';
+import type {
+  AvailabilityType,
+  GroupId,
+  ItemCategory,
+  ItemCondition,
+  ItemId,
+  ItemPhoto,
+  LocationId,
+  UserId,
+} from '@/shared/types';
 import type { SearchResultItem } from '../types';
 
-export function useListingDetail(id: string | undefined) {
+export function useListingDetail(id: ItemId | undefined) {
   const itemQuery = useQuery({
     queryKey: ['listing', id],
     queryFn: async (): Promise<SearchResultItem> => {

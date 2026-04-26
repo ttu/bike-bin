@@ -1,5 +1,4 @@
-import type { Rating } from '@/shared/types';
-import type { UserId } from '@/shared/types';
+import type { Rating, UserId } from '@/shared/types';
 
 type RatingWindow = Pick<Rating, 'editableUntil'>;
 type RatingWithAuthor = Pick<Rating, 'editableUntil' | 'fromUserId'>;
