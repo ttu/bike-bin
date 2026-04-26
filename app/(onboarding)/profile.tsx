@@ -6,16 +6,22 @@ import { useState } from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ProgressDots } from '@/features/onboarding/components/ProgressDots';
 import { useAuth } from '@/features/auth';
+import { useUpdateProfile } from '@/features/profile';
+import type { UserId } from '@/shared/types';
 
 export default function ProfileSetupScreen() {
   const theme = useTheme();
   const { t } = useTranslation('onboarding');
   const { user } = useAuth();
+  const updateProfile = useUpdateProfile(user?.id ? (user.id as UserId) : undefined);
 
   const [displayName, setDisplayName] = useState(user?.user_metadata?.full_name ?? '');
 
   const handleContinue = () => {
-    // TODO: Save profile to Supabase in Phase 4+
+    const trimmed = displayName.trim();
+    if (user?.id && trimmed.length > 0) {
+      updateProfile.mutate({ displayName: trimmed });
+    }
     router.push('/(onboarding)/location');
   };
 
