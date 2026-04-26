@@ -28,7 +28,7 @@ const initialState: SnackbarState = {
  */
 const BOTTOM_TAB_BAR_CLEARANCE_DP = 56;
 
-export function SnackbarAlertsProvider({ children }: { children: ReactNode }) {
+export function SnackbarAlertsProvider({ children }: { readonly children: ReactNode }) {
   const theme = useTheme<AppTheme>();
   const insets = useSafeAreaInsets();
   const [state, setState] = useState<SnackbarState>(initialState);

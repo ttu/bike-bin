@@ -5,12 +5,12 @@ import { spacing, borderRadius } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
 export interface RemoveFromInventoryDialogProps {
-  visible: boolean;
-  onDismiss: () => void;
+  readonly visible: boolean;
+  readonly onDismiss: () => void;
   /** Shown when the item can be archived (not already archived). */
-  onArchive?: () => void;
+  readonly onArchive?: () => void;
   /** Shown when the item can be deleted for its current status. */
-  onDelete?: () => void;
+  readonly onDelete?: () => void;
 }
 
 /**

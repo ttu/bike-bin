@@ -8,14 +8,14 @@ import { borderRadius, iconSize, spacing } from '@/shared/theme';
 const BUTTON_HEIGHT = 48;
 
 interface GradientButtonProps {
-  children: React.ReactNode;
-  onPress?: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  icon?: string;
-  style?: StyleProp<ViewStyle>;
-  accessibilityLabel?: string;
-  testID?: string;
+  readonly children: React.ReactNode;
+  readonly onPress?: () => void;
+  readonly disabled?: boolean;
+  readonly loading?: boolean;
+  readonly icon?: string;
+  readonly style?: StyleProp<ViewStyle>;
+  readonly accessibilityLabel?: string;
+  readonly testID?: string;
 }
 
 export function GradientButton({

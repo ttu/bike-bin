@@ -10,8 +10,8 @@ import {
 const AnimatedPressableBase = Animated.createAnimatedComponent(Pressable);
 
 interface AnimatedPressableProps extends Omit<PressableProps, 'style'> {
-  style?: StyleProp<ViewStyle>;
-  scaleValue?: number;
+  readonly style?: StyleProp<ViewStyle>;
+  readonly scaleValue?: number;
 }
 
 export function AnimatedPressable({

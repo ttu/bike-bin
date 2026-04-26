@@ -11,13 +11,13 @@ import type { TransactionType } from '@/shared/types';
 import { RATING_WINDOW_DAYS } from '../../utils/ratingWindow';
 
 interface RatingPromptProps {
-  visible: boolean;
-  onDismiss: () => void;
-  onSubmit: (score: number, text?: string) => void;
-  isSubmitting: boolean;
-  itemName: string;
-  userName: string;
-  transactionType: TransactionType;
+  readonly visible: boolean;
+  readonly onDismiss: () => void;
+  readonly onSubmit: (score: number, text?: string) => void;
+  readonly isSubmitting: boolean;
+  readonly itemName: string;
+  readonly userName: string;
+  readonly transactionType: TransactionType;
 }
 
 /**

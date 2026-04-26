@@ -5,17 +5,17 @@ import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface BrandModelSectionProps extends InputStyling {
-  name: ItemFormState['name'];
-  brand: ItemFormState['brand'];
-  brandMenuVisible: ItemFormState['brandMenuVisible'];
-  handleBrandFocus: ItemFormState['handleBrandFocus'];
-  handleBrandBlur: ItemFormState['handleBrandBlur'];
-  cancelBrandBlurTimeout: ItemFormState['cancelBrandBlurTimeout'];
-  filteredBrands: ItemFormState['filteredBrands'];
-  model: ItemFormState['model'];
-  setModel: ItemFormState['setModel'];
-  handleBrandSelect: ItemFormState['handleBrandSelect'];
-  handleBrandInputChange: ItemFormState['handleBrandInputChange'];
+  readonly name: ItemFormState['name'];
+  readonly brand: ItemFormState['brand'];
+  readonly brandMenuVisible: ItemFormState['brandMenuVisible'];
+  readonly handleBrandFocus: ItemFormState['handleBrandFocus'];
+  readonly handleBrandBlur: ItemFormState['handleBrandBlur'];
+  readonly cancelBrandBlurTimeout: ItemFormState['cancelBrandBlurTimeout'];
+  readonly filteredBrands: ItemFormState['filteredBrands'];
+  readonly model: ItemFormState['model'];
+  readonly setModel: ItemFormState['setModel'];
+  readonly handleBrandSelect: ItemFormState['handleBrandSelect'];
+  readonly handleBrandInputChange: ItemFormState['handleBrandInputChange'];
 }
 
 export function BrandModelSection({

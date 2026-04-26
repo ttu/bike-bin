@@ -233,7 +233,7 @@ export default function InventoryScreen() {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }: { item: Item }) =>
+    ({ item }: { readonly item: Item }) =>
       viewMode === 'gallery' ? (
         <View style={styles.galleryCell}>
           <ItemGalleryTile item={item} onPress={handleItemPress} />
@@ -556,30 +556,30 @@ function getThemeStyles(theme: MD3Theme) {
 }
 
 interface InventoryListHeaderProps {
-  theme: AppTheme;
-  themeStyles: ReturnType<typeof getThemeStyles>;
-  t: ReturnType<typeof useTranslation>['t'];
-  mastheadCounts: ScreenMastheadCount[];
-  userTags: string[] | undefined;
-  selectedCategory: ItemCategory | undefined;
-  onSelectCategory: (category: ItemCategory | undefined) => void;
-  selectedTags: string[];
-  toggleTag: (tag: string) => void;
-  hasTagsOrArchived: boolean;
-  hasTerminalItems: boolean;
-  terminalCount: number;
-  showTerminal: boolean;
-  toggleTerminal: () => void;
-  tagChipActive: boolean;
-  tagChipLabel: string;
-  toggleTagFilter: () => void;
-  tagSectionVisible: boolean;
-  filteredItemsCount: number;
-  sortOption: InventorySortOption;
-  sortLabelText: string;
-  cycleSortOption: () => void;
-  heroItem: Item | undefined;
-  onHeroPress: (item: Item) => void;
+  readonly theme: AppTheme;
+  readonly themeStyles: ReturnType<typeof getThemeStyles>;
+  readonly t: ReturnType<typeof useTranslation>['t'];
+  readonly mastheadCounts: ScreenMastheadCount[];
+  readonly userTags: string[] | undefined;
+  readonly selectedCategory: ItemCategory | undefined;
+  readonly onSelectCategory: (category: ItemCategory | undefined) => void;
+  readonly selectedTags: string[];
+  readonly toggleTag: (tag: string) => void;
+  readonly hasTagsOrArchived: boolean;
+  readonly hasTerminalItems: boolean;
+  readonly terminalCount: number;
+  readonly showTerminal: boolean;
+  readonly toggleTerminal: () => void;
+  readonly tagChipActive: boolean;
+  readonly tagChipLabel: string;
+  readonly toggleTagFilter: () => void;
+  readonly tagSectionVisible: boolean;
+  readonly filteredItemsCount: number;
+  readonly sortOption: InventorySortOption;
+  readonly sortLabelText: string;
+  readonly cycleSortOption: () => void;
+  readonly heroItem: Item | undefined;
+  readonly onHeroPress: (item: Item) => void;
 }
 
 function InventoryListHeader(props: InventoryListHeaderProps) {
@@ -728,7 +728,7 @@ function TagScrollRow({
   selectedTags,
   toggleTag,
   userTags,
-}: InventoryListHeaderProps & { userTags: string[] }) {
+}: InventoryListHeaderProps & { readonly userTags: string[] }) {
   return (
     <ScrollView
       horizontal

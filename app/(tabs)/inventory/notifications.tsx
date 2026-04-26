@@ -57,7 +57,7 @@ export default function NotificationsScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: Notification }) => (
+    ({ item }: { readonly item: Notification }) => (
       <NotificationCard notification={item} onPress={handleNotificationPress} />
     ),
     [handleNotificationPress],

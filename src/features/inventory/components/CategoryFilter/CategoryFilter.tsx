@@ -14,8 +14,8 @@ const CATEGORIES = [
 ];
 
 interface CategoryFilterProps {
-  selected: ItemCategory | undefined;
-  onSelect: (category: ItemCategory | undefined) => void;
+  readonly selected: ItemCategory | undefined;
+  readonly onSelect: (category: ItemCategory | undefined) => void;
 }
 
 export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {

@@ -12,20 +12,20 @@ import type { AppTheme } from '@/shared/theme';
 import { spacing, borderRadius } from '@/shared/theme';
 
 export interface BrandAutocompleteInputProps {
-  label: string;
-  labelStyle?: StyleProp<TextStyle>;
-  placeholder: string;
-  value: string;
-  filteredBrands: string[];
-  menuVisible: boolean;
-  onChangeText: (text: string) => void;
-  onSelectBrand: (brand: string) => void;
-  onFocus: () => void;
-  onBlur: () => void;
-  onSuggestionPressIn?: () => void;
-  softInputStyle: StyleProp<TextStyle>;
-  underlineColor: string;
-  activeUnderlineColor: string;
+  readonly label: string;
+  readonly labelStyle?: StyleProp<TextStyle>;
+  readonly placeholder: string;
+  readonly value: string;
+  readonly filteredBrands: string[];
+  readonly menuVisible: boolean;
+  readonly onChangeText: (text: string) => void;
+  readonly onSelectBrand: (brand: string) => void;
+  readonly onFocus: () => void;
+  readonly onBlur: () => void;
+  readonly onSuggestionPressIn?: () => void;
+  readonly softInputStyle: StyleProp<TextStyle>;
+  readonly underlineColor: string;
+  readonly activeUnderlineColor: string;
 }
 
 export function BrandAutocompleteInput({

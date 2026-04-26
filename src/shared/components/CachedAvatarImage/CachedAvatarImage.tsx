@@ -3,11 +3,11 @@ import { StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 
 export interface CachedAvatarImageProps {
-  uri: string;
-  size: number;
+  readonly uri: string;
+  readonly size: number;
   /** Stable id for disk cache (defaults to uri) */
-  cacheKey?: string;
-  testID?: string;
+  readonly cacheKey?: string;
+  readonly testID?: string;
 }
 
 /**

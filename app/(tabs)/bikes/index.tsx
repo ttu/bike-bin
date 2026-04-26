@@ -32,7 +32,7 @@ export default function BikesScreen() {
   }, [blockNewBikes]);
 
   const renderItem = useCallback(
-    ({ item }: { item: Bike }) => <BikeCard bike={item} onPress={handleBikePress} />,
+    ({ item }: { readonly item: Bike }) => <BikeCard bike={item} onPress={handleBikePress} />,
     [handleBikePress],
   );
 

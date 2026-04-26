@@ -6,9 +6,9 @@ import type { SavedLocation } from '@/shared/types';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 
 interface LocationCardProps {
-  location: SavedLocation;
-  onPress?: (location: SavedLocation) => void;
-  onDelete?: (location: SavedLocation) => void;
+  readonly location: SavedLocation;
+  readonly onPress?: (location: SavedLocation) => void;
+  readonly onDelete?: (location: SavedLocation) => void;
 }
 
 export function LocationCard({ location, onPress, onDelete }: LocationCardProps) {

@@ -6,13 +6,13 @@ import type { AppTheme } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 
 interface ReviewCardProps {
-  reviewerName: string | undefined;
+  readonly reviewerName: string | undefined;
   /** When true, show GDPR anonymized label instead of missing display name. */
-  isDeletedReviewer?: boolean;
-  score: number;
-  text: string | undefined;
-  transactionType: TransactionType;
-  createdAt: string;
+  readonly isDeletedReviewer?: boolean;
+  readonly score: number;
+  readonly text: string | undefined;
+  readonly transactionType: TransactionType;
+  readonly createdAt: string;
 }
 
 export function ReviewCard({

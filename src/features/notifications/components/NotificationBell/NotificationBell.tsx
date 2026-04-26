@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { iconSize } from '@/shared/theme';
 
 interface NotificationBellProps {
-  unreadCount: number;
-  onPress: () => void;
+  readonly unreadCount: number;
+  readonly onPress: () => void;
 }
 
 /**

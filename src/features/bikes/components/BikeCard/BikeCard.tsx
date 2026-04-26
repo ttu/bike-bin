@@ -10,8 +10,8 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import type { AppTheme } from '@/shared/theme';
 
 interface BikeCardProps {
-  bike: Bike;
-  onPress?: (bike: Bike) => void;
+  readonly bike: Bike;
+  readonly onPress?: (bike: Bike) => void;
 }
 
 export const BikeCard = memo(function BikeCard({ bike, onPress }: BikeCardProps) {

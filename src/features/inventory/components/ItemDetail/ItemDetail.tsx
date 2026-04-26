@@ -22,14 +22,14 @@ import { availabilityTypesForList } from '../../utils/availabilityList';
 const MIDDLE_DOT = ' · ';
 
 interface ItemDetailProps {
-  item: Item;
-  photos: ItemPhoto[];
-  onMarkDonated?: () => void;
-  onMarkSold?: () => void;
-  onMarkReturned?: () => void;
-  markReturnedLoading?: boolean;
-  onRemoveFromBin?: () => void;
-  onUnarchive?: () => void;
+  readonly item: Item;
+  readonly photos: ItemPhoto[];
+  readonly onMarkDonated?: () => void;
+  readonly onMarkSold?: () => void;
+  readonly onMarkReturned?: () => void;
+  readonly markReturnedLoading?: boolean;
+  readonly onRemoveFromBin?: () => void;
+  readonly onUnarchive?: () => void;
 }
 
 export function ItemDetail({
@@ -181,14 +181,14 @@ function TitleBlock({
   metaParts,
   t,
 }: {
-  item: Item;
-  theme: AppTheme;
-  themed: Themed;
-  statusColor: string;
-  categoryLabel: string;
-  subcategoryLabel: string | undefined;
-  metaParts: string[];
-  t: TFn;
+  readonly item: Item;
+  readonly theme: AppTheme;
+  readonly themed: Themed;
+  readonly statusColor: string;
+  readonly categoryLabel: string;
+  readonly subcategoryLabel: string | undefined;
+  readonly metaParts: string[];
+  readonly t: TFn;
 }) {
   return (
     <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
@@ -259,10 +259,10 @@ function FigureStrip({
   t,
   distanceUnit,
 }: {
-  item: Item;
-  themed: Themed;
-  t: TFn;
-  distanceUnit: DistanceUnit;
+  readonly item: Item;
+  readonly themed: Themed;
+  readonly t: TFn;
+  readonly distanceUnit: DistanceUnit;
 }) {
   const showRemaining =
     item.category === ItemCategory.Consumable && item.remainingFraction !== undefined;
@@ -302,10 +302,10 @@ function ServiceRecord({
   theme,
   t,
 }: {
-  item: Item;
-  themed: Themed;
-  theme: AppTheme;
-  t: TFn;
+  readonly item: Item;
+  readonly themed: Themed;
+  readonly theme: AppTheme;
+  readonly t: TFn;
 }) {
   const serviceRows: { label: string; value: string }[] = [
     { label: t('detail.conditionLabel'), value: t(`condition.${item.condition}`) },
@@ -342,10 +342,10 @@ function ListedForSection({
   themed,
   t,
 }: {
-  listAvailability: AvailabilityType[];
-  ownerGroup: { name: string } | null | undefined;
-  themed: Themed;
-  t: TFn;
+  readonly listAvailability: AvailabilityType[];
+  readonly ownerGroup: { name: string } | null | undefined;
+  readonly themed: Themed;
+  readonly t: TFn;
 }) {
   if (listAvailability.length === 0 && !ownerGroup) return null;
   return (
@@ -387,18 +387,18 @@ function ActionsSection({
   onRemoveFromBin,
   markReturnedLoading,
 }: {
-  item: Item;
-  isWide: boolean;
-  t: TFn;
-  canShowReturnedAction: boolean;
-  canShowDonateAction: boolean;
-  canShowSoldAction: boolean;
-  onMarkReturned?: () => void;
-  onMarkDonated?: () => void;
-  onMarkSold?: () => void;
-  onUnarchive?: () => void;
-  onRemoveFromBin?: () => void;
-  markReturnedLoading: boolean;
+  readonly item: Item;
+  readonly isWide: boolean;
+  readonly t: TFn;
+  readonly canShowReturnedAction: boolean;
+  readonly canShowDonateAction: boolean;
+  readonly canShowSoldAction: boolean;
+  readonly onMarkReturned?: () => void;
+  readonly onMarkDonated?: () => void;
+  readonly onMarkSold?: () => void;
+  readonly onUnarchive?: () => void;
+  readonly onRemoveFromBin?: () => void;
+  readonly markReturnedLoading: boolean;
 }) {
   return (
     <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
@@ -465,9 +465,9 @@ function ActionSlot({
   fullWidth,
   children,
 }: {
-  isWide: boolean;
-  fullWidth?: boolean;
-  children: ReactNode;
+  readonly isWide: boolean;
+  readonly fullWidth?: boolean;
+  readonly children: ReactNode;
 }) {
   if (!isWide) {
     return <>{children}</>;
