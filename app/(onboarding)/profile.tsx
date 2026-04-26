@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, TextInput, useTheme } from 'react-native-paper';
+import { Button, Snackbar, Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -16,11 +16,17 @@ export default function ProfileSetupScreen() {
   const updateProfile = useUpdateProfile(user?.id ? (user.id as UserId) : undefined);
 
   const [displayName, setDisplayName] = useState(user?.user_metadata?.full_name ?? '');
+  const [errorVisible, setErrorVisible] = useState(false);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const trimmed = displayName.trim();
     if (user?.id && trimmed.length > 0) {
-      updateProfile.mutate({ displayName: trimmed });
+      try {
+        await updateProfile.mutateAsync({ displayName: trimmed });
+      } catch {
+        setErrorVisible(true);
+        return;
+      }
     }
     router.push('/(onboarding)/location');
   };
@@ -57,13 +63,21 @@ export default function ProfileSetupScreen() {
       />
 
       <View style={styles.buttonRow}>
-        <Button mode="text" onPress={handleSkip}>
+        <Button mode="text" onPress={handleSkip} disabled={updateProfile.isPending}>
           {t('profile.skip')}
         </Button>
-        <Button mode="contained" onPress={handleContinue}>
+        <Button
+          mode="contained"
+          onPress={handleContinue}
+          loading={updateProfile.isPending}
+          disabled={updateProfile.isPending}
+        >
           {t('profile.continue')}
         </Button>
       </View>
+      <Snackbar visible={errorVisible} onDismiss={() => setErrorVisible(false)}>
+        {t('profile.saveError')}
+      </Snackbar>
     </View>
   );
 }
