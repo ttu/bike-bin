@@ -71,128 +71,116 @@ async function requireAuthenticatedUser(req: Request): Promise<Response | undefi
   return undefined;
 }
 
+function parseAndValidate(raw: {
+  postcode?: unknown;
+  country?: unknown;
+}): { normalizedPostcode: string; normalizedCountry: string } | Response {
+  const { postcode, country } = raw;
+  if (!postcode || typeof postcode !== 'string' || postcode.trim().length === 0) {
+    return jsonResponse(400, { error: 'Postcode is required' });
+  }
+  const rawCountry = typeof country === 'string' ? country.trim() : '';
+  if (rawCountry !== '' && !/^[A-Za-z]{2}$/.test(rawCountry)) {
+    return jsonResponse(400, {
+      error: 'Country must be an ISO 3166-1 alpha-2 code (e.g. "de", "gb")',
+    });
+  }
+  return {
+    normalizedPostcode: postcode.trim().toLowerCase(),
+    normalizedCountry: rawCountry.toLowerCase(),
+  };
+}
+
+async function lookupCache(
+  supabase: ReturnType<typeof createClient>,
+  postcode: string,
+  country: string,
+): Promise<GeocodeResult | undefined> {
+  const { data: cached, error } = await supabase
+    .from('geocode_cache')
+    .select('area_name, lat, lng')
+    .eq('postcode', postcode)
+    .eq('country', country)
+    .maybeSingle();
+  if (error) {
+    console.error('geocode_cache read error:', error.message);
+    return undefined;
+  }
+  if (!cached) return undefined;
+  return { areaName: cached.area_name, lat: cached.lat, lng: cached.lng };
+}
+
+async function fetchFromNominatim(
+  postcode: string,
+  country: string,
+): Promise<GeocodeResult | Response> {
+  const params = new URLSearchParams({
+    postalcode: postcode,
+    format: 'json',
+    addressdetails: '1',
+    limit: '1',
+  });
+  if (country) params.set('countrycodes', country);
+
+  const response = await fetch(`${NOMINATIM_BASE_URL}?${params.toString()}`, {
+    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+  });
+  if (!response.ok) return jsonResponse(502, { error: 'Geocoding service unavailable' });
+
+  const results: NominatimResult[] = await response.json();
+  if (results.length === 0) return jsonResponse(404, { error: 'Postcode not found' });
+
+  const top = results[0];
+  return {
+    areaName: extractAreaName(top),
+    lat: Number.parseFloat(top.lat),
+    lng: Number.parseFloat(top.lon),
+  };
+}
+
+async function persistCacheEntry(
+  supabase: ReturnType<typeof createClient>,
+  postcode: string,
+  country: string,
+  result: GeocodeResult,
+): Promise<void> {
+  const { error } = await supabase.from('geocode_cache').upsert({
+    postcode,
+    country,
+    area_name: result.areaName,
+    lat: result.lat,
+    lng: result.lng,
+    cached_at: new Date().toISOString(),
+  });
+  if (error) console.error('geocode_cache upsert error:', error.message);
+}
+
 Deno.serve(async (req) => {
-  // Only allow POST
   if (req.method !== 'POST') return jsonResponse(405, { error: 'Method not allowed' });
 
   try {
     const authError = await requireAuthenticatedUser(req);
     if (authError) return authError;
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const { postcode, country } = await req.json();
+    const validated = parseAndValidate(await req.json());
+    if (validated instanceof Response) return validated;
+    const { normalizedPostcode, normalizedCountry } = validated;
 
-    if (!postcode || typeof postcode !== 'string' || postcode.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Postcode is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
 
-    const normalizedPostcode = postcode.trim().toLowerCase();
+    const cached = await lookupCache(supabase, normalizedPostcode, normalizedCountry);
+    if (cached) return jsonResponse(200, cached);
 
-    // Validate country as ISO 3166-1 alpha-2 (exactly two ASCII letters) or empty
-    const rawCountry = typeof country === 'string' ? country.trim() : '';
-    if (rawCountry !== '' && !/^[A-Za-z]{2}$/.test(rawCountry)) {
-      return new Response(
-        JSON.stringify({ error: 'Country must be an ISO 3166-1 alpha-2 code (e.g. "de", "gb")' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } },
-      );
-    }
-    const normalizedCountry = rawCountry.toLowerCase();
+    const result = await fetchFromNominatim(normalizedPostcode, normalizedCountry);
+    if (result instanceof Response) return result;
 
-    // Initialize Supabase client with service role for cache access
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Check cache first (composite PK: postcode + country)
-    const { data: cached, error: cacheError } = await supabase
-      .from('geocode_cache')
-      .select('area_name, lat, lng')
-      .eq('postcode', normalizedPostcode)
-      .eq('country', normalizedCountry)
-      .maybeSingle();
-
-    if (cacheError) {
-      console.error('geocode_cache read error:', cacheError.message);
-      // Fall through to Nominatim lookup
-    } else if (cached) {
-      const result: GeocodeResult = {
-        areaName: cached.area_name,
-        lat: cached.lat,
-        lng: cached.lng,
-      };
-      return new Response(JSON.stringify(result), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Call Nominatim API
-    const params = new URLSearchParams({
-      postalcode: normalizedPostcode,
-      format: 'json',
-      addressdetails: '1',
-      limit: '1',
-    });
-
-    if (normalizedCountry) {
-      params.set('countrycodes', normalizedCountry);
-    }
-
-    const nominatimUrl = `${NOMINATIM_BASE_URL}?${params.toString()}`;
-    const nominatimResponse = await fetch(nominatimUrl, {
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: 'application/json',
-      },
-    });
-
-    if (!nominatimResponse.ok) {
-      return new Response(JSON.stringify({ error: 'Geocoding service unavailable' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const results: NominatimResult[] = await nominatimResponse.json();
-
-    if (results.length === 0) {
-      return new Response(JSON.stringify({ error: 'Postcode not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const topResult = results[0];
-    const areaName = extractAreaName(topResult);
-    const lat = Number.parseFloat(topResult.lat);
-    const lng = Number.parseFloat(topResult.lon);
-
-    // Cache the result (composite PK: postcode + country); don't fail the request on cache write errors
-    const { error: upsertError } = await supabase.from('geocode_cache').upsert({
-      postcode: normalizedPostcode,
-      country: normalizedCountry,
-      area_name: areaName,
-      lat,
-      lng,
-      cached_at: new Date().toISOString(),
-    });
-
-    if (upsertError) {
-      console.error('geocode_cache upsert error:', upsertError.message);
-    }
-
-    const result: GeocodeResult = { areaName, lat, lng };
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    await persistCacheEntry(supabase, normalizedPostcode, normalizedCountry, result);
+    return jsonResponse(200, result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse(500, { error: message });
   }
 });
