@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, expectFirstVisibleByText } from './fixtures';
 
 // ---------------------------------------------------------------------------
 // Item CRUD — add, edit, delete
@@ -96,9 +96,7 @@ test.describe('Edit item', () => {
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+$/, { timeout: 10000 });
 
     // Verify the updated name appears on the detail page
-    await expect(loggedInPage.getByText('RaceFace Cranks Updated').first()).toBeVisible({
-      timeout: 10000,
-    });
+    await expectFirstVisibleByText(loggedInPage, 'RaceFace Cranks Updated', { timeout: 10000 });
   });
 });
 
