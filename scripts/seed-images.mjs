@@ -115,11 +115,20 @@ async function ensureBucket(supabase) {
 }
 
 async function clearExistingPhotos(supabase, table) {
-  const { data: existing } = await supabase.from(table).select('id, storage_path');
+  const { data: existing, error: selectError } = await supabase.from(table).select('id, storage_path');
+  if (selectError) {
+    throw new Error(`clearExistingPhotos: failed to select from ${table}: ${selectError.message}`);
+  }
   if (!existing?.length) return;
   const paths = existing.map((p) => p.storage_path);
-  await supabase.storage.from(BUCKET).remove(paths);
-  await supabase.from(table).delete().in('id', existing.map((p) => p.id));
+  const { error: removeError } = await supabase.storage.from(BUCKET).remove(paths);
+  if (removeError) {
+    throw new Error(`clearExistingPhotos: failed to remove objects from bucket ${BUCKET}: ${removeError.message}`);
+  }
+  const { error: deleteError } = await supabase.from(table).delete().in('id', existing.map((p) => p.id));
+  if (deleteError) {
+    throw new Error(`clearExistingPhotos: failed to delete rows from ${table}: ${deleteError.message}`);
+  }
   console.log(`Cleared ${existing.length} existing ${table} rows`);
 }
 
