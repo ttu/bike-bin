@@ -142,6 +142,61 @@ describe('useAuth', () => {
     expect(result.current.isAuthenticated).toBe(true);
   });
 
+  it('ignores late getSession rejection after unmount', async () => {
+    let rejectGetSession: ((reason?: unknown) => void) | undefined;
+    const pendingGetSession = new Promise<never>((_resolve, reject) => {
+      rejectGetSession = reject;
+    });
+    (supabase.auth.getSession as jest.Mock).mockReturnValueOnce(pendingGetSession);
+
+    const unsubscribe = jest.fn();
+    (supabase.auth.onAuthStateChange as jest.Mock).mockReturnValueOnce({
+      data: { subscription: { unsubscribe } },
+    });
+
+    const { unmount } = renderHook(() => useAuth(), { wrapper });
+    unmount();
+
+    await act(async () => {
+      rejectGetSession?.(new Error('Invalid Refresh Token'));
+      await Promise.resolve();
+    });
+
+    expect(unsubscribe).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores late getSession resolution after unmount', async () => {
+    const delayedSession = {
+      user: { id: 'user-123', email: 'test@example.com' },
+      access_token: 'token',
+    };
+    let resolveGetSession:
+      | ((value: { data: { session: typeof delayedSession }; error: null }) => void)
+      | undefined;
+    const pendingGetSession = new Promise<{
+      data: { session: typeof delayedSession };
+      error: null;
+    }>((resolve) => {
+      resolveGetSession = resolve;
+    });
+    (supabase.auth.getSession as jest.Mock).mockReturnValueOnce(pendingGetSession);
+
+    const unsubscribe = jest.fn();
+    (supabase.auth.onAuthStateChange as jest.Mock).mockReturnValueOnce({
+      data: { subscription: { unsubscribe } },
+    });
+
+    const { unmount } = renderHook(() => useAuth(), { wrapper });
+    unmount();
+
+    await act(async () => {
+      resolveGetSession?.({ data: { session: delayedSession }, error: null });
+      await Promise.resolve();
+    });
+
+    expect(unsubscribe).toHaveBeenCalledTimes(1);
+  });
+
   it('isAuthenticated is correct boolean', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     await act(async () => {});
