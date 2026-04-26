@@ -190,9 +190,8 @@ describe('OptionalSection', () => {
 
   it('removes a tag when its chip close button is pressed', () => {
     const { handlers } = renderSection({ tags: ['rusty'] });
-    const chip = screen.getByText('rusty');
-    expect(chip).toBeTruthy();
-    handlers.handleRemoveTag('rusty');
+    expect(screen.getByText('rusty')).toBeTruthy();
+    fireEvent.press(screen.getByLabelText('Close'));
     expect(handlers.handleRemoveTag).toHaveBeenCalledWith('rusty');
   });
 
