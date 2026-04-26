@@ -10,43 +10,43 @@ import type { ItemFormErrors } from '../../../utils/validation';
 import { styles } from '../styles';
 
 interface OptionalSectionProps extends InputStyling {
-  showOptional: ItemFormState['showOptional'];
-  setShowOptional: ItemFormState['setShowOptional'];
-  category: ItemFormState['category'];
-  purchaseDate: ItemFormState['purchaseDate'];
-  setPurchaseDate: ItemFormState['setPurchaseDate'];
-  mountedDate: ItemFormState['mountedDate'];
-  setMountedDate: ItemFormState['setMountedDate'];
-  errors: ItemFormErrors;
+  readonly showOptional: ItemFormState['showOptional'];
+  readonly setShowOptional: ItemFormState['setShowOptional'];
+  readonly category: ItemFormState['category'];
+  readonly purchaseDate: ItemFormState['purchaseDate'];
+  readonly setPurchaseDate: ItemFormState['setPurchaseDate'];
+  readonly mountedDate: ItemFormState['mountedDate'];
+  readonly setMountedDate: ItemFormState['setMountedDate'];
+  readonly errors: ItemFormErrors;
   // Age
-  age: ItemFormState['age'];
-  setAge: ItemFormState['setAge'];
-  ageMenuVisible: ItemFormState['ageMenuVisible'];
-  setAgeMenuVisible: ItemFormState['setAgeMenuVisible'];
+  readonly age: ItemFormState['age'];
+  readonly setAge: ItemFormState['setAge'];
+  readonly ageMenuVisible: ItemFormState['ageMenuVisible'];
+  readonly setAgeMenuVisible: ItemFormState['setAgeMenuVisible'];
   // Usage
-  usage: ItemFormState['usage'];
-  setUsage: ItemFormState['setUsage'];
-  distanceUnit: ItemFormState['distanceUnit'];
+  readonly usage: ItemFormState['usage'];
+  readonly setUsage: ItemFormState['setUsage'];
+  readonly distanceUnit: ItemFormState['distanceUnit'];
   // Storage
-  storageLocation: ItemFormState['storageLocation'];
-  setStorageLocation: ItemFormState['setStorageLocation'];
-  storageMenuVisible: ItemFormState['storageMenuVisible'];
-  setStorageMenuVisible: ItemFormState['setStorageMenuVisible'];
-  existingStorageLocations: ItemFormState['existingStorageLocations'];
+  readonly storageLocation: ItemFormState['storageLocation'];
+  readonly setStorageLocation: ItemFormState['setStorageLocation'];
+  readonly storageMenuVisible: ItemFormState['storageMenuVisible'];
+  readonly setStorageMenuVisible: ItemFormState['setStorageMenuVisible'];
+  readonly existingStorageLocations: ItemFormState['existingStorageLocations'];
   // Description
-  description: ItemFormState['description'];
-  setDescription: ItemFormState['setDescription'];
+  readonly description: ItemFormState['description'];
+  readonly setDescription: ItemFormState['setDescription'];
   // Tags
-  tags: ItemFormState['tags'];
-  tagInput: ItemFormState['tagInput'];
-  setTagInput: ItemFormState['setTagInput'];
-  tagSuggestionsVisible: ItemFormState['tagSuggestionsVisible'];
-  setTagSuggestionsVisible: ItemFormState['setTagSuggestionsVisible'];
-  filteredTagSuggestions: ItemFormState['filteredTagSuggestions'];
-  handleAddTag: ItemFormState['handleAddTag'];
-  handleRemoveTag: ItemFormState['handleRemoveTag'];
-  clearTagBlurCommitTimeout: ItemFormState['clearTagBlurCommitTimeout'];
-  tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
+  readonly tags: ItemFormState['tags'];
+  readonly tagInput: ItemFormState['tagInput'];
+  readonly setTagInput: ItemFormState['setTagInput'];
+  readonly tagSuggestionsVisible: ItemFormState['tagSuggestionsVisible'];
+  readonly setTagSuggestionsVisible: ItemFormState['setTagSuggestionsVisible'];
+  readonly filteredTagSuggestions: ItemFormState['filteredTagSuggestions'];
+  readonly handleAddTag: ItemFormState['handleAddTag'];
+  readonly handleRemoveTag: ItemFormState['handleRemoveTag'];
+  readonly clearTagBlurCommitTimeout: ItemFormState['clearTagBlurCommitTimeout'];
+  readonly tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
 }
 
 export function OptionalSection({
@@ -172,12 +172,12 @@ export function OptionalSection({
 // ── Sub-fields (private to this module) ────────────────────────
 
 interface OptionalDateFieldsProps extends InputStyling {
-  purchaseDate: string;
-  setPurchaseDate: (v: string) => void;
-  mountedDate: string;
-  setMountedDate: (v: string) => void;
-  purchaseDateError: string | undefined;
-  mountedDateError: string | undefined;
+  readonly purchaseDate: string;
+  readonly setPurchaseDate: (v: string) => void;
+  readonly mountedDate: string;
+  readonly setMountedDate: (v: string) => void;
+  readonly purchaseDateError: string | undefined;
+  readonly mountedDateError: string | undefined;
 }
 
 function OptionalDateFields({
@@ -243,10 +243,10 @@ function OptionalDateFields({
 }
 
 interface AgeFieldProps extends InputStyling {
-  age: string;
-  setAge: (v: string) => void;
-  ageMenuVisible: boolean;
-  setAgeMenuVisible: (v: boolean) => void;
+  readonly age: string;
+  readonly setAge: (v: string) => void;
+  readonly ageMenuVisible: boolean;
+  readonly setAgeMenuVisible: (v: boolean) => void;
 }
 
 function AgeField({
@@ -306,9 +306,9 @@ function AgeField({
 }
 
 interface UsageFieldProps extends InputStyling {
-  usage: string;
-  setUsage: (v: string) => void;
-  distanceUnit: string;
+  readonly usage: string;
+  readonly setUsage: (v: string) => void;
+  readonly distanceUnit: string;
 }
 
 function UsageField({
@@ -347,11 +347,11 @@ function UsageField({
 }
 
 interface StorageFieldProps extends InputStyling {
-  storageLocation: string;
-  setStorageLocation: (v: string) => void;
-  storageMenuVisible: boolean;
-  setStorageMenuVisible: (v: boolean) => void;
-  existingStorageLocations: string[];
+  readonly storageLocation: string;
+  readonly setStorageLocation: (v: string) => void;
+  readonly storageMenuVisible: boolean;
+  readonly setStorageMenuVisible: (v: boolean) => void;
+  readonly existingStorageLocations: string[];
 }
 
 function StorageField({
@@ -442,8 +442,8 @@ function StorageField({
 }
 
 interface DescriptionFieldProps extends InputStyling {
-  description: string;
-  setDescription: (v: string) => void;
+  readonly description: string;
+  readonly setDescription: (v: string) => void;
 }
 
 function DescriptionField({
@@ -476,16 +476,16 @@ function DescriptionField({
 }
 
 interface TagsFieldProps extends InputStyling {
-  tags: string[];
-  tagInput: string;
-  setTagInput: (v: string) => void;
-  tagSuggestionsVisible: boolean;
-  setTagSuggestionsVisible: (v: boolean) => void;
-  filteredTagSuggestions: string[];
-  handleAddTag: (raw: string) => void;
-  handleRemoveTag: (tag: string) => void;
-  clearTagBlurCommitTimeout: () => void;
-  tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
+  readonly tags: string[];
+  readonly tagInput: string;
+  readonly setTagInput: (v: string) => void;
+  readonly tagSuggestionsVisible: boolean;
+  readonly setTagSuggestionsVisible: (v: boolean) => void;
+  readonly filteredTagSuggestions: string[];
+  readonly handleAddTag: (raw: string) => void;
+  readonly handleRemoveTag: (tag: string) => void;
+  readonly clearTagBlurCommitTimeout: () => void;
+  readonly tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
 }
 
 function TagsField({

@@ -35,7 +35,7 @@ jest.mock('@/features/auth', () => ({
 
 jest.mock('@/features/demo', () => {
   return {
-    DemoModeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    DemoModeProvider: ({ children }: { readonly children: React.ReactNode }) => <>{children}</>,
     useDemoMode: () => ({
       enterDemoMode: mockEnterDemoMode,
     }),

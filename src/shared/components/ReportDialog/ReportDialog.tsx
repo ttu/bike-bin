@@ -19,10 +19,10 @@ export const REPORT_REASONS = [
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
 interface ReportDialogProps {
-  visible: boolean;
-  onDismiss: () => void;
-  onSubmit: (reason: ReportReason, text: string | undefined) => void;
-  loading?: boolean;
+  readonly visible: boolean;
+  readonly onDismiss: () => void;
+  readonly onSubmit: (reason: ReportReason, text: string | undefined) => void;
+  readonly loading?: boolean;
 }
 
 /**

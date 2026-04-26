@@ -47,16 +47,16 @@ const CONDITION_ICONS: Record<string, string> = {
 };
 
 interface BikeFormProps {
-  initialData?: BikeFormData;
-  headerComponent?: ReactNode;
-  photoSection?: ReactNode;
-  onSave: (data: BikeFormData) => void;
-  onDelete?: () => void;
-  isSubmitting: boolean;
-  isEditMode?: boolean;
-  submitBlockedMessage?: string;
-  onDirtyChange?: (dirty: boolean) => void;
-  onValidationError?: (messages: string[]) => void;
+  readonly initialData?: BikeFormData;
+  readonly headerComponent?: ReactNode;
+  readonly photoSection?: ReactNode;
+  readonly onSave: (data: BikeFormData) => void;
+  readonly onDelete?: () => void;
+  readonly isSubmitting: boolean;
+  readonly isEditMode?: boolean;
+  readonly submitBlockedMessage?: string;
+  readonly onDirtyChange?: (dirty: boolean) => void;
+  readonly onValidationError?: (messages: string[]) => void;
 }
 
 interface BikeFormErrors {

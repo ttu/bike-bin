@@ -9,11 +9,11 @@ jest.mock('@/shared/components', () => {
   const { View, Text, Pressable } = require('react-native');
   return {
     ConfirmDialog: (props: {
-      visible: boolean;
-      title: string;
-      onDismiss: () => void;
-      onConfirm: () => void;
-      testID?: string;
+      readonly visible: boolean;
+      readonly title: string;
+      readonly onDismiss: () => void;
+      readonly onConfirm: () => void;
+      readonly testID?: string;
     }) => {
       const { visible, title, onDismiss, onConfirm, testID = 'confirm-dialog' } = props;
       if (!visible) {
@@ -82,9 +82,9 @@ jest.mock('@/features/groups', () => {
     useCancelInvitation: () => ({ mutateAsync: mockCancelInvitationMutateAsync, isPending: false }),
     GroupEditForm: () => null,
     GroupInviteView: (props: {
-      onBack: () => void;
-      onInvited: () => void;
-      onError: () => void;
+      readonly onBack: () => void;
+      readonly onInvited: () => void;
+      readonly onError: () => void;
     }) => (
       <View testID="group-invite-view">
         <Pressable testID="invite-view-back" onPress={props.onBack}>

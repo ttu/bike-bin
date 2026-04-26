@@ -19,12 +19,12 @@ import { useReport } from '@/shared/hooks/useReport';
 import type { ItemId, ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
 
 export type ListingDetailRouteProps = {
-  listingId: ItemId | undefined;
-  returnPath: string | undefined;
+  readonly listingId: ItemId | undefined;
+  readonly returnPath: string | undefined;
   /** Used when `returnPath` is absent or invalid */
-  fallbackHref: Href;
+  readonly fallbackHref: Href;
   /** Prefix for the current listing URL (e.g. `/(tabs)/search` or `/(tabs)/messages/item`) */
-  thisListingPathPrefix: Href;
+  readonly thisListingPathPrefix: Href;
 };
 
 export function ListingDetailRoute({

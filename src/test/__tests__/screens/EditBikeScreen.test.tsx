@@ -77,7 +77,7 @@ jest.mock('@/features/bikes', () => ({
 }));
 
 jest.mock('@/shared/components/PhotoPicker/PhotoPicker', () => ({
-  PhotoPicker: ({ onRemove }: { onRemove: (photoId: string) => void }) => {
+  PhotoPicker: ({ onRemove }: { readonly onRemove: (photoId: string) => void }) => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory
     const { Pressable, Text } = require('react-native');
     return (
@@ -99,9 +99,9 @@ jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => {
       onDelete,
       photoSection,
     }: {
-      onSave: (data: unknown) => void;
-      onDelete: () => void;
-      photoSection?: unknown;
+      readonly onSave: (data: unknown) => void;
+      readonly onDelete: () => void;
+      readonly photoSection?: unknown;
     }) => (
       <View testID="bike-form-mock">
         {photoSection}

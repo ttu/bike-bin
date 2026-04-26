@@ -6,11 +6,11 @@ import type { ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface ActionsSectionProps {
-  handleSubmit: ItemFormState['handleSubmit'];
-  isSubmitting: boolean;
-  isEditMode: boolean;
-  onDelete?: () => void;
-  saveDisabled?: boolean;
+  readonly handleSubmit: ItemFormState['handleSubmit'];
+  readonly isSubmitting: boolean;
+  readonly isEditMode: boolean;
+  readonly onDelete?: () => void;
+  readonly saveDisabled?: boolean;
 }
 
 export function ActionsSection({

@@ -2,10 +2,10 @@ import { Image } from 'expo-image';
 import type { ImageStyle, StyleProp } from 'react-native';
 
 export interface CachedListThumbnailProps {
-  uri: string;
+  readonly uri: string;
   /** Storage path or other stable id — used for disk cache key and recycled list cells */
-  cacheKey?: string;
-  style: StyleProp<ImageStyle>;
+  readonly cacheKey?: string;
+  readonly style: StyleProp<ImageStyle>;
 }
 
 /**

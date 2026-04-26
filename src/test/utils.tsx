@@ -11,7 +11,7 @@ import '@/shared/i18n/config';
 // SafeAreaProvider is excluded because jest-expo does not render it in tests.
 // Wrap with it in app code only; use this util for component tests.
 
-function AllProviders({ children }: { children: React.ReactNode }) {
+function AllProviders({ children }: { readonly children: React.ReactNode }) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },

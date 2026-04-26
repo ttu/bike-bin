@@ -15,19 +15,19 @@ const AVAILABILITY_OPTIONS = [
 ];
 
 interface AvailabilitySectionProps extends InputStyling {
-  availabilityTypes: ItemFormState['availabilityTypes'];
-  toggleAvailability: ItemFormState['toggleAvailability'];
-  isSellable: ItemFormState['isSellable'];
-  isBorrowable: ItemFormState['isBorrowable'];
-  price: ItemFormState['price'];
-  setPrice: ItemFormState['setPrice'];
-  deposit: ItemFormState['deposit'];
-  setDeposit: ItemFormState['setDeposit'];
-  borrowDuration: ItemFormState['borrowDuration'];
-  setBorrowDuration: ItemFormState['setBorrowDuration'];
-  durationMenuVisible: ItemFormState['durationMenuVisible'];
-  setDurationMenuVisible: ItemFormState['setDurationMenuVisible'];
-  errors: ItemFormState['errors'];
+  readonly availabilityTypes: ItemFormState['availabilityTypes'];
+  readonly toggleAvailability: ItemFormState['toggleAvailability'];
+  readonly isSellable: ItemFormState['isSellable'];
+  readonly isBorrowable: ItemFormState['isBorrowable'];
+  readonly price: ItemFormState['price'];
+  readonly setPrice: ItemFormState['setPrice'];
+  readonly deposit: ItemFormState['deposit'];
+  readonly setDeposit: ItemFormState['setDeposit'];
+  readonly borrowDuration: ItemFormState['borrowDuration'];
+  readonly setBorrowDuration: ItemFormState['setBorrowDuration'];
+  readonly durationMenuVisible: ItemFormState['durationMenuVisible'];
+  readonly setDurationMenuVisible: ItemFormState['setDurationMenuVisible'];
+  readonly errors: ItemFormState['errors'];
 }
 
 export function AvailabilitySection({

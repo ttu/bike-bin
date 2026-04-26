@@ -9,10 +9,10 @@ import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { SearchFilters } from '../../types';
 
 interface FilterSheetProps {
-  filters: SearchFilters;
-  onFiltersChange: (partial: Partial<SearchFilters>) => void;
-  onReset: () => void;
-  onApply: () => void;
+  readonly filters: SearchFilters;
+  readonly onFiltersChange: (partial: Partial<SearchFilters>) => void;
+  readonly onReset: () => void;
+  readonly onApply: () => void;
 }
 
 const CATEGORY_OPTIONS: ItemCategory[] = [

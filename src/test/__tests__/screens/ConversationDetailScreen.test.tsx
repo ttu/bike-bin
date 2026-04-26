@@ -132,8 +132,8 @@ jest.mock('@/features/messaging', () => ({
     message,
     onLongPress,
   }: {
-    message: MessageWithSender;
-    onLongPress?: (msg: MessageWithSender) => void;
+    readonly message: MessageWithSender;
+    readonly onLongPress?: (msg: MessageWithSender) => void;
   }) => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- inline mock component
     const { Pressable, Text } = require('react-native');
@@ -143,7 +143,7 @@ jest.mock('@/features/messaging', () => ({
       </Pressable>
     );
   },
-  ItemContextStrip: ({ onPress }: { onPress?: () => void }) => {
+  ItemContextStrip: ({ onPress }: { readonly onPress?: () => void }) => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- inline mock component
     const { Pressable, Text } = require('react-native');
     return (

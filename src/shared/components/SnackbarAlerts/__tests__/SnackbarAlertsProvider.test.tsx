@@ -4,7 +4,7 @@ import { Button } from 'react-native-paper';
 import { renderWithProviders } from '@/test/utils';
 import { useSnackbarAlerts } from '../useSnackbarAlerts';
 
-function Trigger({ message }: { message: string }) {
+function Trigger({ message }: { readonly message: string }) {
   const { showSnackbarAlert } = useSnackbarAlerts();
   return (
     <Button onPress={() => showSnackbarAlert({ message })} accessibilityLabel="Show snackbar">

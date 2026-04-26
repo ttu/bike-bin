@@ -27,7 +27,7 @@ jest.mock('../hooks/useAuth', () => ({
   }),
 }));
 
-function TestWrapper({ children }: { children: React.ReactNode }) {
+function TestWrapper({ children }: { readonly children: React.ReactNode }) {
   return <PaperProvider theme={lightTheme}>{children}</PaperProvider>;
 }
 

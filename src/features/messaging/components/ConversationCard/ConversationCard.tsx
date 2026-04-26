@@ -10,8 +10,8 @@ import { isGroupConversation, type ConversationListItem } from '../../types';
 import { ItemStatus } from '@/shared/types';
 
 interface ConversationCardProps {
-  conversation: ConversationListItem;
-  onPress?: (conversation: ConversationListItem) => void;
+  readonly conversation: ConversationListItem;
+  readonly onPress?: (conversation: ConversationListItem) => void;
 }
 
 export const ConversationCard = memo(function ConversationCard({

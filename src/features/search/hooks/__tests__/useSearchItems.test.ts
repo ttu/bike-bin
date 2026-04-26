@@ -75,7 +75,7 @@ function createWrapper() {
       mutations: { retry: false },
     },
   });
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  function Wrapper({ children }: { readonly children: React.ReactNode }) {
     return React.createElement(QueryClientProvider, { client: queryClient }, children);
   }
   return Wrapper;
