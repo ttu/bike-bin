@@ -122,7 +122,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      tabBar={AppTabBar}
+      tabBar={(props) => <AppTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
