@@ -436,16 +436,7 @@ function ListingActions({
 }) {
   return (
     <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
-      {!isAuthenticated ? (
-        <ActionSlot isWide={isWide} fullWidth>
-          <GradientButton
-            disabled
-            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
-          >
-            {t('search:listing.actions.signInToContact')}
-          </GradientButton>
-        </ActionSlot>
-      ) : (
+      {isAuthenticated ? (
         <>
           {(showContactOnly || showBoth) && (
             <ActionSlot isWide={isWide}>
@@ -482,6 +473,15 @@ function ListingActions({
             </ActionSlot>
           )}
         </>
+      ) : (
+        <ActionSlot isWide={isWide} fullWidth>
+          <GradientButton
+            disabled
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('search:listing.actions.signInToContact')}
+          </GradientButton>
+        </ActionSlot>
       )}
     </View>
   );

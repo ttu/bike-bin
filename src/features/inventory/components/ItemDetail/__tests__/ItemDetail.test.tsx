@@ -29,7 +29,7 @@ describe('ItemDetail', () => {
     brand: 'Shimano',
     model: '105 R7000',
     availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
-    price: 45.0,
+    price: 45,
     age: '2 years',
     usageKm: 3000,
     storageLocation: 'Garage shelf',

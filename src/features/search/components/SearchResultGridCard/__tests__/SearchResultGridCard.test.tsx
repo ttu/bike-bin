@@ -18,7 +18,7 @@ jest.mock('@/shared/api/supabase', () => ({
 
 jest.mock('@/shared/utils', () => ({
   formatDistance: (meters: number | undefined) =>
-    meters !== undefined ? `${(meters / 1000).toFixed(1)} km` : undefined,
+    meters === undefined ? undefined : `${(meters / 1000).toFixed(1)} km`,
 }));
 
 function gridItem(overrides?: Partial<SearchResultItem>): SearchResultItem {

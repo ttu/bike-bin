@@ -24,7 +24,7 @@ const exportsPath = join(worktreeRoot, '.bike-bin-isolated-exports.sh');
 
 /** Safe single-quoted literal for POSIX sh. */
 function shellSingleQuote(value) {
-  const escaped = String(value).replaceAll("'", "'\\''");
+  const escaped = String(value).replaceAll("'", String.raw`'\''`);
   return `'${escaped}'`;
 }
 
@@ -55,7 +55,11 @@ const anonForExpo =
 let dotenv = '';
 try {
   dotenv = readFileSync(envLocalPath, 'utf8');
-} catch (_) {
+} catch (err) {
+  if (err && /** @type {NodeJS.ErrnoException} */ (err).code !== 'ENOENT') {
+    throw err;
+  }
+  // .env.local does not exist yet — start from an empty file.
   dotenv = '';
 }
 

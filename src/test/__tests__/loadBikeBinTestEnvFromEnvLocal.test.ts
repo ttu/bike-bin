@@ -18,10 +18,10 @@ describe('loadBikeBinTestEnvFromEnvLocal', () => {
     expect(process.env.BIKE_BIN_TEST_PG_URL).toBe(
       'postgresql://postgres:postgres@127.0.0.1:59999/postgres',
     );
-    if (prev !== undefined) {
-      process.env.BIKE_BIN_TEST_PG_URL = prev;
-    } else {
+    if (prev === undefined) {
       delete process.env.BIKE_BIN_TEST_PG_URL;
+    } else {
+      process.env.BIKE_BIN_TEST_PG_URL = prev;
     }
   });
 
@@ -45,10 +45,10 @@ describe('loadBikeBinTestEnvFromEnvLocal', () => {
     expect(process.env.BIKE_BIN_TEST_PG_URL).toBe(
       'postgresql://postgres:postgres@127.0.0.1:22222/postgres',
     );
-    if (prev !== undefined) {
-      process.env.BIKE_BIN_TEST_PG_URL = prev;
-    } else {
+    if (prev === undefined) {
       delete process.env.BIKE_BIN_TEST_PG_URL;
+    } else {
+      process.env.BIKE_BIN_TEST_PG_URL = prev;
     }
   });
 });

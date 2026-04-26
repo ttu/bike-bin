@@ -15,7 +15,7 @@ const mockRpc = jest.fn();
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     from: jest.fn(() => {
-      const chain = mockFromChains[mockCallCount] ?? mockFromChains[mockFromChains.length - 1];
+      const chain = mockFromChains[mockCallCount] ?? mockFromChains.at(-1);
       mockCallCount++;
       return chain;
     }),

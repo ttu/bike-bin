@@ -18,10 +18,14 @@ const recentAttempts = new Map<string, number>();
 
 function assertNoFnError(error: unknown, step: string): void {
   if (error) {
-    const msg =
-      typeof error === 'object' && error !== null && 'message' in error
-        ? String((error as { message: string }).message)
-        : String(error);
+    let msg: string;
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      msg = String((error as { message: string }).message);
+    } else if (typeof error === 'string') {
+      msg = error;
+    } else {
+      msg = JSON.stringify(error);
+    }
     throw new Error(`${step}: ${msg}`);
   }
 }
