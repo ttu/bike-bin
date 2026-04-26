@@ -34,8 +34,6 @@ jest.mock('@/features/auth', () => ({
 }));
 
 jest.mock('@/features/demo', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
   return {
     DemoModeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     useDemoMode: () => ({

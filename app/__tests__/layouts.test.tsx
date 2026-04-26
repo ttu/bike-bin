@@ -8,20 +8,19 @@ import BikesTabLayout from '../(tabs)/bikes/_layout';
 import InventoryLayout from '../(tabs)/inventory/_layout';
 import ProfileLayout from '../(tabs)/profile/_layout';
 
+function MockStackScreen() {
+  return null;
+}
+MockStackScreen.displayName = 'StackScreen';
+
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native');
   function Stack({ children }: { children?: React.ReactNode }) {
     return <View testID="stack">{children}</View>;
   }
   Stack.displayName = 'Stack';
-  function StackScreen() {
-    return null;
-  }
-  StackScreen.displayName = 'StackScreen';
-  Stack.Screen = StackScreen;
+  Stack.Screen = MockStackScreen;
   return { Stack };
 });
 

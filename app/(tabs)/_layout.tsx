@@ -70,6 +70,27 @@ function AppTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps
   );
 }
 
+type TabBarIconProps = { color: string; size: number };
+
+function InventoryTabIcon({ color, size }: TabBarIconProps) {
+  return <MaterialCommunityIcons name="home-outline" size={size} color={color} />;
+}
+function BikesTabIcon({ color, size }: TabBarIconProps) {
+  return <MaterialCommunityIcons name="bicycle" size={size} color={color} />;
+}
+function SearchTabIcon({ color, size }: TabBarIconProps) {
+  return <MaterialCommunityIcons name="magnify" size={size} color={color} />;
+}
+function GroupsTabIcon({ color, size }: TabBarIconProps) {
+  return <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />;
+}
+function MessagesTabIcon({ color, size }: TabBarIconProps) {
+  return <MaterialCommunityIcons name="chat-outline" size={size} color={color} />;
+}
+function ProfileTabIcon({ color, size }: TabBarIconProps) {
+  return <MaterialCommunityIcons name="account-outline" size={size} color={color} />;
+}
+
 const tabBarStyles = StyleSheet.create({
   container: {
     position: 'absolute',
@@ -101,7 +122,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      tabBar={(props) => <AppTabBar {...props} />}
+      tabBar={AppTabBar}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
@@ -113,9 +134,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.inventory'),
           tabBarAccessibilityLabel: t('tabs.inventory'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home-outline" size={size} color={color} />
-          ),
+          tabBarIcon: InventoryTabIcon,
         }}
       />
       <Tabs.Screen
@@ -123,9 +142,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.bikes'),
           tabBarAccessibilityLabel: t('tabs.bikes'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bicycle" size={size} color={color} />
-          ),
+          tabBarIcon: BikesTabIcon,
         }}
       />
       <Tabs.Screen
@@ -133,9 +150,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.search'),
           tabBarAccessibilityLabel: t('tabs.search'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="magnify" size={size} color={color} />
-          ),
+          tabBarIcon: SearchTabIcon,
         }}
       />
       <Tabs.Screen
@@ -143,9 +158,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.groups'),
           tabBarAccessibilityLabel: t('tabs.groups'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />
-          ),
+          tabBarIcon: GroupsTabIcon,
         }}
       />
       <Tabs.Screen
@@ -153,9 +166,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.messages'),
           tabBarAccessibilityLabel: t('tabs.messages'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="chat-outline" size={size} color={color} />
-          ),
+          tabBarIcon: MessagesTabIcon,
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
           tabBarBadgeStyle: {
             backgroundColor: theme.customColors.accent,
@@ -169,9 +180,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.profile'),
           tabBarAccessibilityLabel: t('tabs.profile'),
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ProfileTabIcon,
         }}
       />
     </Tabs>

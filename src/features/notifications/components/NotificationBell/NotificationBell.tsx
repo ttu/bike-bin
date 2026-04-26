@@ -14,13 +14,14 @@ interface NotificationBellProps {
  */
 export function NotificationBell({ unreadCount, onPress }: NotificationBellProps) {
   const theme = useTheme();
+  const unreadSuffix = unreadCount > 0 ? `, ${unreadCount} unread` : '';
 
   return (
     <Pressable
       onPress={onPress}
       style={styles.container}
       accessibilityRole="button"
-      accessibilityLabel={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+      accessibilityLabel={`Notifications${unreadSuffix}`}
     >
       <MaterialCommunityIcons
         name="bell-outline"

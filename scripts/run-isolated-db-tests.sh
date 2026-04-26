@@ -44,8 +44,10 @@ port_in_use() {
   local port="$1"
   if command -v nc >/dev/null 2>&1; then
     nc -z 127.0.0.1 "$port" 2>/dev/null
+    return $?
   else
     (echo >/dev/tcp/127.0.0.1/"$port") 2>/dev/null
+    return $?
   fi
 }
 
@@ -159,6 +161,7 @@ source "${WT}/.bike-bin-isolated-exports.sh"
 run_rls() {
   echo "Running RLS tests..."
   npm run test:rls
+  return $?
 }
 
 run_e2e() {
@@ -173,6 +176,7 @@ run_e2e() {
     EXPO_PUBLIC_SUPABASE_URL="${EXPO_PUBLIC_SUPABASE_URL}" \
     EXPO_PUBLIC_SUPABASE_ANON_KEY="${EXPO_PUBLIC_SUPABASE_ANON_KEY}" \
     npm run test:e2e
+  return $?
 }
 
 case "$MODE" in

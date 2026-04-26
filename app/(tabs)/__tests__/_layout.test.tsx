@@ -14,8 +14,6 @@ type ScreenProps = {
 const capturedScreens: ScreenProps[] = [];
 
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
   return {
     Tabs: Object.assign(({ children }: { children?: React.ReactNode }) => <>{children}</>, {
       Screen: (props: ScreenProps) => {

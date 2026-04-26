@@ -5,7 +5,6 @@ import { fireEvent, render } from '@testing-library/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
 jest.mock('@sentry/react-native', () => {
-  const React = require('react');
   return {
     __esModule: true,
     wrap: (Component: React.ComponentType<Record<string, unknown>>) =>
@@ -33,7 +32,6 @@ jest.mock('@/storybook/shellQueryClient', () => ({
 }));
 
 jest.mock('../../.rnstorybook', () => {
-  const React = require('react');
   const { View } = require('react-native');
   const StorybookRoot = () => <View testID="storybook-ui-root" />;
   StorybookRoot.displayName = 'StorybookUIRoot';
@@ -45,7 +43,6 @@ jest.mock('@tanstack/react-query', () => ({
 }));
 
 jest.mock('@/shared/hooks/useThemePreference', () => {
-  const React = require('react');
   const { View } = require('react-native');
   return {
     ThemePreferenceProvider: ({ children }: { children: React.ReactNode }) => (
@@ -68,7 +65,6 @@ jest.mock('@/shared/components/SnackbarAlerts', () => ({
 }));
 
 jest.mock('expo-router', () => {
-  const React = require('react');
   const { View } = require('react-native');
   return {
     Stack: () => <View testID="expo-stack" />,
@@ -76,7 +72,6 @@ jest.mock('expo-router', () => {
 });
 
 jest.mock('react-native-gesture-handler', () => {
-  const React = require('react');
   const { View } = require('react-native');
   return {
     GestureHandlerRootView: ({
@@ -94,7 +89,6 @@ jest.mock('react-native-gesture-handler', () => {
 });
 
 jest.mock('react-native-safe-area-context', () => {
-  const React = require('react');
   const { View } = require('react-native');
   return {
     SafeAreaProvider: ({
@@ -111,14 +105,14 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+/** Re-run `app/_layout` top-level (incl. `storybookEnabled`) without `jest.resetModules()`, which reloads React and breaks hooks in RTL. */
+function evictLayoutFromRequireCache(): void {
+  const layoutPath = require.resolve('../_layout');
+  Reflect.deleteProperty(require.cache as Record<string, NodeModule>, layoutPath);
+}
+
 describe('app/_layout', () => {
   const originalStorybookFlag = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED;
-
-  /** Re-run `app/_layout` top-level (incl. `storybookEnabled`) without `jest.resetModules()`, which reloads React and breaks hooks in RTL. */
-  function evictLayoutFromRequireCache(): void {
-    const layoutPath = require.resolve('../_layout');
-    Reflect.deleteProperty(require.cache as Record<string, NodeModule>, layoutPath);
-  }
 
   afterAll(() => {
     if (originalStorybookFlag === undefined) {

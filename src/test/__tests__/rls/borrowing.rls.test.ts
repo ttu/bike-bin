@@ -116,17 +116,17 @@ describe('borrow_requests — INSERT', () => {
 // borrow_requests — UPDATE (state machine via trigger)
 // ============================================================
 
-describe('borrow_requests — UPDATE (state machine)', () => {
-  async function seedPendingBorrowRequest(): Promise<string> {
-    const { data, error } = await adminClient
-      .from('borrow_requests')
-      .insert({ item_id: itemId, requester_id: requester.id, status: 'pending' })
-      .select('id')
-      .single();
-    if (error) throw new Error(`Failed to seed borrow_request: ${error.message}`);
-    return data.id as string;
-  }
+async function seedPendingBorrowRequest(): Promise<string> {
+  const { data, error } = await adminClient
+    .from('borrow_requests')
+    .insert({ item_id: itemId, requester_id: requester.id, status: 'pending' })
+    .select('id')
+    .single();
+  if (error) throw new Error(`Failed to seed borrow_request: ${error.message}`);
+  return data.id as string;
+}
 
+describe('borrow_requests — UPDATE (state machine)', () => {
   it('owner can accept a pending request', async () => {
     const id = await seedPendingBorrowRequest();
     const { error } = await owner.client

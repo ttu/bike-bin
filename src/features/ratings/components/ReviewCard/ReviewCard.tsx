@@ -27,12 +27,14 @@ export function ReviewCard({
   const { t } = useTranslation('ratings');
   const { t: tCommon } = useTranslation('common');
 
-  const transactionLabel =
-    transactionType === 'borrow'
-      ? t('review.transactionBorrow')
-      : transactionType === 'donate'
-        ? t('review.transactionDonate')
-        : t('review.transactionSell');
+  let transactionLabel: string;
+  if (transactionType === 'borrow') {
+    transactionLabel = t('review.transactionBorrow');
+  } else if (transactionType === 'donate') {
+    transactionLabel = t('review.transactionDonate');
+  } else {
+    transactionLabel = t('review.transactionSell');
+  }
 
   const formattedDate = new Date(createdAt).toLocaleDateString(undefined, {
     year: 'numeric',

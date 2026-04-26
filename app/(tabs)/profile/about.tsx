@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, List, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,6 +7,25 @@ import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import { BrandLockup } from '@/shared/components/BrandLockup';
 import { spacing } from '@/shared/theme';
+
+type ListIconProps = ComponentProps<typeof List.Icon>;
+type LeftIconProps = Omit<ListIconProps, 'icon'>;
+
+function InfoIcon(props: LeftIconProps) {
+  return <List.Icon {...props} icon="information-outline" />;
+}
+function TermsIcon(props: LeftIconProps) {
+  return <List.Icon {...props} icon="file-document-outline" />;
+}
+function PrivacyIcon(props: LeftIconProps) {
+  return <List.Icon {...props} icon="shield-lock-outline" />;
+}
+function LicensesIcon(props: LeftIconProps) {
+  return <List.Icon {...props} icon="open-source-initiative" />;
+}
+function ChevronRightIcon(props: LeftIconProps) {
+  return <List.Icon {...props} icon="chevron-right" />;
+}
 
 export default function AboutScreen() {
   const theme = useTheme();
@@ -24,30 +44,26 @@ export default function AboutScreen() {
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <List.Item
-          title={t('about.appVersion')}
-          description={appVersion}
-          left={(props) => <List.Icon {...props} icon="information-outline" />}
-        />
+        <List.Item title={t('about.appVersion')} description={appVersion} left={InfoIcon} />
 
         <List.Item
           title={t('about.termsOfService')}
-          left={(props) => <List.Icon {...props} icon="file-document-outline" />}
-          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          left={TermsIcon}
+          right={ChevronRightIcon}
           onPress={() => Linking.openURL('https://bikebin.app/terms')}
         />
 
         <List.Item
           title={t('about.privacyPolicy')}
-          left={(props) => <List.Icon {...props} icon="shield-lock-outline" />}
-          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          left={PrivacyIcon}
+          right={ChevronRightIcon}
           onPress={() => Linking.openURL('https://bikebin.app/privacy')}
         />
 
         <List.Item
           title={t('about.openSourceLicenses')}
-          left={(props) => <List.Icon {...props} icon="open-source-initiative" />}
-          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          left={LicensesIcon}
+          right={ChevronRightIcon}
           onPress={() => Linking.openURL('https://bikebin.app/licenses')}
         />
 

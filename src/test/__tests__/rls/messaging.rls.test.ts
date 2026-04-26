@@ -80,7 +80,7 @@ beforeAll(async () => {
     ])
     .select();
   if (memberErr) throw new Error(`Failed to seed group_members: ${memberErr.message}`);
-  if (!memberData || memberData.length !== 2)
+  if (memberData?.length !== 2)
     throw new Error(`Expected 2 group_members rows, got ${memberData?.length ?? 0}`);
 
   const { data: gItem, error: gItemErr } = await adminClient

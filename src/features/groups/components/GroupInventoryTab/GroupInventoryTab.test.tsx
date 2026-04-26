@@ -43,21 +43,21 @@ beforeEach(() => {
   mockRouterPush.mockClear();
 });
 
-describe('GroupInventoryTab', () => {
-  function setupMembers(role: 'admin' | 'member') {
-    mockUseGroupMembers.mockReturnValue({
-      data: [
-        {
-          groupId: GROUP_ID,
-          userId: 'user-123' as UserId,
-          role: role === 'admin' ? GroupRole.Admin : GroupRole.Member,
-          joinedAt: '2026-01-01T00:00:00Z',
-          profile: { displayName: 'Me', avatarUrl: undefined },
-        },
-      ],
-    });
-  }
+function setupMembers(role: 'admin' | 'member') {
+  mockUseGroupMembers.mockReturnValue({
+    data: [
+      {
+        groupId: GROUP_ID,
+        userId: 'user-123' as UserId,
+        role: role === 'admin' ? GroupRole.Admin : GroupRole.Member,
+        joinedAt: '2026-01-01T00:00:00Z',
+        profile: { displayName: 'Me', avatarUrl: undefined },
+      },
+    ],
+  });
+}
 
+describe('GroupInventoryTab', () => {
   it('renders items returned by useGroupItems', () => {
     mockUseGroupItems.mockReturnValue({
       data: [createMockItem({ name: 'Shared Helmet', groupId: GROUP_ID, ownerId: undefined })],

@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
@@ -65,12 +66,12 @@ export const ConversationCard = memo(function ConversationCard({
   const isCompleted =
     conversation.itemStatus === ItemStatus.Sold || conversation.itemStatus === ItemStatus.Donated;
 
-  const statusSuffixKey =
-    conversation.itemStatus === ItemStatus.Sold
-      ? 'conversation.itemSold'
-      : conversation.itemStatus === ItemStatus.Donated
-        ? 'conversation.itemDonated'
-        : undefined;
+  let statusSuffixKey: 'conversation.itemSold' | 'conversation.itemDonated' | undefined;
+  if (conversation.itemStatus === ItemStatus.Sold) {
+    statusSuffixKey = 'conversation.itemSold';
+  } else if (conversation.itemStatus === ItemStatus.Donated) {
+    statusSuffixKey = 'conversation.itemDonated';
+  }
   const statusSuffix = statusSuffixKey ? ` ${t(statusSuffixKey)}` : '';
 
   const itemLabel = conversation.itemName
@@ -85,6 +86,15 @@ export const ConversationCard = memo(function ConversationCard({
     ? formatRelativeTime(conversation.lastMessageAt, true)
     : '';
 
+  let avatarNode: ReactNode;
+  if (isGroup) {
+    avatarNode = <Avatar.Icon size={44} icon="account-group" style={themedStyles.avatarIcon} />;
+  } else if (conversation.otherParticipantAvatarUrl) {
+    avatarNode = <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={44} />;
+  } else {
+    avatarNode = <Avatar.Icon size={44} icon="account" style={themedStyles.avatarIcon} />;
+  }
+
   return (
     <AnimatedPressable
       onPress={() => onPress?.(conversation)}
@@ -94,13 +104,7 @@ export const ConversationCard = memo(function ConversationCard({
     >
       {/* Avatar */}
       <View style={styles.avatarContainer}>
-        {isGroup ? (
-          <Avatar.Icon size={44} icon="account-group" style={themedStyles.avatarIcon} />
-        ) : conversation.otherParticipantAvatarUrl ? (
-          <CachedAvatarImage uri={conversation.otherParticipantAvatarUrl} size={44} />
-        ) : (
-          <Avatar.Icon size={44} icon="account" style={themedStyles.avatarIcon} />
-        )}
+        {avatarNode}
         {conversation.unreadCount > 0 && (
           <View style={[styles.unreadDot, themedStyles.unreadDot]} testID="unread-dot" />
         )}

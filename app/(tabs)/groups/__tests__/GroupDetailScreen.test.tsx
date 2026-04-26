@@ -7,8 +7,6 @@ import groupsEn from '@/i18n/en/groups.json';
 
 jest.mock('@/shared/components', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View, Text, Pressable } = require('react-native');
   return {
     ConfirmDialog: (props: {
@@ -47,8 +45,6 @@ jest.mock('expo-router', () => ({
 
 jest.mock('@/features/groups/components/GroupInventoryTab', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native');
   return { GroupInventoryTab: () => <View testID="group-inventory-tab" /> };
 });
@@ -64,8 +60,6 @@ const mockUsePendingGroupInvitations = jest.fn();
 
 jest.mock('@/features/groups', () => {
   // Avoid jest.requireActual('@/features/groups'): it pulls hooks that import Supabase.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View, Text, Pressable } = require('react-native');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
