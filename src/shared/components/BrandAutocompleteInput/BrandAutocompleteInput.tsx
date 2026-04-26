@@ -3,6 +3,7 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
+  Platform,
   type StyleProp,
   type TextStyle,
 } from 'react-native';
@@ -104,6 +105,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     borderRadius: borderRadius.sm,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      default: {},
+    }),
     elevation: 4,
     zIndex: 10,
   },
