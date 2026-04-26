@@ -101,6 +101,18 @@ npm run storybook              # React Native Storybook
 
 **Before commit:** `npm run validate` (format + lint + type-check + test + build).
 
+### Local Supabase troubleshooting
+
+If `npm run db:start` / `npm run db:status` reports a container "is not running: created" or `supabase start` fails with a Docker error like `502 Bad Gateway` or "container is not running", the Supabase containers are stuck in a partial state. Reset them and start fresh:
+
+```bash
+docker rm -fv $(docker ps -aq --filter "name=supabase")
+supabase start
+npm run db:reset    # apply migrations + seed
+```
+
+This is the only safe way to recover — `supabase stop` / `supabase start` alone may not clear the broken state. The CLI is project-scoped per directory (one container set per worktree), so the same recovery applies inside each `.worktrees/<slug>/`.
+
 ---
 
 ## Documentation

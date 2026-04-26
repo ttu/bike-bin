@@ -10,9 +10,13 @@ CREATE TABLE conversations (
 );
 
 -- Conversation participants
+-- last_read_at: timestamp of the most recent moment this user has read this conversation.
+-- New participants default to now(); messages with created_at > last_read_at and a different
+-- sender are counted as unread by public.unread_message_count().
 CREATE TABLE conversation_participants (
   conversation_id uuid NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  last_read_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (conversation_id, user_id)
 );
 
@@ -271,5 +275,54 @@ $$;
 CREATE TRIGGER trg_sync_group_conversation_participants
   AFTER INSERT OR UPDATE OR DELETE ON group_members
   FOR EACH ROW EXECUTE FUNCTION public.sync_group_conversation_participants();
+
+-- ============================================================
+-- RPC: unread message counts per conversation for the calling user
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.unread_message_count()
+RETURNS TABLE (
+  conversation_id uuid,
+  count bigint
+)
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path TO public
+AS $$
+  SELECT m.conversation_id, COUNT(*)::bigint AS count
+  FROM public.messages m
+  JOIN public.conversation_participants cp
+    ON cp.conversation_id = m.conversation_id
+   AND cp.user_id = (select auth.uid())
+  WHERE m.created_at > cp.last_read_at
+    AND (m.sender_id IS DISTINCT FROM (select auth.uid()))
+  GROUP BY m.conversation_id;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.unread_message_count() TO authenticated;
+
+-- ============================================================
+-- RPC: mark a conversation as read for the calling user
+-- ============================================================
+-- The conversation_participants table has no UPDATE RLS policy, so this RPC is
+-- the only path for clients to advance last_read_at. SECURITY DEFINER bypasses
+-- RLS; the function restricts the write to (caller's row) by filtering on
+-- auth.uid(). A NULL auth.uid() (unauthenticated) updates zero rows.
+
+CREATE OR REPLACE FUNCTION public.mark_conversation_read(p_conversation_id uuid)
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path TO public, pg_temp
+AS $$
+  UPDATE public.conversation_participants
+  SET last_read_at = now()
+  WHERE conversation_id = p_conversation_id
+    AND user_id = (select auth.uid())
+    AND (select auth.uid()) IS NOT NULL;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.mark_conversation_read(uuid) TO authenticated;
 
 

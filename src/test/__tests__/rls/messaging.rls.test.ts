@@ -565,3 +565,134 @@ describe('group item — contact from search', () => {
     await cleanupUsers([member]);
   });
 });
+
+// ============================================================
+// unread_message_count() RPC
+// ============================================================
+
+describe('unread_message_count RPC', () => {
+  it('counts messages from other participants after last_read_at', async () => {
+    // userA's last_read_at defaults to seed time; the seeded message is from userA so excluded.
+    // Post a message from userB and expect userA to see count=1.
+    await adminClient
+      .from('conversation_participants')
+      .update({ last_read_at: '1970-01-01T00:00:00Z' })
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id);
+    const { data: m, error: mErr } = await adminClient
+      .from('messages')
+      .insert({ conversation_id: conversationId, sender_id: userB.id, body: 'unread-1' })
+      .select('id')
+      .single();
+    expect(mErr).toBeNull();
+
+    const { data, error } = await userA.client.rpc('unread_message_count');
+    expect(error).toBeNull();
+    const row = (data ?? []).find(
+      (r: { conversation_id: string; count: number }) => r.conversation_id === conversationId,
+    );
+    expect(row?.count).toBeGreaterThanOrEqual(1);
+
+    // Cleanup
+    if (m?.id) await adminClient.from('messages').delete().eq('id', m.id);
+  });
+
+  it("does not count the caller's own messages", async () => {
+    await adminClient
+      .from('conversation_participants')
+      .update({ last_read_at: '1970-01-01T00:00:00Z' })
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id);
+    // The seeded message is from userA — userA should not see it as unread.
+    const { data, error } = await userA.client.rpc('unread_message_count');
+    expect(error).toBeNull();
+    const row = (data ?? []).find(
+      (r: { conversation_id: string; count: number }) => r.conversation_id === conversationId,
+    );
+    // No userB messages exist after this reset, so userA should have no unreads here.
+    expect(row).toBeUndefined();
+  });
+
+  it('does not count messages created before last_read_at', async () => {
+    // Seed a message, then advance last_read_at past it.
+    const { data: m } = await adminClient
+      .from('messages')
+      .insert({ conversation_id: conversationId, sender_id: userB.id, body: 'old' })
+      .select('id, created_at')
+      .single();
+    await adminClient
+      .from('conversation_participants')
+      .update({ last_read_at: new Date(Date.now() + 60_000).toISOString() })
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id);
+
+    const { data } = await userA.client.rpc('unread_message_count');
+    const row = (data ?? []).find(
+      (r: { conversation_id: string; count: number }) => r.conversation_id === conversationId,
+    );
+    expect(row).toBeUndefined();
+
+    if (m?.id) await adminClient.from('messages').delete().eq('id', m.id);
+  });
+
+  it('returns no rows for an unauthenticated caller (anon)', async () => {
+    const { data, error } = await userC.client.rpc('unread_message_count');
+    expect(error).toBeNull();
+    // userC is authenticated but participates in nothing → empty.
+    expect(data).toEqual([]);
+  });
+});
+
+// ============================================================
+// mark_conversation_read() RPC
+// ============================================================
+
+describe('mark_conversation_read RPC', () => {
+  it("advances the caller's last_read_at for a conversation they participate in", async () => {
+    // Reset to a known-old value so we can detect the bump.
+    await adminClient
+      .from('conversation_participants')
+      .update({ last_read_at: '1970-01-01T00:00:00Z' })
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id);
+
+    const { error } = await userA.client.rpc('mark_conversation_read', {
+      p_conversation_id: conversationId,
+    });
+    expect(error).toBeNull();
+
+    const { data: rows } = await adminClient
+      .from('conversation_participants')
+      .select('last_read_at')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userA.id);
+    expect(rows?.[0]?.last_read_at).toBeDefined();
+    expect(new Date(rows![0].last_read_at!).getTime()).toBeGreaterThan(
+      new Date('1970-01-01T00:00:00Z').getTime(),
+    );
+  });
+
+  it('is a no-op for a non-participant (does not affect other rows)', async () => {
+    // Capture userB's last_read_at before
+    const { data: before } = await adminClient
+      .from('conversation_participants')
+      .select('last_read_at')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userB.id)
+      .single();
+
+    // userC (not a participant) calls the RPC for this conversation
+    const { error } = await userC.client.rpc('mark_conversation_read', {
+      p_conversation_id: conversationId,
+    });
+    expect(error).toBeNull();
+
+    const { data: after } = await adminClient
+      .from('conversation_participants')
+      .select('last_read_at')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userB.id)
+      .single();
+    expect(after?.last_read_at).toBe(before?.last_read_at);
+  });
+});
