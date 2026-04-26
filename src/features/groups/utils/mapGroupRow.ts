@@ -1,7 +1,12 @@
-import type { Group, GroupMember } from '@/shared/types';
-import type { GroupId, UserId } from '@/shared/types';
-import type { GroupRow, GroupMemberRow } from '@/shared/types';
-import type { GroupRole } from '@/shared/types';
+import type {
+  Group,
+  GroupId,
+  GroupMember,
+  GroupMemberRow,
+  GroupRole,
+  GroupRow,
+  UserId,
+} from '@/shared/types';
 
 /** Transforms a Supabase row into the Group domain model. */
 export function mapGroupRow(row: GroupRow): Group {

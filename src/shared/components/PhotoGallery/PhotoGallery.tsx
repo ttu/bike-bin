@@ -18,8 +18,7 @@ interface GalleryPhoto {
   storagePath: string;
 }
 import { supabase } from '@/shared/api/supabase';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 
 const AnimatedCachedGalleryImage = Animated.createAnimatedComponent(Image);
 

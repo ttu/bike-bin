@@ -31,7 +31,7 @@ jest.mock('@/features/auth', () => ({
 }));
 
 const mockFetch = jest.fn();
-global.fetch = mockFetch as unknown as typeof fetch;
+globalThis.fetch = mockFetch as unknown as typeof fetch;
 
 import { useStagedBikePhotos } from '../useStagedBikePhotos';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';

@@ -14,10 +14,9 @@ import {
   useSwapItemPhotoOrder,
   useRemoveItemPhoto,
 } from '@/features/inventory';
-import type { ItemFormData } from '@/features/inventory';
+import { canDelete, type ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
-import { canDelete } from '@/features/inventory';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
@@ -25,8 +24,7 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
 import { usePhotoDirtyTracking } from '@/shared/hooks/usePhotoDirtyTracking';
 import { supabase } from '@/shared/api/supabase';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
 
 export default function EditItemScreen() {

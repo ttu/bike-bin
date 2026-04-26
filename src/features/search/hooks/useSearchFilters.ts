@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
-import type { SearchFilters } from '../types';
-import { DEFAULT_SEARCH_FILTERS } from '../types';
+import { DEFAULT_SEARCH_FILTERS, type SearchFilters } from '../types';
 
 interface SearchFiltersContextType {
   filters: SearchFilters;

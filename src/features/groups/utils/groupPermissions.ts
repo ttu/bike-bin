@@ -1,5 +1,4 @@
-import type { GroupMember } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupMember } from '@/shared/types';
 
 type MemberInfo = Pick<GroupMember, 'role' | 'userId'>;
 

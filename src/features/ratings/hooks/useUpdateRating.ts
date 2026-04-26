@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { Rating } from '@/shared/types';
-import type { RatingId, UserId, ItemId } from '@/shared/types';
+import type { ItemId, Rating, RatingId, UserId } from '@/shared/types';
 import type { UpdateRatingInput } from '../types';
 
 /**

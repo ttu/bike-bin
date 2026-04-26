@@ -1,6 +1,13 @@
-import type { Rating, RatingRecipient } from '@/shared/types';
-import type { RatingId, UserId, GroupId, ItemId, RatingRow } from '@/shared/types';
-import type { TransactionType } from '@/shared/types';
+import type {
+  GroupId,
+  ItemId,
+  Rating,
+  RatingId,
+  RatingRecipient,
+  RatingRow,
+  TransactionType,
+  UserId,
+} from '@/shared/types';
 import type { RatingWithReviewer } from '../types';
 
 /** Transforms a Supabase row into the Rating domain model. */

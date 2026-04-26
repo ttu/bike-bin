@@ -5,12 +5,10 @@ import { ConfirmDialog } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams } from 'expo-router';
-import type { Href } from 'expo-router';
+import { useLocalSearchParams, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth';
 import {
   useGroup,
@@ -31,8 +29,7 @@ import {
 } from '@/features/groups';
 import { GroupInventoryTab } from '@/features/groups/components/GroupInventoryTab';
 import type { GroupMemberWithProfile, PendingGroupInvitation } from '@/features/groups';
-import type { GroupId, UserId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId, type UserId } from '@/shared/types';
 
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

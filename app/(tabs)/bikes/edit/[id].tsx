@@ -22,8 +22,7 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
 import { usePhotoDirtyTracking } from '@/shared/hooks/usePhotoDirtyTracking';
 import { supabase } from '@/shared/api/supabase';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 

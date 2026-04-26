@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { ItemId } from '@/shared/types';
-import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import type { AvailabilityType, ItemCategory, ItemCondition, ItemId } from '@/shared/types';
 import type { PublicListing } from '../types';
 
 export function usePublicListings(userId: string | undefined) {

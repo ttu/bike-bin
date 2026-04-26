@@ -1,5 +1,4 @@
-import type { SavedLocation } from '@/shared/types';
-import type { LocationId, SavedLocationRow } from '@/shared/types';
+import type { LocationId, SavedLocation, SavedLocationRow } from '@/shared/types';
 
 /** Transforms a Supabase row into the SavedLocation model. */
 export function mapLocationRow(row: SavedLocationRow): SavedLocation {

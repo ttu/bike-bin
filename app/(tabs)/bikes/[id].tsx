@@ -5,12 +5,11 @@ import { useLocalSearchParams, router, type Href } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import type { BikeId, Bike } from '@/shared/types';
 import type { TFunction } from 'i18next';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { useBike, useBikePhotos } from '@/features/bikes';
 import { MountedParts } from '@/features/bikes/components/MountedParts/MountedParts';
 import { formatBikeMetric } from '@/features/bikes/utils/formatBikeDetail';
 import { PhotoGallery } from '@/shared/components';
-import { spacing, borderRadius } from '@/shared/theme';
 import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
 
 export default function BikeDetailScreen() {

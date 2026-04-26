@@ -1,8 +1,7 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { formatMessageTime } from '@/shared/utils';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import type { MessageWithSender } from '../../types';
 
 interface ChatBubbleProps {

@@ -5,11 +5,9 @@ import { GradientButton } from '@/shared/components/GradientButton';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import type { BorrowRequestWithDetails } from '../../types';
-import type { UserId } from '@/shared/types';
-import { BorrowRequestStatus } from '@/shared/types';
+import { BorrowRequestStatus, type UserId } from '@/shared/types';
 import { getRequestActions, type RequestAction } from '../../utils/borrowWorkflow';
 
 interface BorrowRequestCardProps {

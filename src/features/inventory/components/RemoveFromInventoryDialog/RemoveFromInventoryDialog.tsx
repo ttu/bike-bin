@@ -1,8 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { Portal, Dialog, Button, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 
 export interface RemoveFromInventoryDialogProps {
   visible: boolean;

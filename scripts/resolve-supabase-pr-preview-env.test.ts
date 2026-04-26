@@ -85,14 +85,14 @@ describe('pickPublishableAnonKey', () => {
 });
 
 describe('resolvePreviewSupabaseEnv', () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
   });
 
   it('loads branch and anon key from Management API', async () => {
-    global.fetch = jest
+    globalThis.fetch = jest
       .fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -123,17 +123,17 @@ describe('resolvePreviewSupabaseEnv', () => {
     expect(out.serviceRoleKey).toBe('eyJhbGciOiJIUzI1NiJ9.service');
     expect(out.previewProjectRef).toBe('preview99');
 
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-    expect(String((global.fetch as jest.Mock).mock.calls[0][0])).toContain(
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect(String((globalThis.fetch as jest.Mock).mock.calls[0][0])).toContain(
       '/v1/projects/stagingparent/branches',
     );
-    expect(String((global.fetch as jest.Mock).mock.calls[1][0])).toContain(
+    expect(String((globalThis.fetch as jest.Mock).mock.calls[1][0])).toContain(
       '/v1/projects/preview99/api-keys?reveal=true',
     );
   });
 
   it('throws NoPreviewBranchForPrError when no branch for PR', async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
+    globalThis.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
       status: 200,
       text: async () => JSON.stringify([{ pr_number: 1, project_ref: 'x' }]),

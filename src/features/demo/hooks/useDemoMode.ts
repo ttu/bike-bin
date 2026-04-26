@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import { DemoModeContext } from '../context';
-import type { DemoModeContextType } from '../context';
+import { DemoModeContext, type DemoModeContextType } from '../context';
 
 export function useDemoMode(): DemoModeContextType {
   const context = useContext(DemoModeContext);

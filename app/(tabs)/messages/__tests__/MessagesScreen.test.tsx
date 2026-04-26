@@ -3,8 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockConversationListItem } from '@/test/factories';
-import type { ConversationListItem } from '@/features/messaging';
-import { useConversations } from '@/features/messaging';
+import { useConversations, type ConversationListItem } from '@/features/messaging';
 import MessagesScreen from '../index';
 
 jest.mock('@/shared/api/supabase', () => ({

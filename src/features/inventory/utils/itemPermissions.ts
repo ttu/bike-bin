@@ -1,5 +1,4 @@
-import type { Item } from '@/shared/types';
-import { GroupRole, ItemStatus } from '@/shared/types';
+import { GroupRole, ItemStatus, type Item } from '@/shared/types';
 
 /**
  * Item statuses that represent an active borrow lifecycle.

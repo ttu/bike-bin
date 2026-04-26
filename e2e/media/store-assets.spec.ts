@@ -1,7 +1,7 @@
 /**
  * Marketing / App Store captures: PNG stills (raw + framed) and optional WebM + GIF.
  *
- * Prerequisites (same as E2E): local Supabase, `.env.local`, `psql` for global setup.
+ * Prerequisites (same as E2E): local Supabase, `.env.local`, `psql` for globalThis setup.
  *
  * Run: npm run capture:media
  *

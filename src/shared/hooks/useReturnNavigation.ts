@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import type { Href } from 'expo-router';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { decodeReturnPathParam, isSafeTabReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 

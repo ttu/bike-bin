@@ -2,8 +2,7 @@ import { StyleSheet } from 'react-native';
 import { Portal, Dialog, Button, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { GradientButton } from '@/shared/components/GradientButton';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 
 export type ConfirmDialogVariant = 'confirm-cancel' | 'acknowledge';
 

@@ -2,8 +2,7 @@ import React from 'react';
 import { renderWithProviders } from '@/test/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import NewItemScreen from '../new';
-import { AvailabilityType, Visibility } from '@/shared/types';
-import type { GroupId } from '@/shared/types';
+import { AvailabilityType, Visibility, type GroupId } from '@/shared/types';
 
 const mockMutateAsync = jest.fn();
 const mockDeleteMutateAsync = jest.fn();

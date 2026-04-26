@@ -3,12 +3,10 @@ import { StyleSheet, Pressable } from 'react-native';
 import { Portal, Dialog, Button, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import type { Item, GroupId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId, type Item } from '@/shared/types';
 import { useGroups } from '@/features/groups';
 import type { useTransferItem } from '@/features/inventory/hooks/useTransferItem';
-import { spacing, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 
 export interface TransferItemDialogProps {
   item: Item;

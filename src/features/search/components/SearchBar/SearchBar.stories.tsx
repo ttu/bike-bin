@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import type { ComponentProps } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { fn } from 'storybook/test';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SearchBar } from './SearchBar';
 

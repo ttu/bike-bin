@@ -2,8 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
-import { BikeType } from '@/shared/types';
-import type { BikeId } from '@/shared/types';
+import { BikeType, type BikeId } from '@/shared/types';
 import EditBikeScreen from '../[id]';
 
 const mockRouterNavigate = jest.fn();

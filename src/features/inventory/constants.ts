@@ -1,5 +1,4 @@
-import type { ItemCategory } from '@/shared/types';
-import { ItemCategory as ItemCategoryEnum } from '@/shared/types';
+import { ItemCategory as ItemCategoryEnum, type ItemCategory } from '@/shared/types';
 
 /**
  * Subcategories grouped by parent category.

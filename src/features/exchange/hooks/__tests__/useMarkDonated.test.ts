@@ -1,8 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { mockUpdate, mockEq, mockSupabase } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
-import { ItemStatus } from '@/shared/types';
-import type { ItemId } from '@/shared/types';
+import { ItemStatus, type ItemId } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);

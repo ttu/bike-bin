@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Bike } from '@/shared/types';
 import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import { supabase } from '@/shared/api/supabase';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 
 interface BikeCardProps {
   bike: Bike;

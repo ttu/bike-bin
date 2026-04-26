@@ -8,8 +8,7 @@ import {
   mockOrder,
   mockSupabase,
 } from '@/test/supabaseMocks';
-import { GroupRole } from '@/shared/types';
-import type { GroupId, UserId } from '@/shared/types';
+import { GroupRole, type GroupId, type UserId } from '@/shared/types';
 
 const mockEq2 = jest.fn();
 const mockOrder2 = jest.fn();

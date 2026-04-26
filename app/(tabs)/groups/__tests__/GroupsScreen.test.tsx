@@ -1,7 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
-import type { GroupId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId } from '@/shared/types';
 import type { GroupWithRole, SearchGroupResult } from '@/features/groups';
 import commonEn from '@/i18n/en/common.json';
 import groupsEn from '@/i18n/en/groups.json';

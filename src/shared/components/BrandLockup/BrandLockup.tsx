@@ -1,8 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SocketBBMark } from '@/shared/components/SocketBBMark';
-import { spacing } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { spacing, type AppTheme } from '@/shared/theme';
 
 interface BrandLockupProps {
   /** Mark size in px. Wordmark scales relative to this. Defaults to 40. */

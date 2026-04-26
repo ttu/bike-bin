@@ -2,8 +2,13 @@ import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
-import type { ItemId } from '@/shared/types';
-import { AvailabilityType, ItemCategory, ItemCondition, ItemStatus } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  ItemStatus,
+  type ItemId,
+} from '@/shared/types';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
 import commonEn from '@/i18n/en/common.json';
 import inventoryEn from '@/i18n/en/inventory.json';

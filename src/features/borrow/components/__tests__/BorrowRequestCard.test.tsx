@@ -2,8 +2,14 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { BorrowRequestCard } from '../BorrowRequestCard/BorrowRequestCard';
 import type { BorrowRequestWithDetails } from '../../types';
-import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
-import { BorrowRequestStatus, ItemStatus, AvailabilityType } from '@/shared/types';
+import {
+  AvailabilityType,
+  BorrowRequestStatus,
+  ItemStatus,
+  type BorrowRequestId,
+  type ItemId,
+  type UserId,
+} from '@/shared/types';
 
 const CURRENT_USER_ID = 'current-user' as UserId;
 const OTHER_USER_ID = 'other-user' as UserId;

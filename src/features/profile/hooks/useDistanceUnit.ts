@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { UserId } from '@/shared/types';
-import type { DistanceUnit } from '@/shared/types';
+import type { DistanceUnit, UserId } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { useProfile } from './useProfile';
 

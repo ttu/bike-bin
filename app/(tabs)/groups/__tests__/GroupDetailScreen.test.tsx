@@ -1,7 +1,6 @@
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
-import type { Group, GroupId, UserId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type Group, type GroupId, type UserId } from '@/shared/types';
 import type { GroupMemberWithProfile } from '@/features/groups';
 import groupsEn from '@/i18n/en/groups.json';
 

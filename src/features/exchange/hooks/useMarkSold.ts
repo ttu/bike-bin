@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
-import { ItemStatus } from '@/shared/types';
-import type { ItemId } from '@/shared/types';
+import { ItemStatus, type ItemId } from '@/shared/types';
 
 interface MarkSoldParams {
   itemId: ItemId;

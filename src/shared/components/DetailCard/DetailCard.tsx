@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import type { AppTheme } from '@/shared/theme';
-import { spacing, borderRadius, iconSize } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 
 interface DetailCardProps {
   icon: string;

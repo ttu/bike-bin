@@ -1,5 +1,4 @@
-import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
-import type { MD3Theme } from 'react-native-paper';
+import { MD3DarkTheme, MD3LightTheme, configureFonts, type MD3Theme } from 'react-native-paper';
 
 export interface CustomColors {
   success: string;

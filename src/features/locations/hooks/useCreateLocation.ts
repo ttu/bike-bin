@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { SavedLocation } from '@/shared/types';
-import type { LocationId } from '@/shared/types';
+import type { LocationId, SavedLocation } from '@/shared/types';
 import { geocodePostcode } from '../utils/geocoding';
 import { locationsQueryKey } from './useLocations';
 import type { CreateLocationInput } from '../types';

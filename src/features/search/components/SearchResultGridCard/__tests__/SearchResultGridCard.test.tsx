@@ -3,8 +3,7 @@ import { createMockSearchResultItem } from '@/test/factories';
 import { fireEvent } from '@testing-library/react-native';
 import { SearchResultGridCard } from '../SearchResultGridCard';
 import type { SearchResultItem } from '../../../types';
-import type { LocationId, UserId } from '@/shared/types';
-import { AvailabilityType } from '@/shared/types';
+import { AvailabilityType, type LocationId, type UserId } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {

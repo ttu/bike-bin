@@ -1,15 +1,12 @@
-import { memo, useMemo } from 'react';
-import type { ReactNode } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@/shared/utils';
-import { spacing } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { spacing, type AppTheme } from '@/shared/theme';
 import { AnimatedPressable } from '@/shared/components/AnimatedPressable/AnimatedPressable';
-import type { ConversationListItem } from '../../types';
-import { isGroupConversation } from '../../types';
+import { isGroupConversation, type ConversationListItem } from '../../types';
 import { ItemStatus } from '@/shared/types';
 
 interface ConversationCardProps {

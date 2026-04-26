@@ -4,9 +4,8 @@ import { Text, TextInput, Button, Portal, Modal, useTheme } from 'react-native-p
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize, borderRadius } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import type { AppTheme } from '@/shared/theme';
 import type { TransactionType } from '@/shared/types';
 import { RATING_WINDOW_DAYS } from '../../utils/ratingWindow';
 

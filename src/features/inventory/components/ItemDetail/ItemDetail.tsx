@@ -4,12 +4,17 @@ import { Text, Chip, Button, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
-import type { DistanceUnit, Item, ItemPhoto } from '@/shared/types';
-import { AvailabilityType, ItemCategory, ItemStatus } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemStatus,
+  type DistanceUnit,
+  type Item,
+  type ItemPhoto,
+} from '@/shared/types';
 import { useGroup } from '@/features/groups';
-import { spacing, borderRadius } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import type { AppTheme } from '@/shared/theme';
 import { getStatusColor, type StatusColorToken } from '../../utils/status';
 import { PhotoGallery } from '@/shared/components';
 import { Stamp } from '@/shared/components/Stamp/Stamp';

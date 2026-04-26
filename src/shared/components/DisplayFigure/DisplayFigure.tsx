@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import type { AppTheme } from '@/shared/theme';
-import { spacing } from '@/shared/theme';
+import { spacing, type AppTheme } from '@/shared/theme';
 
 interface DisplayFigureProps {
   /** The numeric/spec value to display, e.g. "11-34", "40", "269" */

@@ -1,9 +1,14 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { mockAuthModule } from '@/test/authMocks';
-import type { GroupId, ItemId, UserId } from '@/shared/types';
-import { GroupRole, ItemStatus } from '@/shared/types';
-import type { Item } from '@/shared/types';
+import {
+  GroupRole,
+  ItemStatus,
+  type GroupId,
+  type Item,
+  type ItemId,
+  type UserId,
+} from '@/shared/types';
 import { createMockItem } from '@/test/factories';
 
 jest.mock('@/features/auth', () => mockAuthModule);
