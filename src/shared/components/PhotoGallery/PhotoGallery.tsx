@@ -44,12 +44,12 @@ function ParallaxPhoto({
   galleryWidth,
   onLongPress,
 }: {
-  photo: GalleryPhoto;
-  index: number;
-  scrollX: Animated.Value;
-  themed: ReturnType<typeof useThemedStyles>;
-  galleryWidth: number;
-  onLongPress?: (photo: GalleryPhoto) => void;
+  readonly photo: GalleryPhoto;
+  readonly index: number;
+  readonly scrollX: Animated.Value;
+  readonly themed: ReturnType<typeof useThemedStyles>;
+  readonly galleryWidth: number;
+  readonly onLongPress?: (photo: GalleryPhoto) => void;
 }) {
   const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
 

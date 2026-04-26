@@ -13,7 +13,7 @@ import { useAttachPart } from '../../hooks/useAttachPart';
 import { useDetachPart } from '../../hooks/useDetachPart';
 
 interface MountedPartsProps {
-  bikeId: BikeId;
+  readonly bikeId: BikeId;
 }
 
 export function MountedParts({ bikeId }: MountedPartsProps) {
@@ -81,7 +81,7 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
   );
 
   const renderPickerItem = useCallback(
-    ({ item }: { item: Item }) => (
+    ({ item }: { readonly item: Item }) => (
       <View style={[styles.partRow, themed.surfaceBg]}>
         <View style={styles.partInfo}>
           <Text variant="bodyLarge" style={themed.onSurface}>

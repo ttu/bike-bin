@@ -9,7 +9,9 @@ jest.mock('expo-router', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text: RNText } = require('react-native');
   return {
-    Redirect: ({ href }: { href: string }) => <RNText testID="redirect-href">{href}</RNText>,
+    Redirect: ({ href }: { readonly href: string }) => (
+      <RNText testID="redirect-href">{href}</RNText>
+    ),
   };
 });
 
@@ -27,7 +29,7 @@ jest.mock('@/features/auth', () => ({
 
 jest.mock('@/features/demo', () => {
   return {
-    DemoModeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    DemoModeProvider: ({ children }: { readonly children: React.ReactNode }) => <>{children}</>,
     useDemoMode: () => mockUseDemoMode(),
   };
 });

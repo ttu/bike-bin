@@ -9,11 +9,11 @@ import type { ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface VisibilitySectionProps {
-  visibility: ItemFormState['visibility'];
-  setVisibility: ItemFormState['setVisibility'];
-  groupIds: ItemFormState['groupIds'];
-  toggleGroupId: ItemFormState['toggleGroupId'];
-  errors: ItemFormState['errors'];
+  readonly visibility: ItemFormState['visibility'];
+  readonly setVisibility: ItemFormState['setVisibility'];
+  readonly groupIds: ItemFormState['groupIds'];
+  readonly toggleGroupId: ItemFormState['toggleGroupId'];
+  readonly errors: ItemFormState['errors'];
 }
 
 export function VisibilitySection({

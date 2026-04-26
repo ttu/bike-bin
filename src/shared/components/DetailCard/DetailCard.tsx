@@ -6,9 +6,9 @@ import type { AppTheme } from '@/shared/theme';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 
 interface DetailCardProps {
-  icon: string;
-  label: string;
-  value: string;
+  readonly icon: string;
+  readonly label: string;
+  readonly value: string;
 }
 
 export function DetailCard({ icon, label, value }: DetailCardProps) {

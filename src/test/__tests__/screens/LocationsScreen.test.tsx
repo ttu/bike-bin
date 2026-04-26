@@ -74,9 +74,9 @@ jest.mock('@/features/locations/components/LocationCard/LocationCard', () => {
       onPress,
       onDelete,
     }: {
-      location: { label: string; id: string };
-      onPress: (loc: { label: string; id: string }) => void;
-      onDelete: (loc: { label: string; id: string }) => void;
+      readonly location: { label: string; id: string };
+      readonly onPress: (loc: { label: string; id: string }) => void;
+      readonly onDelete: (loc: { label: string; id: string }) => void;
     }) => (
       <View>
         <Pressable onPress={() => onPress(location)}>
@@ -99,9 +99,9 @@ jest.mock('@/features/locations/components/LocationForm/LocationForm', () => {
       onSave,
       isSubmitting,
     }: {
-      onCancel: () => void;
-      onSave: (data: unknown) => void | Promise<void>;
-      isSubmitting?: boolean;
+      readonly onCancel: () => void;
+      readonly onSave: (data: unknown) => void | Promise<void>;
+      readonly isSubmitting?: boolean;
     }) => (
       <View testID="location-form-mock">
         <Pressable

@@ -16,9 +16,9 @@ import { availabilityTypesForList } from '../../utils/availabilityList';
 import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 
 interface ItemCardProps {
-  item: Item;
-  onPress?: (item: Item) => void;
-  compact?: boolean;
+  readonly item: Item;
+  readonly onPress?: (item: Item) => void;
+  readonly compact?: boolean;
 }
 
 export const ItemCard = memo(function ItemCard({ item, onPress, compact = false }: ItemCardProps) {

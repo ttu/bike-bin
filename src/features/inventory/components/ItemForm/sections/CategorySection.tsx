@@ -17,12 +17,12 @@ const CATEGORIES = [
 ];
 
 interface CategorySectionProps {
-  category: ItemFormState['category'];
-  handleCategoryChange: ItemFormState['handleCategoryChange'];
-  subcategory: ItemFormState['subcategory'];
-  setSubcategory: ItemFormState['setSubcategory'];
-  currentSubcategories: ItemFormState['currentSubcategories'];
-  errors: ItemFormState['errors'];
+  readonly category: ItemFormState['category'];
+  readonly handleCategoryChange: ItemFormState['handleCategoryChange'];
+  readonly subcategory: ItemFormState['subcategory'];
+  readonly setSubcategory: ItemFormState['setSubcategory'];
+  readonly currentSubcategories: ItemFormState['currentSubcategories'];
+  readonly errors: ItemFormState['errors'];
 }
 
 export function CategorySection({

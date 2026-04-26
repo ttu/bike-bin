@@ -45,7 +45,7 @@ jest.mock('@tanstack/react-query', () => ({
 jest.mock('@/shared/hooks/useThemePreference', () => {
   const { View } = require('react-native');
   return {
-    ThemePreferenceProvider: ({ children }: { children: React.ReactNode }) => (
+    ThemePreferenceProvider: ({ children }: { readonly children: React.ReactNode }) => (
       <View testID="theme-preference">{children}</View>
     ),
     useThemePreference: () => ({ effectiveTheme: 'light' as const }),
@@ -78,8 +78,8 @@ jest.mock('react-native-gesture-handler', () => {
       children,
       style,
     }: {
-      children: React.ReactNode;
-      style?: object;
+      readonly children: React.ReactNode;
+      readonly style?: object;
     }) => (
       <View style={style} testID="gesture-root">
         {children}
@@ -95,8 +95,8 @@ jest.mock('react-native-safe-area-context', () => {
       children,
       onLayout,
     }: {
-      children: React.ReactNode;
-      onLayout?: () => void;
+      readonly children: React.ReactNode;
+      readonly onLayout?: () => void;
     }) => (
       <View onLayout={onLayout} testID={onLayout ? 'safe-area-root' : 'safe-area-inner'}>
         {children}

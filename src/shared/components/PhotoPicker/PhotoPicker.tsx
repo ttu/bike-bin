@@ -14,7 +14,13 @@ export interface PickerPhoto {
 
 const MAX_PHOTOS = 5;
 
-function PickerPhotoImage({ photo, style }: { photo: PickerPhoto; style: StyleProp<ImageStyle> }) {
+function PickerPhotoImage({
+  photo,
+  style,
+}: {
+  readonly photo: PickerPhoto;
+  readonly style: StyleProp<ImageStyle>;
+}) {
   const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
   const uri = photo.localUri ?? data.publicUrl;
   const cacheKey = photo.localUri ?? photo.storagePath;
@@ -31,13 +37,13 @@ function PickerPhotoImage({ photo, style }: { photo: PickerPhoto; style: StylePr
 }
 
 interface PhotoPickerProps {
-  photos: PickerPhoto[];
-  onAdd: () => void;
-  onRemove?: (photoId: string) => void;
-  onSetPrimary?: (photoId: string) => void;
-  isUploading: boolean;
+  readonly photos: PickerPhoto[];
+  readonly onAdd: () => void;
+  readonly onRemove?: (photoId: string) => void;
+  readonly onSetPrimary?: (photoId: string) => void;
+  readonly isUploading: boolean;
   /** When true, hides add tile (account-wide photo row cap reached). */
-  accountPhotoLimitReached?: boolean;
+  readonly accountPhotoLimitReached?: boolean;
 }
 
 export function PhotoPicker({

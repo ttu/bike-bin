@@ -19,10 +19,10 @@ import {
 type SearchResultGridCardVariant = 'hero' | 'wide' | 'narrow';
 
 interface SearchResultGridCardProps {
-  item: SearchResultItem;
-  onPress?: (item: SearchResultItem) => void;
-  variant?: SearchResultGridCardVariant;
-  cardWidth?: number;
+  readonly item: SearchResultItem;
+  readonly onPress?: (item: SearchResultItem) => void;
+  readonly variant?: SearchResultGridCardVariant;
+  readonly cardWidth?: number;
 }
 
 export const SearchResultGridCard = memo(function SearchResultGridCard({

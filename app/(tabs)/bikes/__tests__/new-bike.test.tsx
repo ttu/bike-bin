@@ -77,10 +77,10 @@ jest.mock('@/shared/hooks/usePhotoPicker', () => ({
 
 jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({
   BikeForm: (props: {
-    onSave: (data: Record<string, unknown>) => void | Promise<void>;
-    onValidationError?: (messages: string[]) => void;
-    photoSection?: React.ReactNode;
-    submitBlockedMessage?: string;
+    readonly onSave: (data: Record<string, unknown>) => void | Promise<void>;
+    readonly onValidationError?: (messages: string[]) => void;
+    readonly photoSection?: React.ReactNode;
+    readonly submitBlockedMessage?: string;
   }) => {
     capturedOnSave = props.onSave;
     capturedOnValidationError = props.onValidationError;

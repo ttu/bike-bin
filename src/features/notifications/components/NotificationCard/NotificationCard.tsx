@@ -30,8 +30,8 @@ function getNotificationIcon(type: NotificationType): string {
 }
 
 interface NotificationCardProps {
-  notification: Notification;
-  onPress?: (notification: Notification) => void;
+  readonly notification: Notification;
+  readonly onPress?: (notification: Notification) => void;
 }
 
 export function NotificationCard({ notification, onPress }: NotificationCardProps) {

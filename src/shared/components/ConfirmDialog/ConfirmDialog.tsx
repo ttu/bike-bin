@@ -8,18 +8,18 @@ import type { AppTheme } from '@/shared/theme';
 export type ConfirmDialogVariant = 'confirm-cancel' | 'acknowledge';
 
 export interface ConfirmDialogProps {
-  visible: boolean;
-  title: string;
-  message: string;
-  confirmLabel: string;
+  readonly visible: boolean;
+  readonly title: string;
+  readonly message: string;
+  readonly confirmLabel: string;
   /** Defaults to `common.actions.cancel` when `variant` is `confirm-cancel`. */
-  cancelLabel?: string;
-  variant?: ConfirmDialogVariant;
-  destructive?: boolean;
-  loading?: boolean;
-  onDismiss: () => void;
-  onConfirm: () => void;
-  testID?: string;
+  readonly cancelLabel?: string;
+  readonly variant?: ConfirmDialogVariant;
+  readonly destructive?: boolean;
+  readonly loading?: boolean;
+  readonly onDismiss: () => void;
+  readonly onConfirm: () => void;
+  readonly testID?: string;
 }
 
 /**

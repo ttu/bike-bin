@@ -16,7 +16,7 @@ MockStackScreen.displayName = 'StackScreen';
 jest.mock('expo-router', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native');
-  function Stack({ children }: { children?: React.ReactNode }) {
+  function Stack({ children }: { readonly children?: React.ReactNode }) {
     return <View testID="stack">{children}</View>;
   }
   Stack.displayName = 'Stack';

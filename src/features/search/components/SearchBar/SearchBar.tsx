@@ -8,13 +8,13 @@ import type { AppTheme } from '@/shared/theme';
 import { DISTANCE_PRESETS } from '../../types';
 
 interface SearchBarProps {
-  query: string;
-  onQueryChange: (query: string) => void;
-  onSubmit: () => void;
-  areaName?: string;
-  distanceKm: number;
-  onDistanceChange: (km: number) => void;
-  onChangeLocation?: () => void;
+  readonly query: string;
+  readonly onQueryChange: (query: string) => void;
+  readonly onSubmit: () => void;
+  readonly areaName?: string;
+  readonly distanceKm: number;
+  readonly onDistanceChange: (km: number) => void;
+  readonly onChangeLocation?: () => void;
 }
 
 export function SearchBar({

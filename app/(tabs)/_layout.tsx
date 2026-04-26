@@ -70,7 +70,7 @@ function AppTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps
   );
 }
 
-type TabBarIconProps = { color: string; size: number };
+type TabBarIconProps = Readonly<{ color: string; size: number }>;
 
 function InventoryTabIcon({ color, size }: TabBarIconProps) {
   return <MaterialCommunityIcons name="home-outline" size={size} color={color} />;

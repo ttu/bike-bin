@@ -34,7 +34,7 @@ import {
 } from '@/features/search/utils/searchGridDimensions';
 import type { SearchResultPair } from '@/features/search/utils/groupSearchResultPairs';
 
-function FilterChipIcon({ color }: { color: string }) {
+function FilterChipIcon({ color }: { readonly color: string }) {
   return <MaterialCommunityIcons name="filter-variant" size={16} color={color} />;
 }
 

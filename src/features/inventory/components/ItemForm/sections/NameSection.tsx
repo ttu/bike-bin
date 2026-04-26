@@ -4,9 +4,9 @@ import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface NameSectionProps extends InputStyling {
-  nameFieldValue: ItemFormState['nameFieldValue'];
-  setName: ItemFormState['setName'];
-  errors: ItemFormState['errors'];
+  readonly nameFieldValue: ItemFormState['nameFieldValue'];
+  readonly setName: ItemFormState['setName'];
+  readonly errors: ItemFormState['errors'];
 }
 
 export function NameSection({
