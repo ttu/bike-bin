@@ -155,7 +155,7 @@ test.describe('Conversation detail', () => {
     });
     await clickFirstVisibleByText(loggedInPage, KAI_PARK_TOOL_LIST_LINE);
 
-    await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand').first()).toBeVisible({
+    await expectFirstVisibleByText(loggedInPage, 'Park Tool PCS-10.3 Stand', {
       timeout: 10000,
     });
   });
@@ -205,7 +205,7 @@ test.describe('Conversation detail', () => {
     await clickFirstVisibleByRole(loggedInPage, 'button', /^View$/);
 
     await loggedInPage.waitForURL(/\/messages\/item\/[^/]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
 
     await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
 
@@ -219,7 +219,7 @@ test.describe('Conversation detail', () => {
     await expect(messageInput).toBeVisible({
       timeout: 10000,
     });
-    await expect(loggedInPage.getByText('Park Tool PCS-10.3 Stand').first()).toBeVisible({
+    await expectFirstVisibleByText(loggedInPage, 'Park Tool PCS-10.3 Stand', {
       timeout: 10000,
     });
   });
