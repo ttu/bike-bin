@@ -30,7 +30,6 @@ export const ItemGalleryTile = memo(function ItemGalleryTile({
         styles.container,
         {
           backgroundColor: theme.customColors.surfaceContainerLowest,
-          shadowColor: theme.colors.onSurface,
         },
       ]}
       accessibilityRole="button"

@@ -3,6 +3,7 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
+  Platform,
   type StyleProp,
   type TextStyle,
 } from 'react-native';
@@ -63,12 +64,7 @@ export function BrandAutocompleteInput({
           activeUnderlineColor={activeUnderlineColor}
         />
         {menuVisible && filteredBrands.length > 0 && (
-          <View
-            style={[
-              styles.suggestionsContainer,
-              { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
-            ]}
-          >
+          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
             <ScrollView
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled"
@@ -109,10 +105,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     borderRadius: borderRadius.sm,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      default: {},
+    }),
     elevation: 4,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     zIndex: 10,
   },
   suggestionsList: {

@@ -78,7 +78,7 @@ test.describe('Search with authenticated user', () => {
     });
 
     // Results should show condition text (e.g. "Good", "Like New", "Fair")
-    await expect(loggedInPage.getByText(/Good|Like New|Fair|New|Worn/).first()).toBeVisible();
+    await expectFirstVisibleByText(loggedInPage, /Good|Like New|Fair|New|Worn/);
   });
 
   test('search results show availability chips', async ({ loggedInPage }) => {
@@ -92,7 +92,7 @@ test.describe('Search with authenticated user', () => {
       timeout: 10000,
     });
 
-    await expect(loggedInPage.getByText(/Borrow|Sell|Donate/).first()).toBeVisible();
+    await expectFirstVisibleByText(loggedInPage, /Borrow|Sell|Donate/);
   });
 
   test('quick filter chips appear after search', async ({ loggedInPage }) => {
@@ -106,9 +106,9 @@ test.describe('Search with authenticated user', () => {
       timeout: 10000,
     });
 
-    await expect(loggedInPage.getByText('Borrow', { exact: true }).first()).toBeVisible();
-    await expect(loggedInPage.getByText('Donate', { exact: true }).first()).toBeVisible();
-    await expect(loggedInPage.getByText('Sell', { exact: true }).first()).toBeVisible();
+    await expectFirstVisibleByText(loggedInPage, /^Borrow$/);
+    await expectFirstVisibleByText(loggedInPage, /^Donate$/);
+    await expectFirstVisibleByText(loggedInPage, /^Sell$/);
   });
 
   test('sort button cycles through options', async ({ loggedInPage }) => {
@@ -189,8 +189,8 @@ test.describe('Listing detail', () => {
     await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
     // The detail page should show condition info and owner section
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
-    await expect(loggedInPage.getByText('View profile')).toBeVisible();
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, 'View profile');
   });
 
   test('header back button returns to search results', async ({ loggedInPage }) => {
@@ -206,7 +206,7 @@ test.describe('Listing detail', () => {
 
     await loggedInPage.getByText('Shimano').first().click();
     await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
 
     await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
 

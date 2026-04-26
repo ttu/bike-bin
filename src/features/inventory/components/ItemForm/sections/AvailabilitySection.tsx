@@ -140,8 +140,7 @@ export function AvailabilitySection({
                   editable={false}
                   placeholder={t('form.durationPlaceholder')}
                   right={<TextInput.Icon icon="chevron-down" />}
-                  pointerEvents="none"
-                  style={softInputStyle}
+                  style={[softInputStyle, { pointerEvents: 'none' }]}
                   underlineColor={underlineColor}
                   activeUnderlineColor={activeUnderlineColor}
                 />

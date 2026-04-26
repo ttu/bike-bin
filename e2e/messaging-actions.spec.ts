@@ -1,4 +1,10 @@
-import { test, expect, navigateToMessages, navigateToSearch } from './fixtures';
+import {
+  test,
+  expect,
+  navigateToMessages,
+  navigateToSearch,
+  expectFirstVisibleByText,
+} from './fixtures';
 
 // ---------------------------------------------------------------------------
 // Messaging actions — send message, contact from listing
@@ -53,7 +59,7 @@ test.describe('Contact from listing', () => {
 
     // Wait for listing detail
     await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
 
     // "Contact" or "Request Borrow" button should be visible (depending on availability)
     const contactButton = loggedInPage.getByRole('button', { name: /Contact|Request Borrow/i });
@@ -89,7 +95,7 @@ test.describe('Contact from listing', () => {
 
     // Wait for listing detail to load
     await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
 
     // Verify item owner is Kai R.
     await expect(loggedInPage.getByText('Kai R.')).toBeVisible();

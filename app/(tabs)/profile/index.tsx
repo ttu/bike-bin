@@ -71,11 +71,15 @@ export default function ProfileScreen() {
   return (
     <>
       <ScrollView
+        testID="profile-scroll"
         style={[
           styles.container,
           { backgroundColor: theme.colors.background, paddingTop: insets.top },
         ]}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: tabBarListScrollPaddingBottom + insets.bottom + spacing.lg },
+        ]}
       >
         <View style={styles.header}>
           <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
@@ -304,6 +308,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
+    // Base spacing for tab-bar screens; final value is adjusted per-device in render.
     paddingBottom: tabBarListScrollPaddingBottom,
   },
   header: {

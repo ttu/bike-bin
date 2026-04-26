@@ -1,4 +1,4 @@
-import { test, expect, navigateToBikes } from './fixtures';
+import { test, expect, navigateToBikes, expectFirstVisibleByText } from './fixtures';
 
 // ---------------------------------------------------------------------------
 // Bike CRUD — add, edit, delete, mount/unmount parts
@@ -99,9 +99,7 @@ test.describe('Add bike', () => {
     await loggedInPage.getByText('E2E Usage Bike').click();
     await waitForBikeDetail(loggedInPage);
 
-    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
-      timeout: 10000,
-    });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
     await expect(loggedInPage.getByText('Worn', { exact: true })).toBeVisible();
 
     await expect(loggedInPage.getByText(/(1250|1,250|1\.250)(\s|\.0)*km/i)).toBeVisible();
@@ -222,9 +220,7 @@ test.describe('Mount item to bike', () => {
     await loggedInPage.getByRole('button', { name: /View Fox 36 Float Fork/i }).click();
     await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
-    await expect(loggedInPage.getByText('Condition', { exact: true }).last()).toBeVisible({
-      timeout: 10000,
-    });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
 
     await loggedInPage.getByRole('button', { name: /^Back$/i }).click();
     await loggedInPage.waitForURL(/\/bikes\/[a-zA-Z0-9-]+/, { timeout: 10000 });
