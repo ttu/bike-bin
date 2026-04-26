@@ -276,8 +276,7 @@ function AgeField({
               editable={false}
               placeholder={t('form.agePlaceholder')}
               right={<TextInput.Icon icon="chevron-down" />}
-              pointerEvents="none"
-              style={softInputStyle}
+              style={[softInputStyle, { pointerEvents: 'none' }]}
               underlineColor={underlineColor}
               activeUnderlineColor={activeUnderlineColor}
             />
@@ -407,12 +406,7 @@ function StorageField({
           activeUnderlineColor={activeUnderlineColor}
         />
         {storageMenuVisible && existingStorageLocations.length > 0 && (
-          <View
-            style={[
-              styles.suggestionsContainer,
-              { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
-            ]}
-          >
+          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
             <ScrollView
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled"
@@ -559,12 +553,7 @@ function TagsField({
           returnKeyType="done"
         />
         {tagSuggestionsVisible && filteredTagSuggestions.length > 0 && (
-          <View
-            style={[
-              styles.suggestionsContainer,
-              { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
-            ]}
-          >
+          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
             <ScrollView
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled"

@@ -1,4 +1,4 @@
-import { test, expect, navigateToSearch } from './fixtures';
+import { test, expect, navigateToSearch, expectFirstVisibleByText } from './fixtures';
 
 test.describe('Public profile listings from search', () => {
   test('search item, open detail, navigate to owner profile, see that item in public listings', async ({
@@ -20,17 +20,17 @@ test.describe('Public profile listings from search', () => {
     await loggedInPage.waitForURL(/\/search\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
     // Verify listing detail loaded
-    await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, /^Condition$/, { timeout: 10000 });
 
     // Click "View profile" to navigate to owner's public profile
     await loggedInPage.getByText('View profile').click();
     await loggedInPage.waitForURL(/\/profile\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
     // Verify owner profile loaded (Lisa M.)
-    await expect(loggedInPage.getByText('Lisa M.').first()).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, 'Lisa M.', { timeout: 10000 });
 
     // Verify the "Public Listings" section heading is visible
-    await expect(loggedInPage.getByText('Public Listings')).toBeVisible({ timeout: 10000 });
+    await expectFirstVisibleByText(loggedInPage, 'Public Listings', { timeout: 10000 });
 
     // The item we came from should appear as a listing card (rendered as a button)
     // Use role=button filter to avoid matching stale search/detail screens kept in DOM

@@ -9,10 +9,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setIsLoading(false);
-    });
+    let isMounted = true;
+
+    const initializeSession = async () => {
+      try {
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
+        if (!isMounted) {
+          return;
+        }
+        setSession(currentSession);
+      } catch {
+        // Invalid/expired refresh tokens should not crash the app shell.
+        if (!isMounted) {
+          return;
+        }
+        setSession(null);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void initializeSession();
 
     const {
       data: { subscription },
@@ -20,7 +41,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(newSession);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = useCallback(async () => {

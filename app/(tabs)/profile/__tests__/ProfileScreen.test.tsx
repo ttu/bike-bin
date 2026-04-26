@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { renderWithProviders } from '@/test/utils';
 import commonEn from '@/i18n/en/common.json';
 import profileEn from '@/i18n/en/profile.json';
+import { tabBarListScrollPaddingBottom, spacing } from '@/shared/theme';
 import ProfileScreen from '../index';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -92,5 +93,15 @@ describe('ProfileScreen', () => {
     renderWithProviders(<ProfileScreen />);
     fireEvent.press(screen.getByTestId('profile-menu-groups'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/groups');
+  });
+
+  it('adds extra bottom scroll padding to keep sign out above tab bar', () => {
+    renderWithProviders(<ProfileScreen />);
+    const scroll = screen.getByTestId('profile-scroll');
+    const contentStyle = scroll.props.contentContainerStyle as Array<Record<string, number>>;
+    const paddingValues = contentStyle
+      .map((entry) => entry?.paddingBottom)
+      .filter((value): value is number => typeof value === 'number');
+    expect(Math.max(...paddingValues)).toBe(tabBarListScrollPaddingBottom + spacing.lg);
   });
 });

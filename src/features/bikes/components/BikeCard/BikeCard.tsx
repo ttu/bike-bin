@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
@@ -21,10 +21,7 @@ export const BikeCard = memo(function BikeCard({ bike, onPress }: BikeCardProps)
   return (
     <Pressable
       onPress={() => onPress?.(bike)}
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.surface, shadowColor: theme.colors.onSurface },
-      ]}
+      style={[styles.container, { backgroundColor: theme.colors.surface }]}
       accessibilityRole="button"
       accessibilityLabel={bike.name}
     >
@@ -84,9 +81,15 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginHorizontal: spacing.base,
     marginVertical: spacing.xs,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+      },
+      default: {},
+    }),
     elevation: 1,
   },
   thumbnail: {
