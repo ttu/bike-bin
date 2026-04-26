@@ -8,22 +8,17 @@ import type { GroupId } from '@/shared/types';
 import { useGroupItems, useCreateGroupItem } from '../useGroupItems';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
+const itemPhotosInResolver = () => ({
+  order: () => Promise.resolve({ data: [], error: null }),
+});
+
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     from: jest.fn((table: string) => {
       if (table === 'item_photos') {
-        return {
-          select: () => ({
-            in: () => ({
-              order: () => Promise.resolve({ data: [], error: null }),
-            }),
-          }),
-        };
+        return { select: () => ({ in: itemPhotosInResolver }) };
       }
-      return {
-        select: mockSelect,
-        insert: mockInsert,
-      };
+      return { select: mockSelect, insert: mockInsert };
     }),
   },
 }));

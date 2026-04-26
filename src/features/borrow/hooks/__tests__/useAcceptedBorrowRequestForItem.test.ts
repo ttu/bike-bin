@@ -5,17 +5,14 @@ import type { ItemId } from '@/shared/types';
 
 const mockMaybeSingle = jest.fn();
 
+const buildEqInnerChain = () => ({ maybeSingle: mockMaybeSingle });
+const buildEqOuterChain = () => ({ eq: jest.fn(buildEqInnerChain) });
+const buildSelectChain = () => ({ eq: jest.fn(buildEqOuterChain) });
+const buildFromChain = () => ({ select: jest.fn(buildSelectChain) });
+
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            maybeSingle: mockMaybeSingle,
-          })),
-        })),
-      })),
-    })),
+    from: jest.fn(buildFromChain),
   },
 }));
 
