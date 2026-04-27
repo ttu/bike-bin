@@ -14,6 +14,7 @@ import type {
 import { useAuth } from '@/features/auth';
 import { usePrimaryLocation } from '@/features/locations';
 import type { SearchFilters, SearchResultItem } from '../types';
+import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 
 interface UseSearchItemsOptions {
   filters: SearchFilters;
@@ -32,7 +33,7 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
   const lng = primaryLocation?.coordinates?.longitude;
 
   return useQuery({
-    queryKey: ['search', 'items', filters, lat, lng],
+    queryKey: [...SEARCH_ITEMS_QUERY_KEY, filters, lat, lng],
     queryFn: async (): Promise<SearchResultItem[]> => {
       const maxDistanceMeters = filters.maxDistanceKm * 1000;
 
