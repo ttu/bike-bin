@@ -8,18 +8,18 @@
 
 ## Stack (summary)
 
-| Layer          | Technology                                                                                                      |
-| -------------- | --------------------------------------------------------------------------------------------------------------- |
-| App shell      | Expo SDK 55, React 19, React Native / React Native Web                                                          |
-| Navigation     | Expo Router (file-based routes under `app/`)                                                                    |
-| UI             | React Native Paper (Material Design 3), shared theme in `src/shared/theme/`                                     |
-| Font           | **Manrope** (Google Font via `@expo-google-fonts/manrope`) — all MD3 typography roles mapped to Manrope weights |
-| Server state   | TanStack Query (`@tanstack/react-query`), with AsyncStorage persistence for offline-friendly caching            |
-| Backend        | Supabase — Auth, PostgREST, Realtime, Storage, Edge Functions                                                   |
+| Layer          | Technology                                                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| App shell      | Expo SDK 55, React 19, React Native / React Native Web                                                                                                       |
+| Navigation     | Expo Router (file-based routes under `app/`)                                                                                                                 |
+| UI             | React Native Paper (Material Design 3), shared theme in `src/shared/theme/`                                                                                  |
+| Font           | **Manrope** (Google Font via `@expo-google-fonts/manrope`) — all MD3 typography roles mapped to Manrope weights                                              |
+| Server state   | TanStack Query (`@tanstack/react-query`), with AsyncStorage persistence for offline-friendly caching                                                         |
+| Backend        | Supabase — Auth, PostgREST, Realtime, Storage, Edge Functions                                                                                                |
 | Edge Functions | `admin-enforce-sanction`, `delete-account`, `generate-export`, `geocode-postcode` (Nominatim), `notify-support`, `request-export` — in `supabase/functions/` |
-| Database       | PostgreSQL + PostGIS (spatial queries, saved locations)                                                         |
-| i18n           | `react-i18next`, translations under `src/i18n/`                                                                 |
-| Observability  | Sentry (`@sentry/react-native`) — error tracking, crash reports                                                 |
+| Database       | PostgreSQL + PostGIS (spatial queries, saved locations)                                                                                                      |
+| i18n           | `react-i18next`, translations under `src/i18n/`                                                                                                              |
+| Observability  | Sentry (`@sentry/react-native`) — error tracking, crash reports                                                                                              |
 
 ---
 

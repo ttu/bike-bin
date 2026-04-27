@@ -75,10 +75,10 @@ src/features/groups/
 
 ## Screens & Navigation
 
-| Route                             | Screen       | Purpose                              |
-| --------------------------------- | ------------ | ------------------------------------ |
-| `(tabs)/groups/index.tsx`         | Groups List  | User's groups + search public groups |
-| `(tabs)/groups/[id].tsx`          | Group Detail | Members, settings, join/leave        |
+| Route                     | Screen       | Purpose                              |
+| ------------------------- | ------------ | ------------------------------------ |
+| `(tabs)/groups/index.tsx` | Groups List  | User's groups + search public groups |
+| `(tabs)/groups/[id].tsx`  | Group Detail | Members, settings, join/leave        |
 
 ## Key Flows
 

@@ -248,7 +248,7 @@ When `fix` argument is provided, after identifying discrepancies:
    - "Current Status" / "Implemented / Partially / Not implemented" lines that contradict the codebase (e.g. a feature now wired up via Supabase that the doc still calls a TODO)
    - "Planned / future" markers for things that have shipped (verify in code first)
    - Cross-doc links that point to moved or removed files
-   Leave product/UX intent, rationale, copy, visual specs, and screen wireframes untouched — those are the authoritative parts that the surrounding code is implemented *against*. When in doubt, prefer adding a short note (e.g. "moved to X — see [009-groups.md]") over rewriting the section.
+     Leave product/UX intent, rationale, copy, visual specs, and screen wireframes untouched — those are the authoritative parts that the surrounding code is implemented _against_. When in doubt, prefer adding a short note (e.g. "moved to X — see [009-groups.md]") over rewriting the section.
 7. **Report all changes made** with before/after summary
 
 **What fix mode will NOT do:**

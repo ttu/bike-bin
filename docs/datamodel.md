@@ -108,23 +108,23 @@ Server-side utility table (no RLS): caches Nominatim geocoding results for postc
 
 Each enum is created with its feature migration (e.g. `subscription_*` in `00002_auth_profiles_locations.sql`, `item_*` / `group_role` in `00004_groups_items.sql`). Later changes use `ALTER TYPE ... ADD VALUE` in new migrations.
 
-| SQL enum                | Values (current)                                                         |
-| ----------------------- | ------------------------------------------------------------------------ |
-| `item_category`         | `component`, `tool`, `accessory`, `consumable`, `clothing`, `bike`       |
-| `item_condition`        | `new`, `good`, `worn`, `broken`                                          |
-| `item_status`           | `stored`, `mounted`, `loaned`, `reserved`, `donated`, `sold`, `archived` |
-| `item_visibility`       | `private`, `groups`, `all`                                               |
-| `bike_type`             | `road`, `gravel`, `mtb`, `cyclo`, `enduro`, `xc`, `downhill`, `bmx`, `fatbike`, `city`, `touring`, `other` (extended in migration `00017_bike_type_extended.sql`) |
-| `group_role`            | `admin`, `member`                                                        |
-| `borrow_request_status` | `pending`, `accepted`, `rejected`, `returned`, `cancelled`               |
-| `transaction_type`      | `borrow`, `donate`, `sell`                                               |
-| `support_status`        | `open`, `closed`                                                         |
-| `report_target_type`    | `item`, `user`, `item_photo`, `message`                                  |
-| `report_status`         | `open`, `reviewed`, `closed`                                             |
-| `subscription_plan`     | `free`, `paid`                                                           |
-| `subscription_status`   | `trialing`, `active`, `past_due`, `canceled`, `expired`                  |
-| `group_invitation_status` | `pending`, `accepted`, `rejected`, `cancelled`                         |
-| `export_request_status` | `pending`, `processing`, `completed`, `failed`                           |
+| SQL enum                  | Values (current)                                                                                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `item_category`           | `component`, `tool`, `accessory`, `consumable`, `clothing`, `bike`                                                                                                |
+| `item_condition`          | `new`, `good`, `worn`, `broken`                                                                                                                                   |
+| `item_status`             | `stored`, `mounted`, `loaned`, `reserved`, `donated`, `sold`, `archived`                                                                                          |
+| `item_visibility`         | `private`, `groups`, `all`                                                                                                                                        |
+| `bike_type`               | `road`, `gravel`, `mtb`, `cyclo`, `enduro`, `xc`, `downhill`, `bmx`, `fatbike`, `city`, `touring`, `other` (extended in migration `00017_bike_type_extended.sql`) |
+| `group_role`              | `admin`, `member`                                                                                                                                                 |
+| `borrow_request_status`   | `pending`, `accepted`, `rejected`, `returned`, `cancelled`                                                                                                        |
+| `transaction_type`        | `borrow`, `donate`, `sell`                                                                                                                                        |
+| `support_status`          | `open`, `closed`                                                                                                                                                  |
+| `report_target_type`      | `item`, `user`, `item_photo`, `message`                                                                                                                           |
+| `report_status`           | `open`, `reviewed`, `closed`                                                                                                                                      |
+| `subscription_plan`       | `free`, `paid`                                                                                                                                                    |
+| `subscription_status`     | `trialing`, `active`, `past_due`, `canceled`, `expired`                                                                                                           |
+| `group_invitation_status` | `pending`, `accepted`, `rejected`, `cancelled`                                                                                                                    |
+| `export_request_status`   | `pending`, `processing`, `completed`, `failed`                                                                                                                    |
 
 TypeScript const-object enums in `src/shared/types/enums.ts` align with these. A few TS-only constructs exist that are **not** PG enums (stored as `text` / `text[]` in the DB):
 

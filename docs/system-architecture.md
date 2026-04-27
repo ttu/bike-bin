@@ -298,18 +298,18 @@ DB insert (e.g. new message) → row inserted into `notifications` → Supabase 
 
 ## 7. Components
 
-| Component               | Responsibility                          | Interfaces                        |
-| ----------------------- | --------------------------------------- | --------------------------------- |
-| Expo/RN app             | UI, navigation, forms, offline cache    | Supabase client, TanStack Query   |
-| Supabase Auth           | Authentication (Google OAuth), sessions | OAuth, JWT                        |
-| Supabase PostgREST      | REST API for CRUD operations            | REST (auto-generated from schema) |
-| Supabase Realtime       | Live messaging, notification delivery   | WebSocket subscriptions           |
-| Supabase Storage        | Photo storage, image transformation     | Storage API, CDN                  |
+| Component               | Responsibility                                                       | Interfaces                        |
+| ----------------------- | -------------------------------------------------------------------- | --------------------------------- |
+| Expo/RN app             | UI, navigation, forms, offline cache                                 | Supabase client, TanStack Query   |
+| Supabase Auth           | Authentication (Google OAuth), sessions                              | OAuth, JWT                        |
+| Supabase PostgREST      | REST API for CRUD operations                                         | REST (auto-generated from schema) |
+| Supabase Realtime       | Live messaging, notification delivery                                | WebSocket subscriptions           |
+| Supabase Storage        | Photo storage, image transformation                                  | Storage API, CDN                  |
 | Supabase Edge Functions | Geocoding, GDPR delete/export, support email, moderation enforcement | HTTP (invoked by client or admin) |
-| PostgreSQL + PostGIS    | Persistence, geospatial queries         | SQL / PostgREST / RPC             |
-| Nominatim (OSM)         | Postcode → coordinates geocoding        | HTTP REST (free, rate-limited)    |
-| Expo Push               | Push notification delivery (APNs/FCM)   | Expo Push API                     |
-| Resend                  | Transactional email delivery            | REST API                          |
+| PostgreSQL + PostGIS    | Persistence, geospatial queries                                      | SQL / PostgREST / RPC             |
+| Nominatim (OSM)         | Postcode → coordinates geocoding                                     | HTTP REST (free, rate-limited)    |
+| Expo Push               | Push notification delivery (APNs/FCM)                                | Expo Push API                     |
+| Resend                  | Transactional email delivery                                         | REST API                          |
 
 ---
 
