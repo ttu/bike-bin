@@ -21,9 +21,11 @@
 │  │  TanStack Query (cache) │       │  Realtime (messaging, live updates)     │  │
 │  │  react-i18next          │       │  Storage (photos)                       │  │
 │  │  AsyncStorage (offline) │       │  Edge Functions                         │  │
-│  └─────────────────────────┘       │    ├─ send-notification-email → Resend  │  │
-│                                    │    ├─ send-push-notification → Expo Push│  │
-│                                    │    └─ geocode-postcode → Nominatim      │  │
+│  └─────────────────────────┘       │    ├─ admin-enforce-sanction (mod tools)│  │
+│                                    │    ├─ delete-account (GDPR self-delete) │  │
+│                                    │    ├─ generate-export / request-export  │  │
+│                                    │    ├─ geocode-postcode → Nominatim      │  │
+│                                    │    └─ notify-support → Resend (email)   │  │
 │                                    │                                          │  │
 │                                    │  PostgreSQL + PostGIS                    │  │
 │                                    └──────────────────────────────────────────┘  │
@@ -34,7 +36,7 @@
 - **Client:** Expo + React Native + TypeScript. Expo Router for file-based navigation. TanStack Query for server state caching and offline support. AsyncStorage for offline write queue.
 - **Backend:** Supabase — Auth (Google OAuth), PostgREST API, Realtime (messaging + live updates), Object Storage (photos), Edge Functions (notifications, geocoding).
 - **Data:** PostgreSQL + PostGIS for entities and geospatial queries. Supabase Storage (S3-backed) for images.
-- **External services:** Nominatim (geocoding), Expo Push Notifications (APNs/FCM), Resend (transactional email).
+- **External services:** Nominatim (geocoding via `geocode-postcode`), Resend (transactional email via `notify-support`). Expo Push Notifications (APNs/FCM) are planned but not yet wired to an Edge Function — see §5.6.
 
 ---
 
@@ -48,7 +50,7 @@ The app follows a **layered architecture** with **feature slice organization** a
 - **Client state:** React Context API for UI/session state (auth, active filters, etc.).
 - **Offline layer:** TanStack Query's built-in cache persistence (via AsyncStorage) + offline write queue in AsyncStorage for mutations that fail while offline. Synced when connection returns.
 - **UI layer:** React Native components organized by feature slices.
-- **Navigation:** Expo Router (file-based routing) with a 5-tab layout.
+- **Navigation:** Expo Router (file-based routing) with a 6-tab layout.
 - **Feature slices:** Self-contained features with components, hooks, utils, and state.
 
 ---
@@ -103,7 +105,7 @@ src/
     ├── (onboarding)/         # Guided setup screens
     │   ├── profile.tsx
     │   └── location.tsx
-    └── (tabs)/               # Main 5-tab layout
+    └── (tabs)/               # Main 6-tab layout
         ├── _layout.tsx       # Tab bar configuration
         ├── inventory/        # Inventory tab screens
         │   ├── index.tsx     # Item list (home)
@@ -119,6 +121,9 @@ src/
         ├── search/           # Search tab screens
         │   ├── index.tsx     # Search & discovery
         │   └── [id].tsx      # Listing detail (other user's item)
+        ├── groups/           # Groups tab screens
+        │   ├── index.tsx     # Group list
+        │   └── [id].tsx      # Group detail (members, shared inventory)
         ├── messages/         # Messages tab screens
         │   ├── index.tsx     # Conversation list
         │   └── [id].tsx      # Conversation detail
@@ -126,9 +131,6 @@ src/
             ├── index.tsx     # Own profile & settings
             ├── locations.tsx # Manage saved locations
             ├── support.tsx   # Help & Support (feedback form)
-            ├── groups/
-            │   ├── index.tsx
-            │   └── [id].tsx
             └── [userId].tsx  # Other user's public profile
 ```
 
@@ -247,19 +249,18 @@ export { canDelete, canUnarchive, getStatusColor, ... } from './utils/status';
 
 ### 5.6 Notification architecture
 
-Notifications are a cross-cutting concern spanning three delivery channels:
+Notifications are a cross-cutting concern spanning multiple delivery channels. **Implemented today:** in-app via the `notifications` table + Supabase Realtime. **Planned:** dedicated push and email Edge Functions; today, transactional email is sent only via `notify-support` for user feedback.
 
 ```
-Event (DB change) → Supabase Database Webhook
-                     ├─→ Edge Function: send-push-notification → Expo Push API → APNs/FCM → Device (native only)
-                     ├─→ Edge Function: send-notification-email → Resend API → User email
-                     └─→ Insert into notifications table → Supabase Realtime → Client (in-app badge/list — all platforms)
+Event (DB change) → Insert into notifications table → Supabase Realtime → Client (in-app badge/list — all platforms)
+                  └─ (planned) Edge Function: push  → Expo Push API → APNs/FCM → Device (native only)
+                  └─ (planned) Edge Function: email → Resend API → User email
 ```
 
-- **Triggers:** New message, borrow request created/accepted/rejected, item return reminder.
+- **Triggers (in-app):** New message, borrow request created/accepted/rejected/returned, return reminder, rating prompt, data export ready (see `NotificationType` in `src/shared/types/enums.ts`).
 - **In-app (all platforms):** `notifications` table, subscribed via Supabase Realtime. `notifications` feature slice manages the badge count and list. On web, this is the only notification channel — users see notifications when they are logged in / have the app open.
-- **Push (native only):** Expo Push Notifications (iOS via APNs, Android via FCM). Token registered on app launch, stored in user profile. Edge Function sends via Expo Push API. Not used on web.
-- **Email:** Transactional email via Resend, called from Edge Function. User can configure email preferences (which events trigger email).
+- **Push (planned, native only):** Expo Push Notifications (iOS via APNs, Android via FCM). Push tokens are stored on the profile, but no Edge Function currently fans events out to Expo Push.
+- **Email (planned for transactional events):** Resend integration exists for support feedback (`notify-support`); a generic per-event notification email function is not yet implemented.
 
 ---
 
@@ -275,7 +276,7 @@ User enters query + max distance → `useNearbyListings({ query, maxDistance, lo
 
 ### Borrow request
 
-User taps "Request" on a borrowable item → `useCreateBorrowRequest()` mutation → Supabase insert into `borrow_requests` → DB webhook triggers Edge Functions → push + email notification to owner → owner's app receives Realtime event → owner sees request in UI; owner accepts → update status to Loaned → both UIs update via cache invalidation.
+User taps "Request" on a borrowable item → `useCreateBorrowRequest()` mutation → Supabase insert into `borrow_requests` → DB trigger inserts a row in `notifications` for the owner → Realtime delivers the in-app notification → owner sees request in UI; owner accepts → status transitions to Loaned (enforced by trigger) → both UIs update via cache invalidation. (Push / email fan-out is planned — see §5.6.)
 
 ### Messaging (realtime)
 
@@ -291,7 +292,7 @@ User takes photo → client-side resize/compress via `expo-image-manipulator` (t
 
 ### Notifications
 
-DB insert (e.g. new message) → Supabase Database Webhook → Edge Function `send-push-notification` → Expo Push API → device receives push → user taps push → deep link via Expo Router opens the relevant conversation/request screen.
+DB insert (e.g. new message) → row inserted into `notifications` → Supabase Realtime delivers it to the recipient's client → in-app badge/list updates; tapping a notification deep-links via Expo Router to the relevant conversation/request screen. Push and per-event email fan-out are planned (see §5.6).
 
 ---
 
@@ -304,7 +305,7 @@ DB insert (e.g. new message) → Supabase Database Webhook → Edge Function `se
 | Supabase PostgREST      | REST API for CRUD operations            | REST (auto-generated from schema) |
 | Supabase Realtime       | Live messaging, notification delivery   | WebSocket subscriptions           |
 | Supabase Storage        | Photo storage, image transformation     | Storage API, CDN                  |
-| Supabase Edge Functions | Notifications, geocoding                | HTTP (invoked by DB webhooks)     |
+| Supabase Edge Functions | Geocoding, GDPR delete/export, support email, moderation enforcement | HTTP (invoked by client or admin) |
 | PostgreSQL + PostGIS    | Persistence, geospatial queries         | SQL / PostgREST / RPC             |
 | Nominatim (OSM)         | Postcode → coordinates geocoding        | HTTP REST (free, rate-limited)    |
 | Expo Push               | Push notification delivery (APNs/FCM)   | Expo Push API                     |

@@ -55,8 +55,8 @@ Simple visual step indicator — renders `total` dots with `current` highlighted
 
 - Pre-fills display name from OAuth user metadata (`user.user_metadata.full_name`)
 - Photo upload placeholder (camera icon, not yet functional)
-- Skip or Continue → navigates to location step
-- **Note:** Profile save to Supabase is marked as TODO (Phase 4+)
+- Continue persists the display name to the `profiles` table via `useUpdateProfile`; Skip leaves it unset
+- Navigates to the location step on success
 
 ### Location Setup (Step 2)
 
@@ -108,6 +108,5 @@ Also uses `locations` namespace for geocoding messages (`errors.geocodeFailed`, 
 
 ## Current Status
 
-- **Implemented:** Two-step flow (profile + location), progress dots, postcode geocoding, location save, skip support, i18n
-- **Partially implemented:** Profile setup screen exists but does not yet save display name to Supabase (TODO comment in code)
+- **Implemented:** Two-step flow (profile + location), progress dots, postcode geocoding, display-name save to Supabase, location save, skip support, i18n
 - **Not implemented:** Photo upload during onboarding, re-triggering onboarding for incomplete profiles

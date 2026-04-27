@@ -16,7 +16,7 @@
 | Font           | **Manrope** (Google Font via `@expo-google-fonts/manrope`) — all MD3 typography roles mapped to Manrope weights |
 | Server state   | TanStack Query (`@tanstack/react-query`), with AsyncStorage persistence for offline-friendly caching            |
 | Backend        | Supabase — Auth, PostgREST, Realtime, Storage, Edge Functions                                                   |
-| Edge Functions | `delete-account`, `geocode-postcode` (Nominatim), `notify-support` — in `supabase/functions/`                   |
+| Edge Functions | `admin-enforce-sanction`, `delete-account`, `generate-export`, `geocode-postcode` (Nominatim), `notify-support`, `request-export` — in `supabase/functions/` |
 | Database       | PostgreSQL + PostGIS (spatial queries, saved locations)                                                         |
 | i18n           | `react-i18next`, translations under `src/i18n/`                                                                 |
 | Observability  | Sentry (`@sentry/react-native`) — error tracking, crash reports                                                 |
@@ -71,7 +71,7 @@ High-level structure:
 - Root `app/_layout.tsx` — provider stack: SafeAreaProvider → QueryClientProvider → ThemePreferenceProvider → PaperProvider → DemoModeProvider → AuthProvider. Font loading (Manrope), Sentry init, and i18n config also happen here.
 - `app/(auth)/` — unauthenticated routes (e.g. login).
 - `app/(onboarding)/` — guided setup.
-- `app/(tabs)/` — main **five-tab** shell: **Inventory**, **Bikes**, **Search**, **Messages**, **Profile** (each with its own stack/layout).
+- `app/(tabs)/` — main **six-tab** shell: **Inventory**, **Bikes**, **Search**, **Groups**, **Messages**, **Profile** (each with its own stack/layout).
 
 File names map to URLs; dynamic segments use `[id]` (or similar) as in Expo Router conventions.
 

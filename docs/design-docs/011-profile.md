@@ -71,10 +71,12 @@ src/features/profile/
 | `(tabs)/profile/[userId].tsx`              | Public Profile        | Other user's profile with ratings + listings |
 | `(tabs)/profile/locations.tsx`             | Saved Locations       | Managed by locations feature                 |
 | `(tabs)/profile/borrow-requests.tsx`       | Borrow Requests       | Managed by borrow feature                    |
-| `(tabs)/profile/groups/`                   | Groups                | Managed by groups feature                    |
 | `(tabs)/profile/notification-settings.tsx` | Notification Settings | Managed by notifications feature             |
+| `(tabs)/profile/export-data.tsx`           | Data Export (GDPR)    | Managed by data-export feature               |
 | `(tabs)/profile/support.tsx`               | Help & Support        | Support request form                         |
 | `(tabs)/profile/about.tsx`                 | About & Legal         | App version, terms, privacy, licenses        |
+
+> Groups moved to a dedicated top-level tab (`(tabs)/groups/...`) — see [009-groups.md](009-groups.md) and [020-design-handoff-alignment.md](020-design-handoff-alignment.md) for the rationale.
 
 ## Key Flows
 

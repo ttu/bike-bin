@@ -71,15 +71,16 @@ Users can skip and complete setup later, but the app should encourage completing
 
 ### 2.4 Navigation Structure
 
-The app uses a **5-tab layout**:
+The app uses a **6-tab layout**:
 
-| Tab           | Purpose                                                         |
-| ------------- | --------------------------------------------------------------- |
-| **Inventory** | User's own parts and gear (home screen)                         |
-| **Bikes**     | User's registered bikes, photos, and mounted parts              |
-| **Search**    | Discover nearby items — borrow, donate, sell                    |
-| **Messages**  | Item-linked conversations                                       |
-| **Profile**   | User profile, settings, groups, saved locations, help & support |
+| Tab           | Purpose                                                |
+| ------------- | ------------------------------------------------------ |
+| **Inventory** | User's own parts and gear (home screen)                |
+| **Bikes**     | User's registered bikes, photos, and mounted parts     |
+| **Search**    | Discover nearby items — borrow, donate, sell           |
+| **Groups**    | Groups the user belongs to and shared group inventory  |
+| **Messages**  | Item-linked conversations                              |
+| **Profile**   | User profile, settings, saved locations, help & support |
 
 ### 2.5 Subscriptions and tiers
 

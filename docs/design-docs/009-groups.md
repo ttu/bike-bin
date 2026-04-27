@@ -77,8 +77,8 @@ src/features/groups/
 
 | Route                             | Screen       | Purpose                              |
 | --------------------------------- | ------------ | ------------------------------------ |
-| `(tabs)/profile/groups/index.tsx` | Groups List  | User's groups + search public groups |
-| `(tabs)/profile/groups/[id].tsx`  | Group Detail | Members, settings, join/leave        |
+| `(tabs)/groups/index.tsx`         | Groups List  | User's groups + search public groups |
+| `(tabs)/groups/[id].tsx`          | Group Detail | Members, settings, join/leave        |
 
 ## Key Flows
 

@@ -8,7 +8,7 @@
 
 ## ID types (branded)
 
-The app uses branded string types for IDs (e.g. `UserId`, `ItemId`, `BikeId`, `GroupId`, `ConversationId`, `MessageId`, `LocationId`, `BorrowRequestId`, `RatingId`, `NotificationId`, `ItemPhotoId`, `BikePhotoId`, `ReportId`, `SupportRequestId`, `SubscriptionId`) to avoid mixing IDs across tables.
+The app uses branded string types for IDs (e.g. `UserId`, `ItemId`, `BikeId`, `GroupId`, `GroupInvitationId`, `ConversationId`, `MessageId`, `LocationId`, `BorrowRequestId`, `RatingId`, `NotificationId`, `ItemPhotoId`, `BikePhotoId`, `ReportId`, `SupportRequestId`, `SubscriptionId`, `ExportRequestId`) to avoid mixing IDs across tables.
 
 ---
 
@@ -36,7 +36,7 @@ Related: **`item_photos`**, **`item_groups`** (many-to-many with `groups`).
 
 **Subscription caps** (`00015_inventory_item_subscription_limit.sql`, `BEFORE INSERT` triggers): limits use **table row counts** only (`items.quantity` is not summed into the item cap). **Free tier:** **500** `items` rows, **15** `bikes` rows, and **100** combined `item_photos` + `bike_photos` rows per owner. **Paid tier** (entitled `subscriptions` row: `plan = paid`, `status` in `trialing` / `active` / `past_due`): **10_000** for each of those three caps. RPCs: `get_my_inventory_item_limit()`, `get_my_bike_limit()`, `get_my_photo_limit()`, `get_my_photo_count()`.
 
-**Lifecycle (app):** Owners may set `status` to **`archived`** or back to **`stored`** (unarchive) when RLS allows updates — see `items_update_own` (not loaned/reserved) and migration **`00029`** for borrow-lock exceptions. Product behavior for **Remove from inventory** / **Restore** is documented in [design-docs/003-inventory.md](design-docs/003-inventory.md).
+**Lifecycle (app):** Owners may set `status` to **`archived`** or back to **`stored`** (unarchive) when RLS allows updates — see `items_update_own` (not loaned/reserved) and migration **`00005_borrow_requests.sql`** for borrow-lock exceptions. Product behavior for **Remove from inventory** / **Restore** is documented in [design-docs/003-inventory.md](design-docs/003-inventory.md).
 
 ### `item_photos` → `ItemPhoto`
 
@@ -53,6 +53,10 @@ Ordered photos for a bike (mirrors `item_photos` structure). RLS scoped to bike 
 ### `groups` / `group_members` → `Group`, `GroupMember`
 
 Groups with optional public flag; members have a `role` (e.g. admin vs member).
+
+### `group_invitations` → `GroupInvitation`
+
+Invitations from a group admin (or the system) to a user to join a group: `group_id`, `invitee_user_id`, optional `inviter_user_id` (NULL after GDPR anonymization), `status` (`group_invitation_status`: `pending`, `accepted`, `rejected`, `cancelled`), `created_at`, optional `responded_at`. Defined in `00020_group_invitations.sql` with RLS scoped to invitee, inviter, and group admins.
 
 ### `item_groups`
 
@@ -90,6 +94,10 @@ Admin-only table recording OAuth identities blocked during moderation enforcemen
 
 Audit log of admin enforcement actions. Columns: `id` (uuid PK), `sanctioned_user_id` (uuid, NOT NULL — not a foreign key, since the auth user is deleted), optional `reason`, optional `report_ids` (uuid array), `created_at`.
 
+### `export_requests` → `ExportRequest`
+
+GDPR data export jobs. Per-user rows: `status` (`export_request_status`: `pending`, `processing`, `completed`, `failed`), optional `storage_path` (signed download from Supabase Storage), optional `error_message`, optional `expires_at`, timestamps. Created by the `request-export` Edge Function and processed by `generate-export`. Defined in `00011_export_requests_storage.sql`.
+
 ### `geocode_cache`
 
 Server-side utility table (no RLS): caches Nominatim geocoding results for postcodes. Used by the `geocode-postcode` Edge Function.
@@ -106,7 +114,7 @@ Each enum is created with its feature migration (e.g. `subscription_*` in `00002
 | `item_condition`        | `new`, `good`, `worn`, `broken`                                          |
 | `item_status`           | `stored`, `mounted`, `loaned`, `reserved`, `donated`, `sold`, `archived` |
 | `item_visibility`       | `private`, `groups`, `all`                                               |
-| `bike_type`             | `road`, `gravel`, `mtb`, `city`, `touring`, `other`                      |
+| `bike_type`             | `road`, `gravel`, `mtb`, `cyclo`, `enduro`, `xc`, `downhill`, `bmx`, `fatbike`, `city`, `touring`, `other` (extended in migration `00017_bike_type_extended.sql`) |
 | `group_role`            | `admin`, `member`                                                        |
 | `borrow_request_status` | `pending`, `accepted`, `rejected`, `returned`, `cancelled`               |
 | `transaction_type`      | `borrow`, `donate`, `sell`                                               |
@@ -115,6 +123,8 @@ Each enum is created with its feature migration (e.g. `subscription_*` in `00002
 | `report_status`         | `open`, `reviewed`, `closed`                                             |
 | `subscription_plan`     | `free`, `paid`                                                           |
 | `subscription_status`   | `trialing`, `active`, `past_due`, `canceled`, `expired`                  |
+| `group_invitation_status` | `pending`, `accepted`, `rejected`, `cancelled`                         |
+| `export_request_status` | `pending`, `processing`, `completed`, `failed`                           |
 
 TypeScript const-object enums in `src/shared/types/enums.ts` align with these. A few TS-only constructs exist that are **not** PG enums (stored as `text` / `text[]` in the DB):
 
@@ -133,14 +143,16 @@ Image buckets (e.g. item and bike photos) are created and secured in migrations 
 
 Migrations may define **SECURITY DEFINER** functions (e.g. tag autocomplete, search/distance helpers). Prefer calling these via Supabase client `.rpc()` where exposed.
 
-- **`find_empty_conversations()`** — returns conversations with zero participants and zero messages; used by the `admin-enforce-sanction` Edge Function to clean up orphaned conversations after enforcement.
+- **`find_empty_conversations()`** — returns conversations with zero participants and zero messages; used by the `admin-enforce-sanction` Edge Function to clean up orphaned conversations after enforcement (see `00018_find_empty_conversations_not_exists.sql`).
 - **`check_blocked_identity(event jsonb)`** — Before Sign-In auth hook (SECURITY DEFINER). Looks up `blocked_oauth_identities` for the signing-in identity; returns a decision JSON that blocks login if a match is found.
+- **Group inventory RPCs** (`00019_group_inventory_rpcs.sql`) — group-scoped helpers used by the inventory feature (e.g. counting items / photos for a group, fetching shared inventory for member views).
+- **Subscription-aware limits** (`00015_inventory_item_subscription_limit.sql`) — `get_my_inventory_item_limit()`, `get_my_bike_limit()`, `get_my_photo_limit()`, `get_my_photo_count()` resolve the caller's current cap based on their entitled `subscriptions` row.
 
 ---
 
 ## RLS
 
-All user-facing tables use **Row Level Security**. Policy definitions live in **`supabase/migrations/`** using one file per domain (DDL + RLS + triggers and/or Realtime where applicable): `00002_auth_profiles_locations.sql` (includes profile-on-signup trigger), `00003_bikes.sql`, `00004_groups_items.sql` (group/item helpers + policies + item triggers), `00005_borrow_requests.sql` (borrow update trigger), `00006_messaging.sql` (Realtime on `messages`; nullable `sender_id` for GDPR anonymization), `00007_ratings.sql` (rating aggregate trigger + nullable `from_user_id` / `to_user_id` for GDPR), `00008_notifications.sql` (Realtime on `notifications`), `00009_support_reports.sql`, `00010_geocode_cache.sql`, `00011_export_requests_storage.sql`, then RPC helpers (`00012_functions_business.sql`, `00013_functions_search_listing.sql`), `item-photos` storage (`00014_storage_item_photos.sql`). **subscriptions:** authenticated users may **SELECT** only rows where `user_id = auth.uid()`; **INSERT/UPDATE/DELETE** are not exposed to the anon/authenticated PostgREST roles — use the **service role** (Edge Functions, webhooks) or SQL in the Supabase dashboard. **Items:** policies + triggers for owner updates, including borrow-lock rules. **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
+All user-facing tables use **Row Level Security**. Policy definitions live in **`supabase/migrations/`** using one file per domain (DDL + RLS + triggers and/or Realtime where applicable): `00002_auth_profiles_locations.sql` (includes profile-on-signup trigger), `00003_bikes.sql`, `00004_groups_items.sql` (group/item helpers + policies + item triggers), `00005_borrow_requests.sql` (borrow update trigger), `00006_messaging.sql` (Realtime on `messages`; nullable `sender_id` for GDPR anonymization), `00007_ratings.sql` (rating aggregate trigger + nullable `from_user_id` / `to_user_id` for GDPR), `00008_notifications.sql` (Realtime on `notifications`), `00009_support_reports.sql`, `00010_geocode_cache.sql`, `00011_export_requests_storage.sql`, then RPC helpers (`00012_functions_business.sql`, `00013_functions_search_listing.sql`), `item-photos` storage (`00014_storage_item_photos.sql`), subscription-aware inventory caps (`00015_inventory_item_subscription_limit.sql`), moderation tables and RLS (`00016_moderation.sql`), `bike_type` enum extension (`00017_bike_type_extended.sql`), orphaned-conversation helper (`00018_find_empty_conversations_not_exists.sql`), group inventory RPCs (`00019_group_inventory_rpcs.sql`), and group invitations table + policies (`00020_group_invitations.sql`). **subscriptions:** authenticated users may **SELECT** only rows where `user_id = auth.uid()`; **INSERT/UPDATE/DELETE** are not exposed to the anon/authenticated PostgREST roles — use the **service role** (Edge Functions, webhooks) or SQL in the Supabase dashboard. **Items:** policies + triggers for owner updates, including borrow-lock rules. **borrow_requests:** UPDATE allowed for requester or owner; status transitions enforced by trigger — see [design-docs/016-rls-security.md](design-docs/016-rls-security.md). When adding tables or columns, add matching policies — see [security.md](security.md).
 
 ---
 
