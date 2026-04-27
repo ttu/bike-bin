@@ -4,8 +4,7 @@ import { Text, Avatar, useTheme } from 'react-native-paper';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import { iconSize, spacing, type AppTheme } from '@/shared/theme';
 import type { UserProfile } from '@/shared/types';
 
 interface ProfileHeaderProps {

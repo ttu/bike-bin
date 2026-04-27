@@ -11,8 +11,7 @@ import {
   mockSupabase,
 } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
-import type { BikeId } from '@/shared/types';
-import { BikeType, ItemCondition } from '@/shared/types';
+import { BikeType, ItemCondition, type BikeId } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);

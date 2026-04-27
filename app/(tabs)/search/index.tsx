@@ -5,8 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, borderRadius, tabBarListScrollPaddingBottom } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
+import {
+  borderRadius,
+  spacing,
+  tabBarListScrollPaddingBottom,
+  type AppTheme,
+} from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
@@ -25,14 +29,16 @@ import { AvailabilityType } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { useDemoMode, DemoBanner } from '@/features/demo';
 import { DEMO_SEARCH_RESULTS } from '@/features/demo/data';
-import { groupSearchResultPairs } from '@/features/search/utils/groupSearchResultPairs';
+import {
+  groupSearchResultPairs,
+  type SearchResultPair,
+} from '@/features/search/utils/groupSearchResultPairs';
 import {
   getSearchResultGridWideCardWidth,
   getSearchResultGridNarrowCardWidth,
   getSearchResultGridHeroCardWidth,
   SEARCH_GRID_COLUMN_GAP,
 } from '@/features/search/utils/searchGridDimensions';
-import type { SearchResultPair } from '@/features/search/utils/groupSearchResultPairs';
 
 function FilterChipIcon({ color }: { color: string }) {
   return <MaterialCommunityIcons name="filter-variant" size={16} color={color} />;

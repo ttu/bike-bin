@@ -1,9 +1,7 @@
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockSearchResultItem } from '@/test/factories';
-import { AvailabilityType } from '@/shared/types';
-import type { ItemPhoto } from '@/shared/types';
-import type { ItemId, ItemPhotoId } from '@/shared/types';
+import { AvailabilityType, type ItemId, type ItemPhoto, type ItemPhotoId } from '@/shared/types';
 import { ListingDetail } from '../ListingDetail/ListingDetail';
 import type { SearchResultItem } from '../../types';
 

@@ -1,9 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { GroupMember } from '@/shared/types';
-import type { GroupId, GroupRow } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId, type GroupMember, type GroupRow } from '@/shared/types';
 import type { GroupFormData } from '../types';
 import { mapGroupRow } from '../utils/mapGroupRow';
 

@@ -2,9 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
 import { useAuth } from '@/features/auth';
-import type { BorrowRequestId, ItemId, UserId } from '@/shared/types';
-import { BorrowRequestStatus } from '@/shared/types';
-import type { ItemStatus, AvailabilityType } from '@/shared/types';
+import {
+  BorrowRequestStatus,
+  type AvailabilityType,
+  type BorrowRequestId,
+  type ItemId,
+  type ItemStatus,
+  type UserId,
+} from '@/shared/types';
 import type { BorrowRequestWithDetails } from '../types';
 
 export const BORROW_REQUESTS_QUERY_KEY = 'borrowRequests';

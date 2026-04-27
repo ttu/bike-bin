@@ -1,9 +1,14 @@
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import type { StyleProp, ViewStyle } from 'react-native';
-import type { AppTheme } from '@/shared/theme';
-import { borderRadius, iconSize, spacing } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 
 const BUTTON_HEIGHT = 48;
 

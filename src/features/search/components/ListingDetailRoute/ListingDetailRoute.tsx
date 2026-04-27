@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { Href } from 'expo-router';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { useReturnNavigation } from '@/shared/hooks/useReturnNavigation';
@@ -17,10 +16,10 @@ import { useCreateConversation } from '@/features/messaging';
 import { useCreateBorrowRequest } from '@/features/borrow';
 import { useAuth } from '@/features/auth';
 import { useReport } from '@/shared/hooks/useReport';
-import type { ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
+import type { ItemId, ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
 
 export type ListingDetailRouteProps = {
-  listingId: string | undefined;
+  listingId: ItemId | undefined;
   returnPath: string | undefined;
   /** Used when `returnPath` is absent or invalid */
   fallbackHref: Href;

@@ -1,5 +1,4 @@
-import type { BikePhoto } from '@/shared/types';
-import type { BikeId, BikePhotoId, BikePhotoRow } from '@/shared/types';
+import type { BikeId, BikePhoto, BikePhotoId, BikePhotoRow } from '@/shared/types';
 
 export function mapBikePhotoRow(row: BikePhotoRow): BikePhoto {
   return {

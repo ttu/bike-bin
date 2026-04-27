@@ -3,8 +3,7 @@ import { createMockItemRow } from '@/test/factories';
 import { mockSelect, mockInsert, mockEq, mockOrder, mockSingle } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
-import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
-import type { GroupId } from '@/shared/types';
+import { AvailabilityType, ItemCategory, ItemCondition, type GroupId } from '@/shared/types';
 import { useGroupItems, useCreateGroupItem } from '../useGroupItems';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 

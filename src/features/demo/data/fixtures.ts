@@ -9,10 +9,9 @@ import {
   BorrowRequestStatus,
   NotificationType,
 } from '@/shared/types';
-import type { ConversationListItem } from '@/features/messaging';
+import type { ConversationListItem, MessageWithSender } from '@/features/messaging';
 import type { SearchResultItem } from '@/features/search';
 import type { BorrowRequestWithDetails } from '@/features/borrow/types';
-import type { MessageWithSender } from '@/features/messaging';
 import {
   DEMO_USER_ID,
   DEMO_OTHER_USER_1,

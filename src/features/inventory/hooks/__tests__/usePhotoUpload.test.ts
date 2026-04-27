@@ -46,7 +46,7 @@ jest.mock('@/shared/api/supabase', () => ({
 jest.mock('@/features/auth', () => mockAuthModule);
 
 // Mock fetch for blob conversion
-global.fetch = jest.fn().mockResolvedValue({
+globalThis.fetch = jest.fn().mockResolvedValue({
   blob: jest.fn().mockResolvedValue(new Blob()),
 }) as jest.Mock;
 

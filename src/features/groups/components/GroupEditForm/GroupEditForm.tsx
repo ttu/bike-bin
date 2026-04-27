@@ -3,9 +3,8 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { Appbar, Text, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { GradientButton } from '@/shared/components/GradientButton';
-import { spacing, borderRadius } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import type { AppTheme } from '@/shared/theme';
 
 type GroupEditFormProps = {
   initialName: string;

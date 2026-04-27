@@ -1,10 +1,14 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
-import type { GroupId } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  Visibility,
+  type GroupId,
+} from '@/shared/types';
 
-import { validateItem } from '../../utils/validation';
-import type { ItemFormData, ItemFormErrors } from '../../utils/validation';
+import { validateItem, type ItemFormData, type ItemFormErrors } from '../../utils/validation';
 import { buildItemFormDataFromState } from '../../utils/buildItemFormDataFromState';
 import { areItemFormDataEqual } from '../../utils/itemFormDataEquality';
 import { formatRemainingPercentField } from '../../utils/remainingFractionInput';

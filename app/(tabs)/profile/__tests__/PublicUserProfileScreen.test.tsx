@@ -12,8 +12,15 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
-import { AvailabilityType, ItemCategory, ItemCondition, TransactionType } from '@/shared/types';
-import type { RatingId, UserId, ItemId } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  TransactionType,
+  type ItemId,
+  type RatingId,
+  type UserId,
+} from '@/shared/types';
 import type { PublicProfile, PublicListing } from '@/features/profile/types';
 import type { RatingWithReviewer } from '@/features/ratings/types';
 import commonEn from '@/i18n/en/common.json';

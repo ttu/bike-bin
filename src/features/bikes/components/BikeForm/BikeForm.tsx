@@ -7,9 +7,8 @@ import { BrandAutocompleteInput } from '@/shared/components/BrandAutocompleteInp
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { useTranslation } from 'react-i18next';
 import { BikeType, ItemCondition } from '@/shared/types';
-import { spacing, borderRadius } from '@/shared/theme';
+import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import type { AppTheme } from '@/shared/theme';
 import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
 import { resolveBikeFormName } from '../../utils/resolveBikeFormName';

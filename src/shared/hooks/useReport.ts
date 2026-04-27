@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { UserId } from '@/shared/types';
-import type { ReportTargetType } from '@/shared/types';
+import type { ReportTargetType, UserId } from '@/shared/types';
 
 interface SubmitReportInput {
   reporterId: UserId;

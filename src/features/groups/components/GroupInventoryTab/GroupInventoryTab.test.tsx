@@ -2,8 +2,7 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
-import type { GroupId, UserId } from '@/shared/types';
-import { GroupRole } from '@/shared/types';
+import { GroupRole, type GroupId, type UserId } from '@/shared/types';
 
 const mockRouterPush = jest.fn();
 

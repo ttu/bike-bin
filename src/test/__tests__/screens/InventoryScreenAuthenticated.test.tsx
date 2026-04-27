@@ -3,8 +3,7 @@ import { fireEvent, screen } from '@testing-library/react-native';
 import commonEn from '@/i18n/en/common.json';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
-import type { Item, ItemId, UserId } from '@/shared/types';
-import { ItemCategory, ItemStatus } from '@/shared/types';
+import { ItemCategory, ItemStatus, type Item, type ItemId, type UserId } from '@/shared/types';
 import inventoryEn from '@/i18n/en/inventory.json';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 

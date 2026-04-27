@@ -1,7 +1,6 @@
 import { useContext, useMemo } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { AuthContext } from '../context';
-import type { AuthContextType } from '../context';
+import { AuthContext, type AuthContextType } from '../context';
 import { DemoModeContext } from '@/features/demo/context';
 
 const DEMO_USER: User = {

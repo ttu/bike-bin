@@ -24,7 +24,7 @@ jest.mock('@/features/auth', () => mockAuthModule);
 
 // Mock fetch for blob creation
 const mockFetch = jest.fn();
-global.fetch = mockFetch as unknown as typeof fetch;
+globalThis.fetch = mockFetch as unknown as typeof fetch;
 
 import { useStagedPhotos } from '../useStagedPhotos';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';

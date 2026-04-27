@@ -3,8 +3,7 @@ import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
-import { BikeType } from '@/shared/types';
-import type { BikeId } from '@/shared/types';
+import { BikeType, type BikeId } from '@/shared/types';
 import BikeDetailScreen from '../[id]';
 
 const mockRouterPush = jest.fn();

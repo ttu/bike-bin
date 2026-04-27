@@ -1,6 +1,5 @@
 import { canEditItem, canDeleteItem, canTransferItem, canBorrowItem } from '../itemPermissions';
-import type { Item } from '@/shared/types';
-import { GroupRole, ItemStatus } from '@/shared/types';
+import { GroupRole, ItemStatus, type Item } from '@/shared/types';
 
 const personalItem = (ownerId: string, status: ItemStatus = ItemStatus.Stored) =>
   ({

@@ -1,8 +1,7 @@
 import { View, Pressable } from 'react-native';
 import { Text, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import type { AppTheme } from '@/shared/theme';
-import { spacing } from '@/shared/theme';
+import { spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { ItemCondition } from '@/shared/types';
 import { useTranslation } from 'react-i18next';

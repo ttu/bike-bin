@@ -3,10 +3,8 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { spacing, iconSize, borderRadius } from '@/shared/theme';
-import type { AppTheme } from '@/shared/theme';
-import type { Notification } from '@/shared/types';
-import { NotificationType } from '@/shared/types';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
+import { NotificationType, type Notification } from '@/shared/types';
 import { formatRelativeTime } from '@/shared/utils/formatRelativeTime';
 
 /** Map notification type to an icon name. */

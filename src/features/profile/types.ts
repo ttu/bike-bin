@@ -1,5 +1,4 @@
-import type { UserId, ItemId } from '@/shared/types';
-import type { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
+import type { AvailabilityType, ItemCategory, ItemCondition, ItemId, UserId } from '@/shared/types';
 
 export interface PublicProfile {
   id: UserId;

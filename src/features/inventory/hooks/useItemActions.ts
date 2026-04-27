@@ -11,8 +11,7 @@ import {
   BORROW_REQUESTS_QUERY_KEY,
 } from '@/features/borrow';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
-import { ItemStatus } from '@/shared/types';
-import type { Item } from '@/shared/types';
+import { ItemStatus, type Item } from '@/shared/types';
 
 export function useItemActions(item: Item) {
   const { t } = useTranslation('exchange');

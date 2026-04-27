@@ -1,6 +1,10 @@
-import type { Notification } from '@/shared/types';
-import type { NotificationId, UserId, NotificationRow } from '@/shared/types';
-import type { NotificationType } from '@/shared/types';
+import type {
+  Notification,
+  NotificationId,
+  NotificationRow,
+  NotificationType,
+  UserId,
+} from '@/shared/types';
 
 /** Transforms a Supabase row into the Notification domain model. */
 export function mapNotificationRow(row: NotificationRow): Notification {

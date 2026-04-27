@@ -1,10 +1,16 @@
-import type { ItemCategory, ItemCondition, AvailabilityType, Visibility } from '@/shared/types';
-import { ItemCategory as ItemCategoryEnum } from '@/shared/types';
+import {
+  ItemCategory as ItemCategoryEnum,
+  type AvailabilityType,
+  type GroupId,
+  type ItemCategory,
+  type ItemCondition,
+  type LocationId,
+  type Visibility,
+} from '@/shared/types';
 import {
   AvailabilityType as AvailabilityTypeEnum,
   Visibility as VisibilityEnum,
 } from '@/shared/types';
-import type { LocationId, GroupId } from '@/shared/types';
 
 export interface ItemFormData {
   name: string;

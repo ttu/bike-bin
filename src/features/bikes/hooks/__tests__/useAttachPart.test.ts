@@ -2,8 +2,7 @@ import { renderHook } from '@testing-library/react-native';
 import { createMockItem } from '@/test/factories';
 import { mockSelect, mockUpdate, mockEq, mockSingle, mockSupabase } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
-import { ItemStatus } from '@/shared/types';
-import type { ItemId, BikeId } from '@/shared/types';
+import { ItemStatus, type BikeId, type ItemId } from '@/shared/types';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);

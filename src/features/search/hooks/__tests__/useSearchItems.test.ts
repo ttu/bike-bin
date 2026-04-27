@@ -1,11 +1,15 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { ItemCategory, ItemCondition, AvailabilityType } from '@/shared/types';
-import type { UserId, LocationId } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  type LocationId,
+  type UserId,
+} from '@/shared/types';
 import { useSearchItems } from '../useSearchItems';
-import { DEFAULT_SEARCH_FILTERS } from '../../types';
-import type { SearchFilters } from '../../types';
+import { DEFAULT_SEARCH_FILTERS, type SearchFilters } from '../../types';
 
 const mockAuth = { isAuthenticated: true };
 

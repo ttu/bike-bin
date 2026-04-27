@@ -8,9 +8,8 @@ import { spacing, borderRadius } from '@/shared/theme';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import { useAuth } from '@/features/auth';
 import { useRequestExport, useLatestExport } from '@/features/profile';
-import { ExportRequestStatus } from '@/shared/types';
+import { ExportRequestStatus, type ExportRequest, type UserId } from '@/shared/types';
 import { supabase } from '@/shared/api/supabase';
-import type { ExportRequest, UserId } from '@/shared/types';
 
 type ScreenState = 'ready' | 'requesting' | 'processing' | 'download' | 'failed' | 'rateLimited';
 

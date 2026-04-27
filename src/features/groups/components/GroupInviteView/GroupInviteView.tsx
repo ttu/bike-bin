@@ -7,8 +7,11 @@ import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import type { GroupId, UserId } from '@/shared/types';
-import { useSearchInvitableUsers, useCreateInvitation } from '../../hooks/useGroupInvitations';
-import type { InvitableUser } from '../../hooks/useGroupInvitations';
+import {
+  useCreateInvitation,
+  useSearchInvitableUsers,
+  type InvitableUser,
+} from '../../hooks/useGroupInvitations';
 
 type GroupInviteViewProps = {
   groupId: GroupId;

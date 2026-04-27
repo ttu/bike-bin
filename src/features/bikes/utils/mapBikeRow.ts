@@ -1,8 +1,12 @@
-import type { Bike } from '@/shared/types';
-import type { BikeId, UserId } from '@/shared/types';
-import type { BikeRow } from '@/shared/types';
-import type { BikeType, ItemCondition } from '@/shared/types';
-import { ItemCondition as ItemConditionValues } from '@/shared/types';
+import {
+  ItemCondition as ItemConditionValues,
+  type Bike,
+  type BikeId,
+  type BikeRow,
+  type BikeType,
+  type ItemCondition,
+  type UserId,
+} from '@/shared/types';
 
 function mapOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
