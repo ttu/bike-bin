@@ -11,6 +11,10 @@ jest.mock('expo-router', () => ({
   },
 }));
 
+jest.mock('@/features/profile', () => ({
+  useUpdateProfile: () => ({ mutate: jest.fn() }),
+}));
+
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
     user: { user_metadata: { full_name: 'Test User' } },
