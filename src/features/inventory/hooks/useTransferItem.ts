@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
+import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import type { ItemId, UserId, GroupId } from '@/shared/types';
 
 type TransferParams =
@@ -22,7 +23,7 @@ export function useTransferItem() {
       queryClient.invalidateQueries({ queryKey: ['group-items'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['conversation'] });
-      queryClient.invalidateQueries({ queryKey: ['search', 'items'] });
+      queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY });
     },
   });
 }

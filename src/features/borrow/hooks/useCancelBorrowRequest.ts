@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
+import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
 import type { BorrowRequestId, ItemId } from '@/shared/types';
 
@@ -39,7 +40,7 @@ export function useCancelBorrowRequest() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
         queryClient.invalidateQueries({ queryKey: ['items'] }),
-        queryClient.invalidateQueries({ queryKey: ['searchItems'] }),
+        queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY }),
       ]);
     },
   });

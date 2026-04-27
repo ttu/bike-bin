@@ -86,7 +86,7 @@ describe('useMarkDonated', () => {
     await waitFor(() => {
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items', 'item-1'] });
-      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['searchItems'] });
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['search', 'items'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversations'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversation'] });
     });
@@ -172,7 +172,7 @@ describe('useMarkSold', () => {
     await waitFor(() => {
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items', 'item-2'] });
-      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['searchItems'] });
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['search', 'items'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversations'] });
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['conversation'] });
     });

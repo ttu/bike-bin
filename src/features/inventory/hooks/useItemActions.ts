@@ -11,6 +11,7 @@ import {
   BORROW_REQUESTS_QUERY_KEY,
 } from '@/features/borrow';
 import { useMarkDonated, useMarkSold } from '@/features/exchange';
+import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { ItemStatus, type Item } from '@/shared/types';
 
 export function useItemActions(item: Item) {
@@ -157,7 +158,7 @@ export function useItemActions(item: Item) {
             await Promise.all([
               queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
               queryClient.invalidateQueries({ queryKey: ['group-items'] }),
-              queryClient.invalidateQueries({ queryKey: ['search', 'items'] }),
+              queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY }),
               queryClient.invalidateQueries({
                 queryKey: [ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY, item.id],
               }),

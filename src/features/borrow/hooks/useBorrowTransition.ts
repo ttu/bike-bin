@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
+import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
 import type { BorrowRequestId, ItemId } from '@/shared/types';
 
@@ -47,7 +48,7 @@ export function useBorrowTransition({
         // Cover the case where the item is group-owned — the TanStack Query
         // prefix match invalidates all `['group-items', groupId]` entries.
         queryClient.invalidateQueries({ queryKey: ['group-items'] }),
-        queryClient.invalidateQueries({ queryKey: ['search', 'items'] }),
+        queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY }),
         ...additionalInvalidateKeys.map((key) =>
           queryClient.invalidateQueries({ queryKey: [key] }),
         ),
