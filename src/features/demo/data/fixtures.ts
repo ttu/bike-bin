@@ -11,7 +11,7 @@ import {
 } from '@/shared/types';
 import type { ConversationListItem, MessageWithSender } from '@/features/messaging';
 import type { SearchResultItem } from '@/features/search';
-import type { BorrowRequestWithDetails } from '@/features/borrow/types';
+import type { BorrowRequestWithDetails } from '@/features/borrow';
 import {
   DEMO_USER_ID,
   DEMO_OTHER_USER_1,
