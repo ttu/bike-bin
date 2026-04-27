@@ -28,3 +28,5 @@ export {
 export { usePhotoUpload } from './hooks/usePhotoUpload';
 export { useSwapItemPhotoOrder, useRemoveItemPhoto } from './hooks/useItemPhotoManagement';
 export { useUserTags } from './hooks/useUserTags';
+export { useGroupItems } from './hooks/useGroupItems';
+export { ItemCard } from './components/ItemCard/ItemCard';

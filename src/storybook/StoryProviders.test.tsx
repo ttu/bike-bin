@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { render, waitFor } from '@testing-library/react-native';
 import { StoryProviders } from './StoryProviders';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth } from '@/features/auth';
 
 jest.mock('react-native-safe-area-context', () => {
   const React = jest.requireActual<typeof import('react')>('react');
