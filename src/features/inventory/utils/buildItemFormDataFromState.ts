@@ -7,7 +7,7 @@ import {
   type DistanceUnit,
   type LocationId,
 } from '@/shared/types';
-import { resolveItemFormName } from './resolveItemFormName';
+import { resolveFormName } from '@/shared/utils';
 import { parseRemainingPercentInput } from './remainingFractionInput';
 import { sanitizeTag, canAddTag } from './tagUtils';
 import { displayUnitToKm } from '@/shared/utils/distanceConversion';
@@ -59,7 +59,7 @@ export function buildItemFormDataFromState(state: ItemFormDraftInput): ItemFormD
 
   const parsedQuantity = Number.parseInt(state.quantityStr.trim(), 10);
 
-  const resolvedName = resolveItemFormName(state.name, state.brand, state.model);
+  const resolvedName = resolveFormName(state.name, state.brand, state.model);
 
   const isSellable = state.availabilityTypes.includes(AvailabilityType.Sellable);
   const isBorrowable = state.availabilityTypes.includes(AvailabilityType.Borrowable);

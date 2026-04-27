@@ -1,6 +1,6 @@
 import type { BikeType, ItemCondition } from '@/shared/types';
 import type { BikeFormData } from '../types';
-import { resolveBikeFormName } from './resolveBikeFormName';
+import { resolveFormName } from '@/shared/utils';
 import { optionalNumberFromInput } from './optionalNumberFromInput';
 
 export interface BikeFormDraftFields {
@@ -16,7 +16,7 @@ export interface BikeFormDraftFields {
 }
 
 export function buildBikeFormDataFromFields(fields: BikeFormDraftFields): BikeFormData {
-  const resolvedName = resolveBikeFormName(fields.name, fields.brand, fields.model);
+  const resolvedName = resolveFormName(fields.name, fields.brand, fields.model);
   const distanceParsed = optionalNumberFromInput(fields.distanceKmStr);
   const hoursParsed = optionalNumberFromInput(fields.usageHoursStr);
   const yearParsed = optionalNumberFromInput(fields.year);

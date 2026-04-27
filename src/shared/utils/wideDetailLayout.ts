@@ -5,6 +5,8 @@ import { spacing } from '@/shared/theme';
 export const WIDE_DETAIL_BREAKPOINT = 768;
 /** Max width of the detail content column on large viewports. */
 export const WIDE_DETAIL_PAGE_MAX_WIDTH = 1120;
+/** Min width per column in the wide split (gallery | content) layout. */
+export const WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH = 280;
 
 /**
  * Layout for item/bike detail: on web at wide breakpoints, use a two-column row
@@ -25,7 +27,10 @@ export function getWideDetailLayout(windowWidth: number): {
 
   let galleryMaxWidth: number | undefined;
   if (splitLayout) {
-    galleryMaxWidth = Math.max(280, Math.floor((pageWidth - horizontalPadding - columnGap) / 2));
+    galleryMaxWidth = Math.max(
+      WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
+      Math.floor((pageWidth - horizontalPadding - columnGap) / 2),
+    );
   } else if (isWide) {
     galleryMaxWidth = Math.max(320, pageWidth - horizontalPadding);
   }

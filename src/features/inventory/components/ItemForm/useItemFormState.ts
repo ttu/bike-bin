@@ -12,7 +12,7 @@ import { validateItem, type ItemFormData, type ItemFormErrors } from '../../util
 import { buildItemFormDataFromState } from '../../utils/buildItemFormDataFromState';
 import { areItemFormDataEqual } from '../../utils/itemFormDataEquality';
 import { formatRemainingPercentField } from '../../utils/remainingFractionInput';
-import { resolveItemFormName } from '../../utils/resolveItemFormName';
+import { resolveFormName } from '@/shared/utils';
 import { useUserTags } from '../../hooks/useUserTags';
 import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useItems } from '../../hooks/useItems';
@@ -136,7 +136,7 @@ export function useItemFormState({
 
   /** When the user has not entered a title, the name field reflects brand + model as they change. */
   const nameFieldValue = useMemo(
-    () => (name.trim() === '' ? resolveItemFormName('', brand, model) : name),
+    () => (name.trim() === '' ? resolveFormName('', brand, model) : name),
     [name, brand, model],
   );
 

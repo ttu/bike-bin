@@ -4,6 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { ItemCondition } from '@/shared/types';
+import { CONDITION_ICON, CONDITION_ICON_FALLBACK } from '@/shared/constants/conditionIcons';
 import { useTranslation } from 'react-i18next';
 import type { ItemFormState } from '../types';
 import { styles } from '../styles';
@@ -14,13 +15,6 @@ const CONDITIONS = [
   ItemCondition.Worn,
   ItemCondition.Broken,
 ];
-
-const CONDITION_ICONS: Record<string, string> = {
-  new: 'shield-check',
-  good: 'emoticon-happy-outline',
-  worn: 'history',
-  broken: 'close-circle-outline',
-};
 
 interface ConditionSectionProps {
   readonly condition: ItemFormState['condition'];
@@ -66,7 +60,7 @@ export function ConditionSection({ condition, setCondition, errors }: ConditionS
               ]}
             >
               <MaterialCommunityIcons
-                name={(CONDITION_ICONS[cond] ?? 'shield-check') as never}
+                name={(CONDITION_ICON[cond] ?? CONDITION_ICON_FALLBACK) as never}
                 size={28}
                 color={active ? theme.colors.primary : theme.colors.onSurfaceVariant}
               />

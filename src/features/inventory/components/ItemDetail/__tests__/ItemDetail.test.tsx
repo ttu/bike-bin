@@ -76,9 +76,11 @@ describe('ItemDetail', () => {
     expect(getByText('Mounted')).toBeTruthy();
   });
 
-  it('renders storage location in service record and location block', () => {
+  it('renders storage location in the location block', () => {
     const { getAllByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getAllByText('Garage shelf').length).toBeGreaterThan(0);
+    // Rendered once in the standalone location block; no longer duplicated in
+    // the service record alongside condition/mountedDate.
+    expect(getAllByText('Garage shelf')).toHaveLength(1);
   });
 
   it('renders usage figure', () => {
