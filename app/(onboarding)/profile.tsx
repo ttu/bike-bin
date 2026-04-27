@@ -19,11 +19,13 @@ export default function ProfileSetupScreen() {
   const [errorVisible, setErrorVisible] = useState(false);
 
   const handleContinue = async () => {
+    setErrorVisible(false);
     const trimmed = displayName.trim();
     if (user?.id && trimmed.length > 0) {
       try {
         await updateProfile.mutateAsync({ displayName: trimmed });
-      } catch {
+      } catch (error) {
+        console.error('Profile update failed:', error);
         setErrorVisible(true);
         return;
       }
