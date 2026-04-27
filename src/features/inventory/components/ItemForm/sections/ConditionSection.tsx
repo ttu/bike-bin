@@ -23,9 +23,9 @@ const CONDITION_ICONS: Record<string, string> = {
 };
 
 interface ConditionSectionProps {
-  condition: ItemFormState['condition'];
-  setCondition: ItemFormState['setCondition'];
-  errors: ItemFormState['errors'];
+  readonly condition: ItemFormState['condition'];
+  readonly setCondition: ItemFormState['setCondition'];
+  readonly errors: ItemFormState['errors'];
 }
 
 export function ConditionSection({ condition, setCondition, errors }: ConditionSectionProps) {

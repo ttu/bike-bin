@@ -75,12 +75,12 @@ function BikeDetails({
   bikeId,
   theme,
   t,
-}: {
+}: Readonly<{
   bike: Bike;
   bikeId: BikeId;
   theme: AppTheme;
   t: TFunction<'bikes'>;
-}) {
+}>) {
   return (
     <>
       {/* Header */}

@@ -40,7 +40,7 @@ import {
   SEARCH_GRID_COLUMN_GAP,
 } from '@/features/search/utils/searchGridDimensions';
 
-function FilterChipIcon({ color }: { color: string }) {
+function FilterChipIcon({ color }: { readonly color: string }) {
   return <MaterialCommunityIcons name="filter-variant" size={16} color={color} />;
 }
 

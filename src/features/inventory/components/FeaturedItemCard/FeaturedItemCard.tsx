@@ -15,9 +15,9 @@ import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 const HERO_IMAGE_HEIGHT = 200;
 
 interface FeaturedItemCardProps {
-  item: Item;
-  onPress?: (item: Item) => void;
-  badgeLabel?: string;
+  readonly item: Item;
+  readonly onPress?: (item: Item) => void;
+  readonly badgeLabel?: string;
 }
 
 export const FeaturedItemCard = memo(function FeaturedItemCard({

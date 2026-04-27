@@ -11,13 +11,13 @@ import { BorrowRequestStatus, type UserId } from '@/shared/types';
 import { getRequestActions, type RequestAction } from '../../utils/borrowWorkflow';
 
 interface BorrowRequestCardProps {
-  request: BorrowRequestWithDetails;
-  currentUserId: UserId;
-  onAccept?: (request: BorrowRequestWithDetails) => void;
-  onDecline?: (request: BorrowRequestWithDetails) => void;
-  onCancel?: (request: BorrowRequestWithDetails) => void;
-  onMarkReturned?: (request: BorrowRequestWithDetails) => void;
-  onPress?: (request: BorrowRequestWithDetails) => void;
+  readonly request: BorrowRequestWithDetails;
+  readonly currentUserId: UserId;
+  readonly onAccept?: (request: BorrowRequestWithDetails) => void;
+  readonly onDecline?: (request: BorrowRequestWithDetails) => void;
+  readonly onCancel?: (request: BorrowRequestWithDetails) => void;
+  readonly onMarkReturned?: (request: BorrowRequestWithDetails) => void;
+  readonly onPress?: (request: BorrowRequestWithDetails) => void;
 }
 
 export const BorrowRequestCard = memo(function BorrowRequestCard({

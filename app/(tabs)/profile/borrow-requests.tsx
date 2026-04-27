@@ -219,7 +219,7 @@ export default function BorrowRequestsScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: BorrowRequestWithDetails }) => (
+    ({ item }: { readonly item: BorrowRequestWithDetails }) => (
       <View style={styles.cardWrapper}>
         <BorrowRequestCard
           request={item}

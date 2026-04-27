@@ -126,8 +126,8 @@ jest.mock('@/features/messaging', () => {
       message,
       onLongPress,
     }: {
-      message: MessageWithSender;
-      onLongPress?: (msg: MessageWithSender) => void;
+      readonly message: MessageWithSender;
+      readonly onLongPress?: (msg: MessageWithSender) => void;
     }) =>
       React.createElement(
         Pressable,

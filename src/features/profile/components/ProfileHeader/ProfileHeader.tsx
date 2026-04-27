@@ -8,11 +8,11 @@ import { iconSize, spacing, type AppTheme } from '@/shared/theme';
 import type { UserProfile } from '@/shared/types';
 
 interface ProfileHeaderProps {
-  profile: Pick<
+  readonly profile: Pick<
     UserProfile,
     'displayName' | 'avatarUrl' | 'ratingAvg' | 'ratingCount' | 'createdAt'
   >;
-  onEditPress?: () => void;
+  readonly onEditPress?: () => void;
 }
 
 /**

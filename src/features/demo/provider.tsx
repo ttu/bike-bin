@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { DemoModeContext } from './context';
 import { seedDemoData, clearDemoData } from './hooks/useDemoQuerySeeder';
 
-export function DemoModeProvider({ children }: { children: React.ReactNode }) {
+export function DemoModeProvider({ children }: { readonly children: React.ReactNode }) {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const queryClient = useQueryClient();
 

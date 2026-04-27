@@ -186,11 +186,11 @@ function ListingTitleBlock({
   categoryLabel,
   metaParts,
 }: {
-  item: SearchResultItem;
-  theme: AppTheme;
-  themed: Themed;
-  categoryLabel: string;
-  metaParts: string[];
+  readonly item: SearchResultItem;
+  readonly theme: AppTheme;
+  readonly themed: Themed;
+  readonly categoryLabel: string;
+  readonly metaParts: string[];
 }) {
   return (
     <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
@@ -237,11 +237,11 @@ function ListingDetailStrip({
   durationText,
   t,
 }: {
-  item: SearchResultItem;
-  theme: AppTheme;
-  themed: Themed;
-  durationText: string | undefined;
-  t: TFn;
+  readonly item: SearchResultItem;
+  readonly theme: AppTheme;
+  readonly themed: Themed;
+  readonly durationText: string | undefined;
+  readonly t: TFn;
 }) {
   return (
     <View style={[styles.section, themed.sectionBorder]}>
@@ -282,11 +282,11 @@ function ListingOwnerCard({
   t,
   onOwnerPress,
 }: {
-  item: SearchResultItem;
-  theme: AppTheme;
-  themed: Themed;
-  t: TFn;
-  onOwnerPress?: () => void;
+  readonly item: SearchResultItem;
+  readonly theme: AppTheme;
+  readonly themed: Themed;
+  readonly t: TFn;
+  readonly onOwnerPress?: () => void;
 }) {
   return (
     <View style={[styles.section, themed.sectionBorder]}>
@@ -332,11 +332,11 @@ function ListingLocationRow({
   themed,
   distanceText,
 }: {
-  hasLocation: boolean;
-  item: SearchResultItem;
-  theme: AppTheme;
-  themed: Themed;
-  distanceText: string | undefined;
+  readonly hasLocation: boolean;
+  readonly item: SearchResultItem;
+  readonly theme: AppTheme;
+  readonly themed: Themed;
+  readonly distanceText: string | undefined;
 }) {
   if (!hasLocation) return null;
   return (
@@ -374,11 +374,11 @@ function ListingListedFor({
   themed,
   t,
 }: {
-  listAvailability: AvailabilityType[];
-  item: SearchResultItem;
-  theme: AppTheme;
-  themed: Themed;
-  t: TFn;
+  readonly listAvailability: AvailabilityType[];
+  readonly item: SearchResultItem;
+  readonly theme: AppTheme;
+  readonly themed: Themed;
+  readonly t: TFn;
 }) {
   if (listAvailability.length === 0) return null;
   return (
@@ -423,14 +423,14 @@ function ListingActions({
   onRequestBorrow,
   t,
 }: {
-  isAuthenticated: boolean;
-  isWide: boolean;
-  showContactOnly: boolean;
-  showBorrowOnly: boolean;
-  showBoth: boolean;
-  onContact?: () => void;
-  onRequestBorrow?: () => void;
-  t: TFn;
+  readonly isAuthenticated: boolean;
+  readonly isWide: boolean;
+  readonly showContactOnly: boolean;
+  readonly showBorrowOnly: boolean;
+  readonly showBoth: boolean;
+  readonly onContact?: () => void;
+  readonly onRequestBorrow?: () => void;
+  readonly t: TFn;
 }) {
   return (
     <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
@@ -490,9 +490,9 @@ function ActionSlot({
   fullWidth,
   children,
 }: {
-  isWide: boolean;
-  fullWidth?: boolean;
-  children: ReactNode;
+  readonly isWide: boolean;
+  readonly fullWidth?: boolean;
+  readonly children: ReactNode;
 }) {
   if (!isWide) {
     return <>{children}</>;

@@ -28,7 +28,7 @@ const ThemePreferenceContext = createContext<ThemePreferenceContextType | undefi
  * Provides user-overridable theme preference backed by AsyncStorage.
  * Wraps PaperProvider so the effective theme can be passed down.
  */
-export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
+export function ThemePreferenceProvider({ children }: { readonly children: ReactNode }) {
   const systemScheme = useSystemColorScheme();
   const [preference, setPreferenceState] = useState<ThemePreference>('system');
   /** Once the user sets a preference, ignore late AsyncStorage hydration (avoids stomping the choice). */

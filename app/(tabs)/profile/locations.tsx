@@ -159,7 +159,7 @@ export default function SavedLocationsScreen() {
   }, [deleteTarget, deleteLocation, showSnackbarAlert, t, tCommon]);
 
   const renderItem = useCallback(
-    ({ item }: { item: SavedLocation }) => (
+    ({ item }: { readonly item: SavedLocation }) => (
       <LocationCard location={item} onPress={handleEditPress} onDelete={handleDelete} />
     ),
     [handleEditPress, handleDelete],

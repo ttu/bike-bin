@@ -410,13 +410,13 @@ function MemberRow({
   allMembers,
   onPromote,
   onRemove,
-}: {
+}: Readonly<{
   member: GroupMemberWithProfile;
   currentMember: GroupMemberWithProfile | undefined;
   allMembers: GroupMemberWithProfile[];
   onPromote: (member: GroupMemberWithProfile) => void;
   onRemove: (member: GroupMemberWithProfile) => void;
-}) {
+}>) {
   const theme = useTheme();
   const { t } = useTranslation('groups');
 

@@ -20,7 +20,7 @@ export type QueryClientHookWrapper = React.ComponentType<{ children: React.React
  */
 export function createQueryClientHookWrapper(): QueryClientHookWrapper {
   const queryClient = createTestQueryClient();
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  function Wrapper({ children }: { readonly children: React.ReactNode }) {
     return React.createElement(QueryClientProvider, { client: queryClient }, children);
   }
   return Wrapper;
@@ -32,7 +32,7 @@ export function createQueryClientHookWrapper(): QueryClientHookWrapper {
 export function createQueryClientHookWrapperWithClient(
   queryClient: QueryClient,
 ): QueryClientHookWrapper {
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  function Wrapper({ children }: { readonly children: React.ReactNode }) {
     return React.createElement(QueryClientProvider, { client: queryClient }, children);
   }
   return Wrapper;

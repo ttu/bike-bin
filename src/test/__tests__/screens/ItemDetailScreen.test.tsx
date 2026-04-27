@@ -57,11 +57,11 @@ jest.mock('@/features/inventory/components/ItemDetail/ItemDetail', () => {
   const { View, Pressable, Text } = require('react-native');
   return {
     ItemDetail: (props: {
-      onMarkDonated?: () => void;
-      onMarkSold?: () => void;
-      onMarkReturned?: () => void;
-      onRemoveFromBin?: () => void;
-      onUnarchive?: () => void;
+      readonly onMarkDonated?: () => void;
+      readonly onMarkSold?: () => void;
+      readonly onMarkReturned?: () => void;
+      readonly onRemoveFromBin?: () => void;
+      readonly onUnarchive?: () => void;
     }) => (
       <View testID="item-detail-mock">
         {props.onMarkDonated ? (

@@ -11,9 +11,9 @@ import { CachedListThumbnail } from '@/shared/components/CachedListThumbnail';
 import type { SearchResultItem } from '../../types';
 
 interface SearchResultCardProps {
-  item: SearchResultItem;
-  onPress?: (item: SearchResultItem) => void;
-  onOwnerPress?: (ownerId: string) => void;
+  readonly item: SearchResultItem;
+  readonly onPress?: (item: SearchResultItem) => void;
+  readonly onOwnerPress?: (ownerId: string) => void;
 }
 
 export const SearchResultCard = memo(function SearchResultCard({

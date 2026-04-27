@@ -10,8 +10,8 @@ import { ITEM_INVENTORY_THUMBNAIL } from '../../constants';
 import { getItemThumbnailPublicUrl } from '../../utils/itemThumbnailPublicUrl';
 
 interface ItemGalleryTileProps {
-  item: Item;
-  onPress?: (item: Item) => void;
+  readonly item: Item;
+  readonly onPress?: (item: Item) => void;
 }
 
 export const ItemGalleryTile = memo(function ItemGalleryTile({

@@ -11,7 +11,7 @@ jest.mock('react-native-safe-area-context', () => {
   );
   return {
     ...actual,
-    SafeAreaProvider: ({ children }: { children: React.ReactNode }) =>
+    SafeAreaProvider: ({ children }: { readonly children: React.ReactNode }) =>
       React.createElement(
         actual.SafeAreaProvider,
         {

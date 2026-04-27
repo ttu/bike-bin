@@ -18,7 +18,7 @@ interface SearchFiltersContextType {
 const SearchFiltersContext = createContext<SearchFiltersContextType | undefined>(undefined);
 
 interface SearchFiltersProviderProps {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export function SearchFiltersProvider({ children }: SearchFiltersProviderProps) {

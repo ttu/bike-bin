@@ -5,9 +5,9 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 
 interface DetailCardProps {
-  icon: string;
-  label: string;
-  value: string;
+  readonly icon: string;
+  readonly label: string;
+  readonly value: string;
 }
 
 export function DetailCard({ icon, label, value }: DetailCardProps) {

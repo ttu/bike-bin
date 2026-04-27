@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 const MAX_WIDTH = 480;
 
 interface MaxWidthContainerProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 /**

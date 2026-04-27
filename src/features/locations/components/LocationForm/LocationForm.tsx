@@ -24,12 +24,12 @@ export interface LocationFormData {
 }
 
 interface LocationFormProps {
-  initialData?: Partial<LocationFormData>;
-  onSave: (data: LocationFormData & { geocoded: GeocodeResult }) => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
-  showPrimaryToggle?: boolean;
-  onValidationError?: (messages: string[]) => void;
+  readonly initialData?: Partial<LocationFormData>;
+  readonly onSave: (data: LocationFormData & { geocoded: GeocodeResult }) => void;
+  readonly onCancel: () => void;
+  readonly isSubmitting: boolean;
+  readonly showPrimaryToggle?: boolean;
+  readonly onValidationError?: (messages: string[]) => void;
 }
 
 export function LocationForm({

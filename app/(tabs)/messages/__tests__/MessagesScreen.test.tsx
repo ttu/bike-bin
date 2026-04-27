@@ -58,8 +58,8 @@ jest.mock('@/features/messaging', () => {
       conversation,
       onPress,
     }: {
-      conversation: { otherParticipantName: string };
-      onPress?: (c: unknown) => void;
+      readonly conversation: { otherParticipantName: string };
+      readonly onPress?: (c: unknown) => void;
     }) => (
       <Pressable
         onPress={() => onPress?.(conversation)}

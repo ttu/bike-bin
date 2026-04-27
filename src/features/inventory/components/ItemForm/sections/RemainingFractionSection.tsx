@@ -6,9 +6,9 @@ import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface RemainingFractionSectionProps extends InputStyling {
-  remainingPercentStr: ItemFormState['remainingPercentStr'];
-  setRemainingPercentStr: ItemFormState['setRemainingPercentStr'];
-  errors: ItemFormState['errors'];
+  readonly remainingPercentStr: ItemFormState['remainingPercentStr'];
+  readonly setRemainingPercentStr: ItemFormState['setRemainingPercentStr'];
+  readonly errors: ItemFormState['errors'];
 }
 
 export function RemainingFractionSection({

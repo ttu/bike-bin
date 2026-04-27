@@ -2,8 +2,8 @@ import { View, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 interface ProgressDotsProps {
-  total: number;
-  current: number;
+  readonly total: number;
+  readonly current: number;
 }
 
 export function ProgressDots({ total, current }: ProgressDotsProps) {

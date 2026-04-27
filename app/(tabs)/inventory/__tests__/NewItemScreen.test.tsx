@@ -98,10 +98,10 @@ jest.mock('@/features/inventory/hooks/useStagedPhotos', () => ({
 
 jest.mock('@/features/inventory/components/ItemForm/ItemForm', () => ({
   ItemForm: (props: {
-    initialData?: Record<string, unknown>;
-    onSave: (data: Record<string, unknown>) => void;
-    onValidationError?: (messages: string[]) => void;
-    photoSection?: React.ReactNode;
+    readonly initialData?: Record<string, unknown>;
+    readonly onSave: (data: Record<string, unknown>) => void;
+    readonly onValidationError?: (messages: string[]) => void;
+    readonly photoSection?: React.ReactNode;
   }) => {
     capturedInitialData = props.initialData;
     capturedOnSave = props.onSave;
