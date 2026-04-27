@@ -120,51 +120,100 @@ You MUST follow this procedure exactly. Zero tolerance — every issue found mus
    - Type text into message input, verify it appears (do NOT send)
    - Clear the input
    - Navigate back
-4. Check `browser_console_messages` for errors
+4. **Start a conversation from a listing** — Navigate to Search, open a listing owned by another user, tap **Contact / Message owner**
+   - Screenshot → `phase4-conversation-from-listing-{attempt}.png`
+   - Verify a conversation opens (new or existing) with the listing's item card visible at the top
+   - Verify navigating back returns to the listing detail, and that the new conversation appears in the Messages tab list
+5. **Borrow request flow (messaging side)** — From a borrowable listing, tap **Request to borrow**
+   - Screenshot → `phase4-borrow-request-{attempt}.png`
+   - Verify the borrow request UI (status chip / pending state) and that the linked conversation references the borrow request
+   - Navigate back without escalating state
+6. Check `browser_console_messages` for errors
 
 **If ANY issue found:** Document it, fix it, repeat.
 
-### Phase 5: Profile Tab — Full Functional Test
+### Phase 5: Groups Tab — Full Functional Test
+
+**Repeat up to 2 times or until clean:**
+
+1. Navigate to the **Groups** tab (top-level tab, between Search and Messages)
+2. **Group list** — Screenshot → `phase5-groups-list-{attempt}.png`
+   - Verify the user's groups render with name, description, public/private badge, member count
+   - Verify "Search public groups" affordance and "Create group" entry point are present
+   - If empty: verify the empty state renders (icon + message + create CTA), not a blank screen
+3. **Create group** — Tap "Create group"
+   - Screenshot → `phase5-group-create-{attempt}.png`
+   - Verify the form fields (name, description, public toggle) render and inputs accept text
+   - Navigate back without saving
+4. **Group detail** — Tap on a group
+   - Screenshot → `phase5-group-detail-{attempt}.png`
+   - Verify header (name, description, public/private badge, member count, your role)
+   - Verify tabs/sections for **Members** and **Group inventory** (shared items)
+   - Verify admin-only actions are hidden for members and visible for admins
+5. **Group inventory (shared items)** — Open the group's inventory section
+   - Screenshot → `phase5-group-inventory-{attempt}.png`
+   - Verify group-owned items render with name, condition, status, availability
+   - Tap an item to open its detail; verify it shows the group as owner (not the user) and that the item links back to the group
+   - Verify the per-group photo / item caps surface a clear message on creation flows that exceed them (do not actually exceed; cap UI only)
+   - Navigate back to the group detail
+6. **Members list** — Open the members section
+   - Screenshot → `phase5-group-members-{attempt}.png`
+   - Verify each member shows display name, avatar, role badge (admin / member)
+   - For an admin viewer: verify promote / remove controls are present (do not invoke)
+7. **Invitations** — If the user has a pending group invitation, navigate to it
+   - Screenshot → `phase5-group-invitation-{attempt}.png`
+   - Verify accept / reject controls render (do not invoke)
+8. **Leave group** — Verify "Leave group" exists for non-last-admin members (do not invoke)
+9. Check `browser_console_messages` for errors
+
+**If ANY issue found:** Document it, fix it, repeat.
+
+### Phase 6: Profile Tab — Full Functional Test
 
 **Repeat up to 2 times or until clean:**
 
 1. Navigate to the Profile tab
-2. **Profile screen** — Screenshot → `phase5-profile-{attempt}.png`
+2. **Profile screen** — Screenshot → `phase6-profile-{attempt}.png`
    - Verify profile header shows test user info (name, avatar)
-   - Verify menu sections are present: Borrow Requests, Groups, Saved Locations, Notification Settings, Support
+   - Verify menu sections are present: Borrow Requests, Saved Locations, Notification Settings, Data Export, Support, About
    - Verify theme switcher (system/light/dark) is visible
+   - **Note:** Groups is its own top-level tab (Phase 5) — it should NOT appear here
 3. **Theme switching** — Tap "Light" then "Dark" theme options
-   - Screenshot after each → `phase5-theme-light-{attempt}.png`, `phase5-theme-dark-{attempt}.png`
+   - Screenshot after each → `phase6-theme-light-{attempt}.png`, `phase6-theme-dark-{attempt}.png`
    - Verify the theme actually changes (background color, text color)
    - Switch back to "System"
 4. **Borrow Requests** — Navigate to borrow requests screen
-   - Screenshot → `phase5-borrow-requests-{attempt}.png`
+   - Screenshot → `phase6-borrow-requests-{attempt}.png`
    - Verify tabs (incoming/outgoing/active) are present and tappable
    - Tap each tab and screenshot
    - Navigate back
-5. **Groups** — Navigate to groups screen
-   - Screenshot → `phase5-groups-{attempt}.png`
-   - Verify groups list or empty state renders
-   - Navigate back
-6. **Notification Settings** — Navigate to notification settings
-   - Screenshot → `phase5-notification-settings-{attempt}.png`
+5. **Notification Settings** — Navigate to notification settings
+   - Screenshot → `phase6-notification-settings-{attempt}.png`
    - Verify categories (messages, borrow activity, reminders) with push/email toggles
    - Toggle a switch, verify it responds visually
    - Navigate back
-7. **Sign out** — Verify "Sign Out" button is present on profile screen
+6. **Data Export (GDPR)** — Navigate to the export-data screen
+   - Screenshot → `phase6-export-data-{attempt}.png`
+   - Verify the request-export CTA, recent request list, and status chips render (do not actually trigger an export unless a stub is wired)
+   - Navigate back
+7. **Public profile** — From a search result or conversation, tap an owner name to open their public profile (`/profile/[userId]`)
+   - Screenshot → `phase6-public-profile-{attempt}.png`
+   - Verify display name, avatar, ratings aggregate, and public listings render
+   - Navigate back
+8. **Sign out** — Verify "Sign Out" button is present on profile screen
    - Tap it, confirm the alert
-   - Screenshot → `phase5-signed-out-{attempt}.png`
+   - Screenshot → `phase6-signed-out-{attempt}.png`
    - Verify it returns to the login screen
-8. Check `browser_console_messages` for errors
+9. Check `browser_console_messages` for errors
 
 **If ANY issue found:** Document it, fix it, repeat.
 
-### Phase 6: Cross-Cutting Concerns
+### Phase 7: Cross-Cutting Concerns
 
 **Repeat up to 2 times or until clean:**
 
 1. Log back in via dev login button
-2. **Navigation consistency** — Rapidly switch between all bottom tabs (Inventory, Bikes, Search, Messages, Profile)
+2. **Navigation consistency** — Rapidly switch between all six bottom tabs (Inventory, Bikes, Search, Groups, Messages, Profile)
    - Verify no blank screens, no loading spinners that never resolve
    - Verify tab bar highlights the active tab correctly
 3. **Back navigation** — Enter a detail screen, use back button, verify return to correct list
@@ -175,20 +224,20 @@ You MUST follow this procedure exactly. Zero tolerance — every issue found mus
 
 **If ANY issue found:** Document it, fix it, repeat.
 
-### Phase 7: Responsive / Viewport Verification
+### Phase 8: Responsive / Viewport Verification
 
 **Repeat up to 2 times or until clean:**
 
 1. Resize viewport to mobile (375x812): `browser_resize`
-2. Navigate through key screens (inventory list, item detail, search, messages, profile)
-3. Take screenshots → `phase7-{screen}-mobile-{attempt}.png`
+2. Navigate through key screens (inventory list, item detail, search, groups list, group detail, messages, profile)
+3. Take screenshots → `phase8-{screen}-mobile-{attempt}.png`
 4. Resize to tablet (768x1024)
-5. Take screenshots → `phase7-{screen}-tablet-{attempt}.png`
+5. Take screenshots → `phase8-{screen}-tablet-{attempt}.png`
 6. Check for: horizontal scroll, truncated text, overlapping elements, touch target sizes, readable text
 
 **If ANY issue found:** Document it, fix it, repeat.
 
-### Phase 8: Final Summary
+### Phase 9: Final Summary
 
 1. Write a `summary.md` in the session folder with:
    - Total issues found and fixed (with severity: critical/major/minor)

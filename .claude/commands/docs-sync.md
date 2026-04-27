@@ -242,13 +242,20 @@ When `fix` argument is provided, after identifying discrepancies:
 3. **Sync architecture docs** - Add missing feature slices, fix directory structures
 4. **Update technical specs** - Fix dependency versions, script references
 5. **Update testing docs** - Fix test counts, commands, configuration
-6. **Report all changes made** with before/after summary
+6. **Sync feature design docs** in `docs/design-docs/` for verifiable code-vs-doc drift:
+   - Route paths in screen tables (e.g. `(tabs)/profile/groups/...` → `(tabs)/groups/...` when the route moved)
+   - Hook / component / file names that have been renamed or removed
+   - "Current Status" / "Implemented / Partially / Not implemented" lines that contradict the codebase (e.g. a feature now wired up via Supabase that the doc still calls a TODO)
+   - "Planned / future" markers for things that have shipped (verify in code first)
+   - Cross-doc links that point to moved or removed files
+     Leave product/UX intent, rationale, copy, visual specs, and screen wireframes untouched — those are the authoritative parts that the surrounding code is implemented _against_. When in doubt, prefer adding a short note (e.g. "moved to X — see [009-groups.md]") over rewriting the section.
+7. **Report all changes made** with before/after summary
 
 **What fix mode will NOT do:**
 
 - Change source code (only documentation is updated)
 - Delete documentation sections (only updates existing content)
-- Modify design docs in `docs/design-docs/` without review (these are authoritative feature documentation)
+- Rewrite product/UX intent or wireframes in `docs/design-docs/` (touch only the verifiable code-mapped fields described above)
 
 ## Tips
 
