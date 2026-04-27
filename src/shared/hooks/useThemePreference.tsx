@@ -49,7 +49,9 @@ export function ThemePreferenceProvider({ children }: { readonly children: React
   const setPreference = useCallback((pref: ThemePreference) => {
     skipHydrationRef.current = true;
     setPreferenceState(pref);
-    void AsyncStorage.setItem(STORAGE_KEY, pref);
+    AsyncStorage.setItem(STORAGE_KEY, pref).catch(() => {
+      // Best-effort persistence; the in-memory preference is the source of truth.
+    });
   }, []);
 
   let effectiveTheme: EffectiveTheme;

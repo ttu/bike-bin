@@ -49,7 +49,7 @@ export function RemoveFromInventoryDialog({
               { backgroundColor: theme.customColors.surfaceContainerLow },
             ]}
           >
-            {onArchive != null ? (
+            {onArchive ? (
               <Button
                 mode="outlined"
                 icon="archive-outline"
@@ -61,7 +61,7 @@ export function RemoveFromInventoryDialog({
                 {t('detail.archive')}
               </Button>
             ) : null}
-            {onDelete != null ? (
+            {onDelete ? (
               <Button
                 mode="text"
                 icon="delete-outline"
