@@ -169,7 +169,7 @@ export function ListingDetailRoute({
         onContact={isOwnItem ? undefined : handleContact}
         onRequestBorrow={isOwnItem ? undefined : handleRequestBorrow}
         onOwnerPress={item.ownerId ? handleOwnerPress : undefined}
-        onPhotoLongPress={isOwnItem || user === null ? undefined : handlePhotoLongPress}
+        onPhotoLongPress={isOwnItem || !user ? undefined : handlePhotoLongPress}
       />
 
       <ConfirmDialog {...confirmDialogProps} />
