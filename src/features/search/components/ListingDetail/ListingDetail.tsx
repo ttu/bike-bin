@@ -10,7 +10,12 @@ import { Stamp } from '@/shared/components/Stamp/Stamp';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { formatDistance } from '@/shared/utils';
-import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
+import { CONDITION_ICON, CONDITION_ICON_FALLBACK } from '@/shared/constants/conditionIcons';
+import {
+  getWideDetailLayout,
+  WIDE_DETAIL_PAGE_MAX_WIDTH,
+  WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
+} from '@/shared/utils/wideDetailLayout';
 import { AvailabilityType, type ItemPhoto } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import type { SearchResultItem } from '../../types';
@@ -28,13 +33,6 @@ const formatPrice = (price: number): string =>
   }).format(price);
 
 const MIDDLE_DOT = ' · ';
-
-const CONDITION_ICONS: Record<string, string> = {
-  new: 'shield-check',
-  good: 'emoticon-happy-outline',
-  worn: 'history',
-  broken: 'close-circle-outline',
-};
 
 type ListingDetailProps = Readonly<{
   item: SearchResultItem;
@@ -252,7 +250,7 @@ function ListingDetailStrip({
         ]}
       >
         <DetailCard
-          icon={CONDITION_ICONS[item.condition] ?? 'shield-check'}
+          icon={CONDITION_ICON[item.condition] ?? CONDITION_ICON_FALLBACK}
           label={t('search:listing.detail.conditionLabel')}
           value={t(`search:condition.${item.condition}`)}
         />
@@ -545,11 +543,11 @@ const styles = StyleSheet.create({
   },
   wideSplitLeft: {
     flex: 1,
-    minWidth: 280,
+    minWidth: WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
   },
   wideSplitRight: {
     flex: 1,
-    minWidth: 280,
+    minWidth: WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
     borderLeftWidth: StyleSheet.hairlineWidth,
     paddingLeft: spacing.lg,
   },

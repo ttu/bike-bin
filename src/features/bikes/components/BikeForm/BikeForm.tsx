@@ -11,7 +11,8 @@ import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
-import { resolveBikeFormName } from '../../utils/resolveBikeFormName';
+import { resolveFormName } from '@/shared/utils';
+import { CONDITION_ICON, CONDITION_ICON_FALLBACK } from '@/shared/constants/conditionIcons';
 import { optionalNumberFromInput } from '../../utils/optionalNumberFromInput';
 import { buildBikeFormDataFromFields } from '../../utils/buildBikeFormDataFromFields';
 import { areBikeFormDataEqual } from '../../utils/bikeFormDataEquality';
@@ -38,13 +39,6 @@ const ITEM_CONDITIONS = [
   ItemCondition.Worn,
   ItemCondition.Broken,
 ];
-
-const CONDITION_ICONS: Record<string, string> = {
-  new: 'shield-check',
-  good: 'emoticon-happy-outline',
-  worn: 'history',
-  broken: 'close-circle-outline',
-};
 
 interface BikeFormProps {
   readonly initialData?: BikeFormData;
@@ -121,7 +115,7 @@ export function BikeForm({
   const [errors, setErrors] = useState<BikeFormErrors>({});
 
   const nameFieldValue = useMemo(
-    () => (name.trim() === '' ? resolveBikeFormName('', brand, model) : name),
+    () => (name.trim() === '' ? resolveFormName('', brand, model) : name),
     [name, brand, model],
   );
 
@@ -160,7 +154,7 @@ export function BikeForm({
 
   const handleSubmit = useCallback(() => {
     const validationErrors: BikeFormErrors = {};
-    const resolvedName = resolveBikeFormName(name, brand, model);
+    const resolvedName = resolveFormName(name, brand, model);
     if (!resolvedName.trim()) {
       validationErrors.name = t('form.nameRequired');
     }
@@ -324,7 +318,7 @@ export function BikeForm({
               ]}
             >
               <MaterialCommunityIcons
-                name={(CONDITION_ICONS[cond] ?? 'shield-check') as never}
+                name={(CONDITION_ICON[cond] ?? CONDITION_ICON_FALLBACK) as never}
                 size={28}
                 color={active ? theme.colors.primary : theme.colors.onSurfaceVariant}
               />

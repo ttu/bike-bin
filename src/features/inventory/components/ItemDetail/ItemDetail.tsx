@@ -20,7 +20,11 @@ import { PhotoGallery } from '@/shared/components';
 import { Stamp } from '@/shared/components/Stamp/Stamp';
 import { DisplayFigure } from '@/shared/components/DisplayFigure';
 import { useDistanceUnit } from '@/features/profile';
-import { getWideDetailLayout, WIDE_DETAIL_PAGE_MAX_WIDTH } from '@/shared/utils/wideDetailLayout';
+import {
+  getWideDetailLayout,
+  WIDE_DETAIL_PAGE_MAX_WIDTH,
+  WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
+} from '@/shared/utils/wideDetailLayout';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 import { availabilityTypesForList } from '../../utils/availabilityList';
 
@@ -318,9 +322,6 @@ function ServiceRecord({
   if (item.mountedDate) {
     serviceRows.push({ label: t('detail.mountedOnLabel'), value: item.mountedDate });
   }
-  if (item.storageLocation) {
-    serviceRows.push({ label: t('detail.storageLabel'), value: item.storageLocation });
-  }
   return (
     <View style={[styles.section, themed.sectionBorder]}>
       <View style={styles.stampHeader}>
@@ -556,11 +557,11 @@ const styles = StyleSheet.create({
   },
   wideSplitLeft: {
     flex: 1,
-    minWidth: 280,
+    minWidth: WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
   },
   wideSplitRight: {
     flex: 1,
-    minWidth: 280,
+    minWidth: WIDE_DETAIL_SPLIT_MIN_COLUMN_WIDTH,
     borderLeftWidth: StyleSheet.hairlineWidth,
     paddingLeft: spacing.lg,
   },
