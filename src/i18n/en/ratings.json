@@ -14,7 +14,7 @@
     "error": "Failed to submit rating"
   },
   "reviewSummary": "Borrowed {{count}} times · {{onTime}} on time",
-  "reviewSummary_plural": "Borrowed {{count}} times · {{onTime}} on time",
+  "reviewSummary_other": "Borrowed {{count}} times · {{onTime}} on time",
   "review": {
     "noText": "No comment",
     "editableUntil": "Editable until {{date}}",
@@ -29,7 +29,7 @@
     "reviews": "Reviews",
     "noReviews": "No reviews yet",
     "ratingCount": "{{count}} review",
-    "ratingCount_plural": "{{count}} reviews",
+    "ratingCount_other": "{{count}} reviews",
     "publicListings": "Public Listings",
     "noListings": "No public listings",
     "report": "Report"

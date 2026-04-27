@@ -1,6 +1,5 @@
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react-native';
-import { router } from 'expo-router';
+import { screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import commonEn from '@/i18n/en/common.json';
 import profileEn from '@/i18n/en/profile.json';
@@ -89,10 +88,9 @@ describe('ProfileScreen', () => {
     expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
   });
 
-  it('navigates to the groups tab when the Groups menu row is pressed', () => {
+  it('does not render a Groups menu row (Groups is its own top-level tab)', () => {
     renderWithProviders(<ProfileScreen />);
-    fireEvent.press(screen.getByTestId('profile-menu-groups'));
-    expect(router.push).toHaveBeenCalledWith('/(tabs)/groups');
+    expect(screen.queryByTestId('profile-menu-groups')).toBeNull();
   });
 
   it('adds extra bottom scroll padding to keep sign out above tab bar', () => {
