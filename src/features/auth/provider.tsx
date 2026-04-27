@@ -5,7 +5,7 @@ import { AuthContext } from './context';
 import { signInWithOAuthProvider } from './utils/signInWithOAuthProvider';
 
 export function AuthProvider({ children }: { readonly children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -19,13 +19,13 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
         if (!isMounted) {
           return;
         }
-        setSession(currentSession);
+        setSession(currentSession ?? undefined);
       } catch {
         // Invalid/expired refresh tokens should not crash the app shell.
         if (!isMounted) {
           return;
         }
-        setSession(null);
+        setSession(undefined);
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
+      setSession(newSession ?? undefined);
     });
 
     return () => {
@@ -59,8 +59,8 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
     await supabase.auth.signOut();
   }, []);
 
-  const user: User | null = session?.user ?? null;
-  const isAuthenticated = user !== null;
+  const user: User | undefined = session?.user;
+  const isAuthenticated = user !== undefined;
 
   const value = useMemo(
     () => ({

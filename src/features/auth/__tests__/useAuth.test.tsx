@@ -56,8 +56,8 @@ describe('useAuth', () => {
     // Wait for initial session check
     await act(async () => {});
 
-    expect(result.current.session).toBeNull();
-    expect(result.current.user).toBeNull();
+    expect(result.current.session).toBeUndefined();
+    expect(result.current.user).toBeUndefined();
     expect(result.current.isAuthenticated).toBe(false);
   });
 
@@ -79,7 +79,7 @@ describe('useAuth', () => {
     await act(async () => {});
 
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.session).toBeNull();
+    expect(result.current.session).toBeUndefined();
     expect(result.current.isAuthenticated).toBe(false);
   });
 
