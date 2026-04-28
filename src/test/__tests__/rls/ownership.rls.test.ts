@@ -117,15 +117,15 @@ describe('profiles — UPDATE', () => {
       .eq('id', userB.id);
     // RLS blocks write — either error or 0 rows affected; check by verifying no change
     // PostgREST may return no error but 0 rows matched; verify via admin read
-    if (!error) {
+    if (error) {
+      expect(error).toBeTruthy();
+    } else {
       const { data } = await adminClient
         .from('profiles')
         .select('display_name')
         .eq('id', userB.id)
         .single();
       expect(data?.display_name).not.toBe('Hacked B');
-    } else {
-      expect(error).toBeTruthy();
     }
   });
 });

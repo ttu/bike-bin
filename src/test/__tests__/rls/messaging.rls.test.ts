@@ -666,8 +666,12 @@ describe('mark_conversation_read RPC', () => {
       .select('last_read_at')
       .eq('conversation_id', conversationId)
       .eq('user_id', userA.id);
-    expect(rows?.[0]?.last_read_at).toBeDefined();
-    expect(new Date(rows![0].last_read_at!).getTime()).toBeGreaterThan(
+    const lastReadAt = rows?.[0]?.last_read_at;
+    expect(lastReadAt).toBeDefined();
+    if (typeof lastReadAt !== 'string') {
+      throw new Error('expected last_read_at');
+    }
+    expect(new Date(lastReadAt).getTime()).toBeGreaterThan(
       new Date('1970-01-01T00:00:00Z').getTime(),
     );
   });

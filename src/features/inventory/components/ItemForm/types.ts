@@ -8,7 +8,7 @@ import {
 } from '@/shared/types';
 import type { ItemFormData, ItemFormErrors } from '../../utils/validation';
 
-export type { ItemFormData, ItemFormErrors };
+export type { ItemFormData, ItemFormErrors } from '../../utils/validation';
 
 export interface ItemFormProps {
   initialData?: ItemFormData;

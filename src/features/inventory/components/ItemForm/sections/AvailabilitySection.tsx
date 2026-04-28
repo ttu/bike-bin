@@ -47,7 +47,7 @@ export function AvailabilitySection({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: AvailabilitySectionProps) {
+}: Readonly<AvailabilitySectionProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
 

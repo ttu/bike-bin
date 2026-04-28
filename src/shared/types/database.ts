@@ -1465,6 +1465,7 @@ export type Enums<
     ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never;
 
+// NOSONAR: Supabase helper — default `CompositeTypeName` and conditional branch use `never` for inference; removing it breaks generated client typings.
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema['CompositeTypes']

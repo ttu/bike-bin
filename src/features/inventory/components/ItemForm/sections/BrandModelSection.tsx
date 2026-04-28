@@ -33,7 +33,7 @@ export function BrandModelSection({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: BrandModelSectionProps) {
+}: Readonly<BrandModelSectionProps>) {
   const { t } = useTranslation('inventory');
   const nameIsEmpty = name.trim().length === 0;
   const brandPlaceholder = nameIsEmpty

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, type ListRenderItem } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -35,11 +35,19 @@ export default function NotificationsScreen() {
       // Navigate based on notification type and data
       const { type, data } = notification;
       switch (type) {
-        case 'new_message':
-          if (data.conversationId) {
-            router.push(`/(tabs)/messages/${data.conversationId}`);
+        case 'new_message': {
+          const rawConversationId = data.conversationId;
+          const conversationIdStr =
+            typeof rawConversationId === 'string'
+              ? rawConversationId
+              : typeof rawConversationId === 'number'
+                ? String(rawConversationId)
+                : undefined;
+          if (conversationIdStr) {
+            router.push(`/(tabs)/messages/${conversationIdStr}`);
           }
           break;
+        }
         case 'borrow_request_received':
         case 'borrow_request_accepted':
         case 'borrow_request_declined':
@@ -55,10 +63,8 @@ export default function NotificationsScreen() {
     [markRead, router],
   );
 
-  const renderItem = useCallback(
-    ({ item }: { readonly item: Notification }) => (
-      <NotificationCard notification={item} onPress={handleNotificationPress} />
-    ),
+  const renderItem = useCallback<ListRenderItem<Notification>>(
+    ({ item }) => <NotificationCard notification={item} onPress={handleNotificationPress} />,
     [handleNotificationPress],
   );
 

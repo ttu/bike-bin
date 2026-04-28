@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Appbar, Text, FAB, useTheme } from 'react-native-paper';
+import { View, FlatList, StyleSheet, RefreshControl, Pressable, type ListRenderItem } from 'react-native';
+import { Appbar, Text, FAB as Fab, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
@@ -158,10 +158,8 @@ export default function SavedLocationsScreen() {
     }
   }, [deleteTarget, deleteLocation, showSnackbarAlert, t, tCommon]);
 
-  const renderItem = useCallback(
-    ({ item }: { readonly item: SavedLocation }) => (
-      <LocationCard location={item} onPress={handleEditPress} onDelete={handleDelete} />
-    ),
+  const renderItem = useCallback<ListRenderItem<SavedLocation>>(
+    ({ item }) => <LocationCard location={item} onPress={handleEditPress} onDelete={handleDelete} />,
     [handleEditPress, handleDelete],
   );
 
@@ -266,7 +264,7 @@ export default function SavedLocationsScreen() {
 
       {renderLocationsBody()}
 
-      <FAB
+      <Fab
         icon="plus"
         style={[styles.fab, listModeDynamicStyles.fabDynamic]}
         color={theme.colors.onPrimary}

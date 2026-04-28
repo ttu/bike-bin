@@ -8,8 +8,8 @@ export function mapMessageRow(row: MessageRow, currentUserId: string): MessageWi
     id: row.id as MessageId,
     conversationId: row.conversation_id as ConversationId,
     senderId,
-    body: row.body as string,
-    createdAt: row.created_at as string,
+    body: row.body,
+    createdAt: row.created_at,
     isOwn: senderId !== undefined && senderId === currentUserId,
   };
 }

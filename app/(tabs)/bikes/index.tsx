@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
-import { Text, FAB, useTheme } from 'react-native-paper';
+import { View, FlatList, StyleSheet, type ListRenderItem } from 'react-native';
+import { Text, FAB as Fab, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,8 +31,8 @@ export default function BikesScreen() {
     router.push('/(tabs)/bikes/new');
   }, [blockNewBikes]);
 
-  const renderItem = useCallback(
-    ({ item }: { readonly item: Bike }) => <BikeCard bike={item} onPress={handleBikePress} />,
+  const renderItem = useCallback<ListRenderItem<Bike>>(
+    ({ item }) => <BikeCard bike={item} onPress={handleBikePress} />,
     [handleBikePress],
   );
 
@@ -86,7 +86,7 @@ export default function BikesScreen() {
       {renderBody()}
 
       {bikes.length > 0 && (
-        <FAB
+        <Fab
           icon="plus"
           style={[styles.fab, insetsStyles.fab]}
           color={theme.colors.onPrimary}
@@ -98,6 +98,7 @@ export default function BikesScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

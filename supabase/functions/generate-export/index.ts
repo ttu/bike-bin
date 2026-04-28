@@ -380,10 +380,12 @@ Deno.serve(async (req) => {
   const authError = authorize(req);
   if (authError) return authError;
 
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  );
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !serviceRoleKey) {
+    return jsonResponse(500, { error: 'Server misconfigured' });
+  }
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   const payload = await parsePayload(req);
   if (payload instanceof Response) return payload;

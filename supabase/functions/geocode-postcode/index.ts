@@ -58,8 +58,12 @@ async function requireAuthenticatedUser(req: Request): Promise<Response | undefi
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return jsonResponse(401, { error: 'Unauthorized' });
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseAnon = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return jsonResponse(500, { error: 'Server misconfigured' });
+  }
+  const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } },
   });
 
@@ -166,10 +170,12 @@ Deno.serve(async (req) => {
     if (validated instanceof Response) return validated;
     const { normalizedPostcode, normalizedCountry } = validated;
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseUrl || !serviceRoleKey) {
+      return jsonResponse(500, { error: 'Server misconfigured' });
+    }
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     const cached = await lookupCache(supabase, normalizedPostcode, normalizedCountry);
     if (cached) return jsonResponse(200, cached);

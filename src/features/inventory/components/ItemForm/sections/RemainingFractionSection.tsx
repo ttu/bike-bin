@@ -18,7 +18,7 @@ export function RemainingFractionSection({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: RemainingFractionSectionProps) {
+}: Readonly<RemainingFractionSectionProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
 

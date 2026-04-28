@@ -5,7 +5,6 @@ import type {
   RatingId,
   RatingRecipient,
   RatingRow,
-  TransactionType,
   UserId,
 } from '@/shared/types';
 import type { RatingWithReviewer } from '../types';
@@ -22,8 +21,8 @@ export function mapRatingRow(row: RatingRow): Rating {
     id: row.id as RatingId,
     fromUserId: (row.from_user_id as UserId | null) ?? undefined,
     itemId: (row.item_id as ItemId) ?? undefined,
-    transactionType: row.transaction_type as TransactionType,
-    score: row.score as number,
+    transactionType: row.transaction_type,
+    score: row.score,
     text: (row.text as string) ?? undefined,
     editableUntil: (row.editable_until as string) ?? undefined,
     createdAt: row.created_at as string,

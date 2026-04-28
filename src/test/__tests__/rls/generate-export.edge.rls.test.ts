@@ -161,12 +161,14 @@ describe('generate-export edge function', () => {
     const itemKey = `export/photos/items/${itemId}/photo.jpg`;
     const bikeKey = `export/photos/bikes/${bikeId}/photo.jpg`;
 
-    expect(files[itemKey]).toBeDefined();
-    expect(files[itemKey]!.length).toBeGreaterThan(0);
-    expect(Buffer.from(files[itemKey]!).toString()).toBe('export-item-photo-bytes');
+    const itemPhotoZip = files[itemKey];
+    expect(itemPhotoZip).toBeDefined();
+    expect(itemPhotoZip?.length).toBeGreaterThan(0);
+    expect(Buffer.from(itemPhotoZip ?? []).toString()).toBe('export-item-photo-bytes');
 
-    expect(files[bikeKey]).toBeDefined();
-    expect(files[bikeKey]!.length).toBeGreaterThan(0);
-    expect(Buffer.from(files[bikeKey]!).toString()).toBe('export-bike-photo-bytes');
+    const bikePhotoZip = files[bikeKey];
+    expect(bikePhotoZip).toBeDefined();
+    expect(bikePhotoZip?.length).toBeGreaterThan(0);
+    expect(Buffer.from(bikePhotoZip ?? []).toString()).toBe('export-bike-photo-bytes');
   });
 });

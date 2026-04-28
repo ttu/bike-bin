@@ -16,7 +16,7 @@ export function NameSection({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: NameSectionProps) {
+}: Readonly<NameSectionProps>) {
   const { t } = useTranslation('inventory');
 
   return (

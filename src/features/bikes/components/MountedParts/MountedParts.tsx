@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Pressable, type ListRenderItem } from 'react-native';
 import { Text, Button, IconButton, Dialog, Portal, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -47,8 +47,8 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
     }
   }, [detachMutation, detachTarget, bikeId]);
 
-  const renderMountedItem = useCallback(
-    ({ item }: { item: Item }) => (
+  const renderMountedItem = useCallback<ListRenderItem<Item>>(
+    ({ item }) => (
       <View style={[styles.partRow, themed.surfaceBg]}>
         <Pressable
           style={styles.partInfo}
@@ -78,8 +78,8 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
     [themed, t, bikeId],
   );
 
-  const renderPickerItem = useCallback(
-    ({ item }: { readonly item: Item }) => (
+  const renderPickerItem = useCallback<ListRenderItem<Item>>(
+    ({ item }) => (
       <View style={[styles.partRow, themed.surfaceBg]}>
         <View style={styles.partInfo}>
           <Text variant="bodyLarge" style={themed.onSurface}>
