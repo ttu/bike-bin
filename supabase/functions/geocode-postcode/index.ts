@@ -54,15 +54,14 @@ function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
 }
 
-async function requireAuthenticatedUser(req: Request): Promise<Response | undefined> {
+async function requireAuthenticatedUser(
+  req: Request,
+  supabaseUrl: string,
+  supabaseAnonKey: string,
+): Promise<Response | undefined> {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return jsonResponse(401, { error: 'Unauthorized' });
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return jsonResponse(500, { error: 'Server misconfigured' });
-  }
   const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } },
   });
@@ -162,20 +161,22 @@ async function persistCacheEntry(
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return jsonResponse(405, { error: 'Method not allowed' });
 
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
+    return jsonResponse(500, { error: 'Server misconfigured' });
+  }
+
   try {
-    const authError = await requireAuthenticatedUser(req);
+    const authError = await requireAuthenticatedUser(req, supabaseUrl, supabaseAnonKey);
     if (authError) return authError;
 
     const validated = parseAndValidate(await req.json());
     if (validated instanceof Response) return validated;
     const { normalizedPostcode, normalizedCountry } = validated;
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (!supabaseUrl || !serviceRoleKey) {
-      return jsonResponse(500, { error: 'Server misconfigured' });
-    }
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     const cached = await lookupCache(supabase, normalizedPostcode, normalizedCountry);
     if (cached) return jsonResponse(200, cached);

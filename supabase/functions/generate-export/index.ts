@@ -43,10 +43,9 @@ function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
 }
 
-function authorize(req: Request): Response | undefined {
+function authorize(req: Request, serviceRoleKey: string): Response | undefined {
   const authHeader = req.headers.get('Authorization');
-  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  if (!authHeader || authHeader !== `Bearer ${supabaseServiceKey}`) {
+  if (!authHeader || authHeader !== `Bearer ${serviceRoleKey}`) {
     return jsonResponse(401, { error: 'Unauthorized' });
   }
   return undefined;
@@ -377,14 +376,15 @@ async function markFailed(
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return jsonResponse(405, { error: 'Method not allowed' });
 
-  const authError = authorize(req);
-  if (authError) return authError;
-
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !serviceRoleKey) {
     return jsonResponse(500, { error: 'Server misconfigured' });
   }
+
+  const authError = authorize(req, serviceRoleKey);
+  if (authError) return authError;
+
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   const payload = await parsePayload(req);

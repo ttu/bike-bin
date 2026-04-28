@@ -52,6 +52,40 @@ describe('ThemePreferenceProvider', () => {
     expect(getByTestId('preference').props.children).toBe('dark');
   });
 
+  it('chains AsyncStorage writes when preference changes in quick succession', async () => {
+    const persisted: string[] = [];
+    const mockedSetItem = AsyncStorage.setItem as jest.Mock;
+    mockedSetItem.mockImplementation((_key: string, value: string) => {
+      persisted.push(value);
+      return Promise.resolve();
+    });
+
+    function DualButtons() {
+      const { setPreference } = useThemePreference();
+      return (
+        <View>
+          <Button title="go-dark" onPress={() => setPreference('dark')} />
+          <Button title="go-light" onPress={() => setPreference('light')} />
+        </View>
+      );
+    }
+
+    const { getByText } = render(
+      <ThemePreferenceProvider>
+        <DualButtons />
+      </ThemePreferenceProvider>,
+    );
+
+    fireEvent.press(getByText('go-dark'));
+    fireEvent.press(getByText('go-light'));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(persisted).toEqual(['dark', 'light']);
+  });
+
   it('applies stored preference when the user has not changed the theme yet', async () => {
     mockedGetItem.mockResolvedValue('dark');
 

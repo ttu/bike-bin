@@ -33,6 +33,8 @@ export function ThemePreferenceProvider({ children }: { readonly children: React
   const [preference, setPreference] = useState<ThemePreference>('system');
   /** Once the user sets a preference, ignore late AsyncStorage hydration (avoids stomping the choice). */
   const skipHydrationRef = useRef(false);
+  /** Serializes AsyncStorage writes so rapid theme changes persist in order. */
+  const persistPromiseRef = useRef<Promise<void>>(Promise.resolve());
 
   // Load persisted preference on mount
   useEffect(() => {
@@ -49,9 +51,11 @@ export function ThemePreferenceProvider({ children }: { readonly children: React
   const setPreferenceAndPersist = useCallback((pref: ThemePreference) => {
     skipHydrationRef.current = true;
     setPreference(pref);
-    AsyncStorage.setItem(STORAGE_KEY, pref).catch(() => {
-      // Best-effort persistence; the in-memory preference is the source of truth.
-    });
+    persistPromiseRef.current = (persistPromiseRef.current ?? Promise.resolve())
+      .then(() => AsyncStorage.setItem(STORAGE_KEY, pref))
+      .catch(() => {
+        // Best-effort persistence; the in-memory preference is the source of truth.
+      });
   }, []);
 
   let effectiveTheme: EffectiveTheme;
