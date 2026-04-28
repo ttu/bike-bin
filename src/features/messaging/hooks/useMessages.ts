@@ -26,14 +26,14 @@ export function useMessages(conversationId: ConversationId | undefined) {
         .limit(PAGE_SIZE);
 
       if (pageParam) {
-        query = query.lt('created_at', pageParam as string);
+        query = query.lt('created_at', pageParam);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
 
-      return (data ?? []).map((msg) => mapMessageRow(msg, userId!));
+      return (data ?? []).map((msg) => mapMessageRow(msg, userId));
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => {

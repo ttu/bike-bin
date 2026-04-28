@@ -122,7 +122,7 @@ describe('compressImageForMobileUpload', () => {
     beforeEach(() => {
       Object.defineProperty(Platform, 'OS', { value: 'web', writable: true });
       fetchSpy = jest
-        .spyOn(global, 'fetch')
+        .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(new Uint8Array(100_000), { status: 200 }));
     });
 

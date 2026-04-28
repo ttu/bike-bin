@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import { mockAuthModule } from '@/test/authMocks';
 import { BorrowRequestStatus } from '@/shared/types';
 
@@ -93,9 +93,9 @@ describe('useBorrowRequests', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data).toHaveLength(1);
+    await waitFor(() => {
+      expect(result.current.data).toHaveLength(1);
+    });
     const req = result.current.data?.[0];
     expect(req?.itemName).toBe('Road Bike');
     expect(req?.requesterName).toBe('Alice');
@@ -123,9 +123,9 @@ describe('useBorrowRequests', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data?.[0]?.itemName).toBe('Road Bike');
+    await waitFor(() => {
+      expect(result.current.data?.[0]?.itemName).toBe('Road Bike');
+    });
   });
 
   it('returns empty array when data is null', async () => {
@@ -141,9 +141,9 @@ describe('useBorrowRequests', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data).toEqual([]);
+    await waitFor(() => {
+      expect(result.current.data).toEqual([]);
+    });
   });
 
   it('uses "Unknown item" when items is null', async () => {
@@ -161,10 +161,10 @@ describe('useBorrowRequests', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data?.[0]?.itemName).toBe('Unknown item');
-    expect(result.current.data?.[0]?.itemOwnerId).toBe('');
+    await waitFor(() => {
+      expect(result.current.data?.[0]?.itemName).toBe('Unknown item');
+      expect(result.current.data?.[0]?.itemOwnerId).toBe('');
+    });
   });
 
   it('throws on supabase borrow_requests error', async () => {
@@ -180,9 +180,9 @@ describe('useBorrowRequests', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.error).toBeTruthy();
+    await waitFor(() => {
+      expect(result.current.error).toBeTruthy();
+    });
   });
 
   it('is disabled when user is not authenticated', () => {
@@ -203,9 +203,9 @@ describe('useBorrowRequests', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.data?.[0]?.requesterName).toBeUndefined();
-    expect(result.current.data?.[0]?.ownerName).toBeUndefined();
+    await waitFor(() => {
+      expect(result.current.data?.[0]?.requesterName).toBeUndefined();
+      expect(result.current.data?.[0]?.ownerName).toBeUndefined();
+    });
   });
 });

@@ -10,8 +10,14 @@ import {
 
 function mapOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
-  const n = typeof value === 'number' ? value : Number.parseFloat(String(value));
-  return Number.isFinite(n) ? n : undefined;
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : undefined;
+  }
+  if (typeof value === 'string') {
+    const n = Number.parseFloat(value);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  return undefined;
 }
 
 function mapItemCondition(value: unknown): ItemCondition {
@@ -26,10 +32,10 @@ export function mapBikeRow(row: BikeRow): Bike {
     id: row.id as BikeId,
     ownerId: row.owner_id as UserId,
     name: row.name as string,
-    brand: (row.brand as string) ?? undefined,
-    model: (row.model as string) ?? undefined,
+    brand: row.brand ?? undefined,
+    model: row.model ?? undefined,
     type: row.type as BikeType,
-    year: (row.year as number) ?? undefined,
+    year: row.year ?? undefined,
     distanceKm: mapOptionalNumber(row.distance_km),
     usageHours: mapOptionalNumber(row.usage_hours),
     condition: mapItemCondition(row.condition),

@@ -1,3 +1,6 @@
 sites/marketing/.astro/
 sites/marketing/dist/
 sites/marketing/node_modules/
+
+# Local agent / verification artifacts (not committed)
+verification-sessions/

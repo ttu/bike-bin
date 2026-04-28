@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { render, fireEvent, act } from '@testing-library/react-native';
+import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { ThemePreferenceProvider, useThemePreference } from '../useThemePreference';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -50,6 +50,41 @@ describe('ThemePreferenceProvider', () => {
     });
 
     expect(getByTestId('preference').props.children).toBe('dark');
+  });
+
+  it('chains AsyncStorage writes when preference changes in quick succession', async () => {
+    const persisted: string[] = [];
+    const mockedSetItem = AsyncStorage.setItem as jest.Mock;
+    mockedSetItem.mockImplementation((_key: string, value: string) => {
+      persisted.push(value);
+      return Promise.resolve();
+    });
+
+    function DualButtons() {
+      const { setPreference } = useThemePreference();
+      return (
+        <View>
+          <Button title="go-dark" onPress={() => setPreference('dark')} />
+          <Button title="go-light" onPress={() => setPreference('light')} />
+        </View>
+      );
+    }
+
+    const { getByText } = render(
+      <ThemePreferenceProvider>
+        <DualButtons />
+      </ThemePreferenceProvider>,
+    );
+
+    fireEvent.press(getByText('go-dark'));
+    fireEvent.press(getByText('go-light'));
+
+    await waitFor(() => {
+      expect(persisted.length).toBe(2);
+    });
+
+    expect(mockedSetItem).toHaveBeenCalledTimes(2);
+    expect(persisted).toEqual(['dark', 'light']);
   });
 
   it('applies stored preference when the user has not changed the theme yet', async () => {

@@ -30,9 +30,11 @@ const ThemePreferenceContext = createContext<ThemePreferenceContextType | undefi
  */
 export function ThemePreferenceProvider({ children }: { readonly children: ReactNode }) {
   const systemScheme = useSystemColorScheme();
-  const [preference, setPreferenceState] = useState<ThemePreference>('system');
+  const [preference, setPreference] = useState<ThemePreference>('system');
   /** Once the user sets a preference, ignore late AsyncStorage hydration (avoids stomping the choice). */
   const skipHydrationRef = useRef(false);
+  /** Serializes AsyncStorage writes so rapid theme changes persist in order. */
+  const persistPromiseRef = useRef<Promise<void>>(Promise.resolve());
 
   // Load persisted preference on mount
   useEffect(() => {
@@ -41,17 +43,19 @@ export function ThemePreferenceProvider({ children }: { readonly children: React
         return;
       }
       if (stored === 'light' || stored === 'dark' || stored === 'system') {
-        setPreferenceState(stored);
+        setPreference(stored);
       }
     });
   }, []);
 
-  const setPreference = useCallback((pref: ThemePreference) => {
+  const setPreferenceAndPersist = useCallback((pref: ThemePreference) => {
     skipHydrationRef.current = true;
-    setPreferenceState(pref);
-    AsyncStorage.setItem(STORAGE_KEY, pref).catch(() => {
-      // Best-effort persistence; the in-memory preference is the source of truth.
-    });
+    setPreference(pref);
+    persistPromiseRef.current = (persistPromiseRef.current ?? Promise.resolve())
+      .then(() => AsyncStorage.setItem(STORAGE_KEY, pref))
+      .catch(() => {
+        // Best-effort persistence; the in-memory preference is the source of truth.
+      });
   }, []);
 
   let effectiveTheme: EffectiveTheme;
@@ -62,8 +66,8 @@ export function ThemePreferenceProvider({ children }: { readonly children: React
   }
 
   const value = useMemo(
-    () => ({ preference, effectiveTheme, setPreference }),
-    [preference, effectiveTheme, setPreference],
+    () => ({ preference, effectiveTheme, setPreference: setPreferenceAndPersist }),
+    [preference, effectiveTheme, setPreferenceAndPersist],
   );
 
   return (

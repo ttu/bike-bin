@@ -229,10 +229,10 @@ describe('items — UPDATE', () => {
       .eq('id', loanedItemId)
       .select();
     // No policy allows loaned row with new row still loaned + renamed
-    if (!error) {
-      expect(data).toEqual([]);
-    } else {
+    if (error) {
       expect(error).toBeTruthy();
+    } else {
+      expect(data).toEqual([]);
     }
     // Verify via admin that name was not changed
     const { data: adminData } = await adminClient
@@ -327,10 +327,10 @@ describe('items — DELETE', () => {
       .eq('id', loanedItemId)
       .select();
     // RLS using_expr blocks the row — either error or empty result set
-    if (!error) {
-      expect(data).toEqual([]);
-    } else {
+    if (error) {
       expect(error).toBeTruthy();
+    } else {
+      expect(data).toEqual([]);
     }
     // Verify it still exists
     const { data: stillExists } = await adminClient

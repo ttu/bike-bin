@@ -89,7 +89,7 @@ describe('useItem', () => {
 
   it('fetches a single item by id', async () => {
     const row = createMockItemRow();
-    const itemId = row.id as string as ItemId;
+    const itemId = row.id as ItemId;
     mockSelect.mockReturnValue({
       eq: mockEq.mockReturnValue({
         single: mockSingle.mockResolvedValue({ data: row, error: null }),

@@ -13,9 +13,9 @@ export function mapNotificationRow(row: NotificationRow): Notification {
     userId: row.user_id as UserId,
     type: row.type as NotificationType,
     title: row.title as string,
-    body: (row.body as string) ?? undefined,
+    body: row.body ?? undefined,
     data: (row.data as Record<string, unknown>) ?? {},
-    isRead: row.is_read as boolean,
+    isRead: row.is_read,
     createdAt: row.created_at as string,
   };
 }

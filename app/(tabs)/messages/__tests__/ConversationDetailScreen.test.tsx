@@ -96,7 +96,7 @@ const mockConversation: ConversationListItem = {
 };
 
 /** Mutable ref so tests can swap conversation data without remocking the module. */
-const conversationQueryState = { data: mockConversation as ConversationListItem };
+const conversationQueryState = { data: mockConversation };
 
 const mockMessages: MessageWithSender[] = [];
 
@@ -209,7 +209,7 @@ describe('ConversationDetailScreen', () => {
 
   it('defers ConfirmDialog after opening mark donated so confirmation is not swallowed', () => {
     const setTimeoutSpy = jest
-      .spyOn(global, 'setTimeout')
+      .spyOn(globalThis, 'setTimeout')
       .mockImplementation((fn: TimerHandler) => {
         if (typeof fn === 'function') fn();
         return 0 as unknown as ReturnType<typeof setTimeout>;
@@ -234,7 +234,7 @@ describe('ConversationDetailScreen', () => {
 
   it('defers ConfirmDialog after opening mark sold so confirmation is not swallowed', () => {
     const setTimeoutSpy = jest
-      .spyOn(global, 'setTimeout')
+      .spyOn(globalThis, 'setTimeout')
       .mockImplementation((fn: TimerHandler) => {
         if (typeof fn === 'function') fn();
         return 0 as unknown as ReturnType<typeof setTimeout>;

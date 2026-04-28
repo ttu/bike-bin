@@ -85,7 +85,7 @@ export function OptionalSection({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: OptionalSectionProps) {
+}: Readonly<OptionalSectionProps>) {
   const { t } = useTranslation('inventory');
 
   return (
@@ -190,7 +190,7 @@ function OptionalDateFields({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: OptionalDateFieldsProps) {
+}: Readonly<OptionalDateFieldsProps>) {
   const { t } = useTranslation('inventory');
 
   return (
@@ -257,7 +257,7 @@ function AgeField({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: AgeFieldProps) {
+}: Readonly<AgeFieldProps>) {
   const { t } = useTranslation('inventory');
 
   return (
@@ -318,7 +318,7 @@ function UsageField({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: UsageFieldProps) {
+}: Readonly<UsageFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
 
@@ -363,7 +363,7 @@ function StorageField({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: StorageFieldProps) {
+}: Readonly<StorageFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -452,7 +452,7 @@ function DescriptionField({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: DescriptionFieldProps) {
+}: Readonly<DescriptionFieldProps>) {
   const { t } = useTranslation('inventory');
 
   return (
@@ -502,7 +502,7 @@ function TagsField({
   softInputStyle,
   underlineColor,
   activeUnderlineColor,
-}: TagsFieldProps) {
+}: Readonly<TagsFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
 

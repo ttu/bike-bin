@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, type ComponentProps, type ReactElement } from 'react';
 import {
   View,
   FlatList,
@@ -7,11 +7,12 @@ import {
   RefreshControl,
   useWindowDimensions,
   Pressable,
-  type LayoutChangeEvent,
+  type CellRendererProps,
+  type ListRenderItem,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { Text, FAB, Chip, Searchbar, useTheme, type MD3Theme } from 'react-native-paper';
+import { Text, FAB as Fab, Chip, Searchbar, useTheme, type MD3Theme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -60,23 +61,7 @@ function ItemSeparator() {
   );
 }
 
-interface GroupedCellProps {
-  cellKey: string;
-  children: ReactNode;
-  index: number;
-  item: unknown;
-  onLayout?: (event: LayoutChangeEvent) => void;
-  style?: StyleProp<ViewStyle>;
-}
-
-function GroupedCell({
-  children,
-  style,
-  onLayout,
-  cellKey: _cellKey,
-  index: _index,
-  item: _item,
-}: Readonly<GroupedCellProps>) {
+function GroupedCell({ children, style, onLayout }: CellRendererProps<Item>) {
   return (
     <View onLayout={onLayout} style={[style, groupedCellStyles.cell]}>
       {children}
@@ -232,8 +217,8 @@ export default function InventoryScreen() {
     setShowTerminal((prev) => !prev);
   }, []);
 
-  const renderItem = useCallback(
-    ({ item }: { readonly item: Item }) =>
+  const renderItem = useCallback<ListRenderItem<Item>>(
+    ({ item }) =>
       viewMode === 'gallery' ? (
         <View style={styles.galleryCell}>
           <ItemGalleryTile item={item} onPress={handleItemPress} />
@@ -344,6 +329,27 @@ export default function InventoryScreen() {
     [insets.bottom, listItems.length, heroItem],
   );
 
+  const listFooter = useMemo(
+    () =>
+      filteredItems.length > 0 ? (
+        <Text
+          variant="bodySmall"
+          style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
+        >
+          {t('showingItems', { count: filteredItems.length })}
+        </Text>
+      ) : undefined,
+    [filteredItems.length, t, theme.colors.onSurfaceVariant],
+  );
+
+  const refreshControl = useMemo(
+    (): ReactElement<ComponentProps<typeof RefreshControl>> | undefined =>
+      isAuthenticated ? (
+        <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
+      ) : undefined,
+    [isAuthenticated, serverRefetching, refetch],
+  );
+
   return (
     <View
       style={[
@@ -351,85 +357,33 @@ export default function InventoryScreen() {
         { backgroundColor: theme.colors.background, paddingTop: insets.top },
       ]}
     >
-      <View style={styles.searchContainer}>
-        <View style={styles.searchbarWrap}>
-          <Searchbar
-            placeholder={searchPlaceholder}
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
-            inputStyle={styles.searchInput}
-            elevation={0}
-          />
-        </View>
-        {!isLoading && filteredItems.length > 0 && (
-          <Pressable
-            onPress={toggleViewMode}
-            accessibilityRole="switch"
-            accessibilityLabel={t('viewMode.toggleA11y')}
-            accessibilityState={{ checked: viewMode === 'gallery' }}
-            style={({ pressed }) => [
-              styles.viewModeToggle,
-              { backgroundColor: theme.colors.surfaceVariant },
-              pressed && styles.viewModeTogglePressed,
-            ]}
-          >
-            <MaterialCommunityIcons
-              name="view-list"
-              size={iconSize.sm}
-              color={viewMode === 'list' ? theme.colors.primary : theme.colors.onSurfaceVariant}
-              importantForAccessibility="no"
-            />
-            <MaterialCommunityIcons
-              name="view-grid"
-              size={iconSize.sm}
-              color={viewMode === 'gallery' ? theme.colors.primary : theme.colors.onSurfaceVariant}
-              importantForAccessibility="no"
-            />
-          </Pressable>
-        )}
-      </View>
+      <InventorySearchToolbar
+        theme={theme}
+        searchPlaceholder={searchPlaceholder}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isLoading={isLoading}
+        filteredCount={filteredItems.length}
+        viewMode={viewMode}
+        toggleViewMode={toggleViewMode}
+        viewModeA11yLabel={t('viewMode.toggleA11y')}
+      />
 
-      {showInitialLoading ? (
-        <CenteredLoadingIndicator />
-      ) : (
-        <View style={styles.listContainer}>
-          <FlatList
-            testID="inventory-items-list"
-            key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
-            style={styles.flatList}
-            data={listItems}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
-            columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
-            extraData={viewMode}
-            ListHeaderComponent={listHeader}
-            ListEmptyComponent={listEmpty}
-            ItemSeparatorComponent={viewMode === 'list' ? ItemSeparator : undefined}
-            CellRendererComponent={viewMode === 'list' ? GroupedCell : undefined}
-            refreshControl={
-              isAuthenticated ? (
-                <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
-              ) : undefined
-            }
-            contentContainerStyle={listContentContainerStyle}
-            ListFooterComponent={
-              filteredItems.length > 0 ? (
-                <Text
-                  variant="bodySmall"
-                  style={[styles.itemCount, { color: theme.colors.onSurfaceVariant }]}
-                >
-                  {t('showingItems', { count: filteredItems.length })}
-                </Text>
-              ) : undefined
-            }
-          />
-        </View>
-      )}
+      <InventoryItemsSection
+        showInitialLoading={showInitialLoading}
+        viewMode={viewMode}
+        galleryColumnCount={galleryColumnCount}
+        listItems={listItems}
+        renderItem={renderItem}
+        listHeader={listHeader}
+        listEmpty={listEmpty}
+        listContentContainerStyle={listContentContainerStyle}
+        refreshControl={refreshControl}
+        listFooter={listFooter}
+      />
 
       {filteredItems.length > 0 && (
-        <FAB
+        <Fab
           icon="plus"
           style={[
             styles.fab,
@@ -548,6 +502,119 @@ const styles = StyleSheet.create({
   },
 });
 
+function InventorySearchToolbar({
+  theme,
+  searchPlaceholder,
+  searchQuery,
+  setSearchQuery,
+  isLoading,
+  filteredCount,
+  viewMode,
+  toggleViewMode,
+  viewModeA11yLabel,
+}: Readonly<{
+  theme: AppTheme;
+  searchPlaceholder: string;
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  isLoading: boolean;
+  filteredCount: number;
+  viewMode: InventoryViewMode;
+  toggleViewMode: () => void;
+  viewModeA11yLabel: string;
+}>) {
+  return (
+    <View style={styles.searchContainer}>
+      <View style={styles.searchbarWrap}>
+        <Searchbar
+          placeholder={searchPlaceholder}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
+          inputStyle={styles.searchInput}
+          elevation={0}
+        />
+      </View>
+      {!isLoading && filteredCount > 0 && (
+        <Pressable
+          onPress={toggleViewMode}
+          accessibilityRole="switch"
+          accessibilityLabel={viewModeA11yLabel}
+          accessibilityState={{ checked: viewMode === 'gallery' }}
+          style={({ pressed }) => [
+            styles.viewModeToggle,
+            { backgroundColor: theme.colors.surfaceVariant },
+            pressed && styles.viewModeTogglePressed,
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="view-list"
+            size={iconSize.sm}
+            color={viewMode === 'list' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+            importantForAccessibility="no"
+          />
+          <MaterialCommunityIcons
+            name="view-grid"
+            size={iconSize.sm}
+            color={viewMode === 'gallery' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+            importantForAccessibility="no"
+          />
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+function InventoryItemsSection({
+  showInitialLoading,
+  viewMode,
+  galleryColumnCount,
+  listItems,
+  renderItem,
+  listHeader,
+  listEmpty,
+  listContentContainerStyle,
+  refreshControl,
+  listFooter,
+}: Readonly<{
+  showInitialLoading: boolean;
+  viewMode: InventoryViewMode;
+  galleryColumnCount: number;
+  listItems: Item[];
+  renderItem: ListRenderItem<Item>;
+  listHeader: ReactElement;
+  listEmpty: ReactElement | null;
+  listContentContainerStyle: StyleProp<ViewStyle> | Array<StyleProp<ViewStyle>>;
+  refreshControl: ReactElement<ComponentProps<typeof RefreshControl>> | undefined;
+  listFooter: ReactElement | undefined;
+}>) {
+  if (showInitialLoading) {
+    return <CenteredLoadingIndicator />;
+  }
+  return (
+    <View style={styles.listContainer}>
+      <FlatList
+        testID="inventory-items-list"
+        key={viewMode === 'gallery' ? `gallery-${galleryColumnCount}` : 'list'}
+        style={styles.flatList}
+        data={listItems}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        numColumns={viewMode === 'gallery' ? galleryColumnCount : 1}
+        columnWrapperStyle={viewMode === 'gallery' ? styles.galleryRow : undefined}
+        extraData={viewMode}
+        ListHeaderComponent={listHeader}
+        ListEmptyComponent={listEmpty}
+        ItemSeparatorComponent={viewMode === 'list' ? ItemSeparator : undefined}
+        CellRendererComponent={viewMode === 'list' ? GroupedCell : undefined}
+        refreshControl={refreshControl}
+        contentContainerStyle={listContentContainerStyle}
+        ListFooterComponent={listFooter}
+      />
+    </View>
+  );
+}
+
 function getThemeStyles(theme: MD3Theme) {
   return StyleSheet.create({
     sortButtonVariant: { backgroundColor: theme.colors.surfaceVariant },
@@ -582,7 +649,7 @@ interface InventoryListHeaderProps {
   readonly onHeroPress: (item: Item) => void;
 }
 
-function InventoryListHeader(props: InventoryListHeaderProps) {
+function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
   const {
     t,
     mastheadCounts,
@@ -615,7 +682,7 @@ function InventoryListHeader(props: InventoryListHeaderProps) {
           {filteredItemsCount > 0 && <SortControl {...props} />}
         </View>
       )}
-      {showTagScroll && <TagScrollRow {...props} userTags={userTags!} />}
+      {showTagScroll && userTags ? <TagScrollRow {...props} userTags={userTags} /> : undefined}
       {heroItem && (
         <FeaturedItemCard
           item={heroItem}
@@ -639,7 +706,7 @@ function FilterChips({
   tagChipLabel,
   toggleTagFilter,
   userTags,
-}: InventoryListHeaderProps) {
+}: Readonly<InventoryListHeaderProps>) {
   if (!hasTagsOrArchived) return null;
   return (
     <>
@@ -696,7 +763,7 @@ function SortControl({
   t,
   cycleSortOption,
   sortLabelText,
-}: InventoryListHeaderProps) {
+}: Readonly<InventoryListHeaderProps>) {
   return (
     <>
       <View style={styles.filterRowSpacer} />
@@ -728,7 +795,7 @@ function TagScrollRow({
   selectedTags,
   toggleTag,
   userTags,
-}: InventoryListHeaderProps & { readonly userTags: string[] }) {
+}: Readonly<InventoryListHeaderProps & { readonly userTags: string[] }>) {
   return (
     <ScrollView
       horizontal

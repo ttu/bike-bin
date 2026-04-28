@@ -33,7 +33,7 @@ export function ItemForm({
   submitBlockedMessage,
   onDirtyChange,
   onValidationError,
-}: ItemFormProps) {
+}: Readonly<ItemFormProps>) {
   const theme = useTheme<AppTheme>();
   const state = useItemFormState({ initialData, initialCategory, onSave, onValidationError });
 

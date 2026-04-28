@@ -85,4 +85,25 @@ describe('mapBikeRow', () => {
     expect(result.usageHours).toBe(10);
     expect(result.condition).toBe(ItemCondition.Good);
   });
+
+  it('maps non-number non-string distance and usage values to undefined', () => {
+    const row = {
+      id: 'bike-4',
+      owner_id: 'user-1',
+      name: 'X',
+      type: 'mtb' as const,
+      distance_km: true,
+      usage_hours: {},
+      condition: 'good' as const,
+      brand: null,
+      model: null,
+      year: null,
+      notes: null,
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    };
+    const result = mapBikeRow(row as unknown as BikeRow);
+    expect(result.distanceKm).toBeUndefined();
+    expect(result.usageHours).toBeUndefined();
+  });
 });
