@@ -121,9 +121,7 @@ describe('NotificationsScreen', () => {
 
     renderWithProviders(<NotificationsScreen />);
 
-    fireEvent.press(
-      screen.getByLabelText(`${notificationsEn.types.new_message}: Hello`),
-    );
+    fireEvent.press(screen.getByLabelText(`${notificationsEn.types.new_message}: Hello`));
 
     expect(mockPush).toHaveBeenCalledWith('/(tabs)/messages/conv-99');
     expect(mockMarkRead).not.toHaveBeenCalled();
@@ -177,7 +175,9 @@ describe('NotificationsScreen', () => {
 
     renderWithProviders(<NotificationsScreen />);
 
-    fireEvent.press(screen.getByLabelText(`${notificationsEn.types.borrow_request_received}: Borrow`));
+    fireEvent.press(
+      screen.getByLabelText(`${notificationsEn.types.borrow_request_received}: Borrow`),
+    );
 
     expect(mockPush).toHaveBeenCalledWith('/(tabs)/profile/borrow-requests');
   });

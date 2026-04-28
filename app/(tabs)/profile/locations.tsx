@@ -1,5 +1,12 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl, Pressable, type ListRenderItem } from 'react-native';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  RefreshControl,
+  Pressable,
+  type ListRenderItem,
+} from 'react-native';
 import { Appbar, Text, FAB as Fab, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -159,7 +166,9 @@ export default function SavedLocationsScreen() {
   }, [deleteTarget, deleteLocation, showSnackbarAlert, t, tCommon]);
 
   const renderItem = useCallback<ListRenderItem<SavedLocation>>(
-    ({ item }) => <LocationCard location={item} onPress={handleEditPress} onDelete={handleDelete} />,
+    ({ item }) => (
+      <LocationCard location={item} onPress={handleEditPress} onDelete={handleDelete} />
+    ),
     [handleEditPress, handleDelete],
   );
 

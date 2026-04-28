@@ -342,12 +342,13 @@ export default function InventoryScreen() {
     [filteredItems.length, t, theme.colors.onSurfaceVariant],
   );
 
-  const refreshControl = useMemo(():
-    | ReactElement<ComponentProps<typeof RefreshControl>>
-    | undefined =>
-    isAuthenticated ? (
-      <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
-    ) : undefined, [isAuthenticated, serverRefetching, refetch]);
+  const refreshControl = useMemo(
+    (): ReactElement<ComponentProps<typeof RefreshControl>> | undefined =>
+      isAuthenticated ? (
+        <RefreshControl refreshing={serverRefetching} onRefresh={refetch} />
+      ) : undefined,
+    [isAuthenticated, serverRefetching, refetch],
+  );
 
   return (
     <View
