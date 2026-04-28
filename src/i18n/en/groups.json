@@ -27,7 +27,7 @@
   "detail": {
     "members": "Members",
     "memberCount": "{{count}} member",
-    "memberCount_plural": "{{count}} members",
+    "memberCount_other": "{{count}} members",
     "admin": "Admin",
     "member": "Member",
     "invite": "Invite Members",
@@ -87,7 +87,7 @@
   "visibility": {
     "selectGroups": "Select groups",
     "selectedCount": "{{count}} group selected",
-    "selectedCount_plural": "{{count}} groups selected"
+    "selectedCount_other": "{{count}} groups selected"
   },
   "validation": {
     "nameRequired": "Name is required"

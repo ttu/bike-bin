@@ -1215,6 +1215,17 @@ export type Database = {
           rating_count: number;
         }[];
       };
+      get_group_members_with_profiles: {
+        Args: { p_group_id: string };
+        Returns: {
+          group_id: string;
+          user_id: string;
+          role: string;
+          joined_at: string;
+          display_name: string | null;
+          avatar_url: string | null;
+        }[];
+      };
       get_user_tags: { Args: never; Returns: string[] };
       get_my_bike_limit: { Args: never; Returns: number };
       get_my_inventory_item_limit: { Args: never; Returns: number };

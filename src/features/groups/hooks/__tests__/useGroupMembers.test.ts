@@ -1,17 +1,9 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { createMockGroupMember } from '@/test/factories';
-import {
-  mockSelect,
-  mockUpdate,
-  mockDelete,
-  mockEq,
-  mockOrder,
-  mockSupabase,
-} from '@/test/supabaseMocks';
+import { mockUpdate, mockDelete, mockEq, mockRpc, mockSupabase } from '@/test/supabaseMocks';
 import { GroupRole, type GroupId, type UserId } from '@/shared/types';
 
 const mockEq2 = jest.fn();
-const mockOrder2 = jest.fn();
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 
@@ -24,45 +16,34 @@ describe('useGroupMembers', () => {
     jest.clearAllMocks();
   });
 
-  it('fetches members with profiles for a group', async () => {
+  it('fetches members with profiles for a group via RPC', async () => {
     const member = createMockGroupMember({ role: GroupRole.Admin });
     const mockRow = {
       group_id: member.groupId,
       user_id: member.userId,
       role: member.role,
       joined_at: member.joinedAt,
-      profiles: { display_name: 'Alice', avatar_url: 'https://example.com/avatar.jpg' },
+      display_name: 'Alice',
+      avatar_url: 'https://example.com/avatar.jpg',
     };
 
-    mockSelect.mockReturnValue({
-      eq: mockEq.mockReturnValue({
-        order: mockOrder.mockReturnValue({
-          order: mockOrder2.mockResolvedValue({ data: [mockRow], error: null }),
-        }),
-      }),
-    });
+    mockRpc.mockResolvedValue({ data: [mockRow], error: null });
 
     const { result } = renderHook(() => useGroupMembers(member.groupId), {
       wrapper: createQueryClientHookWrapper(),
     });
 
     await waitFor(() => {
-      expect(mockSelect).toHaveBeenCalledWith(
-        'group_id, user_id, role, joined_at, profiles(display_name, avatar_url)',
-      );
-      expect(result.current.data).toBeDefined();
+      expect(mockRpc).toHaveBeenCalledWith('get_group_members_with_profiles', {
+        p_group_id: member.groupId,
+      });
       expect(result.current.data).toHaveLength(1);
+      expect(result.current.data?.[0]?.profile?.displayName).toBe('Alice');
     });
   });
 
   it('throws on supabase error', async () => {
-    mockSelect.mockReturnValue({
-      eq: mockEq.mockReturnValue({
-        order: mockOrder.mockReturnValue({
-          order: mockOrder2.mockResolvedValue({ data: null, error: new Error('DB error') }),
-        }),
-      }),
-    });
+    mockRpc.mockResolvedValue({ data: null, error: new Error('DB error') });
 
     const { result } = renderHook(() => useGroupMembers('group-1' as GroupId), {
       wrapper: createQueryClientHookWrapper(),
@@ -79,25 +60,20 @@ describe('useGroupMembers', () => {
     });
 
     expect(result.current.fetchStatus).toBe('idle');
-    expect(mockSelect).not.toHaveBeenCalled();
+    expect(mockRpc).not.toHaveBeenCalled();
   });
 
-  it('maps profile fields correctly', async () => {
+  it('maps null avatar_url to undefined', async () => {
     const mockRow = {
       group_id: 'group-1',
       user_id: 'user-1',
       role: 'Member',
       joined_at: '2026-01-01T00:00:00Z',
-      profiles: { display_name: 'Bob', avatar_url: null },
+      display_name: 'Bob',
+      avatar_url: null,
     };
 
-    mockSelect.mockReturnValue({
-      eq: mockEq.mockReturnValue({
-        order: mockOrder.mockReturnValue({
-          order: mockOrder2.mockResolvedValue({ data: [mockRow], error: null }),
-        }),
-      }),
-    });
+    mockRpc.mockResolvedValue({ data: [mockRow], error: null });
 
     const { result } = renderHook(() => useGroupMembers('group-1' as GroupId), {
       wrapper: createQueryClientHookWrapper(),
@@ -106,18 +82,11 @@ describe('useGroupMembers', () => {
     await waitFor(() => {
       expect(result.current.data?.[0]?.profile?.displayName).toBe('Bob');
     });
-    // avatar_url: null maps to null (not undefined) in the profile object
-    expect(result.current.data?.[0]?.profile?.avatarUrl).toBeNull();
+    expect(result.current.data?.[0]?.profile?.avatarUrl).toBeUndefined();
   });
 
   it('returns empty array when data is empty', async () => {
-    mockSelect.mockReturnValue({
-      eq: mockEq.mockReturnValue({
-        order: mockOrder.mockReturnValue({
-          order: mockOrder2.mockResolvedValue({ data: [], error: null }),
-        }),
-      }),
-    });
+    mockRpc.mockResolvedValue({ data: [], error: null });
 
     const { result } = renderHook(() => useGroupMembers('group-1' as GroupId), {
       wrapper: createQueryClientHookWrapper(),

@@ -6,36 +6,37 @@ import type { GroupMemberWithProfile } from '../types';
 /**
  * Fetch all members of a group with their profile info.
  */
+type GroupMemberRpcRow = {
+  group_id: string;
+  user_id: string;
+  role: string;
+  joined_at: string;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
 export function useGroupMembers(groupId: GroupId) {
   return useQuery({
     queryKey: ['group-members', groupId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('group_members')
-        .select('group_id, user_id, role, joined_at, profiles(display_name, avatar_url)')
-        .eq('group_id', groupId)
-        .order('role', { ascending: true })
-        .order('joined_at', { ascending: true });
+    queryFn: async (): Promise<GroupMemberRpcRow[]> => {
+      const { data, error } = await supabase.rpc('get_group_members_with_profiles', {
+        p_group_id: groupId,
+      });
 
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as GroupMemberRpcRow[];
     },
     select: (data) =>
-      data.map((row) => {
-        const profile = row.profiles as unknown as
-          | { display_name?: string; avatar_url?: string }
-          | undefined;
-        return {
-          groupId: row.group_id as string as GroupId,
-          userId: row.user_id as string as UserId,
-          role: row.role as string as GroupMember['role'],
-          joinedAt: row.joined_at as string,
-          profile: {
-            displayName: profile?.display_name,
-            avatarUrl: profile?.avatar_url,
-          },
-        };
-      }) as GroupMemberWithProfile[],
+      data.map((row) => ({
+        groupId: row.group_id as string as GroupId,
+        userId: row.user_id as string as UserId,
+        role: row.role as string as GroupMember['role'],
+        joinedAt: row.joined_at,
+        profile: {
+          displayName: row.display_name ?? undefined,
+          avatarUrl: row.avatar_url ?? undefined,
+        },
+      })) as GroupMemberWithProfile[],
     enabled: !!groupId,
   });
 }
