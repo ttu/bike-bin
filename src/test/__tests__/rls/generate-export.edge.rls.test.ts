@@ -147,7 +147,7 @@ describe('generate-export edge function', () => {
       throw new Error(`Failed to read export_requests: ${exportFetchErr.message}`);
     expect(exportRow?.status).toBe('completed');
     expect(exportRow?.storage_path).toBeTruthy();
-    const zipPath = exportRow!.storage_path!;
+    const zipPath = exportRow.storage_path!;
 
     const { data: zipBlob, error: dlErr } = await adminClient.storage
       .from('data-exports')
@@ -155,7 +155,7 @@ describe('generate-export edge function', () => {
     if (dlErr) throw new Error(`Failed to download export ZIP: ${dlErr.message}`);
     expect(zipBlob).toBeTruthy();
 
-    const zipBytes = new Uint8Array(await zipBlob!.arrayBuffer());
+    const zipBytes = new Uint8Array(await zipBlob.arrayBuffer());
     const files = unzipSync(zipBytes);
 
     const itemKey = `export/photos/items/${itemId}/photo.jpg`;

@@ -66,8 +66,8 @@ export function mapItemPhotoRow(row: ItemPhotoRow): ItemPhoto {
   return {
     id: row.id as ItemPhotoId,
     itemId: row.item_id as ItemId,
-    storagePath: row.storage_path as string,
-    sortOrder: row.sort_order as number,
-    createdAt: row.created_at as string,
+    storagePath: row.storage_path,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
   };
 }

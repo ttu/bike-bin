@@ -162,7 +162,7 @@ export default function ProfileScreen() {
           </View>
           <SegmentedButtons
             value={preference}
-            onValueChange={(value) => setPreference(value as ThemePreference)}
+            onValueChange={(value) => setPreference(value)}
             buttons={themeButtons}
             style={styles.segmentedButtons}
           />

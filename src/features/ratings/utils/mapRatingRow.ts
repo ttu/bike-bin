@@ -25,8 +25,8 @@ export function mapRatingRow(row: RatingRow): Rating {
     score: row.score,
     text: (row.text as string) ?? undefined,
     editableUntil: (row.editable_until as string) ?? undefined,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 

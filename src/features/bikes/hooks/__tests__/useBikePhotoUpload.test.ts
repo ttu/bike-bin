@@ -73,7 +73,7 @@ jest.mock('@/features/auth', () => mockAuthModule);
 const mockBlob = { type: 'image/jpeg' };
 globalThis.fetch = jest.fn().mockResolvedValue({
   blob: () => Promise.resolve(mockBlob),
-}) as jest.Mock;
+});
 
 import { useBikePhotoUpload } from '../useBikePhotoUpload';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';

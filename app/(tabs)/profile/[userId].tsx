@@ -40,7 +40,7 @@ export default function PublicUserProfileScreen() {
     isFetching: profileFetching,
   } = usePublicProfile(userId);
   const { data: listings, isLoading: listingsLoading } = usePublicListings(userId);
-  const { data: ratings, isLoading: ratingsLoading } = useUserRatings(userId as string as UserId);
+  const { data: ratings, isLoading: ratingsLoading } = useUserRatings(userId as UserId);
 
   if (profileLoading) {
     return <LoadingScreen />;
@@ -80,9 +80,9 @@ export default function PublicUserProfileScreen() {
     if (!user) return;
     reportMutation.mutate(
       {
-        reporterId: user.id as string as UserId,
+        reporterId: user.id as UserId,
         targetType: 'user',
-        targetId: userId!,
+        targetId: userId,
         reason,
         text,
       },
