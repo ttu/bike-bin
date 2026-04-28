@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, Badge, Button, SegmentedButtons, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { router, type Href } from 'expo-router';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize, tabBarListScrollPaddingBottom } from '@/shared/theme';
@@ -19,7 +19,6 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const { t } = useTranslation('profile');
   const { t: tBorrow } = useTranslation('borrow');
-  const { t: tGroups } = useTranslation('groups');
   const { t: tNotifications } = useTranslation('notifications');
   const { t: tAuth } = useTranslation('auth');
   const { t: tDemo } = useTranslation('demo');
@@ -140,14 +139,6 @@ export default function ProfileScreen() {
           label={tBorrow('profileMenu.label')}
           badge={incomingPendingCount}
           onPress={() => router.push('/(tabs)/profile/borrow-requests')}
-        />
-
-        {/* Groups */}
-        <MenuItem
-          icon="account-group"
-          label={tGroups('profileMenu.label')}
-          testID="profile-menu-groups"
-          onPress={() => router.push('/(tabs)/groups' as Href)}
         />
 
         {/* Notification Settings */}
