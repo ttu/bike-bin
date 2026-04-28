@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { render, fireEvent, act } from '@testing-library/react-native';
+import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { ThemePreferenceProvider, useThemePreference } from '../useThemePreference';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -79,10 +79,11 @@ describe('ThemePreferenceProvider', () => {
     fireEvent.press(getByText('go-dark'));
     fireEvent.press(getByText('go-light'));
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(persisted.length).toBe(2);
     });
 
+    expect(mockedSetItem).toHaveBeenCalledTimes(2);
     expect(persisted).toEqual(['dark', 'light']);
   });
 
