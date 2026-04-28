@@ -178,22 +178,34 @@ describe('useMessages', () => {
     expect(result.current.hasNextPage).toBe(true);
   });
 
-  it('applies pageParam as lt filter when fetching subsequent pages', async () => {
-    // The hook chains .lt() when pageParam is set — verify the chain is set up correctly
-    // by ensuring mockLt would be called. We test the chain setup via a lt mock.
-    const mockRows = [
+  it('applies lt filter when fetching the next page', async () => {
+    const thirtyRows = Array.from({ length: 30 }, (_, i) => ({
+      id: `msg-${i}`,
+      conversation_id: 'conv-1',
+      sender_id: 'user-456',
+      body: `Message ${i}`,
+      created_at: `2026-01-01T10:${String(i).padStart(2, '0')}:00Z`,
+    }));
+    const olderRows = [
       {
-        id: 'msg-old',
+        id: 'msg-older',
         conversation_id: 'conv-1',
         sender_id: 'user-456',
         body: 'Older',
-        created_at: '2026-01-01T08:00:00Z',
+        created_at: '2026-01-01T07:00:00Z',
       },
     ];
 
-    mockLimit.mockResolvedValue({ data: mockRows, error: null });
-    mockLt.mockReturnValue({ limit: mockLimit });
-    mockOrder.mockReturnValue({ lt: mockLt, limit: mockLimit });
+    let limitCalls = 0;
+    mockLimit.mockImplementation(() => {
+      limitCalls += 1;
+      if (limitCalls === 1) {
+        return Promise.resolve({ data: thirtyRows, error: null });
+      }
+      return { lt: mockLt };
+    });
+    mockLt.mockResolvedValue({ data: olderRows, error: null });
+    mockOrder.mockReturnValue({ limit: mockLimit });
     mockEq.mockReturnValue({ order: mockOrder });
     mockSelect.mockReturnValue({ eq: mockEq });
 
@@ -202,7 +214,14 @@ describe('useMessages', () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    // Verify the query chain was built
-    expect(mockSelect).toHaveBeenCalledWith('id, conversation_id, sender_id, body, created_at');
+    expect(result.current.hasNextPage).toBe(true);
+
+    await result.current.fetchNextPage();
+
+    await waitFor(() => expect(result.current.data?.pages).toHaveLength(2));
+
+    expect(mockLt).toHaveBeenCalledWith('created_at', thirtyRows[29].created_at);
+    expect(result.current.data!.pages[1]).toHaveLength(1);
+    expect(result.current.data!.pages[1][0].body).toBe('Older');
   });
 });
