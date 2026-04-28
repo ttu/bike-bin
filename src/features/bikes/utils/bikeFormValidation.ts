@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
 import { resolveFormName } from '@/shared/utils';
+import type { BikeType } from '@/shared/types';
 import { optionalNumberFromInput } from './optionalNumberFromInput';
 
 export interface BikeFormErrors {
@@ -13,7 +14,7 @@ export interface BikeFormValidationInput {
   name: string;
   brand: string;
   model: string;
-  bikeType: unknown;
+  bikeType: BikeType | undefined;
   distanceKmStr: string;
   usageHoursStr: string;
 }

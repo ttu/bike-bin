@@ -94,7 +94,12 @@ export function GroupForm({
         <TextInput
           mode="flat"
           value={name}
-          onChangeText={setName}
+          onChangeText={(value) => {
+            setName(value);
+            if (nameError && value.trim()) {
+              setNameError('');
+            }
+          }}
           placeholder={t('create.namePlaceholder')}
           error={!!nameError}
           style={themeStyles.softInput}

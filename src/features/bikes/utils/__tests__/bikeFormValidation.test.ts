@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import { BikeType, ItemCondition } from '@/shared/types';
+import { BikeType } from '@/shared/types';
 import { validateBikeForm, type BikeFormValidationInput } from '../bikeFormValidation';
 
 const t = ((key: string) => key) as unknown as TFunction<'bikes'>;
@@ -47,9 +47,5 @@ describe('validateBikeForm', () => {
     const errors = validateBikeForm({ ...baseInput, distanceKmStr: '', usageHoursStr: '' }, t);
     expect(errors.distanceKm).toBeUndefined();
     expect(errors.usageHours).toBeUndefined();
-  });
-
-  it('accepts ItemCondition values transparently (condition is not validated here)', () => {
-    expect(ItemCondition.New).toBeDefined();
   });
 });
