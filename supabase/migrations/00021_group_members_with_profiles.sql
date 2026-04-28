@@ -6,7 +6,9 @@
 -- a SECURITY DEFINER function that returns just the safe columns
 -- (no push_token).
 --
--- Authorization: caller must be a member of the group.
+-- Authorization mirrors the group_members SELECT RLS policy: caller may
+-- read members of a group they belong to, or any public group. Private
+-- groups remain hidden from non-members.
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.get_group_members_with_profiles(p_group_id uuid)
@@ -29,11 +31,11 @@ BEGIN
     RAISE EXCEPTION 'get_group_members_with_profiles: authentication required';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM group_members gm
-    WHERE gm.group_id = p_group_id AND gm.user_id = v_caller
+  IF NOT (
+    private.is_group_member(p_group_id, v_caller)
+    OR private.is_public_group(p_group_id)
   ) THEN
-    RAISE EXCEPTION 'get_group_members_with_profiles: caller is not a member of group %', p_group_id;
+    RAISE EXCEPTION 'get_group_members_with_profiles: caller cannot view group %', p_group_id;
   END IF;
 
   RETURN QUERY
