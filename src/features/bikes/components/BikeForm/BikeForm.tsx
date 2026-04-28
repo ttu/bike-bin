@@ -13,9 +13,9 @@ import type { BikeFormData } from '../../types';
 import { DEFAULT_BIKE_BRANDS } from '../../constants';
 import { resolveFormName } from '@/shared/utils';
 import { CONDITION_ICON, CONDITION_ICON_FALLBACK } from '@/shared/constants/conditionIcons';
-import { optionalNumberFromInput } from '../../utils/optionalNumberFromInput';
 import { buildBikeFormDataFromFields } from '../../utils/buildBikeFormDataFromFields';
 import { areBikeFormDataEqual } from '../../utils/bikeFormDataEquality';
+import { validateBikeForm, type BikeFormErrors } from '../../utils/bikeFormValidation';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
 
 const BIKE_TYPES = [
@@ -51,13 +51,6 @@ interface BikeFormProps {
   readonly submitBlockedMessage?: string;
   readonly onDirtyChange?: (dirty: boolean) => void;
   readonly onValidationError?: (messages: string[]) => void;
-}
-
-interface BikeFormErrors {
-  name?: string;
-  type?: string;
-  distanceKm?: string;
-  usageHours?: string;
 }
 
 export function BikeForm({
@@ -153,25 +146,10 @@ export function BikeForm({
     : t('form.modelPlaceholder');
 
   const handleSubmit = useCallback(() => {
-    const validationErrors: BikeFormErrors = {};
-    const resolvedName = resolveFormName(name, brand, model);
-    if (!resolvedName.trim()) {
-      validationErrors.name = t('form.nameRequired');
-    }
-    if (!bikeType) {
-      validationErrors.type = t('form.typeRequired');
-    }
-
-    const distanceParsed = optionalNumberFromInput(distanceKmStr);
-    if (distanceParsed.invalid) {
-      validationErrors.distanceKm = t('form.distanceInvalid');
-    }
-
-    const hoursParsed = optionalNumberFromInput(usageHoursStr);
-    if (hoursParsed.invalid) {
-      validationErrors.usageHours = t('form.hoursInvalid');
-    }
-
+    const validationErrors = validateBikeForm(
+      { name, brand, model, bikeType, distanceKmStr, usageHoursStr },
+      t,
+    );
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
