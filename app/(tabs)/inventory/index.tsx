@@ -682,7 +682,7 @@ function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
           {filteredItemsCount > 0 && <SortControl {...props} />}
         </View>
       )}
-      {showTagScroll && userTags ? <TagScrollRow {...props} userTags={userTags} /> : null}
+      {showTagScroll && userTags ? <TagScrollRow {...props} userTags={userTags} /> : undefined}
       {heroItem && (
         <FeaturedItemCard
           item={heroItem}
