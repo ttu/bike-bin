@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { LocationId, SavedLocation } from '@/shared/types';
 import { geocodePostcode } from '../utils/geocoding';
+import { mapLocationRow } from '../utils/mapLocationRow';
 import { locationsQueryKey } from './useLocations';
 import type { CreateLocationInput } from '../types';
 
@@ -17,10 +17,8 @@ export function useCreateLocation() {
 
   return useMutation({
     mutationFn: async (input: CreateLocationInput) => {
-      // Geocode the postcode
       const geocoded = await geocodePostcode(input.postcode, input.country);
 
-      // If setting as primary, unset existing primary first
       if (input.isPrimary) {
         await supabase
           .from('saved_locations')
@@ -43,17 +41,7 @@ export function useCreateLocation() {
         .single();
 
       if (error) throw error;
-
-      return {
-        id: data.id as LocationId,
-        userId: data.user_id as SavedLocation['userId'],
-        label: data.label as string,
-        areaName: data.area_name as string,
-        postcode: data.postcode as string,
-        coordinates: { latitude: geocoded.lat, longitude: geocoded.lng },
-        isPrimary: data.is_primary as boolean,
-        createdAt: data.created_at as string,
-      } satisfies SavedLocation;
+      return mapLocationRow(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: locationsQueryKey(user?.id) });

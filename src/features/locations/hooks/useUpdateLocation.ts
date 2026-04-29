@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
-import type { SavedLocation } from '@/shared/types';
 import { geocodePostcode } from '../utils/geocoding';
+import { mapLocationRow } from '../utils/mapLocationRow';
 import { locationsQueryKey } from './useLocations';
 import type { UpdateLocationInput } from '../types';
 
@@ -52,7 +52,7 @@ export function useUpdateLocation() {
         .single();
 
       if (error) throw error;
-      return data as unknown as SavedLocation;
+      return mapLocationRow(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: locationsQueryKey(user?.id) });

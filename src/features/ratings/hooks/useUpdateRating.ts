@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { ItemId, Rating, RatingId, UserId } from '@/shared/types';
+import { mapRatingRow } from '../utils/mapRatingRow';
 import type { UpdateRatingInput } from '../types';
 
 /**
@@ -23,19 +23,7 @@ export function useUpdateRating() {
         .single();
 
       if (error) throw error;
-
-      return {
-        id: data.id as string as RatingId,
-        fromUserId: data.from_user_id as string as UserId,
-        toUserId: data.to_user_id as string as UserId,
-        itemId: (data.item_id as string as ItemId) ?? undefined,
-        transactionType: data.transaction_type as Rating['transactionType'],
-        score: data.score as number,
-        text: data.text ?? undefined,
-        editableUntil: data.editable_until ?? undefined,
-        createdAt: data.created_at as string,
-        updatedAt: data.updated_at as string,
-      } as Rating;
+      return mapRatingRow(data);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['ratings', variables.toUserId] });
