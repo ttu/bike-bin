@@ -1,5 +1,6 @@
 import React from 'react';
-import { screen } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import commonEn from '@/i18n/en/common.json';
 import profileEn from '@/i18n/en/profile.json';
@@ -101,5 +102,26 @@ describe('ProfileScreen', () => {
       .map((entry) => entry?.paddingBottom)
       .filter((value): value is number => typeof value === 'number');
     expect(Math.max(...paddingValues)).toBe(tabBarListScrollPaddingBottom + spacing.lg);
+  });
+
+  it('persists theme preference when appearance segment changes', async () => {
+    mockUseProfile.mockReturnValue({
+      data: {
+        displayName: 'Test User',
+        avatarUrl: undefined,
+        ratingAvg: 0,
+        ratingCount: 0,
+        createdAt: '2026-01-01T00:00:00Z',
+      },
+      isLoading: false,
+    });
+
+    renderWithProviders(<ProfileScreen />);
+
+    fireEvent.press(screen.getByText(profileEn.appearance.dark));
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith('theme-preference', 'dark');
+    });
   });
 });
