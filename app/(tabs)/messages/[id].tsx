@@ -237,7 +237,7 @@ export default function ConversationDetailScreen() {
     setMenuVisible(false);
     const conv = conversation;
     if (!conv?.itemId) return;
-    const itemId = conv.itemId as ItemId;
+    const itemId = conv.itemId;
 
     // Defer confirm until after the Paper Menu modal finishes dismissing.
     setTimeout(() => {
@@ -249,7 +249,7 @@ export default function ConversationDetailScreen() {
     setMenuVisible(false);
     const conv = conversation;
     if (!conv?.itemId) return;
-    const itemId = conv.itemId as ItemId;
+    const itemId = conv.itemId;
 
     setTimeout(() => {
       setExchangeConfirm({ kind: 'sell', itemId });

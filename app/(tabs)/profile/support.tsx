@@ -40,7 +40,7 @@ export default function SupportScreen() {
 
     submitSupport.mutate(
       {
-        userId: user ? (user.id as string as UserId) : undefined,
+        userId: user ? (user.id as UserId) : undefined,
         email: !user && email.trim() ? email.trim() : undefined,
         subject: subject.trim(),
         body: message.trim(),

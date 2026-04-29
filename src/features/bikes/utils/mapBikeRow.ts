@@ -31,7 +31,7 @@ export function mapBikeRow(row: BikeRow): Bike {
   return {
     id: row.id as BikeId,
     ownerId: row.owner_id as UserId,
-    name: row.name as string,
+    name: row.name,
     brand: row.brand ?? undefined,
     model: row.model ?? undefined,
     type: row.type as BikeType,
@@ -41,7 +41,7 @@ export function mapBikeRow(row: BikeRow): Bike {
     condition: mapItemCondition(row.condition),
     notes: typeof row.notes === 'string' && row.notes.trim() ? row.notes.trim() : undefined,
     thumbnailStoragePath: undefined,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }

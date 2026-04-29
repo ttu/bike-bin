@@ -52,9 +52,7 @@ describe('useMarkDonated', () => {
 
   it('throws when user is not authenticated', async () => {
     // Override the auth mock for this test
-    const useAuthMock = jest.requireMock('@/features/auth') as {
-      useAuth: () => { user: null; isAuthenticated: boolean };
-    };
+    const useAuthMock = jest.requireMock('@/features/auth');
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 
@@ -140,9 +138,7 @@ describe('useMarkSold', () => {
   });
 
   it('throws when user is not authenticated', async () => {
-    const useAuthMock = jest.requireMock('@/features/auth') as {
-      useAuth: () => { user: null; isAuthenticated: boolean };
-    };
+    const useAuthMock = jest.requireMock('@/features/auth');
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 

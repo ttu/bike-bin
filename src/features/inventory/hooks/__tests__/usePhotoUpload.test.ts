@@ -48,7 +48,7 @@ jest.mock('@/features/auth', () => mockAuthModule);
 // Mock fetch for blob conversion
 globalThis.fetch = jest.fn().mockResolvedValue({
   blob: jest.fn().mockResolvedValue(new Blob()),
-}) as jest.Mock;
+});
 
 describe('usePhotoUpload', () => {
   it('starts with isUploading false and no error', () => {

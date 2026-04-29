@@ -28,9 +28,9 @@ export function useGroupMembers(groupId: GroupId) {
     },
     select: (data) =>
       data.map((row) => ({
-        groupId: row.group_id as string as GroupId,
-        userId: row.user_id as string as UserId,
-        role: row.role as string as GroupMember['role'],
+        groupId: row.group_id as GroupId,
+        userId: row.user_id as UserId,
+        role: row.role as GroupMember['role'],
         joinedAt: row.joined_at,
         profile: {
           displayName: row.display_name ?? undefined,

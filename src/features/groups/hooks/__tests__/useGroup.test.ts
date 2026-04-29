@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import { mockSelect, mockEq, mockSingle, mockSupabase } from '@/test/supabaseMocks';
 import type { GroupId } from '@/shared/types';
 
@@ -35,19 +35,20 @@ describe('useGroup', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await waitFor(() => {
+      expect(result.current.data).toEqual({
+        id: groupId,
+        name: 'Road Cyclists',
+        description: 'A cycling group',
+        isPublic: true,
+        ratingAvg: 3.47,
+        ratingCount: 78,
+        createdAt: '2025-07-13T04:08:50.303Z',
+      });
+    });
 
     expect(mockSelect).toHaveBeenCalledWith('*');
     expect(mockEq).toHaveBeenCalledWith('id', groupId);
-    expect(result.current.data).toEqual({
-      id: groupId,
-      name: 'Road Cyclists',
-      description: 'A cycling group',
-      isPublic: true,
-      ratingAvg: 3.47,
-      ratingCount: 78,
-      createdAt: '2025-07-13T04:08:50.303Z',
-    });
   });
 
   it('throws when supabase returns an error', async () => {
@@ -61,9 +62,9 @@ describe('useGroup', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(result.current.error).toBeTruthy();
+    await waitFor(() => {
+      expect(result.current.error).toBeTruthy();
+    });
   });
 
   it('is disabled when id is empty', () => {
