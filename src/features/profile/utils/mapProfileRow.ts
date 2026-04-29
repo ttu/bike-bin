@@ -9,7 +9,7 @@ export function mapProfileRow(row: ProfileRow): UserProfile {
     distanceUnit: (row.distance_unit as DistanceUnit) ?? 'km',
     ratingAvg: row.rating_avg ?? 0,
     ratingCount: row.rating_count ?? 0,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }

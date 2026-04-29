@@ -12,10 +12,10 @@ export function mapNotificationRow(row: NotificationRow): Notification {
     id: row.id as NotificationId,
     userId: row.user_id as UserId,
     type: row.type as NotificationType,
-    title: row.title as string,
+    title: row.title,
     body: row.body ?? undefined,
     data: (row.data as Record<string, unknown>) ?? {},
     isRead: row.is_read,
-    createdAt: row.created_at as string,
+    createdAt: row.created_at,
   };
 }

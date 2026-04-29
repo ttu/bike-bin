@@ -31,7 +31,7 @@ export function mapBikeRow(row: BikeRow): Bike {
   return {
     id: row.id as BikeId,
     ownerId: row.owner_id as UserId,
-    name: row.name as string,
+    name: row.name,
     brand: row.brand ?? undefined,
     model: row.model ?? undefined,
     type: row.type as BikeType,

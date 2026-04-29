@@ -12,12 +12,12 @@ import type {
 export function mapGroupRow(row: GroupRow): Group {
   return {
     id: row.id as GroupId,
-    name: row.name as string,
+    name: row.name,
     description: row.description ?? undefined,
     isPublic: row.is_public,
     ratingAvg: row.rating_avg ?? 0,
     ratingCount: row.rating_count ?? 0,
-    createdAt: row.created_at as string,
+    createdAt: row.created_at,
   };
 }
 

@@ -54,8 +54,8 @@ export function mapItemRow(row: ItemRow): Item {
     mountedDate: row.mounted_date ?? undefined,
     pickupLocationId: (row.pickup_location_id as LocationId) ?? undefined,
     visibility: row.visibility as Visibility,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
     tags: row.tags ?? [],
     thumbnailStoragePath: undefined,
   };
