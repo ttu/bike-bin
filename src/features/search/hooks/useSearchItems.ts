@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
-import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
+import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 import type {
   AvailabilityType,
   GroupId,
@@ -58,7 +58,11 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const [ownerMap, locationMap, thumbMap] = await Promise.all([
         fetchOwnerProfiles(ownerIds),
         fetchLocationAreaNames(locationIds as string[]),
-        fetchThumbnailPaths(rows.map((r) => r.id as ItemId)),
+        fetchFirstPhotoPaths({
+          table: 'item_photos',
+          idColumn: 'item_id',
+          ids: rows.map((r) => r.id as ItemId),
+        }),
       ]);
 
       const results = rows.map((row) => mapRow(row, ownerMap, locationMap, thumbMap));

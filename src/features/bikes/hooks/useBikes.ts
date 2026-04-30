@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import { ItemCondition, type BikeId } from '@/shared/types';
-import { fetchBikeThumbnailPaths } from '@/shared/utils/fetchBikeThumbnailPaths';
+import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 import type { BikeFormData } from '../types';
 import { mapBikeRow } from '../utils/mapBikeRow';
 import { mapBikePhotoRow } from '../utils/mapBikePhotoRow';
@@ -21,7 +21,11 @@ export function useBikes() {
 
       if (error) throw error;
       const bikes = (data ?? []).map((row) => mapBikeRow(row));
-      const thumbMap = await fetchBikeThumbnailPaths(bikes.map((b) => b.id));
+      const thumbMap = await fetchFirstPhotoPaths({
+        table: 'bike_photos',
+        idColumn: 'bike_id',
+        ids: bikes.map((b) => b.id),
+      });
       return bikes.map((bike) => ({
         ...bike,
         thumbnailStoragePath: thumbMap.get(bike.id),

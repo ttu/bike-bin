@@ -17,7 +17,7 @@ import {
 import { BikeForm } from '@/features/bikes/components/BikeForm/BikeForm';
 import type { BikeFormData } from '@/features/bikes';
 import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
-import { usePhotoPicker } from '@/shared/hooks/usePhotoPicker';
+import { useImagePicker } from '@/shared/hooks/useImagePicker';
 import { usePhotoRowCapacity } from '@/shared/hooks/usePhotoRowCapacity';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
@@ -36,11 +36,11 @@ export default function NewBikeScreen() {
   const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const { pickPhoto, isPicking } = usePhotoPicker();
+  const { pickImage, isPicking } = useImagePicker();
   const { stagedPhotos, addStaged, removeStaged, uploadAll, isUploading } = useStagedBikePhotos();
 
   const handleAddPhoto = async () => {
-    const result = await pickPhoto();
+    const result = await pickImage();
     if (result) {
       addStaged(result.uri, result.fileName);
     }

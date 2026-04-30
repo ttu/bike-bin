@@ -25,8 +25,8 @@ jest.mock('@/shared/api/supabase', () => ({
 
 jest.mock('@/features/auth', () => mockAuthModule);
 
-jest.mock('@/shared/utils/fetchThumbnailPaths', () => ({
-  fetchThumbnailPaths: jest.fn().mockResolvedValue(new Map()),
+jest.mock('@/shared/utils/fetchFirstPhotoPaths', () => ({
+  fetchFirstPhotoPaths: jest.fn().mockResolvedValue(new Map()),
 }));
 
 jest.mock('@/shared/utils/mapItemRow', () => ({

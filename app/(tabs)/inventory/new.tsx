@@ -17,7 +17,7 @@ import { useLocalInventory } from '@/features/inventory/hooks/useLocalInventory'
 import type { ItemFormData } from '@/features/inventory';
 import { ItemForm } from '@/features/inventory/components/ItemForm/ItemForm';
 import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
-import { usePhotoPicker } from '@/shared/hooks/usePhotoPicker';
+import { useImagePicker } from '@/shared/hooks/useImagePicker';
 import { useStagedPhotos } from '@/features/inventory/hooks/useStagedPhotos';
 import {
   AvailabilityType,
@@ -65,12 +65,12 @@ export default function NewItemScreen() {
     };
   }, [groupIdParam]);
 
-  const { pickPhoto, isPicking } = usePhotoPicker();
+  const { pickImage, isPicking } = useImagePicker();
   const { stagedPhotos, addStaged, removeStaged, uploadAll, isUploading } = useStagedPhotos();
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddPhoto = async () => {
-    const result = await pickPhoto();
+    const result = await pickImage();
     if (result) {
       addStaged(result.uri, result.fileName);
     }

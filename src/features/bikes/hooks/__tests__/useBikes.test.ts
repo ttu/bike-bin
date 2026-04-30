@@ -16,8 +16,8 @@ import { BikeType, ItemCondition, type BikeId } from '@/shared/types';
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);
 
-jest.mock('@/shared/utils/fetchBikeThumbnailPaths', () => ({
-  fetchBikeThumbnailPaths: jest.fn().mockResolvedValue(new Map()),
+jest.mock('@/shared/utils/fetchFirstPhotoPaths', () => ({
+  fetchFirstPhotoPaths: jest.fn().mockResolvedValue(new Map()),
 }));
 
 // Import after mocks
@@ -29,13 +29,13 @@ import {
   useUpdateBike,
   useDeleteBike,
 } from '../useBikes';
-import { fetchBikeThumbnailPaths } from '@/shared/utils/fetchBikeThumbnailPaths';
+import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 describe('useBikes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (fetchBikeThumbnailPaths as jest.Mock).mockResolvedValue(new Map());
+    (fetchFirstPhotoPaths as jest.Mock).mockResolvedValue(new Map());
   });
 
   it('fetches bikes for the current user', async () => {
@@ -67,7 +67,7 @@ describe('useBikes', () => {
     expect(mockOrder).toHaveBeenCalledWith('updated_at', { ascending: false });
   });
 
-  it('assigns thumbnailStoragePath from fetchBikeThumbnailPaths', async () => {
+  it('assigns thumbnailStoragePath from fetchFirstPhotoPaths', async () => {
     const bike = createMockBike();
     const mockRow = {
       id: bike.id,
@@ -81,7 +81,7 @@ describe('useBikes', () => {
       updated_at: bike.updatedAt,
     };
     const thumbMap = new Map([[bike.id, 'bikes/thumb.jpg']]);
-    (fetchBikeThumbnailPaths as jest.Mock).mockResolvedValue(thumbMap);
+    (fetchFirstPhotoPaths as jest.Mock).mockResolvedValue(thumbMap);
 
     mockSelect.mockReturnValue({
       eq: mockEq.mockReturnValue({

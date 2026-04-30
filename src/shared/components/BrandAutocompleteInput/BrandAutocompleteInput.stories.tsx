@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 import { borderRadius, type AppTheme } from '@/shared/theme';
-import { appendHexAlpha } from '@/shared/utils/appendHexAlpha';
+import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { BrandAutocompleteInput } from './BrandAutocompleteInput';
 
 const BRANDS = ['Shimano', 'SRAM', 'Campagnolo', 'Canyon'];
@@ -51,7 +51,7 @@ function BrandAutocompletePlayground() {
       onFocus={() => setMenuVisible(true)}
       onBlur={() => setMenuVisible(false)}
       softInputStyle={softInputStyle}
-      underlineColor={appendHexAlpha(theme.colors.outlineVariant, '26')}
+      underlineColor={colorWithAlpha(theme.colors.outlineVariant, 0x26 / 255)}
       activeUnderlineColor={theme.colors.primary}
     />
   );

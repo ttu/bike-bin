@@ -3,7 +3,7 @@ import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import { ItemCategory, ItemStatus, type GroupId } from '@/shared/types';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
-import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
+import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 import type { ItemFormData } from '../utils/validation';
 
 export function useGroupItems(groupId: GroupId | undefined) {
@@ -19,7 +19,11 @@ export function useGroupItems(groupId: GroupId | undefined) {
       if (error) throw error;
       const items = (data ?? []).map((row) => mapItemRow(row));
 
-      const thumbMap = await fetchThumbnailPaths(items.map((i) => i.id));
+      const thumbMap = await fetchFirstPhotoPaths({
+        table: 'item_photos',
+        idColumn: 'item_id',
+        ids: items.map((i) => i.id),
+      });
       return items.map((item) => ({
         ...item,
         thumbnailStoragePath: thumbMap.get(item.id),

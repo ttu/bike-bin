@@ -5,6 +5,7 @@ import { PhotoLimitExceededError } from '@/shared/utils/subscriptionLimitErrors'
 const mockUploadPhoto = jest.fn();
 const mockRpc = jest.fn();
 const mockStorageRemove = jest.fn().mockResolvedValue({ data: [], error: null });
+const mockDeleteIn = jest.fn().mockResolvedValue({ data: null, error: null });
 
 jest.mock('@/shared/utils/uploadPhoto', () => ({
   uploadPhoto: (...args: unknown[]) => mockUploadPhoto(...args),
@@ -18,6 +19,11 @@ jest.mock('@/shared/api/supabase', () => ({
         remove: (...args: unknown[]) => mockStorageRemove(...args),
       }),
     },
+    from: () => ({
+      delete: () => ({
+        in: (...args: unknown[]) => mockDeleteIn(...args),
+      }),
+    }),
   },
 }));
 
@@ -303,6 +309,7 @@ describe('useStagedBikePhotos', () => {
     await expect(uploadAllPromise!).rejects.toThrow('second failed');
 
     expect(mockUploadPhoto).toHaveBeenCalledTimes(2);
+    expect(mockDeleteIn).toHaveBeenCalledWith('storage_path', ['bikes/user-123/bike-2/a.jpg']);
     expect(mockStorageRemove).toHaveBeenCalledWith(['bikes/user-123/bike-2/a.jpg']);
   });
 });
