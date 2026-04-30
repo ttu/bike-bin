@@ -28,6 +28,7 @@ import { ItemGalleryTile } from '@/features/inventory/components/ItemGalleryTile
 import { FeaturedItemCard } from '@/features/inventory/components/FeaturedItemCard/FeaturedItemCard';
 import { CategoryFilter } from '@/features/inventory/components/CategoryFilter/CategoryFilter';
 import { isTerminalStatus } from '@/features/inventory/utils/status';
+import { computeInventoryCounts } from '@/features/inventory/utils/inventoryCounts';
 import { sortItems, type InventorySortOption } from '@/features/inventory/utils/sortItems';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
@@ -161,15 +162,13 @@ export default function InventoryScreen() {
   const hasTerminalItems = terminalCount > 0;
 
   const mastheadCounts = useMemo<ScreenMastheadCount[]>(() => {
-    const activeItems = items.filter((item) => !isTerminalStatus(item.status));
-    const mounted = activeItems.filter((item) => item.status === 'mounted').length;
-    const listed = activeItems.filter((item) => item.availabilityTypes.length > 0).length;
+    const counts = computeInventoryCounts(items, selectedCategory);
     return [
-      { value: activeItems.length, label: t('masthead.counts.items') },
-      { value: mounted, label: t('masthead.counts.mounted') },
-      { value: listed, label: t('masthead.counts.listed'), tone: 'accent' },
+      { value: counts.items, label: t('masthead.counts.items') },
+      { value: counts.mounted, label: t('masthead.counts.mounted') },
+      { value: counts.listed, label: t('masthead.counts.listed'), tone: 'accent' },
     ];
-  }, [items, t]);
+  }, [items, selectedCategory, t]);
 
   const galleryColumnCount = useMemo(() => {
     const horizontalPadding = spacing.base * 2;
