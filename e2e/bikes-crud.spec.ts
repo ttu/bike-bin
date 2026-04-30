@@ -132,13 +132,15 @@ test.describe('Edit bike', () => {
     // Save (edit screen uses the same primary action pattern as inventory update)
     const saveButton = loggedInPage.getByRole('button', { name: /update bike/i });
     await saveButton.scrollIntoViewIfNeeded();
-    await saveButton.click();
 
-    // Wait for PATCH to complete
-    await loggedInPage.waitForResponse(
+    // Set up the response wait BEFORE the click — otherwise a fast PATCH can resolve
+    // before the listener attaches, causing the wait to time out.
+    const patchPromise = loggedInPage.waitForResponse(
       (resp) => resp.url().includes('/rest/v1/bikes') && resp.request().method() === 'PATCH',
       { timeout: 10000 },
     );
+    await saveButton.click();
+    await patchPromise;
 
     // Navigate to bikes list and verify updated brand
     const tablist = loggedInPage.getByRole('tablist');
