@@ -3,7 +3,13 @@ import { supabase } from '@/shared/api/supabase';
 import { randomUuidV4 } from '@/shared/utils/randomUuid';
 import { useAuth } from '@/features/auth';
 import { CONVERSATIONS_QUERY_KEY } from './useConversations';
-import type { ConversationId, ItemId, UserId, GroupId } from '@/shared/types';
+import {
+  GroupRole,
+  type ConversationId,
+  type ItemId,
+  type UserId,
+  type GroupId,
+} from '@/shared/types';
 
 /**
  * Parameters for creating a conversation about an item.
@@ -36,7 +42,7 @@ async function fetchGroupAdminIds(groupId: GroupId): Promise<string[]> {
     .from('group_members')
     .select('user_id')
     .eq('group_id', groupId)
-    .eq('role', 'admin');
+    .eq('role', GroupRole.Admin);
   if (error) throw error;
   return (data ?? []).map((a) => a.user_id as string);
 }
