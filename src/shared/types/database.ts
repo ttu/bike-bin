@@ -1215,6 +1215,17 @@ export type Database = {
           rating_count: number;
         }[];
       };
+      get_public_profiles: {
+        Args: { p_user_ids: string[] };
+        Returns: {
+          avatar_url: string;
+          created_at: string;
+          display_name: string;
+          id: string;
+          rating_avg: number;
+          rating_count: number;
+        }[];
+      };
       get_group_members_with_profiles: {
         Args: { p_group_id: string };
         Returns: {
