@@ -33,16 +33,20 @@ export function useRemoveEntityPhoto<TEntityId extends string>(
 
   return useMutation({
     mutationFn: async ({ photoId, storagePath }: RemoveEntityPhotoParams<TEntityId>) => {
-      await supabase.storage.from(ITEM_PHOTOS_BUCKET).remove([storagePath]);
+      const { error: storageError } = await supabase.storage
+        .from(ITEM_PHOTOS_BUCKET)
+        .remove([storagePath]);
+      if (storageError) throw storageError;
 
       const { error } = await supabase.from(config.table).delete().eq('id', photoId);
       if (error) throw error;
     },
     onSuccess: (_data, { entityId }) => {
-      for (const key of config.invalidationKeys(entityId, user!.id)) {
+      if (!user) return;
+      for (const key of config.invalidationKeys(entityId, user.id)) {
         queryClient.invalidateQueries({ queryKey: key });
       }
-      queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user!.id] });
+      queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user.id] });
     },
   });
 }

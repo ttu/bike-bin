@@ -96,10 +96,13 @@ export function useStagedEntityPhotos<TEntityId extends string>(
           }
         } catch (uploadError) {
           if (uploadedStoragePaths.length > 0) {
+            await supabase.from(config.table).delete().in('storage_path', uploadedStoragePaths);
             await supabase.storage.from(ITEM_PHOTOS_BUCKET).remove(uploadedStoragePaths);
           }
           throw uploadError;
         }
+
+        setPhotos([]);
 
         for (const key of config.invalidationKeys(entityId, user.id)) {
           queryClient.invalidateQueries({ queryKey: key });
