@@ -121,7 +121,9 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      tabBar={AppTabBar}
+      // Render via inline arrow: React Navigation calls `tabBar` from the parent's render,
+      // so passing AppTabBar directly breaks its useTheme() with "Invalid hook call".
+      tabBar={(props) => <AppTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
