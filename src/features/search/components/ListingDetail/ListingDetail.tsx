@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: -1,
-    lineHeight: 44,
+    lineHeight: 64,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
   },

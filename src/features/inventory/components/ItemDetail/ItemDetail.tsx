@@ -80,7 +80,10 @@ export function ItemDetail({
     ? t(`subcategory.${item.subcategory}`, { defaultValue: item.subcategory })
     : undefined;
 
-  const metaParts = [item.brand, item.model, item.age].filter(Boolean) as string[];
+  const ageLabel = item.age
+    ? t(`form.ageOption.${item.age}`, { defaultValue: item.age })
+    : undefined;
+  const metaParts = [item.brand, item.model, ageLabel].filter(Boolean) as string[];
   const listAvailability = availabilityTypesForList(item.availabilityTypes);
 
   const detailContent = (
@@ -612,7 +615,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: -1,
-    lineHeight: 44,
+    lineHeight: 64,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
   },

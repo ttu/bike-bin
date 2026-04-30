@@ -46,6 +46,12 @@ describe('ItemDetail', () => {
     expect(getByText('Shimano · 105 R7000 · 2 years')).toBeTruthy();
   });
 
+  it('translates age bracket key in the meta row', () => {
+    const item = createMockItem({ ...baseItem, age: '2_to_3_years' });
+    const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);
+    expect(getByText('Shimano · 105 R7000 · 2-3 years')).toBeTruthy();
+  });
+
   it('renders service record stamp and condition row', () => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
     expect(getByText('Service record')).toBeTruthy();
