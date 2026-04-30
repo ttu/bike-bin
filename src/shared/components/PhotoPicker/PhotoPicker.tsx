@@ -16,12 +16,14 @@ const MAX_PHOTOS = 5;
 
 function PickerPhotoImage({
   photo,
+  bucket,
   style,
 }: {
   readonly photo: PickerPhoto;
+  readonly bucket: string;
   readonly style: StyleProp<ImageStyle>;
 }) {
-  const { data } = supabase.storage.from('item-photos').getPublicUrl(photo.storagePath);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(photo.storagePath);
   const uri = photo.localUri ?? data.publicUrl;
   const cacheKey = photo.localUri ?? photo.storagePath;
   return (
@@ -44,6 +46,8 @@ interface PhotoPickerProps {
   readonly isUploading: boolean;
   /** When true, hides add tile (account-wide photo row cap reached). */
   readonly accountPhotoLimitReached?: boolean;
+  /** Storage bucket to read public URLs from. Defaults to 'item-photos'. */
+  readonly bucket?: string;
 }
 
 export function PhotoPicker({
@@ -53,6 +57,7 @@ export function PhotoPicker({
   onSetPrimary,
   isUploading,
   accountPhotoLimitReached = false,
+  bucket = 'item-photos',
 }: PhotoPickerProps) {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
@@ -71,7 +76,7 @@ export function PhotoPicker({
             accessibilityLabel={index === 0 ? t('photos.primaryPhoto') : t('photos.setAsPrimary')}
           >
             <View style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}>
-              <PickerPhotoImage photo={photo} style={styles.photoImage} />
+              <PickerPhotoImage photo={photo} bucket={bucket} style={styles.photoImage} />
               {index === 0 && (
                 <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primary }]}>
                   <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>

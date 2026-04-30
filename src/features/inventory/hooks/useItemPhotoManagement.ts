@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
+import { useRemoveEntityPhoto } from '@/shared/hooks/useRemoveEntityPhoto';
 import type { ItemId } from '@/shared/types';
 
 interface SwapPhotoOrderParams {
@@ -43,22 +44,29 @@ interface RemoveItemPhotoParams {
   storagePath: string;
 }
 
+/**
+ * Thin wrapper around `useRemoveEntityPhoto` that preserves the historical
+ * `{itemId, photoId, storagePath}` parameter shape for existing callers.
+ */
 export function useRemoveItemPhoto() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationFn: async ({ photoId, storagePath }: RemoveItemPhotoParams) => {
-      await supabase.storage.from('item-photos').remove([storagePath]);
-
-      const { error } = await supabase.from('item_photos').delete().eq('id', photoId);
-      if (error) throw error;
-    },
-    onSuccess: (_data, { itemId }) => {
-      queryClient.invalidateQueries({ queryKey: ['item_photos', itemId] });
-      queryClient.invalidateQueries({ queryKey: ['items', itemId] });
-      queryClient.invalidateQueries({ queryKey: ['items', user!.id] });
-      queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user!.id] });
-    },
+  const inner = useRemoveEntityPhoto<ItemId>({
+    table: 'item_photos',
+    invalidationKeys: (itemId, userId) => [
+      ['item_photos', itemId],
+      ['items', itemId],
+      ['items', userId],
+    ],
   });
+
+  return {
+    ...inner,
+    mutate: (
+      { itemId, photoId, storagePath }: RemoveItemPhotoParams,
+      options?: Parameters<typeof inner.mutate>[1],
+    ) => inner.mutate({ entityId: itemId, photoId, storagePath }, options),
+    mutateAsync: (
+      { itemId, photoId, storagePath }: RemoveItemPhotoParams,
+      options?: Parameters<typeof inner.mutateAsync>[1],
+    ) => inner.mutateAsync({ entityId: itemId, photoId, storagePath }, options),
+  };
 }

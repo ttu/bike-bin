@@ -1,6 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/shared/api/supabase';
-import { useAuth } from '@/features/auth';
+import { useRemoveEntityPhoto } from '@/shared/hooks/useRemoveEntityPhoto';
 import type { BikeId } from '@/shared/types';
 
 interface RemoveBikePhotoParams {
@@ -9,21 +7,28 @@ interface RemoveBikePhotoParams {
   storagePath: string;
 }
 
+/**
+ * Thin wrapper around `useRemoveEntityPhoto` that preserves the historical
+ * `{bikeId, photoId, storagePath}` parameter shape for existing callers.
+ */
 export function useRemoveBikePhoto() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationFn: async ({ photoId, storagePath }: RemoveBikePhotoParams) => {
-      await supabase.storage.from('item-photos').remove([storagePath]);
-
-      const { error } = await supabase.from('bike_photos').delete().eq('id', photoId);
-      if (error) throw error;
-    },
-    onSuccess: (_data, { bikeId }) => {
-      queryClient.invalidateQueries({ queryKey: ['bike_photos', bikeId] });
-      queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
-      queryClient.invalidateQueries({ queryKey: ['photo-row-capacity', user!.id] });
-    },
+  const inner = useRemoveEntityPhoto<BikeId>({
+    table: 'bike_photos',
+    invalidationKeys: (bikeId, userId) => [
+      ['bike_photos', bikeId],
+      ['bikes', userId],
+    ],
   });
+
+  return {
+    ...inner,
+    mutate: (
+      { bikeId, photoId, storagePath }: RemoveBikePhotoParams,
+      options?: Parameters<typeof inner.mutate>[1],
+    ) => inner.mutate({ entityId: bikeId, photoId, storagePath }, options),
+    mutateAsync: (
+      { bikeId, photoId, storagePath }: RemoveBikePhotoParams,
+      options?: Parameters<typeof inner.mutateAsync>[1],
+    ) => inner.mutateAsync({ entityId: bikeId, photoId, storagePath }, options),
+  };
 }

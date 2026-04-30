@@ -82,8 +82,8 @@ jest.mock('@/features/inventory/hooks/useLocalInventory', () => ({
   useLocalInventory: () => ({ addItem: mockAddItem }),
 }));
 
-jest.mock('@/shared/hooks/usePhotoPicker', () => ({
-  usePhotoPicker: () => ({ pickPhoto: mockPickPhoto, isPicking: false }),
+jest.mock('@/shared/hooks/useImagePicker', () => ({
+  useImagePicker: () => ({ pickImage: mockPickPhoto, isPicking: false }),
 }));
 
 jest.mock('@/features/inventory/hooks/useStagedPhotos', () => ({

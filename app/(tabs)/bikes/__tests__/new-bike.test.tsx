@@ -71,8 +71,8 @@ jest.mock('@/shared/hooks/usePhotoRowCapacity', () => ({
   }),
 }));
 
-jest.mock('@/shared/hooks/usePhotoPicker', () => ({
-  usePhotoPicker: () => ({ pickPhoto: jest.fn(), isPicking: false }),
+jest.mock('@/shared/hooks/useImagePicker', () => ({
+  useImagePicker: () => ({ pickImage: jest.fn(), isPicking: false }),
 }));
 
 jest.mock('@/features/bikes/components/BikeForm/BikeForm', () => ({

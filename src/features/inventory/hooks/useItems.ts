@@ -12,7 +12,7 @@ import {
 import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
 import { mapItemRow, mapItemPhotoRow } from '@/shared/utils/mapItemRow';
-import { fetchThumbnailPaths } from '@/shared/utils/fetchThumbnailPaths';
+import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 
 async function syncItemGroups(itemId: ItemId, groupIds: GroupId[] | undefined): Promise<void> {
   // Remove all existing item_groups for this item
@@ -44,7 +44,11 @@ export function useItems() {
       if (error) throw error;
       const items = (data ?? []).map((row) => mapItemRow(row));
 
-      const thumbMap = await fetchThumbnailPaths(items.map((i) => i.id));
+      const thumbMap = await fetchFirstPhotoPaths({
+        table: 'item_photos',
+        idColumn: 'item_id',
+        ids: items.map((i) => i.id),
+      });
       return items.map((item) => ({
         ...item,
         thumbnailStoragePath: thumbMap.get(item.id),
