@@ -3,7 +3,7 @@ import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
-import type { BorrowRequestId, ItemId } from '@/shared/types';
+import { BorrowRequestStatus, ItemStatus, type BorrowRequestId, type ItemId } from '@/shared/types';
 
 interface CancelBorrowRequestParams {
   requestId: BorrowRequestId;
@@ -20,7 +20,7 @@ export function useCancelBorrowRequest() {
 
       const { data: request, error: reqError } = await supabase
         .from('borrow_requests')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .update({ status: BorrowRequestStatus.Cancelled, updated_at: new Date().toISOString() })
         .eq('id', requestId)
         .select()
         .single();
@@ -29,7 +29,7 @@ export function useCancelBorrowRequest() {
 
       const { error: itemError } = await supabase
         .from('items')
-        .update({ status: 'stored' })
+        .update({ status: ItemStatus.Stored })
         .eq('id', itemId);
 
       if (itemError) throw itemError;

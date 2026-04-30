@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import type { BorrowRequestId, ItemId } from '@/shared/types';
+import { BorrowRequestStatus, type BorrowRequestId, type ItemId } from '@/shared/types';
 
 /** Query key prefix; invalidate all item-specific queries after borrow state changes. */
 export const ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY = 'acceptedBorrowRequestForItem' as const;
@@ -18,7 +18,7 @@ export function useAcceptedBorrowRequestForItem(
         .from('borrow_requests')
         .select('id')
         .eq('item_id', itemId)
-        .eq('status', 'accepted')
+        .eq('status', BorrowRequestStatus.Accepted)
         .maybeSingle();
 
       if (error) throw error;

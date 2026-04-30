@@ -114,7 +114,7 @@ export function useCreateItem() {
           purchase_date: formData.purchaseDate,
           mounted_date: formData.mountedDate,
           pickup_location_id: formData.pickupLocationId,
-          visibility: formData.visibility ?? 'private',
+          visibility: formData.visibility ?? Visibility.Private,
           tags: formData.tags ?? [],
           quantity: formData.quantity ?? 1,
         })

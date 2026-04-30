@@ -3,7 +3,7 @@ import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
-import type { ItemId } from '@/shared/types';
+import { ItemStatus, type ItemId } from '@/shared/types';
 
 interface CreateBorrowRequestParams {
   itemId: ItemId;
@@ -33,7 +33,7 @@ export function useCreateBorrowRequest() {
 
       const { error: itemError } = await supabase
         .from('items')
-        .update({ status: 'reserved' })
+        .update({ status: ItemStatus.Reserved })
         .eq('id', itemId);
 
       if (itemError) throw itemError;

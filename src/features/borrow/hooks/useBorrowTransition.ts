@@ -3,7 +3,7 @@ import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
-import type { BorrowRequestId, ItemId } from '@/shared/types';
+import type { BorrowRequestId, BorrowRequestStatus, ItemId, ItemStatus } from '@/shared/types';
 
 interface BorrowTransitionParams {
   requestId: BorrowRequestId;
@@ -11,8 +11,8 @@ interface BorrowTransitionParams {
 }
 
 interface UseBorrowTransitionOptions {
-  newRequestStatus: string;
-  newItemStatus: string;
+  newRequestStatus: BorrowRequestStatus;
+  newItemStatus: ItemStatus;
   additionalInvalidateKeys?: string[];
 }
 
