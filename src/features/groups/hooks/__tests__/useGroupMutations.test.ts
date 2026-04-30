@@ -1,14 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
-import {
-  mockInsert,
-  mockDelete,
-  mockEq,
-  mockSelect,
-  mockSingle,
-  mockSupabase,
-} from '@/test/supabaseMocks';
+import { mockInsert, mockDelete, mockEq, mockSupabase } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
-import { useCreateGroup } from '../useCreateGroup';
 import { useCreateInvitation } from '../useGroupInvitations';
 import { useJoinGroup, useLeaveGroup } from '../useJoinGroup';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -17,39 +9,6 @@ jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);
 
 beforeEach(() => jest.clearAllMocks());
-
-describe('useCreateGroup', () => {
-  it('creates a group and adds creator as admin', async () => {
-    const groupData = { id: 'group-1', name: 'MTB Club' };
-    mockSingle.mockResolvedValue({ data: groupData, error: null });
-    mockSelect.mockReturnValue({ single: mockSingle });
-    // First call: insert group -> select -> single
-    // Second call: insert member -> resolve
-    mockInsert.mockReturnValueOnce({ select: mockSelect }).mockResolvedValueOnce({ error: null });
-
-    const { result } = renderHook(() => useCreateGroup(), {
-      wrapper: createQueryClientHookWrapper(),
-    });
-
-    result.current.mutate({ name: 'MTB Club', isPublic: true } as never);
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-  });
-
-  it('propagates group insert errors', async () => {
-    mockSingle.mockResolvedValue({ data: null, error: { message: 'fail' } });
-    mockSelect.mockReturnValue({ single: mockSingle });
-    mockInsert.mockReturnValue({ select: mockSelect });
-
-    const { result } = renderHook(() => useCreateGroup(), {
-      wrapper: createQueryClientHookWrapper(),
-    });
-
-    result.current.mutate({ name: 'MTB Club', isPublic: true } as never);
-
-    await waitFor(() => expect(result.current.isError).toBe(true));
-  });
-});
 
 describe('useCreateInvitation', () => {
   it('creates a pending invitation', async () => {

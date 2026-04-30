@@ -10,7 +10,7 @@ import {
   ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
   BORROW_REQUESTS_QUERY_KEY,
 } from '@/features/borrow';
-import { useMarkDonated, useMarkSold } from '@/features/exchange';
+import { useMarkExchanged, getExchangeDialogConfig } from '@/features/exchange';
 import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { ItemStatus, type Item } from '@/shared/types';
 
@@ -24,8 +24,8 @@ export function useItemActions(item: Item) {
   const queryClient = useQueryClient();
   const updateStatus = useUpdateItemStatus();
   const deleteItem = useDeleteItem();
-  const markDonated = useMarkDonated();
-  const markSold = useMarkSold();
+  const markDonated = useMarkExchanged('donate');
+  const markSold = useMarkExchanged('sell');
   const markReturned = useMarkReturned();
   const { data: acceptedBorrowRequestId, isFetching: isFetchingAcceptedBorrowRequest } =
     useAcceptedBorrowRequestForItem(item.id, {
@@ -46,10 +46,7 @@ export function useItemActions(item: Item) {
 
   const handleMarkDonated = () => {
     openConfirm({
-      title: t('confirm.donate.title'),
-      message: t('confirm.donate.message'),
-      cancelLabel: t('confirm.donate.cancel'),
-      confirmLabel: t('confirm.donate.confirm'),
+      ...getExchangeDialogConfig('donate', t),
       onConfirm: () => {
         markDonated.mutate(
           { itemId: item.id },
@@ -64,10 +61,7 @@ export function useItemActions(item: Item) {
 
   const handleMarkSold = () => {
     openConfirm({
-      title: t('confirm.sell.title'),
-      message: t('confirm.sell.message'),
-      cancelLabel: t('confirm.sell.cancel'),
-      confirmLabel: t('confirm.sell.confirm'),
+      ...getExchangeDialogConfig('sell', t),
       onConfirm: () => {
         markSold.mutate(
           { itemId: item.id },

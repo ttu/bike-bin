@@ -35,7 +35,7 @@ import {
 } from '@/features/messaging';
 import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
-import { useMarkDonated, useMarkSold, getExchangeDialogConfig } from '@/features/exchange';
+import { useMarkExchanged, getExchangeDialogConfig } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
 import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
@@ -143,8 +143,8 @@ export default function ConversationDetailScreen() {
     isFetchingNextPage,
   } = useMessages(conversationId);
   const { mutate: sendMessage, isPending: isSending } = useSendMessage();
-  const markDonated = useMarkDonated();
-  const markSold = useMarkSold();
+  const markDonated = useMarkExchanged('donate');
+  const markSold = useMarkExchanged('sell');
 
   const isFocused = useIsFocused();
   const { mutate: markConversationRead } = useMarkConversationRead();
@@ -307,7 +307,9 @@ export default function ConversationDetailScreen() {
     }
   }, [exchangeConfirm, markDonated, markSold, showSnackbarAlert, tCommon]);
 
-  const exchangeDialogConfig = getExchangeDialogConfig(exchangeConfirm?.kind, tExchange);
+  const exchangeDialogConfig = exchangeConfirm
+    ? getExchangeDialogConfig(exchangeConfirm.kind, tExchange)
+    : null;
 
   const renderHeaderAvatar = () => {
     if (conversation && isGroupConversation(conversation)) {
@@ -486,11 +488,11 @@ export default function ConversationDetailScreen() {
       />
 
       <ConfirmDialog
-        visible={exchangeConfirm !== null}
-        title={exchangeDialogConfig.title}
-        message={exchangeDialogConfig.message}
-        cancelLabel={exchangeDialogConfig.cancelLabel}
-        confirmLabel={exchangeDialogConfig.confirmLabel}
+        visible={exchangeDialogConfig !== null}
+        title={exchangeDialogConfig?.title ?? ''}
+        message={exchangeDialogConfig?.message ?? ''}
+        cancelLabel={exchangeDialogConfig?.cancelLabel ?? ''}
+        confirmLabel={exchangeDialogConfig?.confirmLabel ?? ''}
         onDismiss={handleDismissExchangeConfirm}
         onConfirm={handleConfirmExchange}
         loading={markDonated.isPending || markSold.isPending}

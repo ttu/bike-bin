@@ -109,8 +109,8 @@ jest.mock('@/features/inventory', () => {
 });
 
 jest.mock('@/features/exchange', () => ({
-  useMarkDonated: () => ({ mutate: jest.fn() }),
-  useMarkSold: () => ({ mutate: jest.fn() }),
+  ...jest.requireActual('@/features/exchange'),
+  useMarkExchanged: () => ({ mutate: jest.fn() }),
 }));
 
 jest.mock('@/features/borrow', () => ({

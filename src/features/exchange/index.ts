@@ -1,4 +1,3 @@
-export { useMarkDonated } from './hooks/useMarkDonated';
-export { useMarkSold } from './hooks/useMarkSold';
+export { useMarkExchanged } from './hooks/useMarkExchanged';
 export { getExchangeDialogConfig } from './utils/getExchangeDialogConfig';
 export type { ExchangeKind, ExchangeDialogConfig } from './utils/getExchangeDialogConfig';
