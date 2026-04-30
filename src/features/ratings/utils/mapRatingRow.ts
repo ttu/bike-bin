@@ -7,25 +7,24 @@ import type {
   RatingRow,
   UserId,
 } from '@/shared/types';
-import { nullToUndef } from '@/shared/utils/nullToUndef';
 import type { RatingWithReviewer } from '../types';
 
 /** Transforms a Supabase row into the Rating domain model. */
 export function mapRatingRow(row: RatingRow): Rating {
   const recipient: RatingRecipient =
     row.to_group_id == null
-      ? { toUserId: nullToUndef(row.to_user_id) as UserId | undefined }
+      ? { toUserId: (row.to_user_id as UserId | null) ?? undefined }
       : { toGroupId: row.to_group_id as GroupId };
 
   return {
     ...recipient,
     id: row.id as RatingId,
-    fromUserId: nullToUndef(row.from_user_id) as UserId | undefined,
-    itemId: nullToUndef(row.item_id) as ItemId | undefined,
+    fromUserId: (row.from_user_id as UserId | null) ?? undefined,
+    itemId: (row.item_id as ItemId | null) ?? undefined,
     transactionType: row.transaction_type,
     score: row.score,
-    text: nullToUndef(row.text),
-    editableUntil: nullToUndef(row.editable_until),
+    text: row.text ?? undefined,
+    editableUntil: row.editable_until ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
