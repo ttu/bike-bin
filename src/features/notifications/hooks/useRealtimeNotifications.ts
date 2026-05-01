@@ -29,8 +29,10 @@ export function useRealtimeNotifications() {
         },
         () => {
           Promise.all([
-            queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] }),
-            queryClient.invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY] }),
+            queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY, user.id] }),
+            queryClient.invalidateQueries({
+              queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY, user.id],
+            }),
           ]).catch(() => undefined);
         },
       )

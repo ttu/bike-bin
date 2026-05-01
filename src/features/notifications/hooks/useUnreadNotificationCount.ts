@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 
@@ -7,14 +6,14 @@ export const UNREAD_NOTIFICATION_COUNT_QUERY_KEY = 'unread_notification_count';
 
 /**
  * Returns the number of unread notifications for the current user.
- * Also subscribes to realtime inserts on the notifications table
- * to keep the count up to date.
+ * Realtime updates are driven by `useRealtimeNotifications`, which must be
+ * mounted somewhere in the tree (typically once at the app root) so the
+ * count stays fresh without each consumer opening its own channel.
  */
 export function useUnreadNotificationCount() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
 
-  const query = useQuery({
+  return useQuery({
     queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY, user?.id],
     queryFn: async (): Promise<number> => {
       if (!user) return 0;
@@ -30,33 +29,4 @@ export function useUnreadNotificationCount() {
     },
     enabled: !!user,
   });
-
-  // Subscribe to new notifications for real-time badge updates
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('unread-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          queryClient
-            .invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY, user.id] })
-            .catch(() => undefined);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel).catch(() => undefined);
-    };
-  }, [user, queryClient]);
-
-  return query;
 }
