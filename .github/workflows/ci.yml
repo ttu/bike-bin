@@ -73,10 +73,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Install Maestro
-        run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
       - run: npm run test:e2e
         continue-on-error: true
 
