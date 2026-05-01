@@ -42,7 +42,11 @@ export function useOfflineQueue() {
       .then((stored) => {
         if (stored) {
           try {
-            setQueue(JSON.parse(stored));
+            const parsed = JSON.parse(stored) as QueuedMutation[];
+            setQueue((prev) => {
+              const seen = new Set(prev.map((m) => m.id));
+              return [...prev, ...parsed.filter((m) => !seen.has(m.id))];
+            });
           } catch {
             // Corrupted data, reset
             AsyncStorage.removeItem(QUEUE_STORAGE_KEY);
