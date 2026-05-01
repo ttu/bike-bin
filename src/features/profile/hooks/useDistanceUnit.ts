@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import type { DistanceUnit, UserId } from '@/shared/types';
@@ -30,15 +29,8 @@ export function useDistanceUnit() {
     },
   });
 
-  const setDistanceUnit = useCallback(
-    (unit: DistanceUnit) => {
-      mutation.mutate(unit);
-    },
-    [mutation],
-  );
-
   return {
     distanceUnit: profile?.distanceUnit ?? 'km',
-    setDistanceUnit,
+    setDistanceUnit: mutation.mutate,
   };
 }

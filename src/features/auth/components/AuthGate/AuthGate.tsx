@@ -17,10 +17,10 @@ export function AuthGate({ children, fallback }: AuthGateProps) {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
-    return <>{children}</>;
+    return children;
   }
 
-  return <>{fallback ?? null}</>;
+  return fallback ?? null;
 }
 
 export function useAuthGate() {

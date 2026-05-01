@@ -1,8 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/shared/api/supabase';
 import { AuthContext } from './context';
 import { signInWithOAuthProvider } from './utils/signInWithOAuthProvider';
+
+const signInWithGoogle = async () => {
+  await signInWithOAuthProvider('google');
+};
+
+const signInWithApple = async () => {
+  await signInWithOAuthProvider('apple');
+};
+
+const signOut = async () => {
+  await supabase.auth.signOut();
+};
 
 export function AuthProvider({ children }: { readonly children: React.ReactNode }) {
   const [session, setSession] = useState<Session | undefined>(undefined);
@@ -47,18 +59,6 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
     };
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
-    await signInWithOAuthProvider('google');
-  }, []);
-
-  const signInWithApple = useCallback(async () => {
-    await signInWithOAuthProvider('apple');
-  }, []);
-
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-  }, []);
-
   const user: User | undefined = session?.user;
   const isAuthenticated = user !== undefined;
 
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
       signInWithApple,
       signOut,
     }),
-    [session, user, isAuthenticated, isLoading, signInWithGoogle, signInWithApple, signOut],
+    [session, user, isAuthenticated, isLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
