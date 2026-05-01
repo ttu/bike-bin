@@ -487,16 +487,18 @@ export default function ConversationDetailScreen() {
         loading={reportMutation.isPending}
       />
 
-      <ConfirmDialog
-        visible={exchangeDialogConfig !== null}
-        title={exchangeDialogConfig?.title ?? ''}
-        message={exchangeDialogConfig?.message ?? ''}
-        cancelLabel={exchangeDialogConfig?.cancelLabel ?? ''}
-        confirmLabel={exchangeDialogConfig?.confirmLabel ?? ''}
-        onDismiss={handleDismissExchangeConfirm}
-        onConfirm={handleConfirmExchange}
-        loading={markDonated.isPending || markSold.isPending}
-      />
+      {exchangeDialogConfig && (
+        <ConfirmDialog
+          visible
+          title={exchangeDialogConfig.title}
+          message={exchangeDialogConfig.message}
+          cancelLabel={exchangeDialogConfig.cancelLabel}
+          confirmLabel={exchangeDialogConfig.confirmLabel}
+          onDismiss={handleDismissExchangeConfirm}
+          onConfirm={handleConfirmExchange}
+          loading={markDonated.isPending || markSold.isPending}
+        />
+      )}
     </View>
   );
 }
