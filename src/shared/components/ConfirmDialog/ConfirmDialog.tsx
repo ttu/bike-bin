@@ -43,10 +43,6 @@ export function ConfirmDialog({
 
   const resolvedCancel = cancelLabel ?? t('actions.cancel');
 
-  const handleConfirm = () => {
-    onConfirm();
-  };
-
   return (
     <Portal>
       <Dialog
@@ -74,7 +70,7 @@ export function ConfirmDialog({
           ) : null}
           {destructive ? (
             <Button
-              onPress={handleConfirm}
+              onPress={onConfirm}
               disabled={loading}
               textColor={theme.colors.error}
               testID={`${testID}-confirm`}
@@ -83,7 +79,7 @@ export function ConfirmDialog({
             </Button>
           ) : (
             <GradientButton
-              onPress={handleConfirm}
+              onPress={onConfirm}
               loading={loading}
               disabled={loading}
               testID={`${testID}-confirm`}

@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { AuthContext, type AuthContextType } from '../context';
 import { DemoModeContext } from '@/features/demo';
@@ -22,13 +22,11 @@ export function useAuth(): AuthContextType {
   const demoContext = useContext(DemoModeContext);
   const isDemoMode = demoContext?.isDemoMode ?? false;
 
-  return useMemo(() => {
-    if (!isDemoMode) return context;
-    return {
-      ...context,
-      user: DEMO_USER,
-      isAuthenticated: true,
-      isLoading: false,
-    };
-  }, [isDemoMode, context]);
+  if (!isDemoMode) return context;
+  return {
+    ...context,
+    user: DEMO_USER,
+    isAuthenticated: true,
+    isLoading: false,
+  };
 }
