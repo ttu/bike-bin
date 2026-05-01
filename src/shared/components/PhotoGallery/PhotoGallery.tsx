@@ -105,7 +105,7 @@ export function PhotoGallery({ photos, maxGalleryWidth, onPhotoLongPress }: Phot
   const { t } = useTranslation('common');
   const themed = useThemedStyles(theme);
   const [activeIndex, setActiveIndex] = useState(0);
-  const scrollX = useMemo(() => new Animated.Value(0), []);
+  const [scrollX] = useState(() => new Animated.Value(0));
   const scrollViewRef = useRef<ScrollView>(null);
   const { width: windowWidth } = useWindowDimensions();
 

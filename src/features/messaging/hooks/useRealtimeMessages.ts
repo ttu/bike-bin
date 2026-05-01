@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import { MESSAGES_QUERY_KEY } from './useMessages';
 import { CONVERSATIONS_QUERY_KEY } from './useConversations';
 import { UNREAD_COUNT_QUERY_KEY } from './useUnreadCount';
 import { useMarkConversationRead } from './useMarkConversationRead';
-import type { ConversationId } from '@/shared/types';
+import { mapMessageRow } from '../utils/mapMessageRow';
+import type { ConversationListItem, MessageWithSender } from '../types';
+import type { ConversationId, MessageRow } from '@/shared/types';
 
 interface UseRealtimeMessagesOptions {
   /**
@@ -19,7 +21,8 @@ interface UseRealtimeMessagesOptions {
 
 /**
  * Subscribe to realtime message inserts for a conversation.
- * Updates the TanStack Query cache when new messages arrive.
+ * Patches the TanStack Query cache directly (no broad invalidation) so active
+ * chats don't refetch on every incoming message.
  */
 export function useRealtimeMessages(
   conversationId: ConversationId | undefined,
@@ -29,14 +32,20 @@ export function useRealtimeMessages(
   const { user } = useAuth();
   const { mutate: markRead } = useMarkConversationRead();
 
-  // Read the latest isFocused inside the channel handler without re-subscribing.
+  // Read latest isFocused/markRead inside the channel handler without re-subscribing.
   const isFocusedRef = useRef(isFocused);
+  const markReadRef = useRef(markRead);
   useEffect(() => {
     isFocusedRef.current = isFocused;
   }, [isFocused]);
+  useEffect(() => {
+    markReadRef.current = markRead;
+  }, [markRead]);
 
   useEffect(() => {
     if (!conversationId || !user) return;
+
+    const userId = user.id;
 
     const channel = supabase
       .channel(`messages:${conversationId}`)
@@ -48,27 +57,50 @@ export function useRealtimeMessages(
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        () => {
-          const invalidations = [
-            queryClient.invalidateQueries({
-              queryKey: [MESSAGES_QUERY_KEY, conversationId],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [CONVERSATIONS_QUERY_KEY, user.id],
-            }),
-          ];
+        (payload) => {
+          const newMessage = mapMessageRow(payload.new as MessageRow, userId);
+
+          queryClient.setQueryData<InfiniteData<MessageWithSender[]>>(
+            [MESSAGES_QUERY_KEY, conversationId],
+            (old) => {
+              if (!old) return old;
+              const alreadyPresent = old.pages.some((page) =>
+                page.some((m) => m.id === newMessage.id),
+              );
+              if (alreadyPresent) return old;
+              const [first = [], ...rest] = old.pages;
+              return { ...old, pages: [[newMessage, ...first], ...rest] };
+            },
+          );
+
+          queryClient.setQueryData<ConversationListItem[]>(
+            [CONVERSATIONS_QUERY_KEY, userId],
+            (old) => {
+              if (!old) return old;
+              return old.map((conv) =>
+                conv.id === conversationId
+                  ? {
+                      ...conv,
+                      lastMessageBody: newMessage.body,
+                      lastMessageSenderId: newMessage.senderId,
+                      lastMessageAt: newMessage.createdAt,
+                      unreadCount:
+                        newMessage.isOwn || isFocusedRef.current
+                          ? conv.unreadCount
+                          : conv.unreadCount + 1,
+                    }
+                  : conv,
+              );
+            },
+          );
 
           if (isFocusedRef.current) {
-            markRead(conversationId);
-          } else {
-            invalidations.push(
-              queryClient.invalidateQueries({
-                queryKey: [UNREAD_COUNT_QUERY_KEY],
-              }),
-            );
+            markReadRef.current(conversationId);
+          } else if (!newMessage.isOwn) {
+            queryClient
+              .invalidateQueries({ queryKey: [UNREAD_COUNT_QUERY_KEY] })
+              .catch(() => undefined);
           }
-
-          Promise.all(invalidations).catch(() => undefined);
         },
       )
       .subscribe();
@@ -76,5 +108,5 @@ export function useRealtimeMessages(
     return () => {
       supabase.removeChannel(channel).catch(() => undefined);
     };
-  }, [conversationId, user, queryClient, markRead]);
+  }, [conversationId, user, queryClient]);
 }

@@ -38,6 +38,12 @@ describe('useRealtimeNotifications', () => {
     listener();
 
     expect(invalidateSpy).toHaveBeenCalledTimes(2);
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: ['notifications', 'user-123'],
+    });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: ['unread_notification_count', 'user-123'],
+    });
   });
 
   it('swallows invalidate errors when listener fires', async () => {
