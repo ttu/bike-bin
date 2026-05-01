@@ -53,6 +53,9 @@ export function useOfflineQueue() {
           }
         }
       })
+      .catch((error) => {
+        console.warn('[useOfflineQueue] Failed to read persisted queue', error);
+      })
       .finally(() => {
         isHydratedRef.current = true;
       });
