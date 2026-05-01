@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Appbar, Text, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -48,22 +48,15 @@ export function GroupForm({
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [nameError, setNameError] = useState('');
 
-  const themeStyles = useMemo(
-    () => ({
-      container: { backgroundColor: theme.colors.background },
-      appbar: { backgroundColor: theme.colors.background },
-      softInput: {
-        backgroundColor: theme.customColors.surfaceContainerHighest,
-        borderRadius: borderRadius.md,
-      },
-      description: { color: theme.colors.onSurfaceVariant },
-    }),
-    [
-      theme.colors.background,
-      theme.colors.onSurfaceVariant,
-      theme.customColors.surfaceContainerHighest,
-    ],
-  );
+  const themeStyles = {
+    container: { backgroundColor: theme.colors.background },
+    appbar: { backgroundColor: theme.colors.background },
+    softInput: {
+      backgroundColor: theme.customColors.surfaceContainerHighest,
+      borderRadius: borderRadius.md,
+    },
+    description: { color: theme.colors.onSurfaceVariant },
+  };
   const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 

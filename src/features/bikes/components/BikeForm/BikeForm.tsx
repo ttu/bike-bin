@@ -68,16 +68,12 @@ export function BikeForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('bikes');
 
-  const softInputStyles = useMemo(
-    () =>
-      StyleSheet.create({
-        softInput: {
-          backgroundColor: theme.customColors.surfaceContainerHighest,
-          borderRadius: borderRadius.md,
-        },
-      }),
-    [theme],
-  );
+  const softInputStyles = StyleSheet.create({
+    softInput: {
+      backgroundColor: theme.customColors.surfaceContainerHighest,
+      borderRadius: borderRadius.md,
+    },
+  });
   const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 

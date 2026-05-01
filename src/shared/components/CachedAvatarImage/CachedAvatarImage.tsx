@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 
 export interface CachedAvatarImageProps {
@@ -15,24 +13,13 @@ export interface CachedAvatarImageProps {
  */
 export function CachedAvatarImage({ uri, size, cacheKey, testID }: CachedAvatarImageProps) {
   const key = cacheKey ?? uri;
-  const imageStyle = useMemo(
-    () =>
-      StyleSheet.create({
-        image: {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-        },
-      }).image,
-    [size],
-  );
 
   return (
     <Image
       testID={testID}
       accessible={false}
       source={{ uri, cacheKey: key }}
-      style={imageStyle}
+      style={{ width: size, height: size, borderRadius: size / 2 }}
       contentFit="cover"
       cachePolicy="memory-disk"
       recyclingKey={key}
