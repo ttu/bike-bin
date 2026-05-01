@@ -44,6 +44,35 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_public_profile(uuid) TO authenticated, anon;
 
+-- Batched variant: fetch many public profiles in a single round-trip.
+-- Returns rows for ids that exist; missing ids are simply omitted.
+CREATE OR REPLACE FUNCTION public.get_public_profiles(p_user_ids uuid[])
+RETURNS TABLE (
+  id uuid,
+  display_name text,
+  avatar_url text,
+  rating_avg numeric,
+  rating_count integer,
+  created_at timestamptz
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path TO public, pg_temp
+AS $$
+  SELECT
+    p.id,
+    p.display_name,
+    p.avatar_url,
+    p.rating_avg,
+    p.rating_count,
+    p.created_at
+  FROM public.profiles p
+  WHERE p.id = ANY(p_user_ids);
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_public_profiles(uuid[]) TO authenticated, anon;
+
 -- Atomically transition a borrow request and its associated item status.
 -- Verifies the caller is the item owner or the requester before proceeding.
 -- The borrow_requests trigger enforces the state-machine rules; this function

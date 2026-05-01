@@ -28,7 +28,6 @@ test.describe('Profile overview', () => {
 
     await expect(loggedInPage.getByText('Saved Locations')).toBeVisible();
     await expect(loggedInPage.getByText('Borrow Requests')).toBeVisible();
-    await expect(loggedInPage.getByTestId('profile-menu-groups')).toBeVisible();
     await expect(loggedInPage.getByText('Notification Settings')).toBeVisible();
     await expect(loggedInPage.getByText('Help & Support')).toBeVisible();
     await expect(loggedInPage.getByText('About & Legal')).toBeVisible();

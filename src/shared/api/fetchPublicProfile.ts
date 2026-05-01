@@ -36,18 +36,24 @@ export async function fetchPublicProfile(
   return mapRpcRow(data as Record<string, unknown>);
 }
 
-/** Loads public profiles for many user ids in parallel. */
+/** Loads public profiles for many user ids in a single round-trip. */
 export async function fetchPublicProfilesMap(
   userIds: readonly string[],
 ): Promise<Map<string, FetchedPublicProfile>> {
   const unique = [...new Set(userIds.filter(Boolean))];
-  const pairs = await Promise.all(
-    unique.map(async (id) => {
-      const profile = await fetchPublicProfile(id);
-      return profile ? ([id, profile] as const) : undefined;
-    }),
-  );
-  return new Map(
-    pairs.filter((p): p is readonly [string, FetchedPublicProfile] => p !== undefined),
-  );
+  if (unique.length === 0) return new Map();
+
+  const { data, error } = await supabase.rpc('get_public_profiles', {
+    p_user_ids: unique,
+  });
+
+  if (error) throw error;
+
+  const rows = (data ?? []) as Record<string, unknown>[];
+  const map = new Map<string, FetchedPublicProfile>();
+  for (const row of rows) {
+    const profile = mapRpcRow(row);
+    map.set(profile.id, profile);
+  }
+  return map;
 }
