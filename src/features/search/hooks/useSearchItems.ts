@@ -69,9 +69,20 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const filtered = applyClientFilters(results, filters);
       return sortResults(filtered, filters.sortBy);
     },
-    enabled: enabled && isAuthenticated && filters.query.length > 0,
+    enabled: enabled && isAuthenticated && hasActiveSearchInput(filters),
     staleTime: 60_000, // 1 minute
   });
+}
+
+function hasActiveSearchInput(filters: SearchFilters): boolean {
+  return (
+    filters.query.length > 0 ||
+    filters.categories.length > 0 ||
+    filters.conditions.length > 0 ||
+    filters.offerTypes.length > 0 ||
+    filters.priceMin !== undefined ||
+    filters.priceMax !== undefined
+  );
 }
 
 // ── Client-side filtering & sorting ─────────────────────────────────

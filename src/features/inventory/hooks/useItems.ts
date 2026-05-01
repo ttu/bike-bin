@@ -16,18 +16,60 @@ import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 import { InvalidItemDeleteStatusError } from '@/shared/utils/subscriptionLimitErrors';
 
 async function syncItemGroups(itemId: ItemId, groupIds: GroupId[] | undefined): Promise<void> {
-  // Remove all existing item_groups for this item
-  const { error: deleteError } = await supabase.from('item_groups').delete().eq('item_id', itemId);
+  const desired = new Set(groupIds ?? []);
 
-  if (deleteError) throw deleteError;
+  const { data: existingRows, error: selectError } = await supabase
+    .from('item_groups')
+    .select('group_id')
+    .eq('item_id', itemId);
+  if (selectError) throw selectError;
 
-  // Insert new item_groups if any
-  if (groupIds && groupIds.length > 0) {
-    const rows = groupIds.map((groupId) => ({ item_id: itemId, group_id: groupId }));
+  const existing = new Set((existingRows ?? []).map((r) => r.group_id as GroupId));
+
+  const toRemove = [...existing].filter((g) => !desired.has(g));
+  const toAdd = [...desired].filter((g) => !existing.has(g));
+
+  if (toRemove.length > 0) {
+    const { error: deleteError } = await supabase
+      .from('item_groups')
+      .delete()
+      .eq('item_id', itemId)
+      .in('group_id', toRemove);
+    if (deleteError) throw deleteError;
+  }
+
+  if (toAdd.length > 0) {
+    const rows = toAdd.map((groupId) => ({ item_id: itemId, group_id: groupId }));
     const { error: insertError } = await supabase.from('item_groups').insert(rows);
-
     if (insertError) throw insertError;
   }
+}
+
+function itemFormDataToRow(formData: ItemFormData) {
+  return {
+    name: formData.name,
+    category: formData.category,
+    subcategory: formData.subcategory,
+    condition: formData.condition,
+    brand: formData.brand,
+    model: formData.model,
+    description: formData.description,
+    availability_types: formData.availabilityTypes,
+    price: formData.price,
+    deposit: formData.deposit,
+    borrow_duration: formData.borrowDuration,
+    storage_location: formData.storageLocation,
+    age: formData.age ?? null,
+    usage_km: formData.usageKm,
+    remaining_fraction:
+      formData.category === ItemCategory.Consumable ? (formData.remainingFraction ?? null) : null,
+    purchase_date: formData.purchaseDate ?? null,
+    mounted_date: formData.mountedDate ?? null,
+    pickup_location_id: formData.pickupLocationId,
+    visibility: formData.visibility,
+    tags: formData.tags ?? [],
+    quantity: formData.quantity ?? 1,
+  };
 }
 
 export function useItems() {
@@ -54,6 +96,27 @@ export function useItems() {
         ...item,
         thumbnailStoragePath: thumbMap.get(item.id),
       }));
+    },
+    enabled: !!user,
+  });
+}
+
+export function useAvailableParts() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['items', 'available-parts', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .eq('owner_id', user!.id)
+        .eq('status', ItemStatus.Stored)
+        .is('bike_id', null)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      return (data ?? []).map((row) => mapItemRow(row));
     },
     enabled: !!user,
   });
@@ -98,30 +161,10 @@ export function useCreateItem() {
       const { data, error } = await supabase
         .from('items')
         .insert({
+          ...itemFormDataToRow(formData),
           owner_id: user!.id,
-          name: formData.name,
-          category: formData.category,
-          subcategory: formData.subcategory,
-          condition: formData.condition,
-          brand: formData.brand,
-          model: formData.model,
-          description: formData.description,
           status: ItemStatus.Stored,
-          availability_types: formData.availabilityTypes,
-          price: formData.price,
-          deposit: formData.deposit,
-          borrow_duration: formData.borrowDuration,
-          storage_location: formData.storageLocation,
-          age: formData.age,
-          usage_km: formData.usageKm,
-          remaining_fraction:
-            formData.category === ItemCategory.Consumable ? formData.remainingFraction : null,
-          purchase_date: formData.purchaseDate,
-          mounted_date: formData.mountedDate,
-          pickup_location_id: formData.pickupLocationId,
           visibility: formData.visibility ?? Visibility.Private,
-          tags: formData.tags ?? [],
-          quantity: formData.quantity ?? 1,
         })
         .select()
         .single();
@@ -151,33 +194,7 @@ export function useUpdateItem() {
     mutationFn: async ({ id, ...formData }: ItemFormData & { id: ItemId }) => {
       const { data, error } = await supabase
         .from('items')
-        .update({
-          name: formData.name,
-          category: formData.category,
-          subcategory: formData.subcategory,
-          condition: formData.condition,
-          brand: formData.brand,
-          model: formData.model,
-          description: formData.description,
-          availability_types: formData.availabilityTypes,
-          price: formData.price,
-          deposit: formData.deposit,
-          borrow_duration: formData.borrowDuration,
-          storage_location: formData.storageLocation,
-          // null so PostgREST clears the column; undefined is omitted and leaves old values
-          age: formData.age ?? null,
-          usage_km: formData.usageKm,
-          remaining_fraction:
-            formData.category === ItemCategory.Consumable
-              ? (formData.remainingFraction ?? null)
-              : null,
-          purchase_date: formData.purchaseDate ?? null,
-          mounted_date: formData.mountedDate ?? null,
-          pickup_location_id: formData.pickupLocationId,
-          visibility: formData.visibility,
-          tags: formData.tags ?? [],
-          quantity: formData.quantity ?? 1,
-        })
+        .update(itemFormDataToRow(formData))
         .eq('id', id)
         .select()
         .single();

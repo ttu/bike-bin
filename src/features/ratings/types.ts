@@ -29,17 +29,27 @@ interface CreateGroupRatingInput extends CreateRatingBase {
 
 export type CreateRatingInput = CreateUserRatingInput | CreateGroupRatingInput;
 
-export interface UpdateRatingInput {
-  id: RatingId;
+interface RatingTargetUser {
   toUserId: UserId;
-  score: number;
-  text?: string;
+  toGroupId?: never;
 }
 
-export interface DeleteRatingInput {
-  id: RatingId;
-  toUserId: UserId;
+interface RatingTargetGroup {
+  toGroupId: GroupId;
+  toUserId?: never;
 }
+
+type RatingTarget = RatingTargetUser | RatingTargetGroup;
+
+export type UpdateRatingInput = RatingTarget & {
+  id: RatingId;
+  score: number;
+  text?: string;
+};
+
+export type DeleteRatingInput = RatingTarget & {
+  id: RatingId;
+};
 
 export type RatingWithReviewer = Rating & {
   reviewer: Pick<UserProfile, 'displayName' | 'avatarUrl'>;

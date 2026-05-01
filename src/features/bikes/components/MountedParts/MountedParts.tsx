@@ -3,9 +3,9 @@ import { View, FlatList, StyleSheet, Pressable, type ListRenderItem } from 'reac
 import { Text, Button, IconButton, Dialog, Portal, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
-import { ItemStatus, type BikeId, type Item } from '@/shared/types';
+import { type BikeId, type Item } from '@/shared/types';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
-import { useItems } from '@/features/inventory';
+import { useAvailableParts } from '@/features/inventory';
 import { useMountedParts } from '../../hooks/useMountedParts';
 import { useAttachPart } from '../../hooks/useAttachPart';
 import { useDetachPart } from '../../hooks/useDetachPart';
@@ -20,17 +20,12 @@ export function MountedParts({ bikeId }: MountedPartsProps) {
   const themed = useThemedStyles(theme);
 
   const { data: mountedParts = [] } = useMountedParts(bikeId);
-  const { data: allItems = [] } = useItems();
+  const { data: availableParts = [] } = useAvailableParts();
   const attachMutation = useAttachPart();
   const detachMutation = useDetachPart();
 
   const [showPicker, setShowPicker] = useState(false);
   const [detachTarget, setDetachTarget] = useState<Item | undefined>(undefined);
-
-  // Available parts: stored items not already mounted on any bike
-  const availableParts = allItems.filter(
-    (item) => item.status === ItemStatus.Stored && !item.bikeId,
-  );
 
   const handleAttach = useCallback(
     (itemId: Item['id']) => {

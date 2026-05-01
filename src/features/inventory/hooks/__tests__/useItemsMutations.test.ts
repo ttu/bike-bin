@@ -174,8 +174,8 @@ describe('useCreateItem', () => {
         }),
       },
       {
-        delete: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: null }),
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ data: [], error: null }),
         }),
       },
       {
@@ -221,8 +221,8 @@ describe('useUpdateItem', () => {
         }),
       },
       {
-        delete: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: null }),
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ data: [], error: null }),
         }),
       },
     ];
