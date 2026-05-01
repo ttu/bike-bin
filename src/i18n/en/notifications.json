@@ -12,12 +12,6 @@
     "rating_prompt": "Rate Your Experience",
     "default": "Notification"
   },
-  "timeAgo": {
-    "justNow": "Just now",
-    "minutesAgo": "{{count}}m ago",
-    "hoursAgo": "{{count}}h ago",
-    "daysAgo": "{{count}}d ago"
-  },
   "settings": {
     "title": "Notification Settings",
     "description": "Choose how you want to be notified",

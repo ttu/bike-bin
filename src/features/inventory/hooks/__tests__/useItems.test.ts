@@ -12,6 +12,7 @@ import {
 import { mockAuthModule } from '@/test/authMocks';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
 import { ItemStatus, type ItemId } from '@/shared/types';
+import { InvalidItemDeleteStatusError } from '@/shared/utils/subscriptionLimitErrors';
 import { useItems, useItem, useCreateItem, useDeleteItem } from '../useItems';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
@@ -171,6 +172,6 @@ describe('useDeleteItem', () => {
         id: 'item-1' as ItemId,
         status: ItemStatus.Loaned,
       }),
-    ).rejects.toThrow('Cannot delete');
+    ).rejects.toThrow(InvalidItemDeleteStatusError);
   });
 });

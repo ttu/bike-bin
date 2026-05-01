@@ -13,6 +13,7 @@ import { canDelete } from '../utils/status';
 import type { ItemFormData } from '../utils/validation';
 import { mapItemRow, mapItemPhotoRow } from '@/shared/utils/mapItemRow';
 import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
+import { InvalidItemDeleteStatusError } from '@/shared/utils/subscriptionLimitErrors';
 
 async function syncItemGroups(itemId: ItemId, groupIds: GroupId[] | undefined): Promise<void> {
   // Remove all existing item_groups for this item
@@ -232,7 +233,7 @@ export function useDeleteItem() {
   return useMutation({
     mutationFn: async ({ id, status }: { id: ItemId; status: ItemStatus }) => {
       if (!canDelete({ status })) {
-        throw new Error('Cannot delete item with status: ' + status);
+        throw new InvalidItemDeleteStatusError(status);
       }
 
       const { error } = await supabase.from('items').delete().eq('id', id);

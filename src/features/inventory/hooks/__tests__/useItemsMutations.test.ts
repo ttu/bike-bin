@@ -9,6 +9,7 @@ import {
   Visibility,
 } from '@/shared/types';
 import { supabase } from '@/shared/api/supabase';
+import { InvalidItemDeleteStatusError } from '@/shared/utils/subscriptionLimitErrors';
 
 let mockCallCount = 0;
 let mockFromChains: Record<string, unknown>[] = [];
@@ -313,6 +314,6 @@ describe('useDeleteItem', () => {
 
     await expect(
       result.current.mutateAsync({ id: 'item-1' as ItemId, status: ItemStatus.Loaned }),
-    ).rejects.toThrow('Cannot delete');
+    ).rejects.toThrow(InvalidItemDeleteStatusError);
   });
 });

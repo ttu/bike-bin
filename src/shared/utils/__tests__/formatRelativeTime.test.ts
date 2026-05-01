@@ -1,5 +1,10 @@
 import { formatRelativeTime, formatMessageTime } from '../formatRelativeTime';
 
+const t = (key: string, options?: Record<string, unknown>): string => {
+  const count = options?.count;
+  return count === undefined ? key : `${key}:${String(count)}`;
+};
+
 describe('formatRelativeTime', () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -10,36 +15,40 @@ describe('formatRelativeTime', () => {
     jest.useRealTimers();
   });
 
-  it('returns "just now" for times within the last minute', () => {
-    expect(formatRelativeTime('2026-03-21T11:59:30Z')).toBe('just now');
+  it('returns justNow key for times within the last minute', () => {
+    expect(formatRelativeTime('2026-03-21T11:59:30Z', t)).toBe('common:timeAgo.justNow');
   });
 
-  it('returns compact "now" when compact=true', () => {
-    expect(formatRelativeTime('2026-03-21T11:59:30Z', true)).toBe('now');
+  it('returns compact justNow key when compact=true', () => {
+    expect(formatRelativeTime('2026-03-21T11:59:30Z', t, true)).toBe(
+      'common:timeAgo.justNowCompact',
+    );
   });
 
-  it('returns minutes for recent times', () => {
-    expect(formatRelativeTime('2026-03-21T11:55:00Z')).toBe('5m ago');
+  it('returns minutesAgo key for recent times', () => {
+    expect(formatRelativeTime('2026-03-21T11:55:00Z', t)).toBe('common:timeAgo.minutesAgo:5');
   });
 
-  it('returns compact minutes', () => {
-    expect(formatRelativeTime('2026-03-21T11:55:00Z', true)).toBe('5m');
+  it('returns compact minutesAgo key', () => {
+    expect(formatRelativeTime('2026-03-21T11:55:00Z', t, true)).toBe(
+      'common:timeAgo.minutesAgoCompact:5',
+    );
   });
 
-  it('returns hours for same-day times', () => {
-    expect(formatRelativeTime('2026-03-21T09:00:00Z')).toBe('3h ago');
+  it('returns hoursAgo key for same-day times', () => {
+    expect(formatRelativeTime('2026-03-21T09:00:00Z', t)).toBe('common:timeAgo.hoursAgo:3');
   });
 
-  it('returns "yesterday" for one day ago', () => {
-    expect(formatRelativeTime('2026-03-20T12:00:00Z')).toBe('yesterday');
+  it('returns yesterday key for one day ago', () => {
+    expect(formatRelativeTime('2026-03-20T12:00:00Z', t)).toBe('common:timeAgo.yesterday');
   });
 
-  it('returns days for recent past', () => {
-    expect(formatRelativeTime('2026-03-19T12:00:00Z')).toBe('2d ago');
+  it('returns daysAgo key for recent past', () => {
+    expect(formatRelativeTime('2026-03-19T12:00:00Z', t)).toBe('common:timeAgo.daysAgo:2');
   });
 
   it('returns formatted date for old timestamps', () => {
-    const result = formatRelativeTime('2025-01-01T00:00:00Z');
+    const result = formatRelativeTime('2025-01-01T00:00:00Z', t);
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
   });

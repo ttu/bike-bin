@@ -34,7 +34,7 @@ export const SearchResultGridCard = memo(function SearchResultGridCard({
   const { width: windowWidth } = useWindowDimensions();
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
-  const distanceText = formatDistance(item.distanceMeters);
+  const distanceText = formatDistance(item.distanceMeters, t);
   const cardWidth = useMemo(
     () => cardWidthProp ?? getSearchResultGridCardWidth(windowWidth),
     [cardWidthProp, windowWidth],

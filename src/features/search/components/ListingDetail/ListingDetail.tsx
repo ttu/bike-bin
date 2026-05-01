@@ -58,7 +58,7 @@ export function ListingDetail({
   const { width: windowWidth } = useWindowDimensions();
   const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
 
-  const distanceText = formatDistance(item.distanceMeters);
+  const distanceText = formatDistance(item.distanceMeters, t);
   const durationText = item.borrowDuration
     ? t(`inventory:form.durationOption.${item.borrowDuration}`, {
         defaultValue: item.borrowDuration,

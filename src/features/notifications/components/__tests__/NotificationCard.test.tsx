@@ -105,6 +105,6 @@ describe('NotificationCard', () => {
       title: 'Test',
     });
     const { getByText } = renderWithProviders(<NotificationCard notification={notification} />);
-    expect(getByText('Just now')).toBeTruthy();
+    expect(getByText('just now')).toBeTruthy();
   });
 });

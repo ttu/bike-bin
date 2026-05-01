@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
 import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
 
@@ -11,6 +12,7 @@ import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
  */
 export function OfflineBanner() {
   const theme = useTheme();
+  const { t } = useTranslation('common');
   const { isOnline } = useNetworkStatus();
   const [dismissed, setDismissed] = useState(false);
 
@@ -26,12 +28,12 @@ export function OfflineBanner() {
         color={theme.colors.onErrorContainer}
       />
       <Text variant="bodySmall" style={[styles.text, { color: theme.colors.onErrorContainer }]}>
-        You are offline. Some features may be unavailable.
+        {t('offline.message')}
       </Text>
       <Pressable
         onPress={() => setDismissed(true)}
         accessibilityRole="button"
-        accessibilityLabel="Dismiss"
+        accessibilityLabel={t('offline.dismiss')}
       >
         <MaterialCommunityIcons
           name="close"

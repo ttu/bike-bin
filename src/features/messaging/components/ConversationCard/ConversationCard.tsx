@@ -80,7 +80,7 @@ export const ConversationCard = memo(function ConversationCard({
     : t('conversation.noMessages');
 
   const timestamp = conversation.lastMessageAt
-    ? formatRelativeTime(conversation.lastMessageAt, true)
+    ? formatRelativeTime(conversation.lastMessageAt, t, true)
     : '';
 
   let avatarNode: ReactNode;
