@@ -7,15 +7,14 @@ jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);
 
 // Import after mocks
-import { useMarkDonated } from '../useMarkDonated';
-import { useMarkSold } from '../useMarkSold';
+import { useMarkExchanged } from '../useMarkExchanged';
 import {
   createQueryClientHookWrapper,
   createQueryClientHookWrapperWithClient,
   createTestQueryClient,
 } from '@/test/queryTestUtils';
 
-describe('useMarkDonated', () => {
+describe('useMarkExchanged("donate")', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -25,7 +24,7 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), {
+    const { result } = renderHook(() => useMarkExchanged('donate'), {
       wrapper: createQueryClientHookWrapper(),
     });
 
@@ -41,7 +40,7 @@ describe('useMarkDonated', () => {
       eq: mockEq.mockResolvedValue({ error: supabaseError }),
     });
 
-    const { result } = renderHook(() => useMarkDonated(), {
+    const { result } = renderHook(() => useMarkExchanged('donate'), {
       wrapper: createQueryClientHookWrapper(),
     });
 
@@ -51,12 +50,11 @@ describe('useMarkDonated', () => {
   });
 
   it('throws when user is not authenticated', async () => {
-    // Override the auth mock for this test
     const useAuthMock = jest.requireMock('@/features/auth');
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 
-    const { result } = renderHook(() => useMarkDonated(), {
+    const { result } = renderHook(() => useMarkExchanged('donate'), {
       wrapper: createQueryClientHookWrapper(),
     });
 
@@ -75,7 +73,7 @@ describe('useMarkDonated', () => {
     const queryClient = createTestQueryClient();
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(() => useMarkDonated(), {
+    const { result } = renderHook(() => useMarkExchanged('donate'), {
       wrapper: createQueryClientHookWrapperWithClient(queryClient),
     });
 
@@ -91,7 +89,7 @@ describe('useMarkDonated', () => {
   });
 });
 
-describe('useMarkSold', () => {
+describe('useMarkExchanged("sell")', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -101,24 +99,11 @@ describe('useMarkSold', () => {
       eq: mockEq.mockResolvedValue({ error: null }),
     });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkExchanged('sell'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await result.current.mutateAsync({ itemId: 'item-2' as ItemId });
-
-    expect(mockUpdate).toHaveBeenCalledWith({ status: ItemStatus.Sold });
-    expect(mockEq).toHaveBeenCalledWith('id', 'item-2');
-  });
-
-  it('accepts optional buyerId param', async () => {
-    mockUpdate.mockReturnValue({
-      eq: mockEq.mockResolvedValue({ error: null }),
-    });
-
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
-
-    await result.current.mutateAsync({
-      itemId: 'item-2' as ItemId,
-    });
 
     expect(mockUpdate).toHaveBeenCalledWith({ status: ItemStatus.Sold });
     expect(mockEq).toHaveBeenCalledWith('id', 'item-2');
@@ -130,7 +115,9 @@ describe('useMarkSold', () => {
       eq: mockEq.mockResolvedValue({ error: supabaseError }),
     });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkExchanged('sell'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(result.current.mutateAsync({ itemId: 'item-2' as ItemId })).rejects.toEqual(
       supabaseError,
@@ -142,7 +129,9 @@ describe('useMarkSold', () => {
     const originalAuth = useAuthMock.useAuth;
     useAuthMock.useAuth = () => ({ user: null, isAuthenticated: false });
 
-    const { result } = renderHook(() => useMarkSold(), { wrapper: createQueryClientHookWrapper() });
+    const { result } = renderHook(() => useMarkExchanged('sell'), {
+      wrapper: createQueryClientHookWrapper(),
+    });
 
     await expect(result.current.mutateAsync({ itemId: 'item-2' as ItemId })).rejects.toThrow(
       'Not authenticated',
@@ -159,7 +148,7 @@ describe('useMarkSold', () => {
     const queryClient = createTestQueryClient();
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
-    const { result } = renderHook(() => useMarkSold(), {
+    const { result } = renderHook(() => useMarkExchanged('sell'), {
       wrapper: createQueryClientHookWrapperWithClient(queryClient),
     });
 

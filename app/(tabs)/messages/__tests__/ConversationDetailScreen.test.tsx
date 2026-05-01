@@ -148,8 +148,7 @@ jest.mock('@/features/inventory', () => ({
 
 jest.mock('@/features/exchange', () => ({
   ...jest.requireActual('@/features/exchange'),
-  useMarkDonated: () => ({ mutate: jest.fn() }),
-  useMarkSold: () => ({ mutate: jest.fn() }),
+  useMarkExchanged: () => ({ mutate: jest.fn() }),
 }));
 
 describe('ConversationDetailScreen', () => {

@@ -160,8 +160,11 @@ jest.mock('@/features/borrow', () => ({
 }));
 
 jest.mock('@/features/exchange', () => ({
-  useMarkDonated: () => ({ mutate: mockMarkDonatedMutate, isPending: false }),
-  useMarkSold: () => ({ mutate: mockMarkSoldMutate, isPending: false }),
+  ...jest.requireActual('@/features/exchange'),
+  useMarkExchanged: (kind: 'donate' | 'sell') => ({
+    mutate: kind === 'donate' ? mockMarkDonatedMutate : mockMarkSoldMutate,
+    isPending: false,
+  }),
 }));
 
 jest.mock('@/features/auth', () => mockAuthModule);

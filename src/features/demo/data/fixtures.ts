@@ -53,9 +53,10 @@ import {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function daysAgo(days: number): string {
+function daysAgo(days: number, offsetMinutes = 0): string {
   const d = new Date();
   d.setDate(d.getDate() - days);
+  d.setMinutes(d.getMinutes() + offsetMinutes);
   return d.toISOString();
 }
 
@@ -615,7 +616,7 @@ const DEMO_MESSAGES_CONV_1: MessageWithSender[] = [
     conversationId: DEMO_CONVERSATION_1,
     senderId: DEMO_USER_ID,
     body: 'Sure thing! When do you need it?',
-    createdAt: daysAgo(5) + '1', // slightly later
+    createdAt: daysAgo(5, 1),
     isOwn: true,
   },
   {
@@ -631,7 +632,7 @@ const DEMO_MESSAGES_CONV_1: MessageWithSender[] = [
     conversationId: DEMO_CONVERSATION_1,
     senderId: DEMO_USER_ID,
     body: 'Works for me. I will be home after 5pm.',
-    createdAt: daysAgo(4) + '1',
+    createdAt: daysAgo(4, 1),
     isOwn: true,
   },
   {
@@ -659,7 +660,7 @@ const DEMO_MESSAGES_CONV_2: MessageWithSender[] = [
     conversationId: DEMO_CONVERSATION_2,
     senderId: DEMO_USER_ID,
     body: 'Yes they are! Both in good shape with plenty of tread.',
-    createdAt: daysAgo(2) + '1',
+    createdAt: daysAgo(2, 1),
     isOwn: true,
   },
   {
@@ -687,7 +688,7 @@ const DEMO_MESSAGES_CONV_3: MessageWithSender[] = [
     conversationId: DEMO_CONVERSATION_3,
     senderId: DEMO_USER_ID,
     body: 'Yes! It is yours if you want it. Free to a good home.',
-    createdAt: daysAgo(1) + '1',
+    createdAt: daysAgo(1, 1),
     isOwn: true,
   },
   {

@@ -5,18 +5,14 @@ export type ExchangeKind = 'donate' | 'sell';
 export type ExchangeDialogConfig = {
   title: string;
   message: string;
-  cancelLabel: string | undefined;
+  cancelLabel: string;
   confirmLabel: string;
 };
 
 export function getExchangeDialogConfig(
-  kind: ExchangeKind | undefined,
+  kind: ExchangeKind,
   tExchange: TFunction<'exchange'>,
 ): ExchangeDialogConfig {
-  if (!kind) {
-    return { title: '', message: '', cancelLabel: undefined, confirmLabel: '' };
-  }
-
   const prefix = kind === 'donate' ? 'confirm.donate' : 'confirm.sell';
   return {
     title: tExchange(`${prefix}.title`),
