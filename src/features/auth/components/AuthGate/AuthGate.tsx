@@ -46,13 +46,13 @@ export function useAuthGate() {
       >
         <MaterialCommunityIcons name="lock-outline" size={48} color={theme.colors.primary} />
         <Text variant="titleLarge" style={styles.modalTitle}>
-          {t('gate.title', 'Sign in to continue')}
+          {t('gate.title')}
         </Text>
         <Text
           variant="bodyMedium"
           style={[styles.modalDescription, { color: theme.colors.onSurfaceVariant }]}
         >
-          {t('gate.description', 'You need to sign in to use this feature.')}
+          {t('gate.description')}
         </Text>
         <GradientButton
           onPress={() => {
@@ -61,10 +61,10 @@ export function useAuthGate() {
           }}
           style={styles.modalButton}
         >
-          {t('gate.signIn', 'Sign in')}
+          {t('gate.signIn')}
         </GradientButton>
         <Button mode="text" onPress={() => setShowModal(false)}>
-          {t('gate.cancel', 'Cancel')}
+          {t('gate.cancel')}
         </Button>
       </Modal>
     </Portal>

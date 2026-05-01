@@ -26,7 +26,30 @@
     "noticeTitle": "Notice"
   },
   "privacy": {
-    "deletedUser": "[Deleted user]"
+    "deletedUser": "[Deleted user]",
+    "unknownUser": "?"
+  },
+  "offline": {
+    "message": "You are offline. Some features may be unavailable.",
+    "dismiss": "Dismiss"
+  },
+  "photoPicker": {
+    "addPhoto": "Add photo"
+  },
+  "distance": {
+    "meters": "{{value}} m",
+    "kilometers": "{{value}} km"
+  },
+  "timeAgo": {
+    "justNow": "just now",
+    "justNowCompact": "now",
+    "minutesAgo": "{{count}}m ago",
+    "minutesAgoCompact": "{{count}}m",
+    "hoursAgo": "{{count}}h ago",
+    "hoursAgoCompact": "{{count}}h",
+    "yesterday": "yesterday",
+    "daysAgo": "{{count}}d ago",
+    "daysAgoCompact": "{{count}}d"
   },
   "errors": {
     "uploadFailed": "Upload failed. Please try again.",

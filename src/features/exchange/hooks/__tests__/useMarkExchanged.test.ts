@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react-native';
 import { mockUpdate, mockEq, mockSupabase } from '@/test/supabaseMocks';
 import { mockAuthModule } from '@/test/authMocks';
 import { ItemStatus, type ItemId } from '@/shared/types';
+import { NotAuthenticatedError } from '@/shared/utils/subscriptionLimitErrors';
 
 jest.mock('@/shared/api/supabase', () => ({ supabase: mockSupabase }));
 jest.mock('@/features/auth', () => mockAuthModule);
@@ -59,7 +60,7 @@ describe('useMarkExchanged("donate")', () => {
     });
 
     await expect(result.current.mutateAsync({ itemId: 'item-1' as ItemId })).rejects.toThrow(
-      'Not authenticated',
+      NotAuthenticatedError,
     );
 
     useAuthMock.useAuth = originalAuth;
@@ -134,7 +135,7 @@ describe('useMarkExchanged("sell")', () => {
     });
 
     await expect(result.current.mutateAsync({ itemId: 'item-2' as ItemId })).rejects.toThrow(
-      'Not authenticated',
+      NotAuthenticatedError,
     );
 
     useAuthMock.useAuth = originalAuth;

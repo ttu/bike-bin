@@ -47,6 +47,24 @@ export class PhotoLimitExceededError extends Error {
   }
 }
 
+/** Thrown when an authenticated session is required but not present. */
+export class NotAuthenticatedError extends Error {
+  constructor() {
+    super('not_authenticated');
+    this.name = 'NotAuthenticatedError';
+  }
+}
+
+/** Thrown when an item cannot be deleted because of its current status. */
+export class InvalidItemDeleteStatusError extends Error {
+  readonly status: string;
+  constructor(status: string) {
+    super('invalid_item_delete_status');
+    this.name = 'InvalidItemDeleteStatusError';
+    this.status = status;
+  }
+}
+
 export function isInventoryLimitExceededError(error: unknown): boolean {
   return isCheckViolationWithMessage(error, 'inventory_limit_exceeded');
 }

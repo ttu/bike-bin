@@ -31,6 +31,7 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
 }: BorrowRequestCardProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('borrow');
+  const { t: tCommon } = useTranslation('common');
 
   const isIncoming = request.itemOwnerId === currentUserId;
   const actions = getRequestActions(request, currentUserId, request.itemOwnerId, {
@@ -40,9 +41,10 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
 
   const personName = isIncoming ? request.requesterName : request.ownerName;
   const personAvatarUrl = isIncoming ? request.requesterAvatarUrl : request.ownerAvatarUrl;
+  const fallbackName = tCommon('privacy.unknownUser');
   const personLabel = isIncoming
-    ? t('card.requestedBy', { name: personName ?? '?' })
-    : t('card.requestedFrom', { name: personName ?? '?' });
+    ? t('card.requestedBy', { name: personName ?? fallbackName })
+    : t('card.requestedFrom', { name: personName ?? fallbackName });
 
   const statusColor = getStatusColor(request.status, theme);
 
@@ -132,7 +134,7 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
           variant="labelSmall"
           style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}
         >
-          {t('card.requestedAt', { time: formatRelativeTime(request.createdAt) })}
+          {t('card.requestedAt', { time: formatRelativeTime(request.createdAt, t) })}
         </Text>
       </Pressable>
 

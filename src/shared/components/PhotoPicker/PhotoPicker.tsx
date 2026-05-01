@@ -61,6 +61,7 @@ export function PhotoPicker({
 }: PhotoPickerProps) {
   const theme = useTheme();
   const { t } = useTranslation('inventory');
+  const { t: tCommon } = useTranslation('common');
   const canAdd = photos.length < MAX_PHOTOS && !accountPhotoLimitReached;
 
   return (
@@ -102,7 +103,7 @@ export function PhotoPicker({
             style={[styles.addTile, { borderColor: theme.colors.outline }]}
             onPress={onAdd}
             disabled={isUploading}
-            accessibilityLabel="Add photo"
+            accessibilityLabel={tCommon('photoPicker.addPhoto')}
           >
             {isUploading ? (
               <ActivityIndicator size="small" />

@@ -25,7 +25,7 @@ export const SearchResultCard = memo(function SearchResultCard({
   const { t } = useTranslation('search');
   const themed = useThemedStyles(theme);
 
-  const distanceText = formatDistance(item.distanceMeters);
+  const distanceText = formatDistance(item.distanceMeters, t);
 
   return (
     <AnimatedPressable

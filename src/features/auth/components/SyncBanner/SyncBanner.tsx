@@ -18,15 +18,12 @@ export function SyncBanner() {
       style={{ backgroundColor: theme.customColors.warningContainer }}
       actions={[
         {
-          label: t('syncBanner.signIn', 'Sign in'),
+          label: t('syncBanner.signIn'),
           onPress: () => router.push('/(auth)/login'),
         },
       ]}
     >
-      {t(
-        'syncBanner.message',
-        'Your items are saved on this device only. Sign in to sync and share them.',
-      )}
+      {t('syncBanner.message')}
     </Banner>
   );
 }

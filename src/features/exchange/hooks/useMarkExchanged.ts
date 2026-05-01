@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth';
 import { invalidateItemAndConversationCaches } from '@/shared/api/queryKeys';
 import { ItemStatus, type ItemId } from '@/shared/types';
 import type { ExchangeKind } from '../utils/getExchangeDialogConfig';
+import { NotAuthenticatedError } from '@/shared/utils/subscriptionLimitErrors';
 
 interface MarkExchangedParams {
   itemId: ItemId;
@@ -20,7 +21,7 @@ export function useMarkExchanged(kind: ExchangeKind) {
 
   return useMutation({
     mutationFn: async ({ itemId }: MarkExchangedParams) => {
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new NotAuthenticatedError();
 
       const { error: statusError } = await supabase
         .from('items')
