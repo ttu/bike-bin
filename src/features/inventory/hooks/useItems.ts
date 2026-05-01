@@ -220,9 +220,8 @@ export function useUpdateItemStatus() {
       if (error) throw error;
       return mapItemRow(data);
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
-      queryClient.invalidateQueries({ queryKey: ['items', variables.id] });
     },
   });
 }

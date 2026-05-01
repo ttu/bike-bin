@@ -102,9 +102,8 @@ export function useUpdateGroup() {
       if (error) throw error;
       return mapGroupRow(data);
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
-      queryClient.invalidateQueries({ queryKey: ['groups', variables.id] });
     },
   });
 }

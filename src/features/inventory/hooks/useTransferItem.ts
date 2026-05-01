@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
+import { invalidateItemAndConversationCaches } from '@/shared/api/queryKeys';
 import type { ItemId, UserId, GroupId } from '@/shared/types';
 
 type TransferParams =
@@ -18,12 +18,8 @@ export function useTransferItem() {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['items'] });
-      queryClient.invalidateQueries({ queryKey: ['group-items'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversation'] });
-      queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY });
+    onSuccess: async () => {
+      await invalidateItemAndConversationCaches(queryClient);
     },
   });
 }

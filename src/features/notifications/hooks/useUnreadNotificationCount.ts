@@ -47,7 +47,7 @@ export function useUnreadNotificationCount() {
         },
         () => {
           queryClient
-            .invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY] })
+            .invalidateQueries({ queryKey: [UNREAD_NOTIFICATION_COUNT_QUERY_KEY, user.id] })
             .catch(() => undefined);
         },
       )

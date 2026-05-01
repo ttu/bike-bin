@@ -66,7 +66,7 @@ describe('useUnreadNotificationCount', () => {
     listener();
 
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['unread_notification_count'],
+      queryKey: ['unread_notification_count', 'user-123'],
     });
   });
 
