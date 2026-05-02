@@ -212,8 +212,11 @@ export function useItemFormState({
 
   const handleSubmit = useCallback(() => {
     clearTagBlurCommitTimeout();
-    // buildItemFormDataFromState commits tagInput into tags itself, so the draft already reflects
-    // the pending tag. Validate the draft, then commit pending tag in state for UI consistency.
+    // Commit any pending tag into UI state regardless of validation outcome, so what the user
+    // sees matches what was validated/submitted (`draftFormData` already merges the pending tag
+    // into its tags array via buildItemFormDataFromState).
+    dispatch({ type: 'commitPendingTagAndSubmit' });
+
     const validationErrors = validateItem(draftFormData, t);
     dispatch({ type: 'setErrors', value: validationErrors });
 
@@ -225,7 +228,6 @@ export function useItemFormState({
       return;
     }
 
-    dispatch({ type: 'commitPendingTagAndSubmit' });
     onSave(draftFormData);
   }, [draftFormData, clearTagBlurCommitTimeout, onSave, onValidationError, t]);
 

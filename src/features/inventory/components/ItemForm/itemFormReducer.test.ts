@@ -209,6 +209,162 @@ describe('itemFormReducer', () => {
     });
   });
 
+  describe('simple setters', () => {
+    const cases: {
+      action: import('./itemFormReducer').ItemFormAction;
+      check: (s: ItemFormReducerState) => unknown;
+      expected: unknown;
+    }[] = [
+      { action: { type: 'setName', value: 'Hub' }, check: (s) => s.basic.name, expected: 'Hub' },
+      {
+        action: { type: 'setQuantityStr', value: '5' },
+        check: (s) => s.basic.quantityStr,
+        expected: '5',
+      },
+      {
+        action: { type: 'setSubcategory', value: 'Brakes' },
+        check: (s) => s.basic.subcategory,
+        expected: 'Brakes',
+      },
+      {
+        action: { type: 'setCondition', value: ItemCondition.Worn },
+        check: (s) => s.basic.condition,
+        expected: ItemCondition.Worn,
+      },
+      {
+        action: { type: 'setBrand', value: 'Shimano' },
+        check: (s) => s.basic.brand,
+        expected: 'Shimano',
+      },
+      { action: { type: 'setModel', value: 'XTR' }, check: (s) => s.basic.model, expected: 'XTR' },
+      {
+        action: { type: 'setPrice', value: '99.99' },
+        check: (s) => s.availability.price,
+        expected: '99.99',
+      },
+      {
+        action: { type: 'setDeposit', value: '20' },
+        check: (s) => s.availability.deposit,
+        expected: '20',
+      },
+      {
+        action: { type: 'setBorrowDuration', value: 'one_week' },
+        check: (s) => s.availability.borrowDuration,
+        expected: 'one_week',
+      },
+      {
+        action: { type: 'setDurationMenuVisible', value: true },
+        check: (s) => s.availability.durationMenuVisible,
+        expected: true,
+      },
+      {
+        action: { type: 'setVisibility', value: Visibility.All },
+        check: (s) => s.visibility.visibility,
+        expected: Visibility.All,
+      },
+      {
+        action: { type: 'setShowOptional', value: true },
+        check: (s) => s.optional.showOptional,
+        expected: true,
+      },
+      {
+        action: { type: 'setPurchaseDate', value: '2025-01-01' },
+        check: (s) => s.optional.purchaseDate,
+        expected: '2025-01-01',
+      },
+      {
+        action: { type: 'setMountedDate', value: '2025-02-02' },
+        check: (s) => s.optional.mountedDate,
+        expected: '2025-02-02',
+      },
+      {
+        action: { type: 'setAge', value: 'less_than_6_months' },
+        check: (s) => s.optional.age,
+        expected: 'less_than_6_months',
+      },
+      {
+        action: { type: 'setAgeMenuVisible', value: true },
+        check: (s) => s.optional.ageMenuVisible,
+        expected: true,
+      },
+      {
+        action: { type: 'setUsage', value: '500' },
+        check: (s) => s.optional.usage,
+        expected: '500',
+      },
+      {
+        action: { type: 'setStorageLocation', value: 'Garage' },
+        check: (s) => s.optional.storageLocation,
+        expected: 'Garage',
+      },
+      {
+        action: { type: 'setStorageMenuVisible', value: true },
+        check: (s) => s.optional.storageMenuVisible,
+        expected: true,
+      },
+      {
+        action: { type: 'setDescription', value: 'Worn but works' },
+        check: (s) => s.optional.description,
+        expected: 'Worn but works',
+      },
+      {
+        action: { type: 'setRemainingPercentStr', value: '40' },
+        check: (s) => s.optional.remainingPercentStr,
+        expected: '40',
+      },
+      {
+        action: { type: 'setTagInput', value: 'tre' },
+        check: (s) => s.tags.input,
+        expected: 'tre',
+      },
+      {
+        action: { type: 'setTagSuggestionsVisible', value: true },
+        check: (s) => s.tags.suggestionsVisible,
+        expected: true,
+      },
+      {
+        action: { type: 'setErrors', value: { name: 'Name is required' } },
+        check: (s) => s.errors.name,
+        expected: 'Name is required',
+      },
+    ];
+
+    it.each(cases)('handles $action.type', ({ action, check, expected }) => {
+      const next = itemFormReducer(buildState(), action);
+      expect(check(next)).toEqual(expected);
+    });
+  });
+
+  describe('commitPendingTagAndSubmit', () => {
+    it('appends pending input as a new tag and clears the input', () => {
+      const state = buildState({
+        tags: { list: ['a'], input: 'b', suggestionsVisible: true },
+      });
+      const next = itemFormReducer(state, { type: 'commitPendingTagAndSubmit' });
+      expect(next.tags.list).toEqual(['a', 'b']);
+      expect(next.tags.input).toBe('');
+      expect(next.tags.suggestionsVisible).toBe(false);
+    });
+
+    it('skips the commit when the pending input is a duplicate', () => {
+      const state = buildState({
+        tags: { list: ['a'], input: 'a', suggestionsVisible: true },
+      });
+      const next = itemFormReducer(state, { type: 'commitPendingTagAndSubmit' });
+      expect(next.tags.list).toEqual(['a']);
+      expect(next.tags.input).toBe('');
+    });
+
+    it('skips the commit when the pending input is empty', () => {
+      const state = buildState({
+        tags: { list: ['a'], input: '   ', suggestionsVisible: false },
+      });
+      const next = itemFormReducer(state, { type: 'commitPendingTagAndSubmit' });
+      expect(next.tags.list).toEqual(['a']);
+      expect(next.tags.input).toBe('');
+    });
+  });
+
   describe('toggleGroup', () => {
     it('adds and removes group ids', () => {
       const groupA = 'group-a' as never;

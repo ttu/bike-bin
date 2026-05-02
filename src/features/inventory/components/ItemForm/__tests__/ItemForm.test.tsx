@@ -322,6 +322,32 @@ describe('ItemForm', () => {
     }
   });
 
+  it('commits a pending tag into the chip list even when submit fails validation', async () => {
+    const { getByText, getByPlaceholderText, queryByText } = renderWithProviders(
+      <ItemForm {...defaultProps} />,
+    );
+
+    // Open optional and type a pending tag, but DO NOT fill required fields (Name) so submit fails.
+    fireEvent.press(getByText('More details'));
+    fireEvent.changeText(getByPlaceholderText('Add a tag...'), 'aero');
+    fireEvent.press(getByText('Save'));
+
+    // Validation must have failed (no Name) and onSave never called.
+    await waitFor(() => {
+      expect(getByText('Name is required')).toBeTruthy();
+    });
+    expect(onSave).not.toHaveBeenCalled();
+
+    // The pending tag must have been committed into the chip list, and the input cleared.
+    await waitFor(() => {
+      expect(getByText('aero')).toBeTruthy();
+    });
+    expect(queryByText('aero')).not.toBeNull();
+    expect((getByPlaceholderText('Add a tag...') as { props: { value: string } }).props.value).toBe(
+      '',
+    );
+  });
+
   it('shows delete button in edit mode', () => {
     const onDelete = jest.fn();
     const { getByText } = renderWithProviders(
