@@ -5,22 +5,15 @@ import { useTranslation } from 'react-i18next';
 import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
-interface RemainingFractionSectionProps extends InputStyling {
-  readonly remainingPercentStr: ItemFormState['remainingPercentStr'];
-  readonly setRemainingPercentStr: ItemFormState['setRemainingPercentStr'];
-  readonly errors: ItemFormState['errors'];
+interface RemainingFractionSectionProps {
+  readonly state: ItemFormState;
+  readonly inputStyling: InputStyling;
 }
 
-export function RemainingFractionSection({
-  remainingPercentStr,
-  setRemainingPercentStr,
-  errors,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: Readonly<RemainingFractionSectionProps>) {
+export function RemainingFractionSection({ state, inputStyling }: RemainingFractionSectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const { remainingPercentStr, setRemainingPercentStr, errors } = state;
 
   return (
     <>
@@ -35,9 +28,9 @@ export function RemainingFractionSection({
           placeholder={t('form.remainingPlaceholder')}
           keyboardType="number-pad"
           error={!!errors.remainingFraction}
-          style={[softInputStyle, styles.usageInput]}
-          underlineColor={underlineColor}
-          activeUnderlineColor={activeUnderlineColor}
+          style={[inputStyling.softInputStyle, styles.usageInput]}
+          underlineColor={inputStyling.underlineColor}
+          activeUnderlineColor={inputStyling.activeUnderlineColor}
         />
         <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
           {t('form.remainingPercentSuffix')}

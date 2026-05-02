@@ -2,14 +2,15 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { lightTheme } from '@/shared/theme';
-import { ItemCategory } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  Visibility,
+  type DistanceUnit,
+} from '@/shared/types';
 import { OptionalSection } from './OptionalSection';
-
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+import type { InputStyling, ItemFormState } from '../types';
 
 interface OverrideProps {
   showOptional?: boolean;
@@ -24,76 +25,132 @@ interface OverrideProps {
   filteredTagSuggestions?: string[];
 }
 
+interface Handlers {
+  setShowOptional: jest.Mock;
+  setAge: jest.Mock;
+  setAgeMenuVisible: jest.Mock;
+  setStorageLocation: jest.Mock;
+  setStorageMenuVisible: jest.Mock;
+  setTagInput: jest.Mock;
+  setTagSuggestionsVisible: jest.Mock;
+  handleAddTag: jest.Mock;
+  handleRemoveTag: jest.Mock;
+  clearTagBlurCommitTimeout: jest.Mock;
+}
+
+function buildState(overrides: OverrideProps, handlers: Handlers): ItemFormState {
+  return {
+    name: '',
+    nameFieldValue: '',
+    setName: jest.fn(),
+    quantityStr: '1',
+    setQuantityStr: jest.fn(),
+    category: overrides.category ?? ItemCategory.Component,
+    subcategory: '',
+    setSubcategory: jest.fn(),
+    condition: ItemCondition.New,
+    setCondition: jest.fn(),
+    brand: '',
+    brandMenuVisible: false,
+    handleBrandFocus: jest.fn(),
+    handleBrandBlur: jest.fn(),
+    cancelBrandBlurTimeout: jest.fn(),
+    filteredBrands: [],
+    model: '',
+    setModel: jest.fn(),
+    handleBrandSelect: jest.fn(),
+    handleBrandInputChange: jest.fn(),
+    availabilityTypes: [AvailabilityType.Private],
+    toggleAvailability: jest.fn(),
+    isSellable: false,
+    isBorrowable: false,
+    price: '',
+    setPrice: jest.fn(),
+    deposit: '',
+    setDeposit: jest.fn(),
+    borrowDuration: '',
+    setBorrowDuration: jest.fn(),
+    durationMenuVisible: false,
+    setDurationMenuVisible: jest.fn(),
+    visibility: Visibility.Private,
+    setVisibility: jest.fn(),
+    groupIds: [],
+    toggleGroupId: jest.fn(),
+    handleCategoryChange: jest.fn(),
+    currentSubcategories: [],
+    remainingPercentStr: '',
+    setRemainingPercentStr: jest.fn(),
+    purchaseDate: '',
+    setPurchaseDate: jest.fn(),
+    mountedDate: '',
+    setMountedDate: jest.fn(),
+    age: '',
+    setAge: handlers.setAge,
+    ageMenuVisible: overrides.ageMenuVisible ?? false,
+    setAgeMenuVisible: handlers.setAgeMenuVisible,
+    usage: '',
+    setUsage: jest.fn(),
+    distanceUnit: 'km' as DistanceUnit,
+    storageLocation: overrides.storageLocation ?? '',
+    setStorageLocation: handlers.setStorageLocation,
+    storageMenuVisible: overrides.storageMenuVisible ?? false,
+    setStorageMenuVisible: handlers.setStorageMenuVisible,
+    existingStorageLocations: overrides.existingStorageLocations ?? [],
+    description: '',
+    setDescription: jest.fn(),
+    tags: overrides.tags ?? [],
+    tagInput: overrides.tagInput ?? '',
+    setTagInput: handlers.setTagInput,
+    tagSuggestionsVisible: overrides.tagSuggestionsVisible ?? false,
+    setTagSuggestionsVisible: handlers.setTagSuggestionsVisible,
+    filteredTagSuggestions: overrides.filteredTagSuggestions ?? [],
+    handleAddTag: handlers.handleAddTag,
+    handleRemoveTag: handlers.handleRemoveTag,
+    clearTagBlurCommitTimeout: handlers.clearTagBlurCommitTimeout,
+    tagBlurCommitTimeoutRef: { current: null },
+    showOptional: overrides.showOptional ?? true,
+    setShowOptional: handlers.setShowOptional,
+    errors: {},
+    handleSubmit: jest.fn(),
+    isDirty: false,
+  };
+}
+
 function renderSection(overrides: OverrideProps = {}) {
-  const setShowOptional = jest.fn();
-  const setAge = jest.fn();
-  const setAgeMenuVisible = jest.fn();
-  const setStorageLocation = jest.fn();
-  const setStorageMenuVisible = jest.fn();
-  const setTagInput = jest.fn();
-  const setTagSuggestionsVisible = jest.fn();
-  const handleAddTag = jest.fn();
-  const handleRemoveTag = jest.fn();
-  const clearTagBlurCommitTimeout = jest.fn();
+  const handlers: Handlers = {
+    setShowOptional: jest.fn(),
+    setAge: jest.fn(),
+    setAgeMenuVisible: jest.fn(),
+    setStorageLocation: jest.fn(),
+    setStorageMenuVisible: jest.fn(),
+    setTagInput: jest.fn(),
+    setTagSuggestionsVisible: jest.fn(),
+    handleAddTag: jest.fn(),
+    handleRemoveTag: jest.fn(),
+    clearTagBlurCommitTimeout: jest.fn(),
+  };
+
+  const state = buildState(overrides, handlers);
+  const inputStyling: InputStyling = {
+    softInputStyle: { backgroundColor: '#fff', borderRadius: 8 },
+    underlineColor: '#ccc',
+    activeUnderlineColor: '#000',
+  };
 
   const utils = render(
     <PaperProvider theme={lightTheme}>
-      <OptionalSection
-        showOptional={overrides.showOptional ?? true}
-        setShowOptional={setShowOptional}
-        category={overrides.category ?? ItemCategory.Component}
-        purchaseDate=""
-        setPurchaseDate={jest.fn()}
-        mountedDate=""
-        setMountedDate={jest.fn()}
-        errors={{}}
-        age=""
-        setAge={setAge}
-        ageMenuVisible={overrides.ageMenuVisible ?? false}
-        setAgeMenuVisible={setAgeMenuVisible}
-        usage=""
-        setUsage={jest.fn()}
-        distanceUnit="km"
-        storageLocation={overrides.storageLocation ?? ''}
-        setStorageLocation={setStorageLocation}
-        storageMenuVisible={overrides.storageMenuVisible ?? false}
-        setStorageMenuVisible={setStorageMenuVisible}
-        existingStorageLocations={overrides.existingStorageLocations ?? []}
-        description=""
-        setDescription={jest.fn()}
-        tags={overrides.tags ?? []}
-        tagInput={overrides.tagInput ?? ''}
-        setTagInput={setTagInput}
-        tagSuggestionsVisible={overrides.tagSuggestionsVisible ?? false}
-        setTagSuggestionsVisible={setTagSuggestionsVisible}
-        filteredTagSuggestions={overrides.filteredTagSuggestions ?? []}
-        handleAddTag={handleAddTag}
-        handleRemoveTag={handleRemoveTag}
-        clearTagBlurCommitTimeout={clearTagBlurCommitTimeout}
-        tagBlurCommitTimeoutRef={{ current: null }}
-        softInputStyle={{ backgroundColor: '#fff', borderRadius: 8 }}
-        underlineColor="#ccc"
-        activeUnderlineColor="#000"
-      />
+      <OptionalSection state={state} inputStyling={inputStyling} />
     </PaperProvider>,
   );
 
-  return {
-    ...utils,
-    handlers: {
-      setShowOptional,
-      setAge,
-      setAgeMenuVisible,
-      setStorageLocation,
-      setStorageMenuVisible,
-      setTagInput,
-      setTagSuggestionsVisible,
-      handleAddTag,
-      handleRemoveTag,
-      clearTagBlurCommitTimeout,
-    },
-  };
+  return { ...utils, handlers };
 }
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
 describe('OptionalSection', () => {
   beforeEach(() => {

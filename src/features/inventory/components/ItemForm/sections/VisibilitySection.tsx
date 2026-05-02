@@ -8,23 +8,14 @@ import type { ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface VisibilitySectionProps {
-  readonly visibility: ItemFormState['visibility'];
-  readonly setVisibility: ItemFormState['setVisibility'];
-  readonly groupIds: ItemFormState['groupIds'];
-  readonly toggleGroupId: ItemFormState['toggleGroupId'];
-  readonly errors: ItemFormState['errors'];
+  readonly state: ItemFormState;
 }
 
-export function VisibilitySection({
-  visibility,
-  setVisibility,
-  groupIds,
-  toggleGroupId,
-  errors,
-}: VisibilitySectionProps) {
+export function VisibilitySection({ state }: VisibilitySectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
   const { data: userGroups } = useGroups();
+  const { visibility, setVisibility, groupIds, toggleGroupId, errors } = state;
 
   return (
     <>

@@ -17,24 +17,20 @@ const CATEGORIES = [
 ];
 
 interface CategorySectionProps {
-  readonly category: ItemFormState['category'];
-  readonly handleCategoryChange: ItemFormState['handleCategoryChange'];
-  readonly subcategory: ItemFormState['subcategory'];
-  readonly setSubcategory: ItemFormState['setSubcategory'];
-  readonly currentSubcategories: ItemFormState['currentSubcategories'];
-  readonly errors: ItemFormState['errors'];
+  readonly state: ItemFormState;
 }
 
-export function CategorySection({
-  category,
-  handleCategoryChange,
-  subcategory,
-  setSubcategory,
-  currentSubcategories,
-  errors,
-}: CategorySectionProps) {
+export function CategorySection({ state }: CategorySectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const {
+    category,
+    handleCategoryChange,
+    subcategory,
+    setSubcategory,
+    currentSubcategories,
+    errors,
+  } = state;
 
   return (
     <>

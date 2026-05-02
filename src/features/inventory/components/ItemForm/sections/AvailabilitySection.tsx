@@ -14,42 +14,30 @@ const AVAILABILITY_OPTIONS = [
   AvailabilityType.Sellable,
 ];
 
-interface AvailabilitySectionProps extends InputStyling {
-  readonly availabilityTypes: ItemFormState['availabilityTypes'];
-  readonly toggleAvailability: ItemFormState['toggleAvailability'];
-  readonly isSellable: ItemFormState['isSellable'];
-  readonly isBorrowable: ItemFormState['isBorrowable'];
-  readonly price: ItemFormState['price'];
-  readonly setPrice: ItemFormState['setPrice'];
-  readonly deposit: ItemFormState['deposit'];
-  readonly setDeposit: ItemFormState['setDeposit'];
-  readonly borrowDuration: ItemFormState['borrowDuration'];
-  readonly setBorrowDuration: ItemFormState['setBorrowDuration'];
-  readonly durationMenuVisible: ItemFormState['durationMenuVisible'];
-  readonly setDurationMenuVisible: ItemFormState['setDurationMenuVisible'];
-  readonly errors: ItemFormState['errors'];
+interface AvailabilitySectionProps {
+  readonly state: ItemFormState;
+  readonly inputStyling: InputStyling;
 }
 
-export function AvailabilitySection({
-  availabilityTypes,
-  toggleAvailability,
-  isSellable,
-  isBorrowable,
-  price,
-  setPrice,
-  deposit,
-  setDeposit,
-  borrowDuration,
-  setBorrowDuration,
-  durationMenuVisible,
-  setDurationMenuVisible,
-  errors,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: Readonly<AvailabilitySectionProps>) {
+export function AvailabilitySection({ state, inputStyling }: AvailabilitySectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const {
+    availabilityTypes,
+    toggleAvailability,
+    isSellable,
+    isBorrowable,
+    price,
+    setPrice,
+    deposit,
+    setDeposit,
+    borrowDuration,
+    setBorrowDuration,
+    durationMenuVisible,
+    setDurationMenuVisible,
+    errors,
+  } = state;
+  const { softInputStyle, underlineColor, activeUnderlineColor } = inputStyling;
 
   return (
     <>

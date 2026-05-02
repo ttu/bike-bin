@@ -9,84 +9,47 @@ import type { InputStyling, ItemFormState } from '../types';
 import type { ItemFormErrors } from '../../../utils/validation';
 import { styles } from '../styles';
 
-interface OptionalSectionProps extends InputStyling {
-  readonly showOptional: ItemFormState['showOptional'];
-  readonly setShowOptional: ItemFormState['setShowOptional'];
-  readonly category: ItemFormState['category'];
-  readonly purchaseDate: ItemFormState['purchaseDate'];
-  readonly setPurchaseDate: ItemFormState['setPurchaseDate'];
-  readonly mountedDate: ItemFormState['mountedDate'];
-  readonly setMountedDate: ItemFormState['setMountedDate'];
-  readonly errors: ItemFormErrors;
-  // Age
-  readonly age: ItemFormState['age'];
-  readonly setAge: ItemFormState['setAge'];
-  readonly ageMenuVisible: ItemFormState['ageMenuVisible'];
-  readonly setAgeMenuVisible: ItemFormState['setAgeMenuVisible'];
-  // Usage
-  readonly usage: ItemFormState['usage'];
-  readonly setUsage: ItemFormState['setUsage'];
-  readonly distanceUnit: ItemFormState['distanceUnit'];
-  // Storage
-  readonly storageLocation: ItemFormState['storageLocation'];
-  readonly setStorageLocation: ItemFormState['setStorageLocation'];
-  readonly storageMenuVisible: ItemFormState['storageMenuVisible'];
-  readonly setStorageMenuVisible: ItemFormState['setStorageMenuVisible'];
-  readonly existingStorageLocations: ItemFormState['existingStorageLocations'];
-  // Description
-  readonly description: ItemFormState['description'];
-  readonly setDescription: ItemFormState['setDescription'];
-  // Tags
-  readonly tags: ItemFormState['tags'];
-  readonly tagInput: ItemFormState['tagInput'];
-  readonly setTagInput: ItemFormState['setTagInput'];
-  readonly tagSuggestionsVisible: ItemFormState['tagSuggestionsVisible'];
-  readonly setTagSuggestionsVisible: ItemFormState['setTagSuggestionsVisible'];
-  readonly filteredTagSuggestions: ItemFormState['filteredTagSuggestions'];
-  readonly handleAddTag: ItemFormState['handleAddTag'];
-  readonly handleRemoveTag: ItemFormState['handleRemoveTag'];
-  readonly clearTagBlurCommitTimeout: ItemFormState['clearTagBlurCommitTimeout'];
-  readonly tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
+interface OptionalSectionProps {
+  readonly state: ItemFormState;
+  readonly inputStyling: InputStyling;
 }
 
-export function OptionalSection({
-  showOptional,
-  setShowOptional,
-  category,
-  purchaseDate,
-  setPurchaseDate,
-  mountedDate,
-  setMountedDate,
-  errors,
-  age,
-  setAge,
-  ageMenuVisible,
-  setAgeMenuVisible,
-  usage,
-  setUsage,
-  distanceUnit,
-  storageLocation,
-  setStorageLocation,
-  storageMenuVisible,
-  setStorageMenuVisible,
-  existingStorageLocations,
-  description,
-  setDescription,
-  tags,
-  tagInput,
-  setTagInput,
-  tagSuggestionsVisible,
-  setTagSuggestionsVisible,
-  filteredTagSuggestions,
-  handleAddTag,
-  handleRemoveTag,
-  clearTagBlurCommitTimeout,
-  tagBlurCommitTimeoutRef,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: Readonly<OptionalSectionProps>) {
+export function OptionalSection({ state, inputStyling }: Readonly<OptionalSectionProps>) {
   const { t } = useTranslation('inventory');
+  const {
+    showOptional,
+    setShowOptional,
+    category,
+    purchaseDate,
+    setPurchaseDate,
+    mountedDate,
+    setMountedDate,
+    errors,
+    age,
+    setAge,
+    ageMenuVisible,
+    setAgeMenuVisible,
+    usage,
+    setUsage,
+    distanceUnit,
+    storageLocation,
+    setStorageLocation,
+    storageMenuVisible,
+    setStorageMenuVisible,
+    existingStorageLocations,
+    description,
+    setDescription,
+    tags,
+    tagInput,
+    setTagInput,
+    tagSuggestionsVisible,
+    setTagSuggestionsVisible,
+    filteredTagSuggestions,
+    handleAddTag,
+    handleRemoveTag,
+    clearTagBlurCommitTimeout,
+    tagBlurCommitTimeoutRef,
+  } = state;
 
   return (
     <>
@@ -108,27 +71,21 @@ export function OptionalSection({
             setMountedDate={setMountedDate}
             purchaseDateError={errors.purchaseDate}
             mountedDateError={errors.mountedDate}
-            softInputStyle={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
+            inputStyling={inputStyling}
           />
           <AgeField
             age={age}
             setAge={setAge}
             ageMenuVisible={ageMenuVisible}
             setAgeMenuVisible={setAgeMenuVisible}
-            softInputStyle={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
+            inputStyling={inputStyling}
           />
           {(category === ItemCategory.Component || category === ItemCategory.Accessory) && (
             <UsageField
               usage={usage}
               setUsage={setUsage}
               distanceUnit={distanceUnit}
-              softInputStyle={softInputStyle}
-              underlineColor={underlineColor}
-              activeUnderlineColor={activeUnderlineColor}
+              inputStyling={inputStyling}
             />
           )}
           <StorageField
@@ -137,16 +94,12 @@ export function OptionalSection({
             storageMenuVisible={storageMenuVisible}
             setStorageMenuVisible={setStorageMenuVisible}
             existingStorageLocations={existingStorageLocations}
-            softInputStyle={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
+            inputStyling={inputStyling}
           />
           <DescriptionField
             description={description}
             setDescription={setDescription}
-            softInputStyle={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
+            inputStyling={inputStyling}
           />
           <TagsField
             tags={tags}
@@ -159,9 +112,7 @@ export function OptionalSection({
             handleRemoveTag={handleRemoveTag}
             clearTagBlurCommitTimeout={clearTagBlurCommitTimeout}
             tagBlurCommitTimeoutRef={tagBlurCommitTimeoutRef}
-            softInputStyle={softInputStyle}
-            underlineColor={underlineColor}
-            activeUnderlineColor={activeUnderlineColor}
+            inputStyling={inputStyling}
           />
         </View>
       )}
@@ -171,13 +122,14 @@ export function OptionalSection({
 
 // ── Sub-fields (private to this module) ────────────────────────
 
-interface OptionalDateFieldsProps extends InputStyling {
+interface OptionalDateFieldsProps {
   readonly purchaseDate: string;
   readonly setPurchaseDate: (v: string) => void;
   readonly mountedDate: string;
   readonly setMountedDate: (v: string) => void;
-  readonly purchaseDateError: string | undefined;
-  readonly mountedDateError: string | undefined;
+  readonly purchaseDateError: ItemFormErrors['purchaseDate'];
+  readonly mountedDateError: ItemFormErrors['mountedDate'];
+  readonly inputStyling: InputStyling;
 }
 
 function OptionalDateFields({
@@ -187,9 +139,7 @@ function OptionalDateFields({
   setMountedDate,
   purchaseDateError,
   mountedDateError,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
+  inputStyling,
 }: Readonly<OptionalDateFieldsProps>) {
   const { t } = useTranslation('inventory');
 
@@ -207,9 +157,9 @@ function OptionalDateFields({
         autoCapitalize="none"
         autoCorrect={false}
         error={!!purchaseDateError}
-        style={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        style={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
       {purchaseDateError ? (
         <HelperText type="error" visible>
@@ -229,9 +179,9 @@ function OptionalDateFields({
         autoCapitalize="none"
         autoCorrect={false}
         error={!!mountedDateError}
-        style={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        style={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
       {mountedDateError ? (
         <HelperText type="error" visible>
@@ -242,11 +192,12 @@ function OptionalDateFields({
   );
 }
 
-interface AgeFieldProps extends InputStyling {
+interface AgeFieldProps {
   readonly age: string;
   readonly setAge: (v: string) => void;
   readonly ageMenuVisible: boolean;
   readonly setAgeMenuVisible: (v: boolean) => void;
+  readonly inputStyling: InputStyling;
 }
 
 function AgeField({
@@ -254,9 +205,7 @@ function AgeField({
   setAge,
   ageMenuVisible,
   setAgeMenuVisible,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
+  inputStyling,
 }: Readonly<AgeFieldProps>) {
   const { t } = useTranslation('inventory');
 
@@ -276,9 +225,9 @@ function AgeField({
               editable={false}
               placeholder={t('form.agePlaceholder')}
               right={<TextInput.Icon icon="chevron-down" />}
-              style={[softInputStyle, { pointerEvents: 'none' }]}
-              underlineColor={underlineColor}
-              activeUnderlineColor={activeUnderlineColor}
+              style={[inputStyling.softInputStyle, { pointerEvents: 'none' }]}
+              underlineColor={inputStyling.underlineColor}
+              activeUnderlineColor={inputStyling.activeUnderlineColor}
             />
           </Pressable>
         }
@@ -305,20 +254,14 @@ function AgeField({
   );
 }
 
-interface UsageFieldProps extends InputStyling {
+interface UsageFieldProps {
   readonly usage: string;
   readonly setUsage: (v: string) => void;
   readonly distanceUnit: string;
+  readonly inputStyling: InputStyling;
 }
 
-function UsageField({
-  usage,
-  setUsage,
-  distanceUnit,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: Readonly<UsageFieldProps>) {
+function UsageField({ usage, setUsage, distanceUnit, inputStyling }: Readonly<UsageFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
 
@@ -334,9 +277,9 @@ function UsageField({
           onChangeText={setUsage}
           placeholder={t('form.usagePlaceholder')}
           keyboardType="decimal-pad"
-          style={[softInputStyle, styles.usageInput]}
-          underlineColor={underlineColor}
-          activeUnderlineColor={activeUnderlineColor}
+          style={[inputStyling.softInputStyle, styles.usageInput]}
+          underlineColor={inputStyling.underlineColor}
+          activeUnderlineColor={inputStyling.activeUnderlineColor}
         />
         <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
           {distanceUnit}
@@ -346,12 +289,13 @@ function UsageField({
   );
 }
 
-interface StorageFieldProps extends InputStyling {
+interface StorageFieldProps {
   readonly storageLocation: string;
   readonly setStorageLocation: (v: string) => void;
   readonly storageMenuVisible: boolean;
   readonly setStorageMenuVisible: (v: boolean) => void;
   readonly existingStorageLocations: string[];
+  readonly inputStyling: InputStyling;
 }
 
 function StorageField({
@@ -360,9 +304,7 @@ function StorageField({
   storageMenuVisible,
   setStorageMenuVisible,
   existingStorageLocations,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
+  inputStyling,
 }: Readonly<StorageFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -401,9 +343,9 @@ function StorageField({
             }, 200);
           }}
           placeholder={t('form.storagePlaceholder')}
-          style={softInputStyle}
-          underlineColor={underlineColor}
-          activeUnderlineColor={activeUnderlineColor}
+          style={inputStyling.softInputStyle}
+          underlineColor={inputStyling.underlineColor}
+          activeUnderlineColor={inputStyling.activeUnderlineColor}
         />
         {storageMenuVisible && existingStorageLocations.length > 0 && (
           <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
@@ -441,17 +383,16 @@ function StorageField({
   );
 }
 
-interface DescriptionFieldProps extends InputStyling {
+interface DescriptionFieldProps {
   readonly description: string;
   readonly setDescription: (v: string) => void;
+  readonly inputStyling: InputStyling;
 }
 
 function DescriptionField({
   description,
   setDescription,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
+  inputStyling,
 }: Readonly<DescriptionFieldProps>) {
   const { t } = useTranslation('inventory');
 
@@ -467,15 +408,15 @@ function DescriptionField({
         placeholder={t('form.descriptionPlaceholder')}
         multiline
         numberOfLines={3}
-        style={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        style={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
     </>
   );
 }
 
-interface TagsFieldProps extends InputStyling {
+interface TagsFieldProps {
   readonly tags: string[];
   readonly tagInput: string;
   readonly setTagInput: (v: string) => void;
@@ -486,6 +427,7 @@ interface TagsFieldProps extends InputStyling {
   readonly handleRemoveTag: (tag: string) => void;
   readonly clearTagBlurCommitTimeout: () => void;
   readonly tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
+  readonly inputStyling: InputStyling;
 }
 
 function TagsField({
@@ -499,9 +441,7 @@ function TagsField({
   handleRemoveTag,
   clearTagBlurCommitTimeout,
   tagBlurCommitTimeoutRef,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
+  inputStyling,
 }: Readonly<TagsFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -547,9 +487,9 @@ function TagsField({
           }}
           onSubmitEditing={() => handleAddTag(tagInput)}
           placeholder={t('form.tagsPlaceholder')}
-          style={softInputStyle}
-          underlineColor={underlineColor}
-          activeUnderlineColor={activeUnderlineColor}
+          style={inputStyling.softInputStyle}
+          underlineColor={inputStyling.underlineColor}
+          activeUnderlineColor={inputStyling.activeUnderlineColor}
           returnKeyType="done"
         />
         {tagSuggestionsVisible && filteredTagSuggestions.length > 0 && (

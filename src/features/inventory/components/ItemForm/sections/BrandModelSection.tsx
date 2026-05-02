@@ -4,37 +4,27 @@ import { BrandAutocompleteInput } from '@/shared/components/BrandAutocompleteInp
 import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
-interface BrandModelSectionProps extends InputStyling {
-  readonly name: ItemFormState['name'];
-  readonly brand: ItemFormState['brand'];
-  readonly brandMenuVisible: ItemFormState['brandMenuVisible'];
-  readonly handleBrandFocus: ItemFormState['handleBrandFocus'];
-  readonly handleBrandBlur: ItemFormState['handleBrandBlur'];
-  readonly cancelBrandBlurTimeout: ItemFormState['cancelBrandBlurTimeout'];
-  readonly filteredBrands: ItemFormState['filteredBrands'];
-  readonly model: ItemFormState['model'];
-  readonly setModel: ItemFormState['setModel'];
-  readonly handleBrandSelect: ItemFormState['handleBrandSelect'];
-  readonly handleBrandInputChange: ItemFormState['handleBrandInputChange'];
+interface BrandModelSectionProps {
+  readonly state: ItemFormState;
+  readonly inputStyling: InputStyling;
 }
 
-export function BrandModelSection({
-  name,
-  brand,
-  brandMenuVisible,
-  handleBrandFocus,
-  handleBrandBlur,
-  cancelBrandBlurTimeout,
-  filteredBrands,
-  model,
-  setModel,
-  handleBrandSelect,
-  handleBrandInputChange,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: Readonly<BrandModelSectionProps>) {
+export function BrandModelSection({ state, inputStyling }: BrandModelSectionProps) {
   const { t } = useTranslation('inventory');
+  const {
+    name,
+    brand,
+    brandMenuVisible,
+    handleBrandFocus,
+    handleBrandBlur,
+    cancelBrandBlurTimeout,
+    filteredBrands,
+    model,
+    setModel,
+    handleBrandSelect,
+    handleBrandInputChange,
+  } = state;
+
   const nameIsEmpty = name.trim().length === 0;
   const brandPlaceholder = nameIsEmpty
     ? t('form.brandPlaceholderWhenNameEmpty')
@@ -57,9 +47,9 @@ export function BrandModelSection({
         onFocus={handleBrandFocus}
         onBlur={handleBrandBlur}
         onSuggestionPressIn={cancelBrandBlurTimeout}
-        softInputStyle={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        softInputStyle={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
 
       <Text variant="labelLarge" style={[styles.label, styles.sectionLabel]}>
@@ -70,9 +60,9 @@ export function BrandModelSection({
         value={model}
         onChangeText={setModel}
         placeholder={modelPlaceholder}
-        style={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        style={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
     </>
   );
