@@ -35,6 +35,7 @@ interface ItemDetailProps {
   readonly photos: ItemPhoto[];
   readonly onMarkDonated?: () => void;
   readonly onMarkSold?: () => void;
+  readonly onMarkLoaned?: () => void;
   readonly onMarkReturned?: () => void;
   readonly markReturnedLoading?: boolean;
   readonly onRemoveFromBin?: () => void;
@@ -46,6 +47,7 @@ export function ItemDetail({
   photos,
   onMarkDonated,
   onMarkSold,
+  onMarkLoaned,
   onMarkReturned,
   markReturnedLoading = false,
   onRemoveFromBin,
@@ -73,6 +75,9 @@ export function ItemDetail({
   const canShowSoldAction =
     (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&
     item.availabilityTypes.includes(AvailabilityType.Sellable);
+  const canShowLoanAction =
+    (item.status === ItemStatus.Stored || item.status === ItemStatus.Mounted) &&
+    item.availabilityTypes.includes(AvailabilityType.Borrowable);
   const canShowReturnedAction = item.status === ItemStatus.Loaned;
 
   const categoryLabel = t(`category.${item.category}`);
@@ -142,9 +147,11 @@ export function ItemDetail({
         canShowReturnedAction={canShowReturnedAction}
         canShowDonateAction={canShowDonateAction}
         canShowSoldAction={canShowSoldAction}
+        canShowLoanAction={canShowLoanAction}
         onMarkReturned={onMarkReturned}
         onMarkDonated={onMarkDonated}
         onMarkSold={onMarkSold}
+        onMarkLoaned={onMarkLoaned}
         onUnarchive={onUnarchive}
         onRemoveFromBin={onRemoveFromBin}
         markReturnedLoading={markReturnedLoading}
@@ -389,9 +396,11 @@ function ActionsSection({
   canShowReturnedAction,
   canShowDonateAction,
   canShowSoldAction,
+  canShowLoanAction,
   onMarkReturned,
   onMarkDonated,
   onMarkSold,
+  onMarkLoaned,
   onUnarchive,
   onRemoveFromBin,
   markReturnedLoading,
@@ -402,9 +411,11 @@ function ActionsSection({
   readonly canShowReturnedAction: boolean;
   readonly canShowDonateAction: boolean;
   readonly canShowSoldAction: boolean;
+  readonly canShowLoanAction: boolean;
   readonly onMarkReturned?: () => void;
   readonly onMarkDonated?: () => void;
   readonly onMarkSold?: () => void;
+  readonly onMarkLoaned?: () => void;
   readonly onUnarchive?: () => void;
   readonly onRemoveFromBin?: () => void;
   readonly markReturnedLoading: boolean;
@@ -441,6 +452,17 @@ function ActionsSection({
             style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
           >
             {t('detail.markSold')}
+          </Button>
+        </ActionSlot>
+      )}
+      {canShowLoanAction && onMarkLoaned && (
+        <ActionSlot isWide={isWide}>
+          <Button
+            mode="outlined"
+            onPress={onMarkLoaned}
+            style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
+          >
+            {t('detail.markLoaned')}
           </Button>
         </ActionSlot>
       )}

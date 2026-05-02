@@ -148,6 +148,12 @@
       "message": "Are you sure you want to remove this photo?",
       "cancel": "Cancel",
       "confirm": "Remove"
+    },
+    "markLoaned": {
+      "title": "Mark as loaned?",
+      "message": "Mark this item as loaned out — for example, to someone not on the app. You can mark it returned later.",
+      "cancel": "Cancel",
+      "confirm": "Mark Loaned"
     }
   },
   "detail": {
@@ -156,6 +162,7 @@
     "visibility": "Visible to",
     "markDonated": "Mark as Donated",
     "markSold": "Mark as Sold",
+    "markLoaned": "Mark as Loaned",
     "markReturned": "Mark as Returned",
     "archive": "Archive",
     "unarchive": "Restore to inventory",

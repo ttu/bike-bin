@@ -59,6 +59,7 @@ jest.mock('@/features/inventory/components/ItemDetail/ItemDetail', () => {
     ItemDetail: (props: {
       readonly onMarkDonated?: () => void;
       readonly onMarkSold?: () => void;
+      readonly onMarkLoaned?: () => void;
       readonly onMarkReturned?: () => void;
       readonly onRemoveFromBin?: () => void;
       readonly onUnarchive?: () => void;
@@ -72,6 +73,11 @@ jest.mock('@/features/inventory/components/ItemDetail/ItemDetail', () => {
         {props.onMarkSold ? (
           <Pressable testID="trigger-mark-sold" onPress={props.onMarkSold}>
             <Text>Sell</Text>
+          </Pressable>
+        ) : null}
+        {props.onMarkLoaned ? (
+          <Pressable testID="trigger-mark-loaned" onPress={props.onMarkLoaned}>
+            <Text>Loan</Text>
           </Pressable>
         ) : null}
         {props.onMarkReturned ? (
@@ -262,6 +268,30 @@ describe('ItemDetailScreen', () => {
     fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
     await waitFor(() => {
       expect(mockMarkSoldMutate).toHaveBeenCalled();
+    });
+  });
+
+  it('completes mark loaned flow', async () => {
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-mark-loaned'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(mockUpdateMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ id: ITEM_ID, status: ItemStatus.Loaned }),
+        expect.anything(),
+      );
+    });
+  });
+
+  it('shows generic error when mark loaned status update fails', async () => {
+    mockUpdateMutate.mockImplementationOnce((_vars: unknown, opts?: { onError?: () => void }) => {
+      opts?.onError?.();
+    });
+    renderWithProviders(<ItemDetailScreen />);
+    fireEvent.press(screen.getByTestId('trigger-mark-loaned'));
+    fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
+    await waitFor(() => {
+      expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
     });
   });
 

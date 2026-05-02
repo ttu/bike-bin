@@ -92,6 +92,24 @@ export function useItemActions(item: Item) {
     });
   };
 
+  const handleMarkLoaned = () => {
+    openConfirm({
+      title: tInv('confirm.markLoaned.title'),
+      message: tInv('confirm.markLoaned.message'),
+      cancelLabel: tInv('confirm.markLoaned.cancel'),
+      confirmLabel: tInv('confirm.markLoaned.confirm'),
+      onConfirm: () => {
+        updateStatus.mutate(
+          { id: item.id, status: ItemStatus.Loaned },
+          {
+            onSuccess: () => onSuccess(tCommon('feedback.markedLoaned')),
+            onError,
+          },
+        );
+      },
+    });
+  };
+
   const handleUnarchive = () => {
     openConfirm({
       title: tInv('confirm.unarchive.title'),
@@ -178,6 +196,7 @@ export function useItemActions(item: Item) {
   return {
     handleMarkDonated,
     handleMarkSold,
+    handleMarkLoaned,
     handleArchive,
     handleUnarchive,
     handleDelete,

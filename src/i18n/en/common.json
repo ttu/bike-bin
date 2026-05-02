@@ -65,6 +65,7 @@
     "messageSent": "Message sent.",
     "markedDonated": "Marked as donated.",
     "markedSold": "Marked as sold.",
+    "markedLoaned": "Marked as loaned.",
     "statusUpdated": "Status updated.",
     "returned": "Marked as returned.",
     "saved": "Saved.",
