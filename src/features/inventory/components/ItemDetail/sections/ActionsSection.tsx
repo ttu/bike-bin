@@ -35,6 +35,14 @@ export function ActionsSection({
   readonly onRemoveFromBin?: () => void;
   readonly markReturnedLoading: boolean;
 }) {
+  const hasActions =
+    (canShowReturnedAction && !!onMarkReturned) ||
+    (canShowDonateAction && !!onMarkDonated) ||
+    (canShowSoldAction && !!onMarkSold) ||
+    (canShowLoanAction && !!onMarkLoaned) ||
+    (item.status === ItemStatus.Archived && !!onUnarchive) ||
+    !!onRemoveFromBin;
+  if (!hasActions) return null;
   return (
     <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
       {canShowReturnedAction && onMarkReturned && (

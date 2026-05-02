@@ -58,9 +58,17 @@ describe('ListingDetail', () => {
 
   it('renders owner card with display name', () => {
     const item = listingItem({ ownerDisplayName: 'Alice' });
-    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    const { getByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} onOwnerPress={() => {}} />,
+    );
     expect(getByText('Alice')).toBeTruthy();
     expect(getByText(/View profile/)).toBeTruthy();
+  });
+
+  it('hides view profile CTA when no owner press handler is provided', () => {
+    const item = listingItem({ ownerDisplayName: 'Alice' });
+    const { queryByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(queryByText(/View profile/)).toBeNull();
   });
 
   it('renders owner rating when available', () => {

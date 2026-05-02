@@ -73,10 +73,10 @@ export function ListingDetail({
     <>
       <ListingTitleBlock
         item={item}
-        theme={theme}
         themed={themed}
         categoryLabel={categoryLabel}
         metaParts={metaParts}
+        t={t}
       />
       <ListingDetailStrip
         item={item}
@@ -144,9 +144,7 @@ export function ListingDetail({
               onPhotoLongPress={handlePhotoLongPress}
             />
           </View>
-          <View style={[styles.wideSplitRight, { borderLeftColor: theme.colors.outlineVariant }]}>
-            {detailContent}
-          </View>
+          <View style={[styles.wideSplitRight, themed.wideSplitRightBorder]}>{detailContent}</View>
         </View>
       ) : (
         <View style={isWide ? styles.widePageInner : undefined}>

@@ -90,7 +90,8 @@
       "durationLabel": "Duration",
       "usageLabel": "Usage",
       "quantityLabel": "Quantity",
-      "quantityValue": "{{count}}"
+      "quantityValue": "{{count}}",
+      "quantityChip": "×{{count}}"
     },
     "actions": {
       "requestBorrow": "Request Borrow",

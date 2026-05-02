@@ -1,19 +1,16 @@
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { type Item } from '@/shared/types';
-import { type AppTheme } from '@/shared/theme';
 import { Stamp } from '@/shared/components/Stamp/Stamp';
 import { styles, type Themed, type TFn } from '../shared';
 
 export function ServiceRecord({
   item,
   themed,
-  theme,
   t,
 }: {
   readonly item: Item;
   readonly themed: Themed;
-  readonly theme: AppTheme;
   readonly t: TFn;
 }) {
   const serviceRows: { label: string; value: string }[] = [
@@ -33,7 +30,7 @@ export function ServiceRecord({
             key={row.label}
             label={row.label}
             value={row.value}
-            theme={theme}
+            themed={themed}
             isLast={index === serviceRows.length - 1}
           />
         ))}
@@ -45,32 +42,20 @@ export function ServiceRecord({
 function ServiceRow({
   label,
   value,
-  theme,
+  themed,
   isLast = false,
 }: Readonly<{
   label: string;
   value: string;
-  theme: AppTheme;
+  themed: Themed;
   isLast?: boolean;
 }>) {
   return (
-    <View
-      style={[
-        styles.serviceRow,
-        { borderBottomColor: theme.colors.outlineVariant },
-        isLast && styles.serviceRowLast,
-      ]}
-    >
-      <Text
-        variant="bodyMedium"
-        style={[styles.serviceLabel, { color: theme.colors.onSurfaceVariant }]}
-      >
+    <View style={[styles.serviceRow, themed.serviceRowBorder, isLast && styles.serviceRowLast]}>
+      <Text variant="bodyMedium" style={[styles.serviceLabel, themed.onSurfaceVariant]}>
         {label}
       </Text>
-      <Text
-        variant="bodyMedium"
-        style={[styles.serviceValue, { color: theme.colors.onBackground }]}
-      >
+      <Text variant="bodyMedium" style={[styles.serviceValue, themed.onBackground]}>
         {value}
       </Text>
     </View>

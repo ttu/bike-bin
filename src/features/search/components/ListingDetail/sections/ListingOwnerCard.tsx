@@ -21,7 +21,7 @@ export function ListingOwnerCard({
 }) {
   return (
     <View style={[styles.section, themed.sectionBorder]}>
-      <View style={[styles.ownerCard, { backgroundColor: theme.customColors.surfaceContainerLow }]}>
+      <View style={[styles.ownerCard, themed.ownerCardBackground]}>
         {item.ownerAvatarUrl ? (
           <CachedAvatarImage testID="owner-avatar-image" uri={item.ownerAvatarUrl} size={40} />
         ) : (
@@ -48,9 +48,11 @@ export function ListingOwnerCard({
             </View>
           )}
         </View>
-        <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
-          {t('search:listing.ownerCard.viewProfile')}
-        </Text>
+        {onOwnerPress && (
+          <Text variant="labelSmall" style={themed.primary} onPress={onOwnerPress}>
+            {t('search:listing.ownerCard.viewProfile')}
+          </Text>
+        )}
       </View>
     </View>
   );

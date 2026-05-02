@@ -21,6 +21,9 @@ export function useThemedStyles(theme: AppTheme) {
         avatarBg: { backgroundColor: theme.colors.surfaceVariant },
         sectionBorder: { borderBottomColor: theme.colors.outlineVariant },
         accentChipText: { color: theme.customColors.accent, fontWeight: '700' },
+        wideSplitRightBorder: { borderLeftColor: theme.colors.outlineVariant },
+        ownerCardBackground: { backgroundColor: theme.customColors.surfaceContainerLow },
+        titleChipSurface: { backgroundColor: theme.customColors.surfaceContainerHigh },
       }),
     [theme],
   );

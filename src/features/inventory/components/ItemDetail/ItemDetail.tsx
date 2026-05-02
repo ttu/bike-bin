@@ -84,7 +84,6 @@ export function ItemDetail({
     <>
       <TitleBlock
         item={item}
-        theme={theme}
         themed={themed}
         statusColor={statusColor}
         categoryLabel={categoryLabel}
@@ -93,7 +92,7 @@ export function ItemDetail({
         t={t}
       />
       <FigureStrip item={item} themed={themed} t={t} distanceUnit={distanceUnit} />
-      <ServiceRecord item={item} themed={themed} theme={theme} t={t} />
+      <ServiceRecord item={item} themed={themed} t={t} />
       {item.description && (
         <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onBackground}>
@@ -103,12 +102,7 @@ export function ItemDetail({
       )}
       {item.storageLocation && (
         <View style={[styles.section, themed.sectionBorder]}>
-          <View
-            style={[
-              styles.locationBlock,
-              { backgroundColor: theme.customColors.surfaceContainerLow },
-            ]}
-          >
+          <View style={[styles.locationBlock, themed.locationBlockBackground]}>
             <MaterialCommunityIcons
               name="map-marker-outline"
               size={20}
@@ -162,9 +156,7 @@ export function ItemDetail({
           <View style={styles.wideSplitLeft}>
             <PhotoGallery photos={photos} maxGalleryWidth={galleryMaxWidth} />
           </View>
-          <View style={[styles.wideSplitRight, { borderLeftColor: theme.colors.outlineVariant }]}>
-            {detailContent}
-          </View>
+          <View style={[styles.wideSplitRight, themed.wideSplitRightBorder]}>{detailContent}</View>
         </View>
       ) : (
         <View style={isWide ? styles.widePageInner : undefined}>

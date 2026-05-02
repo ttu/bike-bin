@@ -20,6 +20,11 @@ export function useThemedStyles(theme: AppTheme) {
         sectionBorder: { borderBottomColor: theme.colors.outlineVariant },
         accentChipBg: { backgroundColor: theme.customColors.accentTint },
         accentChipText: { color: theme.customColors.accent, fontWeight: '700' },
+        locationBlockBackground: { backgroundColor: theme.customColors.surfaceContainerLow },
+        wideSplitRightBorder: { borderLeftColor: theme.colors.outlineVariant },
+        titleChipSurface: { backgroundColor: theme.customColors.surfaceContainerHigh },
+        tagChip: { backgroundColor: theme.colors.surfaceVariant },
+        serviceRowBorder: { borderBottomColor: theme.colors.outlineVariant },
       }),
     [theme],
   );

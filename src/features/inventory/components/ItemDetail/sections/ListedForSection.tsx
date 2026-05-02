@@ -11,7 +11,7 @@ export function ListedForSection({
   t,
 }: {
   readonly listAvailability: AvailabilityType[];
-  readonly ownerGroup: { name: string } | null | undefined;
+  readonly ownerGroup: { name: string } | undefined;
   readonly themed: Themed;
   readonly t: TFn;
 }) {
