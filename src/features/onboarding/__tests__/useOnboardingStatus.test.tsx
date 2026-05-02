@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import { mockAuthModule } from '@/test/authMocks';
 import { useOnboardingStatus } from '../hooks/useOnboardingStatus';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
@@ -45,12 +45,12 @@ describe('useOnboardingStatus', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    // Wait for queries to resolve
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => {
+      expect(result.current.isComplete).toBe(true);
+    });
 
     expect(result.current.hasProfile).toBe(true);
     expect(result.current.hasLocation).toBe(true);
-    expect(result.current.isComplete).toBe(true);
   });
 
   it('returns isComplete false when profile has no display_name', async () => {
@@ -80,7 +80,9 @@ describe('useOnboardingStatus', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current.hasProfile).toBe(false);
     expect(result.current.isComplete).toBe(false);
@@ -113,7 +115,9 @@ describe('useOnboardingStatus', () => {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current.hasLocation).toBe(false);
     expect(result.current.isComplete).toBe(false);

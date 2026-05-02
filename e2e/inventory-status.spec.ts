@@ -94,6 +94,15 @@ test.describe('Archive item', () => {
     });
     await loggedInPage.getByTestId('confirm-dialog-confirm').click();
 
-    await expect(loggedInPage.getByText('Archived')).toBeVisible({ timeout: 10000 });
+    // Wait for the PATCH /items mutation to complete before asserting the chip.
+    await loggedInPage.waitForResponse(
+      (resp) =>
+        resp.url().includes('/rest/v1/items') && resp.request().method() === 'PATCH' && resp.ok(),
+      { timeout: 10000 },
+    );
+
+    await expect(loggedInPage.getByText('Archived', { exact: true }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
