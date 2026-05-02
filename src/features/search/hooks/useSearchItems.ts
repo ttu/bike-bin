@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
-import { fetchPublicProfilesMap } from '@/shared/api/fetchPublicProfile';
+import { fetchPublicProfilesMap, type FetchedPublicProfile } from '@/shared/api/fetchPublicProfile';
 import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
 import type {
   AvailabilityType,
@@ -56,7 +56,7 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const locationIds = [...new Set(rows.map((r) => r.pickup_location_id).filter(Boolean))];
 
       const [ownerMap, locationMap, thumbMap] = await Promise.all([
-        fetchOwnerProfiles(ownerIds),
+        fetchPublicProfilesMap(ownerIds),
         fetchLocationAreaNames(locationIds as string[]),
         fetchFirstPhotoPaths({
           table: 'item_photos',
@@ -157,34 +157,6 @@ interface RpcRow {
   distance_meters: number | null;
 }
 
-interface OwnerProfile {
-  id: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  rating_avg: number;
-  rating_count: number;
-}
-
-async function fetchOwnerProfiles(ownerIds: string[]): Promise<Map<string, OwnerProfile>> {
-  const map = new Map<string, OwnerProfile>();
-  if (ownerIds.length === 0) return map;
-
-  const profiles = await fetchPublicProfilesMap(ownerIds);
-  for (const id of ownerIds) {
-    const p = profiles.get(id);
-    if (p) {
-      map.set(id, {
-        id: p.id,
-        display_name: p.displayName ?? null,
-        avatar_url: p.avatarUrl ?? null,
-        rating_avg: p.ratingAvg,
-        rating_count: p.ratingCount,
-      });
-    }
-  }
-  return map;
-}
-
 async function fetchLocationAreaNames(locationIds: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   if (locationIds.length === 0) return map;
@@ -204,7 +176,7 @@ async function fetchLocationAreaNames(locationIds: string[]): Promise<Map<string
 
 function mapRow(
   row: RpcRow,
-  ownerMap: Map<string, OwnerProfile>,
+  ownerMap: Map<string, FetchedPublicProfile>,
   locationMap: Map<string, string>,
   thumbMap: Map<string, string>,
 ): SearchResultItem {
@@ -228,10 +200,10 @@ function mapRow(
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     distanceMeters: row.distance_meters ?? undefined,
-    ownerDisplayName: owner?.display_name ?? undefined,
-    ownerAvatarUrl: owner?.avatar_url ?? undefined,
-    ownerRatingAvg: owner?.rating_avg ?? 0,
-    ownerRatingCount: owner?.rating_count ?? 0,
+    ownerDisplayName: owner?.displayName,
+    ownerAvatarUrl: owner?.avatarUrl,
+    ownerRatingAvg: owner?.ratingAvg ?? 0,
+    ownerRatingCount: owner?.ratingCount ?? 0,
     areaName: row.pickup_location_id ? locationMap.get(row.pickup_location_id) : undefined,
     thumbnailStoragePath: thumbMap.get(row.id),
     groupId: (row.group_id as GroupId | null | undefined) ?? undefined,
