@@ -91,12 +91,12 @@ describe('ListingDetail', () => {
     expect(goodTexts.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('shows borrow button disabled when no handler provided for borrowable-only items', () => {
+  it('hides borrow button when no handler provided for borrowable-only items', () => {
     const item = listingItem({
       availabilityTypes: [AvailabilityType.Borrowable],
     });
-    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
-    expect(getByText(/Request Borrow/)).toBeTruthy();
+    const { queryByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(queryByText(/Request Borrow/)).toBeNull();
   });
 
   it('shows borrow button enabled when handler provided', () => {
@@ -110,22 +110,34 @@ describe('ListingDetail', () => {
     expect(getByText(/Request Borrow/)).toBeTruthy();
   });
 
-  it('shows contact button for donatable-only items', () => {
+  it('shows contact button for donatable-only items when handler provided', () => {
     const item = listingItem({
       availabilityTypes: [AvailabilityType.Donatable],
     });
-    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    const { getByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} onContact={jest.fn()} />,
+    );
     expect(getByText(/Contact/)).toBeTruthy();
   });
 
-  it('shows both buttons for mixed availability', () => {
+  it('shows both buttons for mixed availability when handlers provided', () => {
     const item = listingItem({
       availabilityTypes: [AvailabilityType.Borrowable, AvailabilityType.Sellable],
       price: 50,
     });
-    const { getByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    const { getByText } = renderWithProviders(
+      <ListingDetail item={item} photos={[]} onContact={jest.fn()} onRequestBorrow={jest.fn()} />,
+    );
     expect(getByText(/Contact/)).toBeTruthy();
     expect(getByText(/Request Borrow/)).toBeTruthy();
+  });
+
+  it('hides contact button on own listing (no onContact handler)', () => {
+    const item = listingItem({
+      availabilityTypes: [AvailabilityType.Donatable],
+    });
+    const { queryByText } = renderWithProviders(<ListingDetail item={item} photos={[]} />);
+    expect(queryByText(/Contact/)).toBeNull();
   });
 
   it('renders translated borrow duration', () => {

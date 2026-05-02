@@ -434,34 +434,31 @@ function ListingActions({
     <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
       {isAuthenticated ? (
         <>
-          {(showContactOnly || showBoth) && (
+          {(showContactOnly || showBoth) && onContact && (
             <ActionSlot isWide={isWide}>
               <GradientButton
                 onPress={onContact}
-                disabled={!onContact}
                 style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
               >
                 {t('search:listing.actions.contact')}
               </GradientButton>
             </ActionSlot>
           )}
-          {showBorrowOnly && (
+          {showBorrowOnly && onRequestBorrow && (
             <ActionSlot isWide={isWide}>
               <GradientButton
                 onPress={onRequestBorrow}
-                disabled={!onRequestBorrow}
                 style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
               >
                 {t('search:listing.actions.requestBorrow')}
               </GradientButton>
             </ActionSlot>
           )}
-          {showBoth && (
+          {showBoth && onRequestBorrow && (
             <ActionSlot isWide={isWide}>
               <Button
                 mode="outlined"
                 onPress={onRequestBorrow}
-                disabled={!onRequestBorrow}
                 style={[styles.actionButton, isWide && styles.actionButtonInGrid]}
               >
                 {t('search:listing.actions.requestBorrow')}
