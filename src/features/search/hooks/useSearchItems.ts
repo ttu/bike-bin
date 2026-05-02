@@ -75,18 +75,19 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
 }
 
 function hasActiveSearchInput(filters: SearchFilters): boolean {
-  // maxDistanceKm is intentionally excluded: it always has a default value
-  // (DEFAULT_SEARCH_FILTERS.maxDistanceKm = 25), so including it would make
-  // this predicate always true and defeat the gate. Distance-only changes
-  // re-fetch implicitly because they appear in the query key alongside an
-  // already-active filter.
+  // The RPC always sends max_distance_meters, so a positive distance counts
+  // as an active input on its own. With DEFAULT_SEARCH_FILTERS.maxDistanceKm = 25
+  // this means an authenticated mount with default filters will fetch nearby
+  // items — the search screen still gates result rendering on its own
+  // `hasSearched` flag, so this only widens the cases the hook reacts to.
   return (
     filters.query.trim().length > 0 ||
     filters.categories.length > 0 ||
     filters.conditions.length > 0 ||
     filters.offerTypes.length > 0 ||
     filters.priceMin !== undefined ||
-    filters.priceMax !== undefined
+    filters.priceMax !== undefined ||
+    filters.maxDistanceKm > 0
   );
 }
 
