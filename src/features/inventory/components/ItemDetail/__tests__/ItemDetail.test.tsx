@@ -135,6 +135,33 @@ describe('ItemDetail', () => {
     expect(queryByText('Mark as Donated')).toBeNull();
   });
 
+  it('shows Mark as Loaned when item is borrowable and stored', () => {
+    const onMarkLoaned = jest.fn();
+    const { getByText } = renderWithProviders(
+      <ItemDetail item={baseItem} photos={[]} onMarkLoaned={onMarkLoaned} />,
+    );
+    expect(getByText('Mark as Loaned')).toBeTruthy();
+  });
+
+  it('hides Mark as Loaned when item is not borrowable', () => {
+    const sellOnly = createMockItem({
+      ...baseItem,
+      availabilityTypes: [AvailabilityType.Sellable],
+    });
+    const { queryByText } = renderWithProviders(
+      <ItemDetail item={sellOnly} photos={[]} onMarkLoaned={jest.fn()} />,
+    );
+    expect(queryByText('Mark as Loaned')).toBeNull();
+  });
+
+  it('hides Mark as Loaned when item is already Loaned', () => {
+    const loanedItem = createMockItem({ ...baseItem, status: ItemStatus.Loaned });
+    const { queryByText } = renderWithProviders(
+      <ItemDetail item={loanedItem} photos={[]} onMarkLoaned={jest.fn()} />,
+    );
+    expect(queryByText('Mark as Loaned')).toBeNull();
+  });
+
   it('shows Mark as Returned when Loaned', () => {
     const loanedItem = createMockItem({ ...baseItem, status: ItemStatus.Loaned });
     const onMarkReturned = jest.fn();

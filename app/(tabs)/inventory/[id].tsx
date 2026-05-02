@@ -187,6 +187,7 @@ function ItemDetailWithActions({
   const {
     handleMarkDonated,
     handleMarkSold,
+    handleMarkLoaned,
     handleArchive,
     handleUnarchive,
     handleDelete,
@@ -207,6 +208,7 @@ function ItemDetailWithActions({
         photos={photos}
         onMarkDonated={handleMarkDonated}
         onMarkSold={handleMarkSold}
+        onMarkLoaned={handleMarkLoaned}
         onMarkReturned={handleMarkReturned}
         markReturnedLoading={markReturnedLoading}
         onUnarchive={canUnarchiveItem ? handleUnarchive : undefined}
