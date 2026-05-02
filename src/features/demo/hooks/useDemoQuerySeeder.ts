@@ -21,48 +21,48 @@ const uid = DEMO_USER_ID as string;
  * Must be called synchronously BEFORE setting isDemoMode=true,
  * so the cache is populated before hooks mount and start querying.
  */
-export function seedDemoData(queryClient: QueryClient) {
-  // Prevent real Supabase fetches from overwriting seeded data
-  queryClient.setDefaultOptions({
-    queries: {
-      ...queryClient.getDefaultOptions().queries,
-      staleTime: Infinity,
-    },
-  });
+type SeededEntry = readonly [readonly unknown[], unknown];
 
-  queryClient.setQueryData(['items', uid], DEMO_ITEMS);
+function buildSeededEntries(): SeededEntry[] {
+  const entries: SeededEntry[] = [
+    [['items', uid], DEMO_ITEMS],
+    [['bikes', uid], DEMO_BIKES],
+    [['conversations', uid], DEMO_CONVERSATIONS],
+    [['borrowRequests', uid], DEMO_BORROW_REQUESTS],
+    [['unread_message_count', uid], DEMO_UNREAD_MESSAGE_COUNT],
+    [['unread_notification_count', uid], DEMO_UNREAD_NOTIFICATION_COUNT],
+    [['profile', DEMO_USER_ID], DEMO_PROFILE],
+    [['locations', 'primary', uid], DEMO_LOCATIONS.find((l) => l.isPrimary)],
+  ];
   for (const item of DEMO_ITEMS) {
-    queryClient.setQueryData(['items', item.id], item);
-    queryClient.setQueryData(['item_photos', item.id], []);
+    entries.push([['items', item.id], item]);
+    entries.push([['item_photos', item.id], []]);
   }
-  queryClient.setQueryData(['bikes', uid], DEMO_BIKES);
   for (const bike of DEMO_BIKES) {
-    queryClient.setQueryData(['bikes', bike.id], bike);
+    entries.push([['bikes', bike.id], bike]);
   }
-  queryClient.setQueryData(['conversations', uid], DEMO_CONVERSATIONS);
   for (const conv of DEMO_CONVERSATIONS) {
-    queryClient.setQueryData(['conversation', conv.id], conv);
-    queryClient.setQueryData(['messages', conv.id], {
-      pages: [DEMO_MESSAGES[conv.id] ?? []],
-      pageParams: [undefined],
-    });
+    entries.push([['conversation', conv.id], conv]);
+    entries.push([
+      ['messages', conv.id],
+      { pages: [DEMO_MESSAGES[conv.id] ?? []], pageParams: [undefined] },
+    ]);
   }
-  queryClient.setQueryData(['borrowRequests', uid], DEMO_BORROW_REQUESTS);
-  queryClient.setQueryData(['unread_message_count', uid], DEMO_UNREAD_MESSAGE_COUNT);
-  queryClient.setQueryData(['unread_notification_count', uid], DEMO_UNREAD_NOTIFICATION_COUNT);
-  queryClient.setQueryData(['profile', DEMO_USER_ID], DEMO_PROFILE);
-  queryClient.setQueryData(
-    ['locations', 'primary', uid],
-    DEMO_LOCATIONS.find((l) => l.isPrimary),
-  );
+  return entries;
+}
+
+export function seedDemoData(queryClient: QueryClient) {
+  for (const [key, value] of buildSeededEntries()) {
+    // Per-key staleTime: Infinity prevents real fetches from overwriting seeded
+    // data without affecting any non-demo queries on the same client.
+    queryClient.setQueryDefaults(key, { staleTime: Infinity });
+    queryClient.setQueryData(key, value);
+  }
 }
 
 export function clearDemoData(queryClient: QueryClient) {
+  for (const [key] of buildSeededEntries()) {
+    queryClient.setQueryDefaults(key, { staleTime: undefined });
+  }
   queryClient.clear();
-  queryClient.setDefaultOptions({
-    queries: {
-      ...queryClient.getDefaultOptions().queries,
-      staleTime: 5 * 60 * 1000, // restore default
-    },
-  });
 }

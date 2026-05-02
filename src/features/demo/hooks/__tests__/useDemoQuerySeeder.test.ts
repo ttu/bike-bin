@@ -39,21 +39,38 @@ describe('seedDemoData', () => {
     expect(qc.getQueryData(['bikes', 'bike-1'])).toEqual({ id: 'bike-1', name: 'Gravel' });
   });
 
-  it('sets staleTime to Infinity to prevent refetches', () => {
+  it('sets staleTime to Infinity on seeded keys without affecting global defaults', () => {
     const qc = new QueryClient();
+    const originalStaleTime = qc.getDefaultOptions().queries?.staleTime;
+
     seedDemoData(qc);
 
-    expect(qc.getDefaultOptions().queries?.staleTime).toBe(Infinity);
+    expect(qc.getQueryDefaults(['items', 'demo-user']).staleTime).toBe(Infinity);
+    expect(qc.getQueryDefaults(['profile', 'demo-user']).staleTime).toBe(Infinity);
+    expect(qc.getDefaultOptions().queries?.staleTime).toBe(originalStaleTime);
   });
 });
 
 describe('clearDemoData', () => {
-  it('clears cache and restores default staleTime', () => {
+  it('clears cache without mutating the global staleTime', () => {
     const qc = new QueryClient();
+    const originalStaleTime = qc.getDefaultOptions().queries?.staleTime;
+
     seedDemoData(qc);
     clearDemoData(qc);
 
     expect(qc.getQueryData(['items', 'demo-user'])).toBeUndefined();
-    expect(qc.getDefaultOptions().queries?.staleTime).toBe(5 * 60 * 1000);
+    expect(qc.getDefaultOptions().queries?.staleTime).toBe(originalStaleTime);
+  });
+
+  it('resets per-key staleTime defaults that seedDemoData installed', () => {
+    const qc = new QueryClient();
+
+    seedDemoData(qc);
+    expect(qc.getQueryDefaults(['items', 'demo-user']).staleTime).toBe(Infinity);
+
+    clearDemoData(qc);
+    expect(qc.getQueryDefaults(['items', 'demo-user']).staleTime).toBeUndefined();
+    expect(qc.getQueryDefaults(['profile', 'demo-user']).staleTime).toBeUndefined();
   });
 });

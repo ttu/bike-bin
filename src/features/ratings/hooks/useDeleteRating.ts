@@ -16,7 +16,12 @@ export function useDeleteRating() {
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['ratings', variables.toUserId] });
+      if (variables.toUserId) {
+        queryClient.invalidateQueries({ queryKey: ['ratings', variables.toUserId] });
+      }
+      if (variables.toGroupId) {
+        queryClient.invalidateQueries({ queryKey: ['group-rating', variables.toGroupId] });
+      }
     },
   });
 }

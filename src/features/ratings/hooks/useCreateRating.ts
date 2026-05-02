@@ -38,7 +38,7 @@ export function useCreateRating() {
         queryClient.invalidateQueries({ queryKey: ['ratings', variables.toUserId] });
       }
       if (variables.toGroupId) {
-        queryClient.invalidateQueries({ queryKey: ['ratings', 'group', variables.toGroupId] });
+        queryClient.invalidateQueries({ queryKey: ['group-rating', variables.toGroupId] });
       }
     },
   });

@@ -12,6 +12,7 @@ export { SUBCATEGORIES, DEFAULT_BRANDS, AGE_OPTIONS, DURATION_OPTIONS } from './
 export {
   useItems,
   useItem,
+  useAvailableParts,
   useItemPhotos,
   useCreateItem,
   useUpdateItem,

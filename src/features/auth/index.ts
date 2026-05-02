@@ -3,4 +3,4 @@ export { useAuth } from './hooks/useAuth';
 
 export { AuthGate, useAuthGate } from './components/AuthGate/AuthGate';
 export { SyncBanner } from './components/SyncBanner/SyncBanner';
-export type { AuthContextType } from './context';
+export { AuthContext, type AuthContextType } from './context';

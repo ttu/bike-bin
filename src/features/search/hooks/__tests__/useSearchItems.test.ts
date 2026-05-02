@@ -133,14 +133,45 @@ describe('useSearchItems', () => {
     });
   });
 
-  it('does not fetch when query is empty', () => {
-    const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: '' };
+  it('does not fetch when no input is active (empty query and zero distance)', () => {
+    const filters: SearchFilters = {
+      ...DEFAULT_SEARCH_FILTERS,
+      query: '',
+      maxDistanceKm: 0,
+    };
     const { result } = renderHook(() => useSearchItems({ filters }), {
       wrapper: createWrapper(),
     });
 
     expect(result.current.fetchStatus).toBe('idle');
     expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it('does not fetch when query is whitespace-only and distance is zero', () => {
+    const filters: SearchFilters = {
+      ...DEFAULT_SEARCH_FILTERS,
+      query: '   ',
+      maxDistanceKm: 0,
+    };
+    const { result } = renderHook(() => useSearchItems({ filters }), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it('fetches when only the distance filter is active', async () => {
+    mockRpc.mockResolvedValue({ data: [], error: null });
+    const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: '' };
+    const { result } = renderHook(() => useSearchItems({ filters }), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+    expect(mockRpc).toHaveBeenCalled();
   });
 
   it('does not fetch when user is not authenticated', () => {

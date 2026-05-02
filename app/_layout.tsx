@@ -60,11 +60,11 @@ function AppContent() {
     <GestureHandlerRootView style={[layoutStyles.gestureRoot, getWebViewportStyle()]}>
       <PaperProvider theme={theme}>
         <SnackbarAlertsProvider>
-          <DemoModeProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <DemoModeProvider>
               <Stack screenOptions={{ headerShown: false }} />
-            </AuthProvider>
-          </DemoModeProvider>
+            </DemoModeProvider>
+          </AuthProvider>
         </SnackbarAlertsProvider>
       </PaperProvider>
     </GestureHandlerRootView>

@@ -69,9 +69,26 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const filtered = applyClientFilters(results, filters);
       return sortResults(filtered, filters.sortBy);
     },
-    enabled: enabled && isAuthenticated && filters.query.length > 0,
+    enabled: enabled && isAuthenticated && hasActiveSearchInput(filters),
     staleTime: 60_000, // 1 minute
   });
+}
+
+function hasActiveSearchInput(filters: SearchFilters): boolean {
+  // The RPC always sends max_distance_meters, so a positive distance counts
+  // as an active input on its own. With DEFAULT_SEARCH_FILTERS.maxDistanceKm = 25
+  // this means an authenticated mount with default filters will fetch nearby
+  // items — the search screen still gates result rendering on its own
+  // `hasSearched` flag, so this only widens the cases the hook reacts to.
+  return (
+    filters.query.trim().length > 0 ||
+    filters.categories.length > 0 ||
+    filters.conditions.length > 0 ||
+    filters.offerTypes.length > 0 ||
+    filters.priceMin !== undefined ||
+    filters.priceMax !== undefined ||
+    filters.maxDistanceKm > 0
+  );
 }
 
 // ── Client-side filtering & sorting ─────────────────────────────────
