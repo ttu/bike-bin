@@ -1,8 +1,19 @@
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { type Item } from '@/shared/types';
 import { Stamp } from '@/shared/components/Stamp/Stamp';
 import { styles, type Themed, type TFn } from '../shared';
+
+function formatCalendarDate(calendarDate: string, locale: string): string {
+  const [year, month, day] = calendarDate.split('-').map(Number);
+  if (!year || !month || !day) return calendarDate;
+  return new Date(year, month - 1, day).toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
 
 export function ServiceRecord({
   item,
@@ -13,11 +24,15 @@ export function ServiceRecord({
   readonly themed: Themed;
   readonly t: TFn;
 }) {
+  const { i18n } = useTranslation();
   const serviceRows: { label: string; value: string }[] = [
     { label: t('detail.conditionLabel'), value: t(`condition.${item.condition}`) },
   ];
   if (item.mountedDate) {
-    serviceRows.push({ label: t('detail.mountedOnLabel'), value: item.mountedDate });
+    serviceRows.push({
+      label: t('detail.mountedOnLabel'),
+      value: formatCalendarDate(item.mountedDate, i18n.language),
+    });
   }
   return (
     <View style={[styles.section, themed.sectionBorder]}>
