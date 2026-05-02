@@ -61,5 +61,8 @@ export function seedDemoData(queryClient: QueryClient) {
 }
 
 export function clearDemoData(queryClient: QueryClient) {
+  for (const [key] of buildSeededEntries()) {
+    queryClient.setQueryDefaults(key, { staleTime: undefined });
+  }
   queryClient.clear();
 }

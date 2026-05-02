@@ -75,8 +75,13 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
 }
 
 function hasActiveSearchInput(filters: SearchFilters): boolean {
+  // maxDistanceKm is intentionally excluded: it always has a default value
+  // (DEFAULT_SEARCH_FILTERS.maxDistanceKm = 25), so including it would make
+  // this predicate always true and defeat the gate. Distance-only changes
+  // re-fetch implicitly because they appear in the query key alongside an
+  // already-active filter.
   return (
-    filters.query.length > 0 ||
+    filters.query.trim().length > 0 ||
     filters.categories.length > 0 ||
     filters.conditions.length > 0 ||
     filters.offerTypes.length > 0 ||

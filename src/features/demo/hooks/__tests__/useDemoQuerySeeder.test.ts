@@ -62,4 +62,15 @@ describe('clearDemoData', () => {
     expect(qc.getQueryData(['items', 'demo-user'])).toBeUndefined();
     expect(qc.getDefaultOptions().queries?.staleTime).toBe(originalStaleTime);
   });
+
+  it('resets per-key staleTime defaults that seedDemoData installed', () => {
+    const qc = new QueryClient();
+
+    seedDemoData(qc);
+    expect(qc.getQueryDefaults(['items', 'demo-user']).staleTime).toBe(Infinity);
+
+    clearDemoData(qc);
+    expect(qc.getQueryDefaults(['items', 'demo-user']).staleTime).toBeUndefined();
+    expect(qc.getQueryDefaults(['profile', 'demo-user']).staleTime).toBeUndefined();
+  });
 });
