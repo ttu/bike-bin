@@ -84,10 +84,7 @@ export function useBikeFormState({
   const handleSubmit = useCallback(() => {
     const validationErrors = validateBikeForm(
       {
-        name: fields.name,
-        brand: fields.brand,
-        model: fields.model,
-        bikeType: fields.type,
+        data: draftFormData,
         distanceKmStr: fields.distanceKmStr,
         usageHoursStr: fields.usageHoursStr,
       },
@@ -104,18 +101,7 @@ export function useBikeFormState({
     }
 
     onSave(draftFormData);
-  }, [
-    fields.name,
-    fields.brand,
-    fields.model,
-    fields.type,
-    fields.distanceKmStr,
-    fields.usageHoursStr,
-    t,
-    onSave,
-    onValidationError,
-    draftFormData,
-  ]);
+  }, [draftFormData, fields.distanceKmStr, fields.usageHoursStr, t, onSave, onValidationError]);
 
   return {
     name: fields.name,
