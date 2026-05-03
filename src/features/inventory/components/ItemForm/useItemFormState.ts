@@ -140,11 +140,11 @@ export function useItemFormState({
     cancelBlurTimeout: cancelBrandBlurTimeout,
   } = useBrandAutocomplete({ brand: basic.brand, setBrand, brands: DEFAULT_BRANDS });
 
-  const tagBlurCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tagBlurCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const clearTagBlurCommitTimeout = useCallback(() => {
-    if (tagBlurCommitTimeoutRef.current !== null) {
+    if (tagBlurCommitTimeoutRef.current !== undefined) {
       clearTimeout(tagBlurCommitTimeoutRef.current);
-      tagBlurCommitTimeoutRef.current = null;
+      tagBlurCommitTimeoutRef.current = undefined;
     }
   }, []);
   useEffect(() => () => clearTagBlurCommitTimeout(), [clearTagBlurCommitTimeout]);

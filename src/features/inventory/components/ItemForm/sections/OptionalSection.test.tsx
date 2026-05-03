@@ -107,7 +107,7 @@ function buildState(overrides: OverrideProps, handlers: Handlers): ItemFormState
     handleAddTag: handlers.handleAddTag,
     handleRemoveTag: handlers.handleRemoveTag,
     clearTagBlurCommitTimeout: handlers.clearTagBlurCommitTimeout,
-    tagBlurCommitTimeoutRef: { current: null },
+    tagBlurCommitTimeoutRef: { current: undefined },
     showOptional: overrides.showOptional ?? true,
     setShowOptional: handlers.setShowOptional,
     errors: {},

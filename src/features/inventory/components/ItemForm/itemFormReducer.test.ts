@@ -4,6 +4,7 @@ import {
   ItemCondition,
   Visibility,
   type DistanceUnit,
+  type GroupId,
 } from '@/shared/types';
 import {
   itemFormReducer,
@@ -367,8 +368,8 @@ describe('itemFormReducer', () => {
 
   describe('toggleGroup', () => {
     it('adds and removes group ids', () => {
-      const groupA = 'group-a' as never;
-      const groupB = 'group-b' as never;
+      const groupA = 'group-a' as GroupId;
+      const groupB = 'group-b' as GroupId;
 
       const start = buildState();
       const added = itemFormReducer(start, { type: 'toggleGroup', value: groupA });

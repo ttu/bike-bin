@@ -308,12 +308,12 @@ function StorageField({
 }: Readonly<StorageFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
-  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const cancelBlurTimeout = useCallback(() => {
-    if (blurTimeoutRef.current !== null) {
+    if (blurTimeoutRef.current !== undefined) {
       clearTimeout(blurTimeoutRef.current);
-      blurTimeoutRef.current = null;
+      blurTimeoutRef.current = undefined;
     }
   }, []);
 
@@ -338,7 +338,7 @@ function StorageField({
           onBlur={() => {
             cancelBlurTimeout();
             blurTimeoutRef.current = setTimeout(() => {
-              blurTimeoutRef.current = null;
+              blurTimeoutRef.current = undefined;
               setStorageMenuVisible(false);
             }, 200);
           }}
@@ -481,7 +481,7 @@ function TagsField({
             clearTagBlurCommitTimeout();
             const rawAtBlur = tagInput;
             tagBlurCommitTimeoutRef.current = setTimeout(() => {
-              tagBlurCommitTimeoutRef.current = null;
+              tagBlurCommitTimeoutRef.current = undefined;
               handleAddTag(rawAtBlur);
             }, 200);
           }}

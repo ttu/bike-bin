@@ -1,6 +1,12 @@
 import { act, renderHook } from '@testing-library/react-native';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
-import { AvailabilityType, ItemCategory, ItemCondition, Visibility } from '@/shared/types';
+import {
+  AvailabilityType,
+  ItemCategory,
+  ItemCondition,
+  Visibility,
+  type GroupId,
+} from '@/shared/types';
 import { useItemFormState } from '../useItemFormState';
 
 jest.mock('../../../hooks/useItems', () => ({
@@ -90,7 +96,7 @@ describe('useItemFormState — setter coverage', () => {
   it('toggleGroupId adds and removes group ids', () => {
     const onSave = jest.fn();
     const { result } = renderHook(() => useItemFormState({ onSave }), { wrapper });
-    const groupId = 'g1' as never;
+    const groupId = 'g1' as GroupId;
     act(() => result.current.toggleGroupId(groupId));
     expect(result.current.groupIds).toEqual([groupId]);
     act(() => result.current.toggleGroupId(groupId));
