@@ -13,8 +13,7 @@ These documents define product behavior, UX decisions, stack conventions, and sy
 | [system-architecture.md](system-architecture.md)       | System design, feature slices, data flow, deployment            |
 | [security.md](security.md)                             | Authentication, RLS, privacy, GDPR, moderation                  |
 | [feature-design.md](feature-design.md)                 | Resolved UX decisions, screen-level flows                       |
-| [implementation-roadmap.md](implementation-roadmap.md) | Phased delivery roadmap (historical / guiding)                  |
-| [specs/README.md](specs/README.md)                     | Per-topic feature design specs (behavior + technical decisions) |
+| [design-docs/README.md](design-docs/README.md)         | Per-feature design docs (one per feature slice + cross-cutting) |
 
 ## Reference documentation
 

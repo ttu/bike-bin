@@ -39,6 +39,7 @@ Specifications and reference docs live in [`docs/`](docs/README.md):
 - [System architecture](docs/system-architecture.md) — system design, feature slices, data flow
 - [Security](docs/security.md) — auth, RLS, privacy, GDPR
 - [Feature design](docs/feature-design.md) — resolved design decisions, screen-level UX
+- [Per-feature design docs](docs/design-docs/README.md) — one doc per feature slice + cross-cutting concerns
 
 ## Development
 

@@ -10,9 +10,8 @@
 
 Two alignment passes have already shipped:
 
-- `docs/superpowers/plans/2026-04-20-design-system-alignment.md` — tokens, no shadows,
-  hairlines, `DisplayFigure`, asymmetric search grid, accent on group chips. Merged as
-  commit `9ca510d`.
+- Design system alignment pass — tokens, no shadows, hairlines, `DisplayFigure`,
+  asymmetric search grid, accent on group chips. Merged as commit `9ca510d`.
 - `docs/design-docs/020-design-handoff-alignment.md` Phase 1 — login masthead with Socket
   BB mark + wordmark. Merged as commit `e9e1ad6`.
 
@@ -457,5 +456,5 @@ follow-up tickets — don't let "mostly matches" become the final state.
 - `docs/design-docs/015-design-system.md` — prior "Kinetic Curator" north star.
 - `docs/design-docs/020-design-handoff-alignment.md` — original phased alignment doc
   (Phase 1 complete, Phases 2–4 are superseded by this plan).
-- `docs/superpowers/plans/2026-04-20-design-system-alignment.md` — shipped tokens/
-  hairlines/DisplayFigure/asymmetric-grid plan.
+- Design system alignment pass (shipped tokens / hairlines / `DisplayFigure` /
+  asymmetric-grid) — see commit `9ca510d`.
