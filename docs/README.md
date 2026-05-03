@@ -6,15 +6,14 @@ This folder contains **specifications**, **design decisions**, and **reference**
 
 These documents define product behavior, UX decisions, stack conventions, and system shape. **Authoritative behavior** for the running app is always the **code**, **migrations**, and **generated types**; these files explain intent and trade-offs.
 
-| Document                                               | Description                                                     |
-| ------------------------------------------------------ | --------------------------------------------------------------- |
-| [functional-specs.md](functional-specs.md)             | Product overview, user flows, features, scope                   |
-| [technical-specs.md](technical-specs.md)               | Tech stack, patterns, testing philosophy, code quality          |
-| [system-architecture.md](system-architecture.md)       | System design, feature slices, data flow, deployment            |
-| [security.md](security.md)                             | Authentication, RLS, privacy, GDPR, moderation                  |
-| [feature-design.md](feature-design.md)                 | Resolved UX decisions, screen-level flows                       |
-| [implementation-roadmap.md](implementation-roadmap.md) | Phased delivery roadmap (historical / guiding)                  |
-| [specs/README.md](specs/README.md)                     | Per-topic feature design specs (behavior + technical decisions) |
+| Document                                         | Description                                                     |
+| ------------------------------------------------ | --------------------------------------------------------------- |
+| [functional-specs.md](functional-specs.md)       | Product overview, user flows, features, scope                   |
+| [technical-specs.md](technical-specs.md)         | Tech stack, patterns, testing philosophy, code quality          |
+| [system-architecture.md](system-architecture.md) | System design, feature slices, data flow, deployment            |
+| [security.md](security.md)                       | Authentication, RLS, privacy, GDPR, moderation                  |
+| [feature-design.md](feature-design.md)           | Resolved UX decisions, screen-level flows                       |
+| [design-docs/README.md](design-docs/README.md)   | Per-feature design docs (one per feature slice + cross-cutting) |
 
 ## Reference documentation
 
