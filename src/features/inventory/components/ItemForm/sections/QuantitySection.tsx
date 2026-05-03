@@ -3,23 +3,14 @@ import { useTranslation } from 'react-i18next';
 import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
-type QuantitySectionProps = Readonly<
-  InputStyling & {
-    quantityStr: ItemFormState['quantityStr'];
-    setQuantityStr: ItemFormState['setQuantityStr'];
-    errors: ItemFormState['errors'];
-  }
->;
+interface QuantitySectionProps {
+  readonly state: ItemFormState;
+  readonly inputStyling: InputStyling;
+}
 
-export function QuantitySection({
-  quantityStr,
-  setQuantityStr,
-  errors,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: QuantitySectionProps) {
+export function QuantitySection({ state, inputStyling }: QuantitySectionProps) {
   const { t } = useTranslation('inventory');
+  const { quantityStr, setQuantityStr, errors } = state;
 
   return (
     <>
@@ -33,9 +24,9 @@ export function QuantitySection({
         placeholder={t('form.quantityPlaceholder')}
         keyboardType="number-pad"
         error={!!errors.quantity}
-        style={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        style={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
       {errors.quantity && (
         <HelperText type="error" visible>

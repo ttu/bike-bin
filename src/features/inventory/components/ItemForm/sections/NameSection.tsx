@@ -3,21 +3,14 @@ import { useTranslation } from 'react-i18next';
 import type { InputStyling, ItemFormState } from '../types';
 import { styles } from '../styles';
 
-interface NameSectionProps extends InputStyling {
-  readonly nameFieldValue: ItemFormState['nameFieldValue'];
-  readonly setName: ItemFormState['setName'];
-  readonly errors: ItemFormState['errors'];
+interface NameSectionProps {
+  readonly state: ItemFormState;
+  readonly inputStyling: InputStyling;
 }
 
-export function NameSection({
-  nameFieldValue,
-  setName,
-  errors,
-  softInputStyle,
-  underlineColor,
-  activeUnderlineColor,
-}: Readonly<NameSectionProps>) {
+export function NameSection({ state, inputStyling }: NameSectionProps) {
   const { t } = useTranslation('inventory');
+  const { nameFieldValue, setName, errors } = state;
 
   return (
     <>
@@ -31,9 +24,9 @@ export function NameSection({
         onChangeText={setName}
         placeholder={t('form.namePlaceholder')}
         error={!!errors.name}
-        style={softInputStyle}
-        underlineColor={underlineColor}
-        activeUnderlineColor={activeUnderlineColor}
+        style={inputStyling.softInputStyle}
+        underlineColor={inputStyling.underlineColor}
+        activeUnderlineColor={inputStyling.activeUnderlineColor}
       />
       {errors.name && (
         <HelperText type="error" visible>

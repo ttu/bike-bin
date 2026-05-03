@@ -6,7 +6,7 @@ import type { ItemFormState } from '../types';
 import { styles } from '../styles';
 
 interface ActionsSectionProps {
-  readonly handleSubmit: ItemFormState['handleSubmit'];
+  readonly state: ItemFormState;
   readonly isSubmitting: boolean;
   readonly isEditMode: boolean;
   readonly onDelete?: () => void;
@@ -14,7 +14,7 @@ interface ActionsSectionProps {
 }
 
 export function ActionsSection({
-  handleSubmit,
+  state,
   isSubmitting,
   isEditMode,
   onDelete,
@@ -26,7 +26,7 @@ export function ActionsSection({
   return (
     <>
       <GradientButton
-        onPress={handleSubmit}
+        onPress={state.handleSubmit}
         loading={isSubmitting}
         disabled={isSubmitting || saveDisabled}
         icon={isEditMode ? 'check-circle-outline' : undefined}

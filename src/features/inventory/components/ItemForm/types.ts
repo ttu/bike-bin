@@ -119,7 +119,7 @@ export interface ItemFormState {
   handleAddTag: (raw: string) => void;
   handleRemoveTag: (tag: string) => void;
   clearTagBlurCommitTimeout: () => void;
-  tagBlurCommitTimeoutRef: MutableRefObject<ReturnType<typeof setTimeout> | null>;
+  tagBlurCommitTimeoutRef: MutableRefObject<ReturnType<typeof setTimeout> | undefined>;
 
   // Optional toggle
   showOptional: boolean;

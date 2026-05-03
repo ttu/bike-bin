@@ -1,27 +1,30 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AvailabilityType,
   ItemCategory,
-  ItemCondition,
-  Visibility,
   type GroupId,
+  type ItemCondition,
+  type Visibility,
 } from '@/shared/types';
 
-import { validateItem, type ItemFormData, type ItemFormErrors } from '../../utils/validation';
+import { validateItem, type ItemFormData } from '../../utils/validation';
 import { buildItemFormDataFromState } from '../../utils/buildItemFormDataFromState';
 import { areItemFormDataEqual } from '../../utils/itemFormDataEquality';
-import { formatRemainingPercentField } from '../../utils/remainingFractionInput';
 import { resolveFormName } from '@/shared/utils';
 import { useUserTags } from '../../hooks/useUserTags';
-import { canAddTag, sanitizeTag } from '../../utils/tagUtils';
 import { useItems } from '../../hooks/useItems';
 import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
 import { useDistanceUnit } from '@/features/profile';
-import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
+import type { DistanceUnit } from '@/shared/types';
 
+import {
+  itemFormReducer,
+  makeInitialItemFormState,
+  type ItemFormReducerState,
+} from './itemFormReducer';
 import type { ItemFormState } from './types';
 
 interface UseItemFormStateParams {
@@ -39,19 +42,94 @@ export function useItemFormState({
 }: UseItemFormStateParams): ItemFormState {
   const { t } = useTranslation('inventory');
   const { data: existingItems } = useItems();
+  const { distanceUnit } = useDistanceUnit();
 
-  // ── Core fields ──────────────────────────────────────────────
-  const [name, setName] = useState(initialData?.name ?? '');
-  const [quantityStr, setQuantityStr] = useState(() => String(initialData?.quantity ?? 1));
-  const [category, setCategory] = useState<ItemCategory | undefined>(
-    initialData?.category ?? initialCategory,
+  const [state, dispatch] = useReducer(
+    itemFormReducer,
+    { initialData, initialCategory, distanceUnit },
+    makeInitialItemFormState,
   );
-  const [subcategory, setSubcategory] = useState(initialData?.subcategory ?? '');
-  const [condition, setCondition] = useState<ItemCondition | undefined>(
-    initialData?.condition ?? ItemCondition.New,
+
+  const { basic, availability, visibility: vis, optional, tags, errors } = state;
+
+  // Setters wrap dispatch.
+  const setName = useCallback((value: string) => dispatch({ type: 'setName', value }), []);
+  const setQuantityStr = useCallback(
+    (value: string) => dispatch({ type: 'setQuantityStr', value }),
+    [],
   );
-  const [brand, setBrand] = useState(initialData?.brand ?? '');
-  const [model, setModel] = useState(initialData?.model ?? '');
+  const setSubcategory = useCallback(
+    (value: string) => dispatch({ type: 'setSubcategory', value }),
+    [],
+  );
+  const setCondition = useCallback(
+    (value: ItemCondition) => dispatch({ type: 'setCondition', value }),
+    [],
+  );
+  const setBrand = useCallback((value: string) => dispatch({ type: 'setBrand', value }), []);
+  const setModel = useCallback((value: string) => dispatch({ type: 'setModel', value }), []);
+  const toggleAvailability = useCallback(
+    (value: AvailabilityType) => dispatch({ type: 'toggleAvailability', value }),
+    [],
+  );
+  const setPrice = useCallback((value: string) => dispatch({ type: 'setPrice', value }), []);
+  const setDeposit = useCallback((value: string) => dispatch({ type: 'setDeposit', value }), []);
+  const setBorrowDuration = useCallback(
+    (value: string) => dispatch({ type: 'setBorrowDuration', value }),
+    [],
+  );
+  const setDurationMenuVisible = useCallback(
+    (value: boolean) => dispatch({ type: 'setDurationMenuVisible', value }),
+    [],
+  );
+  const setVisibility = useCallback(
+    (value: Visibility) => dispatch({ type: 'setVisibility', value }),
+    [],
+  );
+  const toggleGroupId = useCallback(
+    (value: GroupId) => dispatch({ type: 'toggleGroup', value }),
+    [],
+  );
+  const setShowOptional = useCallback(
+    (value: boolean) => dispatch({ type: 'setShowOptional', value }),
+    [],
+  );
+  const setPurchaseDate = useCallback(
+    (value: string) => dispatch({ type: 'setPurchaseDate', value }),
+    [],
+  );
+  const setMountedDate = useCallback(
+    (value: string) => dispatch({ type: 'setMountedDate', value }),
+    [],
+  );
+  const setAge = useCallback((value: string) => dispatch({ type: 'setAge', value }), []);
+  const setAgeMenuVisible = useCallback(
+    (value: boolean) => dispatch({ type: 'setAgeMenuVisible', value }),
+    [],
+  );
+  const setUsage = useCallback((value: string) => dispatch({ type: 'setUsage', value }), []);
+  const setStorageLocation = useCallback(
+    (value: string) => dispatch({ type: 'setStorageLocation', value }),
+    [],
+  );
+  const setStorageMenuVisible = useCallback(
+    (value: boolean) => dispatch({ type: 'setStorageMenuVisible', value }),
+    [],
+  );
+  const setDescription = useCallback(
+    (value: string) => dispatch({ type: 'setDescription', value }),
+    [],
+  );
+  const setRemainingPercentStr = useCallback(
+    (value: string) => dispatch({ type: 'setRemainingPercentStr', value }),
+    [],
+  );
+  const setTagInput = useCallback((value: string) => dispatch({ type: 'setTagInput', value }), []);
+  const setTagSuggestionsVisible = useCallback(
+    (value: boolean) => dispatch({ type: 'setTagSuggestionsVisible', value }),
+    [],
+  );
+
   const {
     brandMenuVisible,
     filteredBrands,
@@ -60,64 +138,32 @@ export function useItemFormState({
     handleBrandFocus,
     handleBrandBlur,
     cancelBlurTimeout: cancelBrandBlurTimeout,
-  } = useBrandAutocomplete({ brand, setBrand, brands: DEFAULT_BRANDS });
+  } = useBrandAutocomplete({ brand: basic.brand, setBrand, brands: DEFAULT_BRANDS });
 
-  // ── Availability ─────────────────────────────────────────────
-  const [availabilityTypes, setAvailabilityTypes] = useState<AvailabilityType[]>(() => {
-    if (initialData?.availabilityTypes !== undefined) {
-      return initialData.availabilityTypes;
+  const tagBlurCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const clearTagBlurCommitTimeout = useCallback(() => {
+    if (tagBlurCommitTimeoutRef.current !== undefined) {
+      clearTimeout(tagBlurCommitTimeoutRef.current);
+      tagBlurCommitTimeoutRef.current = undefined;
     }
-    return [AvailabilityType.Private];
-  });
-  const [price, setPrice] = useState(initialData?.price?.toString() ?? '');
-  const [deposit, setDeposit] = useState(initialData?.deposit?.toString() ?? '');
-  const [borrowDuration, setBorrowDuration] = useState(initialData?.borrowDuration ?? '');
-  const [durationMenuVisible, setDurationMenuVisible] = useState(false);
+  }, []);
+  useEffect(() => () => clearTagBlurCommitTimeout(), [clearTagBlurCommitTimeout]);
 
-  // ── Visibility ───────────────────────────────────────────────
-  const [visibility, setVisibility] = useState<Visibility>(
-    initialData?.visibility ?? Visibility.Private,
+  const handleAddTag = useCallback(
+    (rawInput: string) => {
+      clearTagBlurCommitTimeout();
+      dispatch({ type: 'addTag', value: rawInput });
+    },
+    [clearTagBlurCommitTimeout],
   );
-  const [groupIds, setGroupIds] = useState<GroupId[]>(initialData?.groupIds ?? []);
 
-  // ── Optional fields ──────────────────────────────────────────
-  const [purchaseDate, setPurchaseDate] = useState(() => {
-    const raw = initialData?.purchaseDate;
-    if (!raw) return '';
-    return raw.length >= 10 ? raw.slice(0, 10) : raw;
-  });
-  const [mountedDate, setMountedDate] = useState(() => {
-    const raw = initialData?.mountedDate;
-    if (!raw) return '';
-    return raw.length >= 10 ? raw.slice(0, 10) : raw;
-  });
-  const [description, setDescription] = useState(initialData?.description ?? '');
-  const [storageLocation, setStorageLocation] = useState(initialData?.storageLocation ?? '');
-  const [storageMenuVisible, setStorageMenuVisible] = useState(false);
-  const [age, setAge] = useState(initialData?.age ?? '');
-  const [ageMenuVisible, setAgeMenuVisible] = useState(false);
-  const { distanceUnit } = useDistanceUnit();
-  const [usage, setUsage] = useState(() => {
-    const km = initialData?.usageKm;
-    if (km === undefined) return '';
-    return kmToDisplayUnit(km, distanceUnit).toString();
-  });
-  const [remainingPercentStr, setRemainingPercentStr] = useState(() =>
-    formatRemainingPercentField(initialData?.remainingFraction),
+  const handleRemoveTag = useCallback(
+    (value: string) => dispatch({ type: 'removeTag', value }),
+    [],
   );
-  const [showOptional, setShowOptional] = useState(false);
 
-  // ── Tags ─────────────────────────────────────────────────────
-  const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
-  const [tagInput, setTagInput] = useState('');
-  const tagBlurCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState(false);
   const { data: userTags } = useUserTags();
 
-  // ── Errors ───────────────────────────────────────────────────
-  const [errors, setErrors] = useState<ItemFormErrors>({});
-
-  // ── Derived values ───────────────────────────────────────────
   const existingStorageLocations = useMemo(() => {
     if (!existingItems) return [];
     const locations = existingItems
@@ -127,135 +173,36 @@ export function useItemFormState({
   }, [existingItems]);
 
   const currentSubcategories = useMemo(() => {
-    if (!category) return [];
-    return SUBCATEGORIES[category] ?? [];
-  }, [category]);
+    if (!basic.category) return [];
+    return SUBCATEGORIES[basic.category] ?? [];
+  }, [basic.category]);
 
-  const isSellable = availabilityTypes.includes(AvailabilityType.Sellable);
-  const isBorrowable = availabilityTypes.includes(AvailabilityType.Borrowable);
+  const isSellable = availability.types.includes(AvailabilityType.Sellable);
+  const isBorrowable = availability.types.includes(AvailabilityType.Borrowable);
 
-  /** When the user has not entered a title, the name field reflects brand + model as they change. */
   const nameFieldValue = useMemo(
-    () => (name.trim() === '' ? resolveFormName('', brand, model) : name),
-    [name, brand, model],
+    () => (basic.name.trim() === '' ? resolveFormName('', basic.brand, basic.model) : basic.name),
+    [basic.name, basic.brand, basic.model],
   );
 
   const filteredTagSuggestions = useMemo(() => {
-    if (!userTags || !tagInput.trim()) return [];
-    const q = tagInput.toLowerCase();
+    if (!userTags || !tags.input.trim()) return [];
+    const q = tags.input.toLowerCase();
     return userTags.filter(
-      (t) =>
-        t.toLowerCase().includes(q) &&
-        !tags.some((existing) => existing.toLowerCase() === t.toLowerCase()),
+      (tag) =>
+        tag.toLowerCase().includes(q) &&
+        !tags.list.some((existing) => existing.toLowerCase() === tag.toLowerCase()),
     );
-  }, [userTags, tagInput, tags]);
+  }, [userTags, tags.input, tags.list]);
 
-  // ── Handlers ─────────────────────────────────────────────────
-  const toggleGroupId = useCallback((id: GroupId) => {
-    setGroupIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
-  }, []);
-
-  const toggleAvailability = useCallback((type: AvailabilityType) => {
-    setAvailabilityTypes((prev) => {
-      if (type === AvailabilityType.Private) {
-        return prev.includes(type) ? [] : [AvailabilityType.Private];
-      }
-      const filtered = prev.filter((t) => t !== AvailabilityType.Private);
-      return filtered.includes(type) ? filtered.filter((t) => t !== type) : [...filtered, type];
-    });
-  }, []);
-
-  const handleCategoryChange = useCallback((cat: ItemCategory) => {
-    setCategory(cat);
-    setSubcategory('');
-    if (cat === ItemCategory.Consumable) {
-      setUsage('');
-    } else {
-      setRemainingPercentStr('');
-    }
-  }, []);
-
-  const clearTagBlurCommitTimeout = useCallback(() => {
-    if (tagBlurCommitTimeoutRef.current !== null) {
-      clearTimeout(tagBlurCommitTimeoutRef.current);
-      tagBlurCommitTimeoutRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => () => clearTagBlurCommitTimeout(), [clearTagBlurCommitTimeout]);
-
-  const handleAddTag = useCallback(
-    (rawInput: string) => {
-      clearTagBlurCommitTimeout();
-      const tag = sanitizeTag(rawInput);
-      if (canAddTag(tag, tags)) {
-        setTags((prev) => [...prev, tag]);
-      }
-      setTagInput('');
-      setTagSuggestionsVisible(false);
-    },
-    [tags, clearTagBlurCommitTimeout],
+  const handleCategoryChange = useCallback(
+    (value: ItemCategory) => dispatch({ type: 'changeCategory', value }),
+    [],
   );
 
-  const handleRemoveTag = useCallback((tagToRemove: string) => {
-    setTags((prev) => prev.filter((t) => t !== tagToRemove));
-  }, []);
-
-  // ── Submit ───────────────────────────────────────────────────
   const draftFormData: ItemFormData = useMemo(
-    () =>
-      buildItemFormDataFromState({
-        name,
-        quantityStr,
-        category,
-        subcategory,
-        condition,
-        brand,
-        model,
-        description,
-        availabilityTypes,
-        price,
-        deposit,
-        borrowDuration,
-        storageLocation,
-        age,
-        usage,
-        remainingPercentStr,
-        purchaseDate,
-        mountedDate,
-        visibility,
-        groupIds,
-        tags,
-        tagInput,
-        distanceUnit,
-        pickupLocationId: initialData?.pickupLocationId,
-      }),
-    [
-      name,
-      quantityStr,
-      category,
-      subcategory,
-      condition,
-      brand,
-      model,
-      description,
-      availabilityTypes,
-      price,
-      deposit,
-      borrowDuration,
-      storageLocation,
-      age,
-      usage,
-      remainingPercentStr,
-      purchaseDate,
-      mountedDate,
-      visibility,
-      groupIds,
-      tags,
-      tagInput,
-      distanceUnit,
-      initialData?.pickupLocationId,
-    ],
+    () => buildDraft(state, distanceUnit, initialData?.pickupLocationId),
+    [state, distanceUnit, initialData?.pickupLocationId],
   );
 
   const isDirty = useMemo(() => {
@@ -265,41 +212,13 @@ export function useItemFormState({
 
   const handleSubmit = useCallback(() => {
     clearTagBlurCommitTimeout();
-    const pendingTag = sanitizeTag(tagInput);
-    const tagsToSubmit = canAddTag(pendingTag, tags) ? [...tags, pendingTag] : tags;
-    setTags(tagsToSubmit);
-    setTagInput('');
-    setTagSuggestionsVisible(false);
+    // Commit any pending tag into UI state regardless of validation outcome, so what the user
+    // sees matches what was validated/submitted (`draftFormData` already merges the pending tag
+    // into its tags array via buildItemFormDataFromState).
+    dispatch({ type: 'commitPendingTagAndSubmit' });
 
-    const formData = buildItemFormDataFromState({
-      name,
-      quantityStr,
-      category,
-      subcategory,
-      condition,
-      brand,
-      model,
-      description,
-      availabilityTypes,
-      price,
-      deposit,
-      borrowDuration,
-      storageLocation,
-      age,
-      usage,
-      remainingPercentStr,
-      purchaseDate,
-      mountedDate,
-      visibility,
-      groupIds,
-      tags: tagsToSubmit,
-      tagInput: '',
-      distanceUnit,
-      pickupLocationId: initialData?.pickupLocationId,
-    });
-
-    const validationErrors = validateItem(formData, t);
-    setErrors(validationErrors);
+    const validationErrors = validateItem(draftFormData, t);
+    dispatch({ type: 'setErrors', value: validationErrors });
 
     if (Object.keys(validationErrors).length > 0) {
       const messages = collectFormErrorMessages(validationErrors);
@@ -309,111 +228,115 @@ export function useItemFormState({
       return;
     }
 
-    onSave(formData);
-  }, [
-    name,
-    quantityStr,
-    category,
-    subcategory,
-    condition,
-    brand,
-    model,
-    description,
-    availabilityTypes,
-    price,
-    deposit,
-    borrowDuration,
-    storageLocation,
-    age,
-    usage,
-    remainingPercentStr,
-    distanceUnit,
-    purchaseDate,
-    mountedDate,
-    visibility,
-    groupIds,
-    tags,
-    tagInput,
-    clearTagBlurCommitTimeout,
-    onSave,
-    onValidationError,
-    t,
-    initialData?.pickupLocationId,
-  ]);
+    onSave(draftFormData);
+  }, [draftFormData, clearTagBlurCommitTimeout, onSave, onValidationError, t]);
 
   return {
-    name,
+    name: basic.name,
     nameFieldValue,
     setName,
-    quantityStr,
+    quantityStr: basic.quantityStr,
     setQuantityStr,
-    category,
-    subcategory,
+    category: basic.category,
+    subcategory: basic.subcategory,
     setSubcategory,
-    condition,
+    condition: basic.condition,
     setCondition,
-    brand,
+    brand: basic.brand,
     brandMenuVisible,
     handleBrandFocus,
     handleBrandBlur,
     cancelBrandBlurTimeout,
     filteredBrands,
-    model,
+    model: basic.model,
     setModel,
     handleBrandSelect,
     handleBrandInputChange,
-    availabilityTypes,
+    availabilityTypes: availability.types,
     toggleAvailability,
     isSellable,
     isBorrowable,
-    price,
+    price: availability.price,
     setPrice,
-    deposit,
+    deposit: availability.deposit,
     setDeposit,
-    borrowDuration,
+    borrowDuration: availability.borrowDuration,
     setBorrowDuration,
-    durationMenuVisible,
+    durationMenuVisible: availability.durationMenuVisible,
     setDurationMenuVisible,
-    visibility,
+    visibility: vis.visibility,
     setVisibility,
-    groupIds,
+    groupIds: vis.groupIds,
     toggleGroupId,
     handleCategoryChange,
     currentSubcategories,
-    remainingPercentStr,
+    remainingPercentStr: optional.remainingPercentStr,
     setRemainingPercentStr,
-    purchaseDate,
+    purchaseDate: optional.purchaseDate,
     setPurchaseDate,
-    mountedDate,
+    mountedDate: optional.mountedDate,
     setMountedDate,
-    age,
+    age: optional.age,
     setAge,
-    ageMenuVisible,
+    ageMenuVisible: optional.ageMenuVisible,
     setAgeMenuVisible,
-    usage,
+    usage: optional.usage,
     setUsage,
     distanceUnit,
-    storageLocation,
+    storageLocation: optional.storageLocation,
     setStorageLocation,
-    storageMenuVisible,
+    storageMenuVisible: optional.storageMenuVisible,
     setStorageMenuVisible,
     existingStorageLocations,
-    description,
+    description: optional.description,
     setDescription,
-    tags,
-    tagInput,
+    tags: tags.list,
+    tagInput: tags.input,
     setTagInput,
-    tagSuggestionsVisible,
+    tagSuggestionsVisible: tags.suggestionsVisible,
     setTagSuggestionsVisible,
     filteredTagSuggestions,
     handleAddTag,
     handleRemoveTag,
     clearTagBlurCommitTimeout,
     tagBlurCommitTimeoutRef,
-    showOptional,
+    showOptional: optional.showOptional,
     setShowOptional,
     errors,
     handleSubmit,
     isDirty,
   };
+}
+
+function buildDraft(
+  state: ItemFormReducerState,
+  distanceUnit: DistanceUnit,
+  pickupLocationId: ItemFormData['pickupLocationId'],
+): ItemFormData {
+  return buildItemFormDataFromState({
+    name: state.basic.name,
+    quantityStr: state.basic.quantityStr,
+    category: state.basic.category,
+    subcategory: state.basic.subcategory,
+    condition: state.basic.condition,
+    brand: state.basic.brand,
+    model: state.basic.model,
+    description: state.optional.description,
+    availabilityTypes: state.availability.types,
+    price: state.availability.price,
+    deposit: state.availability.deposit,
+    borrowDuration: state.availability.borrowDuration,
+    storageLocation: state.optional.storageLocation,
+    age: state.optional.age,
+    usage: state.optional.usage,
+    remainingPercentStr: state.optional.remainingPercentStr,
+    purchaseDate: state.optional.purchaseDate,
+    mountedDate: state.optional.mountedDate,
+    visibility: state.visibility.visibility,
+    groupIds: state.visibility.groupIds,
+    tags: state.tags.list,
+    tagInput: state.tags.input,
+    distanceUnit,
+    pickupLocationId,
+  });
 }

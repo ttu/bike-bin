@@ -17,14 +17,13 @@ const CONDITIONS = [
 ];
 
 interface ConditionSectionProps {
-  readonly condition: ItemFormState['condition'];
-  readonly setCondition: ItemFormState['setCondition'];
-  readonly errors: ItemFormState['errors'];
+  readonly state: ItemFormState;
 }
 
-export function ConditionSection({ condition, setCondition, errors }: ConditionSectionProps) {
+export function ConditionSection({ state }: ConditionSectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
+  const { condition, setCondition, errors } = state;
 
   return (
     <>

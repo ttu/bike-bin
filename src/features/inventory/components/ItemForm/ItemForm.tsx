@@ -61,121 +61,19 @@ export function ItemForm({
       {headerComponent}
       {photoSection}
 
-      <BrandModelSection
-        name={state.name}
-        brand={state.brand}
-        brandMenuVisible={state.brandMenuVisible}
-        handleBrandFocus={state.handleBrandFocus}
-        handleBrandBlur={state.handleBrandBlur}
-        cancelBrandBlurTimeout={state.cancelBrandBlurTimeout}
-        filteredBrands={state.filteredBrands}
-        model={state.model}
-        setModel={state.setModel}
-        handleBrandSelect={state.handleBrandSelect}
-        handleBrandInputChange={state.handleBrandInputChange}
-        {...inputStyling}
-      />
+      <BrandModelSection state={state} inputStyling={inputStyling} />
+      <NameSection state={state} inputStyling={inputStyling} />
+      <QuantitySection state={state} inputStyling={inputStyling} />
+      <CategorySection state={state} />
 
-      <NameSection
-        nameFieldValue={state.nameFieldValue}
-        setName={state.setName}
-        errors={state.errors}
-        {...inputStyling}
-      />
-
-      <QuantitySection
-        quantityStr={state.quantityStr}
-        setQuantityStr={state.setQuantityStr}
-        errors={state.errors}
-        {...inputStyling}
-      />
-
-      <CategorySection
-        category={state.category}
-        handleCategoryChange={state.handleCategoryChange}
-        subcategory={state.subcategory}
-        setSubcategory={state.setSubcategory}
-        currentSubcategories={state.currentSubcategories}
-        errors={state.errors}
-      />
-
-      {state.category !== ItemCategory.Consumable && (
-        <ConditionSection
-          condition={state.condition}
-          setCondition={state.setCondition}
-          errors={state.errors}
-        />
-      )}
-
+      {state.category !== ItemCategory.Consumable && <ConditionSection state={state} />}
       {state.category === ItemCategory.Consumable && (
-        <RemainingFractionSection
-          remainingPercentStr={state.remainingPercentStr}
-          setRemainingPercentStr={state.setRemainingPercentStr}
-          errors={state.errors}
-          {...inputStyling}
-        />
+        <RemainingFractionSection state={state} inputStyling={inputStyling} />
       )}
 
-      <AvailabilitySection
-        availabilityTypes={state.availabilityTypes}
-        toggleAvailability={state.toggleAvailability}
-        isSellable={state.isSellable}
-        isBorrowable={state.isBorrowable}
-        price={state.price}
-        setPrice={state.setPrice}
-        deposit={state.deposit}
-        setDeposit={state.setDeposit}
-        borrowDuration={state.borrowDuration}
-        setBorrowDuration={state.setBorrowDuration}
-        durationMenuVisible={state.durationMenuVisible}
-        setDurationMenuVisible={state.setDurationMenuVisible}
-        errors={state.errors}
-        {...inputStyling}
-      />
-
-      <VisibilitySection
-        visibility={state.visibility}
-        setVisibility={state.setVisibility}
-        groupIds={state.groupIds}
-        toggleGroupId={state.toggleGroupId}
-        errors={state.errors}
-      />
-
-      <OptionalSection
-        showOptional={state.showOptional}
-        setShowOptional={state.setShowOptional}
-        category={state.category}
-        purchaseDate={state.purchaseDate}
-        setPurchaseDate={state.setPurchaseDate}
-        mountedDate={state.mountedDate}
-        setMountedDate={state.setMountedDate}
-        errors={state.errors}
-        age={state.age}
-        setAge={state.setAge}
-        ageMenuVisible={state.ageMenuVisible}
-        setAgeMenuVisible={state.setAgeMenuVisible}
-        usage={state.usage}
-        setUsage={state.setUsage}
-        distanceUnit={state.distanceUnit}
-        storageLocation={state.storageLocation}
-        setStorageLocation={state.setStorageLocation}
-        storageMenuVisible={state.storageMenuVisible}
-        setStorageMenuVisible={state.setStorageMenuVisible}
-        existingStorageLocations={state.existingStorageLocations}
-        description={state.description}
-        setDescription={state.setDescription}
-        tags={state.tags}
-        tagInput={state.tagInput}
-        setTagInput={state.setTagInput}
-        tagSuggestionsVisible={state.tagSuggestionsVisible}
-        setTagSuggestionsVisible={state.setTagSuggestionsVisible}
-        filteredTagSuggestions={state.filteredTagSuggestions}
-        handleAddTag={state.handleAddTag}
-        handleRemoveTag={state.handleRemoveTag}
-        clearTagBlurCommitTimeout={state.clearTagBlurCommitTimeout}
-        tagBlurCommitTimeoutRef={state.tagBlurCommitTimeoutRef}
-        {...inputStyling}
-      />
+      <AvailabilitySection state={state} inputStyling={inputStyling} />
+      <VisibilitySection state={state} />
+      <OptionalSection state={state} inputStyling={inputStyling} />
 
       {hasSubmitBlock ? (
         <Banner visible icon="information" style={styles.limitBanner}>
@@ -184,7 +82,7 @@ export function ItemForm({
       ) : null}
 
       <ActionsSection
-        handleSubmit={state.handleSubmit}
+        state={state}
         isSubmitting={isSubmitting}
         isEditMode={isEditMode}
         onDelete={onDelete}
