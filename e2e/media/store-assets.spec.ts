@@ -71,7 +71,7 @@ authTest.describe('Store stills', () => {
 
       await visibleExactText(loggedInPage, MAXXIS_ITEM_NAME).click();
       await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10_000 });
-      await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10_000 });
+      await expect(loggedInPage.getByText('Service record')).toBeVisible({ timeout: 10_000 });
       await screenshotWithPhoneFrame(context, loggedInPage, '03-item-detail');
 
       const detailUrl = loggedInPage.url();
@@ -135,10 +135,10 @@ async function runRecordedInventorySearchToEditFlow(page: Page): Promise<void> {
 
   await visibleExactText(page, MAXXIS_ITEM_NAME).click();
   await page.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 15_000 });
-  await expect(page.getByText('Condition')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Service record')).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(browseRecordingMs(500));
 
-  await page.getByRole('button').nth(1).click();
+  await page.getByRole('button', { name: 'Edit item' }).click();
   await page.waitForURL(/\/edit\//, { timeout: 15_000 });
   await expect(page.getByText('Edit item')).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(browseRecordingMs(900));
