@@ -13,6 +13,7 @@
     "db:reset": "supabase db reset",
     "db:seed": "npm run db:reset && node scripts/seed-images.mjs",
     "db:seed:remote": "bash scripts/seed-remote-sql.sh && node scripts/seed-remote-images.mjs",
+    "seed:appreview": "bash scripts/seed-appreview.sh",
     "db:nuke": "supabase stop --no-backup && npm run db:start && node scripts/seed-images.mjs",
     "db:enable-signup": "sed -i '' 's/enable_signup = false/enable_signup = true/g' supabase/config.toml && npm run db:stop && npm run db:start",
     "db:status": "supabase status",
