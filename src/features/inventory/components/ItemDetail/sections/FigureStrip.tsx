@@ -1,20 +1,19 @@
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { ItemCategory, type DistanceUnit, type Item } from '@/shared/types';
 import { DisplayFigure } from '@/shared/components/DisplayFigure';
 import { kmToDisplayUnit } from '@/shared/utils/distanceConversion';
-import { styles, type Themed, type TFn } from '../shared';
+import { styles, useThemedStyles } from '../shared';
 
 export function FigureStrip({
   item,
-  themed,
-  t,
   distanceUnit,
 }: {
   readonly item: Item;
-  readonly themed: Themed;
-  readonly t: TFn;
   readonly distanceUnit: DistanceUnit;
 }) {
+  const { t } = useTranslation('inventory');
+  const themed = useThemedStyles();
   const showRemaining =
     item.category === ItemCategory.Consumable && item.remainingFraction !== undefined;
   const showQuantity = item.quantity > 1;

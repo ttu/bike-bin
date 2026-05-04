@@ -88,7 +88,7 @@ function validateRemainingFraction(data: ItemFormData, t: Translator): string | 
 
 function validatePrice(data: ItemFormData, t: Translator): string | undefined {
   const isSellable = data.availabilityTypes.includes(AvailabilityTypeEnum.Sellable);
-  if (isSellable && (data.price === undefined || data.price === null)) {
+  if (isSellable && data.price === undefined) {
     return t('validation.priceRequired');
   }
   if (data.price !== undefined && data.price < 0) return t('validation.pricePositive');

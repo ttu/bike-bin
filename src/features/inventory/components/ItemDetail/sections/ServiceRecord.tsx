@@ -3,7 +3,7 @@ import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { type Item } from '@/shared/types';
 import { Stamp } from '@/shared/components/Stamp/Stamp';
-import { styles, type Themed, type TFn } from '../shared';
+import { styles, useThemedStyles } from '../shared';
 
 function formatCalendarDate(calendarDate: string, locale: string): string {
   const [year, month, day] = calendarDate.split('-').map(Number);
@@ -15,16 +15,9 @@ function formatCalendarDate(calendarDate: string, locale: string): string {
   });
 }
 
-export function ServiceRecord({
-  item,
-  themed,
-  t,
-}: {
-  readonly item: Item;
-  readonly themed: Themed;
-  readonly t: TFn;
-}) {
-  const { i18n } = useTranslation();
+export function ServiceRecord({ item }: { readonly item: Item }) {
+  const { t, i18n } = useTranslation('inventory');
+  const themed = useThemedStyles();
   const serviceRows: { label: string; value: string }[] = [
     { label: t('detail.conditionLabel'), value: t(`condition.${item.condition}`) },
   ];
@@ -45,7 +38,6 @@ export function ServiceRecord({
             key={row.label}
             label={row.label}
             value={row.value}
-            themed={themed}
             isLast={index === serviceRows.length - 1}
           />
         ))}
@@ -57,14 +49,13 @@ export function ServiceRecord({
 function ServiceRow({
   label,
   value,
-  themed,
   isLast = false,
 }: Readonly<{
   label: string;
   value: string;
-  themed: Themed;
   isLast?: boolean;
 }>) {
+  const themed = useThemedStyles();
   return (
     <View style={[styles.serviceRow, themed.serviceRowBorder, isLast && styles.serviceRowLast]}>
       <Text variant="bodyMedium" style={[styles.serviceLabel, themed.onSurfaceVariant]}>

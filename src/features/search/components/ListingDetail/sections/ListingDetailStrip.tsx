@@ -1,23 +1,22 @@
 import { View } from 'react-native';
+import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { type AppTheme } from '@/shared/theme';
 import { DetailCard, detailCardStyles } from '@/shared/components';
 import { CONDITION_ICON, CONDITION_ICON_FALLBACK } from '@/shared/constants/conditionIcons';
 import type { SearchResultItem } from '../../../types';
-import { styles, type Themed, type TFn } from '../shared';
+import { styles, useThemedStyles } from '../shared';
 
 export function ListingDetailStrip({
   item,
-  theme,
-  themed,
   durationText,
-  t,
 }: {
   readonly item: SearchResultItem;
-  readonly theme: AppTheme;
-  readonly themed: Themed;
   readonly durationText: string | undefined;
-  readonly t: TFn;
 }) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation(['search']);
+  const themed = useThemedStyles();
   return (
     <View style={[styles.section, themed.sectionBorder]}>
       <View

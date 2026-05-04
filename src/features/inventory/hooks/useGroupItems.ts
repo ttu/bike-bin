@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
+import { GROUP_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { ItemCategory, ItemStatus, type GroupId } from '@/shared/types';
 import { mapItemRow } from '@/shared/utils/mapItemRow';
 import { fetchFirstPhotoPaths } from '@/shared/utils/fetchFirstPhotoPaths';
@@ -8,12 +9,13 @@ import type { ItemFormData } from '../utils/validation';
 
 export function useGroupItems(groupId: GroupId | undefined) {
   return useQuery({
-    queryKey: ['group-items', groupId],
+    queryKey: [...GROUP_ITEMS_QUERY_KEY, groupId],
     queryFn: async () => {
+      if (!groupId) throw new Error('groupId is required');
       const { data, error } = await supabase
         .from('items')
         .select('*')
-        .eq('group_id', groupId!)
+        .eq('group_id', groupId)
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
@@ -79,7 +81,7 @@ export function useCreateGroupItem(groupId: GroupId) {
       return mapItemRow(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['group-items', groupId] });
+      queryClient.invalidateQueries({ queryKey: [...GROUP_ITEMS_QUERY_KEY, groupId] });
       queryClient.invalidateQueries({ queryKey: ['user-tags'] });
     },
   });

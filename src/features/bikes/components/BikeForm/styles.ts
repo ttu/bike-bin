@@ -21,26 +21,6 @@ export const styles = StyleSheet.create({
   chip: {
     borderRadius: borderRadius.full,
   },
-  conditionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  conditionValue: {
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  conditionRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  conditionButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-  },
   notesInput: {
     minHeight: 96,
     paddingTop: spacing.sm,

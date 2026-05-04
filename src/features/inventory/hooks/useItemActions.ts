@@ -11,7 +11,7 @@ import {
   BORROW_REQUESTS_QUERY_KEY,
 } from '@/features/borrow';
 import { useMarkExchanged, getExchangeDialogConfig } from '@/features/exchange';
-import { SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
+import { GROUP_ITEMS_QUERY_KEY, SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { ItemStatus, type Item } from '@/shared/types';
 
 export function useItemActions(item: Item) {
@@ -160,7 +160,7 @@ export function useItemActions(item: Item) {
       cancelLabel: tBorrow('confirm.markReturned.cancel'),
       confirmLabel: tBorrow('confirm.markReturned.confirm'),
       onConfirm: async () => {
-        if (acceptedBorrowRequestId == null) {
+        if (acceptedBorrowRequestId === null || acceptedBorrowRequestId === undefined) {
           try {
             await updateStatus.mutateAsync({ id: item.id, status: ItemStatus.Stored });
             // useUpdateItemStatus only invalidates ['items'] and ['items', id];
@@ -169,7 +169,7 @@ export function useItemActions(item: Item) {
             // don't go stale on this recovery path.
             await Promise.all([
               queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
-              queryClient.invalidateQueries({ queryKey: ['group-items'] }),
+              queryClient.invalidateQueries({ queryKey: GROUP_ITEMS_QUERY_KEY }),
               queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY }),
               queryClient.invalidateQueries({
                 queryKey: [ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY, item.id],

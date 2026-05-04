@@ -157,6 +157,17 @@ export function useItemFormState({
     [clearTagBlurCommitTimeout],
   );
 
+  const scheduleTagBlurCommit = useCallback(
+    (rawInput: string) => {
+      clearTagBlurCommitTimeout();
+      tagBlurCommitTimeoutRef.current = setTimeout(() => {
+        tagBlurCommitTimeoutRef.current = undefined;
+        handleAddTag(rawInput);
+      }, 200);
+    },
+    [clearTagBlurCommitTimeout, handleAddTag],
+  );
+
   const handleRemoveTag = useCallback(
     (value: string) => dispatch({ type: 'removeTag', value }),
     [],
@@ -299,7 +310,7 @@ export function useItemFormState({
     handleAddTag,
     handleRemoveTag,
     clearTagBlurCommitTimeout,
-    tagBlurCommitTimeoutRef,
+    scheduleTagBlurCommit,
     showOptional: optional.showOptional,
     setShowOptional,
     errors,

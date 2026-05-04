@@ -2,7 +2,7 @@ import { useRef, useCallback, useEffect } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, Menu, HelperText, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
-import { ItemCategory } from '@/shared/types';
+import { ItemCategory, type DistanceUnit } from '@/shared/types';
 import { useTranslation } from 'react-i18next';
 import { AGE_OPTIONS } from '../../../constants';
 import type { InputStyling, ItemFormState } from '../types';
@@ -48,7 +48,7 @@ export function OptionalSection({ state, inputStyling }: Readonly<OptionalSectio
     handleAddTag,
     handleRemoveTag,
     clearTagBlurCommitTimeout,
-    tagBlurCommitTimeoutRef,
+    scheduleTagBlurCommit,
   } = state;
 
   return (
@@ -111,7 +111,7 @@ export function OptionalSection({ state, inputStyling }: Readonly<OptionalSectio
             handleAddTag={handleAddTag}
             handleRemoveTag={handleRemoveTag}
             clearTagBlurCommitTimeout={clearTagBlurCommitTimeout}
-            tagBlurCommitTimeoutRef={tagBlurCommitTimeoutRef}
+            scheduleTagBlurCommit={scheduleTagBlurCommit}
             inputStyling={inputStyling}
           />
         </View>
@@ -257,7 +257,7 @@ function AgeField({
 interface UsageFieldProps {
   readonly usage: string;
   readonly setUsage: (v: string) => void;
-  readonly distanceUnit: string;
+  readonly distanceUnit: DistanceUnit;
   readonly inputStyling: InputStyling;
 }
 
@@ -426,7 +426,7 @@ interface TagsFieldProps {
   readonly handleAddTag: (raw: string) => void;
   readonly handleRemoveTag: (tag: string) => void;
   readonly clearTagBlurCommitTimeout: () => void;
-  readonly tagBlurCommitTimeoutRef: ItemFormState['tagBlurCommitTimeoutRef'];
+  readonly scheduleTagBlurCommit: (rawInput: string) => void;
   readonly inputStyling: InputStyling;
 }
 
@@ -440,7 +440,7 @@ function TagsField({
   handleAddTag,
   handleRemoveTag,
   clearTagBlurCommitTimeout,
-  tagBlurCommitTimeoutRef,
+  scheduleTagBlurCommit,
   inputStyling,
 }: Readonly<TagsFieldProps>) {
   const theme = useTheme<AppTheme>();
@@ -477,14 +477,7 @@ function TagsField({
               setTagSuggestionsVisible(true);
             }
           }}
-          onBlur={() => {
-            clearTagBlurCommitTimeout();
-            const rawAtBlur = tagInput;
-            tagBlurCommitTimeoutRef.current = setTimeout(() => {
-              tagBlurCommitTimeoutRef.current = undefined;
-              handleAddTag(rawAtBlur);
-            }, 200);
-          }}
+          onBlur={() => scheduleTagBlurCommit(tagInput)}
           onSubmitEditing={() => handleAddTag(tagInput)}
           placeholder={t('form.tagsPlaceholder')}
           style={inputStyling.softInputStyle}

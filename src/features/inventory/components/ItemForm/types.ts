@@ -1,7 +1,7 @@
-import type { MutableRefObject } from 'react';
 import {
   Visibility,
   type AvailabilityType,
+  type DistanceUnit,
   type GroupId,
   type ItemCategory,
   type ItemCondition,
@@ -100,7 +100,7 @@ export interface ItemFormState {
   setAgeMenuVisible: (v: boolean) => void;
   usage: string;
   setUsage: (v: string) => void;
-  distanceUnit: string;
+  distanceUnit: DistanceUnit;
   storageLocation: string;
   setStorageLocation: (v: string) => void;
   storageMenuVisible: boolean;
@@ -119,7 +119,7 @@ export interface ItemFormState {
   handleAddTag: (raw: string) => void;
   handleRemoveTag: (tag: string) => void;
   clearTagBlurCommitTimeout: () => void;
-  tagBlurCommitTimeoutRef: MutableRefObject<ReturnType<typeof setTimeout> | undefined>;
+  scheduleTagBlurCommit: (rawInput: string) => void;
 
   // Optional toggle
   showOptional: boolean;

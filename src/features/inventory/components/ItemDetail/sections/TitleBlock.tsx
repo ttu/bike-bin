@@ -1,27 +1,26 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { ItemStatus, type Item } from '@/shared/types';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
-import { MIDDLE_DOT, styles, type Themed, type TFn } from '../shared';
+import { MIDDLE_DOT, styles, useThemedStyles } from '../shared';
 
 export function TitleBlock({
   item,
-  themed,
   statusColor,
   categoryLabel,
   subcategoryLabel,
   metaParts,
-  t,
 }: {
   readonly item: Item;
-  readonly themed: Themed;
   readonly statusColor: string;
   readonly categoryLabel: string;
   readonly subcategoryLabel: string | undefined;
   readonly metaParts: string[];
-  readonly t: TFn;
 }) {
+  const { t } = useTranslation('inventory');
+  const themed = useThemedStyles();
   const statusStyles = useMemo(
     () => ({
       chip: { backgroundColor: colorWithAlpha(statusColor, 0.12) },

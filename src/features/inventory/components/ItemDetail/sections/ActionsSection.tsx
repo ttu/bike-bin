@@ -1,13 +1,13 @@
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { ItemStatus, type Item } from '@/shared/types';
 import { GradientButton } from '@/shared/components/GradientButton';
-import { ActionSlot, styles, type TFn } from '../shared';
+import { ActionSlot, styles } from '../shared';
 
 export function ActionsSection({
   item,
   isWide,
-  t,
   canShowReturnedAction,
   canShowDonateAction,
   canShowSoldAction,
@@ -22,7 +22,6 @@ export function ActionsSection({
 }: {
   readonly item: Item;
   readonly isWide: boolean;
-  readonly t: TFn;
   readonly canShowReturnedAction: boolean;
   readonly canShowDonateAction: boolean;
   readonly canShowSoldAction: boolean;
@@ -35,6 +34,7 @@ export function ActionsSection({
   readonly onRemoveFromBin?: () => void;
   readonly markReturnedLoading: boolean;
 }) {
+  const { t } = useTranslation('inventory');
   const hasActions =
     (canShowReturnedAction && !!onMarkReturned) ||
     (canShowDonateAction && !!onMarkDonated) ||
