@@ -1,4 +1,5 @@
-import { View } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Text, Chip, HelperText, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { Visibility } from '@/shared/types';
@@ -19,6 +20,16 @@ const VISIBILITY_OPTIONS: ReadonlyArray<{ value: Visibility; labelKey: string }>
 
 export function VisibilitySection({ state }: VisibilitySectionProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        onPrimary: { color: theme.colors.onPrimary },
+        chipSelected: { backgroundColor: theme.colors.primary },
+        chipUnselected: { backgroundColor: theme.colors.secondaryContainer },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('inventory');
   const { data: userGroups } = useGroups();
   const { visibility, setVisibility, groupIds, toggleGroupId, errors } = state;
@@ -37,15 +48,8 @@ export function VisibilitySection({ state }: VisibilitySectionProps) {
               selected={selected}
               onPress={() => setVisibility(value)}
               showSelectedCheck={false}
-              textStyle={selected ? { color: theme.colors.onPrimary } : undefined}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor: selected
-                    ? theme.colors.primary
-                    : theme.colors.secondaryContainer,
-                },
-              ]}
+              textStyle={selected ? themed.onPrimary : undefined}
+              style={[styles.chip, selected ? themed.chipSelected : themed.chipUnselected]}
             >
               {t(labelKey)}
             </Chip>
@@ -81,7 +85,7 @@ export function VisibilitySection({ state }: VisibilitySectionProps) {
               })}
             </View>
           ) : (
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodySmall" style={themed.onSurfaceVariant}>
               {t('form.noGroups')}
             </Text>
           )}

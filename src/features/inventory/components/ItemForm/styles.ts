@@ -27,6 +27,10 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
+  subcategoryCardLayout: {
+    flexBasis: '47%',
+    flexGrow: 1,
+  },
   subcategoryCard: {
     flexDirection: 'row',
     alignItems: 'center',

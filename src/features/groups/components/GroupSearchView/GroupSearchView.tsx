@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Appbar, Text, Chip, Searchbar, Button, useTheme } from 'react-native-paper';
+import { Appbar, Text, Chip, Searchbar, Button, useTheme, type MD3Theme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize, tabBarListScrollPaddingBottom } from '@/shared/theme';
@@ -28,6 +29,7 @@ export function GroupSearchView({
   isJoining,
 }: Readonly<GroupSearchViewProps>) {
   const theme = useTheme();
+  const themed = useThemedStyles(theme);
   const { t } = useTranslation('groups');
 
   const hasQuery = searchQuery.length >= 2;
@@ -35,8 +37,8 @@ export function GroupSearchView({
   const showEmpty = hasQuery && !isSearching && searchResults.length === 0;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+    <View style={[styles.container, themed.background]}>
+      <Appbar.Header dark={theme.dark} style={themed.background}>
         <Appbar.BackAction onPress={onBack} />
         <Searchbar
           placeholder={t('search.placeholder')}
@@ -78,10 +80,11 @@ function SearchResultCard({
   isJoining: boolean;
 }>) {
   const theme = useTheme();
+  const themed = useThemedStyles(theme);
   const { t } = useTranslation('groups');
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View style={[styles.card, themed.cardSurface]}>
       <View style={styles.cardIcon}>
         <MaterialCommunityIcons
           name="account-group"
@@ -90,19 +93,15 @@ function SearchResultCard({
         />
       </View>
       <View style={styles.cardContent}>
-        <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+        <Text variant="titleMedium" style={themed.onSurface}>
           {group.name}
         </Text>
         {group.description && (
-          <Text
-            variant="bodySmall"
-            style={{ color: theme.colors.onSurfaceVariant }}
-            numberOfLines={2}
-          >
+          <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={2}>
             {group.description}
           </Text>
         )}
-        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodySmall" style={themed.onSurfaceVariant}>
           {t('detail.memberCount', { count: group.memberCount })}
         </Text>
       </View>
@@ -122,6 +121,19 @@ function SearchResultCard({
         </Button>
       )}
     </View>
+  );
+}
+
+function useThemedStyles(theme: MD3Theme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        background: { backgroundColor: theme.colors.background },
+        cardSurface: { backgroundColor: theme.colors.surface },
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+      }),
+    [theme],
   );
 }
 

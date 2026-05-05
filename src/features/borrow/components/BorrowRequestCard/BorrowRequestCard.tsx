@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Button, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
@@ -30,6 +30,21 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
   onPress,
 }: BorrowRequestCardProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outlineVariant,
+        },
+        pressedBg: { backgroundColor: theme.colors.surfaceVariant },
+        avatarBg: { backgroundColor: theme.colors.surfaceVariant },
+        onSurface: { color: theme.colors.onSurface },
+        primary: { color: theme.colors.primary },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('borrow');
   const { t: tCommon } = useTranslation('common');
 
@@ -66,21 +81,13 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.outlineVariant,
-        },
-      ]}
-    >
+    <View style={[styles.container, themed.container]}>
       <Pressable
         onPress={() => onPress?.(request)}
         style={({ pressed }) => [
           styles.pressableContent,
-          actions.length === 0 && { paddingBottom: spacing.base },
-          pressed && { backgroundColor: theme.colors.surfaceVariant },
+          actions.length === 0 && styles.pressableContentBottomPad,
+          pressed && themed.pressedBg,
         ]}
         accessibilityLabel={`${t('card.itemLabel', { itemName: request.itemName })} - ${personLabel}`}
         accessibilityRole="button"
@@ -91,19 +98,15 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
             {personAvatarUrl ? (
               <CachedAvatarImage uri={personAvatarUrl} size={40} />
             ) : (
-              <Avatar.Icon
-                size={40}
-                icon="account"
-                style={{ backgroundColor: theme.colors.surfaceVariant }}
-              />
+              <Avatar.Icon size={40} icon="account" style={themed.avatarBg} />
             )}
           </View>
 
           <View style={styles.headerContent}>
-            <Text variant="titleSmall" numberOfLines={1} style={{ color: theme.colors.onSurface }}>
+            <Text variant="titleSmall" numberOfLines={1} style={themed.onSurface}>
               {personLabel}
             </Text>
-            <Text variant="bodySmall" numberOfLines={1} style={{ color: theme.colors.primary }}>
+            <Text variant="bodySmall" numberOfLines={1} style={themed.primary}>
               {request.itemName}
             </Text>
           </View>
@@ -123,17 +126,14 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
           <Text
             variant="bodySmall"
             numberOfLines={2}
-            style={[styles.message, { color: theme.colors.onSurfaceVariant }]}
+            style={[styles.message, themed.onSurfaceVariant]}
           >
             {t('card.message', { message: request.message })}
           </Text>
         )}
 
         {/* Timestamp */}
-        <Text
-          variant="labelSmall"
-          style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}
-        >
+        <Text variant="labelSmall" style={[styles.timestamp, themed.onSurfaceVariant]}>
           {t('card.requestedAt', { time: formatRelativeTime(request.createdAt, t) })}
         </Text>
       </Pressable>
@@ -218,6 +218,9 @@ const styles = StyleSheet.create({
     padding: spacing.base,
     paddingBottom: 0,
     gap: spacing.sm,
+  },
+  pressableContentBottomPad: {
+    paddingBottom: spacing.base,
   },
   header: {
     flexDirection: 'row',

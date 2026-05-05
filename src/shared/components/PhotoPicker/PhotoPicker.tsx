@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable, type ImageStyle, type StyleProp } from 'react-native';
 import { Image } from 'expo-image';
 import { Text, ActivityIndicator, useTheme } from 'react-native-paper';
@@ -60,6 +61,17 @@ export function PhotoPicker({
   bucket = 'item-photos',
 }: PhotoPickerProps) {
   const theme = useTheme();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        photoTile: { backgroundColor: theme.colors.surfaceVariant },
+        primaryBadge: { backgroundColor: theme.colors.primary },
+        primaryText: { color: theme.colors.onPrimary },
+        removeButton: { backgroundColor: theme.colors.error },
+        addTile: { borderColor: theme.colors.outline },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('inventory');
   const { t: tCommon } = useTranslation('common');
   const canAdd = photos.length < MAX_PHOTOS && !accountPhotoLimitReached;
@@ -76,18 +88,18 @@ export function PhotoPicker({
             onPress={index !== 0 && onSetPrimary ? () => onSetPrimary(photo.id) : undefined}
             accessibilityLabel={index === 0 ? t('photos.primaryPhoto') : t('photos.setAsPrimary')}
           >
-            <View style={[styles.photoTile, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <View style={[styles.photoTile, themed.photoTile]}>
               <PickerPhotoImage photo={photo} bucket={bucket} style={styles.photoImage} />
               {index === 0 && (
-                <View style={[styles.primaryBadge, { backgroundColor: theme.colors.primary }]}>
-                  <Text variant="labelSmall" style={{ color: theme.colors.onPrimary }}>
+                <View style={[styles.primaryBadge, themed.primaryBadge]}>
+                  <Text variant="labelSmall" style={themed.primaryText}>
                     1
                   </Text>
                 </View>
               )}
               {onRemove && (
                 <Pressable
-                  style={[styles.removeButton, { backgroundColor: theme.colors.error }]}
+                  style={[styles.removeButton, themed.removeButton]}
                   onPress={() => onRemove(photo.id)}
                   accessibilityLabel={t('photos.removePhoto')}
                 >
@@ -100,7 +112,7 @@ export function PhotoPicker({
 
         {canAdd && (
           <Pressable
-            style={[styles.addTile, { borderColor: theme.colors.outline }]}
+            style={[styles.addTile, themed.addTile]}
             onPress={onAdd}
             disabled={isUploading}
             accessibilityLabel={tCommon('photoPicker.addPhoto')}

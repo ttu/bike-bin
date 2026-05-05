@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,16 @@ export function ReviewCard({
   createdAt,
 }: ReviewCardProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        container: { backgroundColor: theme.colors.surfaceVariant },
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        accent: { color: theme.customColors.accent },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('ratings');
   const { t: tCommon } = useTranslation('common');
 
@@ -42,33 +53,30 @@ export function ReviewCard({
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surfaceVariant }]}>
+    <View style={[styles.container, themed.container]}>
       {/* Header: reviewer name + date */}
       <View style={styles.header}>
-        <Text variant="labelLarge" style={{ color: theme.colors.onSurface }}>
+        <Text variant="labelLarge" style={themed.onSurface}>
           {isDeletedReviewer ? tCommon('privacy.deletedUser') : (reviewerName ?? '')}
         </Text>
-        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodySmall" style={themed.onSurfaceVariant}>
           {formattedDate}
         </Text>
       </View>
 
       {/* Trust signal — sentence form replaces star row per design handoff */}
       <View style={styles.signalRow}>
-        <Text variant="bodySmall" style={[styles.signal, { color: theme.customColors.accent }]}>
+        <Text variant="bodySmall" style={[styles.signal, themed.accent]}>
           {t('reviewSummary', { count: 1, onTime: score >= 4 ? 1 : 0 })}
         </Text>
-        <Text
-          variant="bodySmall"
-          style={[styles.transactionBadge, { color: theme.colors.onSurfaceVariant }]}
-        >
+        <Text variant="bodySmall" style={[styles.transactionBadge, themed.onSurfaceVariant]}>
           {transactionLabel}
         </Text>
       </View>
 
       {/* Comment text */}
       {text ? (
-        <Text variant="bodyMedium" style={[styles.text, { color: theme.colors.onSurface }]}>
+        <Text variant="bodyMedium" style={[styles.text, themed.onSurface]}>
           {text}
         </Text>
       ) : null}
