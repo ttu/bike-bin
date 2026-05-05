@@ -172,6 +172,14 @@ describe('SearchScreen - search results', () => {
     expect(screen.getByText(searchEn.sort.newest)).toBeTruthy();
   });
 
+  it('does not trigger search when query is shorter than 3 characters', () => {
+    renderWithProviders(<SearchScreen />);
+    const input = screen.getByPlaceholderText(searchEn.searchPlaceholder);
+    fireEvent.changeText(input, 'pe');
+    fireEvent(input, 'submitEditing');
+    expect(screen.getByText(searchEn.empty.title)).toBeTruthy();
+  });
+
   it('renders quick filter chips after search and toggles selection', () => {
     renderWithProviders(<SearchScreen />);
     const input = screen.getByPlaceholderText(searchEn.searchPlaceholder);

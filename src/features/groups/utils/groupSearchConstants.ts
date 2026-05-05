@@ -1,0 +1,1 @@
+export const MIN_GROUP_SEARCH_QUERY_LENGTH = 3;

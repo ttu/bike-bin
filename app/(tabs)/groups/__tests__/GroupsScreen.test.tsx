@@ -114,7 +114,7 @@ describe('GroupsScreen', () => {
     }));
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByTestId('groups-search-button'));
-    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'ab');
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'abc');
     expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
   });
 
@@ -268,13 +268,13 @@ describe('GroupsScreen', () => {
       isMember: false,
     };
     mockUseSearchGroups.mockImplementation((q: string) => ({
-      data: q.length >= 2 ? [searchHit] : [],
+      data: q.length >= 3 ? [searchHit] : [],
       isLoading: false,
     }));
     mockJoinMutateAsync.mockRejectedValue(new Error('boom'));
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByTestId('groups-search-button'));
-    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'jo');
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'join');
     fireEvent.press(screen.getByText(groupsEn.detail.joinGroup));
     await waitFor(() => {
       expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
@@ -296,12 +296,12 @@ describe('GroupsScreen', () => {
       isMember: false,
     };
     mockUseSearchGroups.mockImplementation((q: string) => ({
-      data: q.length >= 2 ? [searchHit] : [],
+      data: q.length >= 3 ? [searchHit] : [],
       isLoading: false,
     }));
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByTestId('groups-search-button'));
-    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'jo');
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'join');
     fireEvent.press(screen.getByText(groupsEn.detail.joinGroup));
     await waitFor(() => {
       expect(mockJoinMutateAsync).toHaveBeenCalledWith('join-me');

@@ -40,6 +40,8 @@ import {
   SEARCH_GRID_COLUMN_GAP,
 } from '@/features/search/utils/searchGridDimensions';
 
+const MIN_SEARCH_QUERY_LENGTH = 3;
+
 function FilterChipIcon({ color }: { readonly color: string }) {
   return <MaterialCommunityIcons name="filter-variant" size={16} color={color} />;
 }
@@ -73,7 +75,7 @@ function SearchScreenContent() {
   const handleQueryChange = useCallback(
     (query: string) => {
       updateFilters({ query });
-      if (query.trim().length === 0) {
+      if (query.trim().length < MIN_SEARCH_QUERY_LENGTH) {
         setHasSearched(false);
       }
     },
@@ -81,7 +83,7 @@ function SearchScreenContent() {
   );
 
   const handleSubmit = useCallback(() => {
-    if (filters.query.trim().length > 0) {
+    if (filters.query.trim().length >= MIN_SEARCH_QUERY_LENGTH) {
       setHasSearched(true);
     }
   }, [filters.query, setHasSearched]);

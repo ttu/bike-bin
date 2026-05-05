@@ -3,6 +3,7 @@ import { useAuth } from '@/features/auth';
 import { supabase } from '@/shared/api/supabase';
 import type { GroupId } from '@/shared/types';
 import type { SearchGroupResult } from '../types';
+import { MIN_GROUP_SEARCH_QUERY_LENGTH } from '../utils/groupSearchConstants';
 
 /**
  * Search for public groups by name.
@@ -67,6 +68,6 @@ export function useSearchGroups(query: string) {
         isMember: memberGroupIds.has(g.id as string),
       })) as SearchGroupResult[];
     },
-    enabled: query.length >= 2,
+    enabled: query.length >= MIN_GROUP_SEARCH_QUERY_LENGTH,
   });
 }
