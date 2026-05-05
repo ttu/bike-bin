@@ -58,6 +58,22 @@ export async function ensureCaptureDirs(): Promise<void> {
 /**
  * Writes a full-resolution viewport PNG and a second PNG with a CSS phone frame.
  */
+/**
+ * Wait until every `<img>` in the document has finished decoding (`complete && naturalWidth > 0`).
+ * Item thumbnails load async after the row title appears, so without this the inventory still can
+ * capture gray placeholders.
+ */
+export async function waitForImagesLoaded(page: Page, timeoutMs = 15_000): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const imgs = Array.from(document.images);
+      return imgs.every((img) => img.complete && img.naturalWidth > 0);
+    },
+    null,
+    { timeout: timeoutMs },
+  );
+}
+
 export async function screenshotWithPhoneFrame(
   context: BrowserContext,
   page: Page,
@@ -65,6 +81,7 @@ export async function screenshotWithPhoneFrame(
 ): Promise<void> {
   const rawPath = path.join(RAW_DIR, `${baseName}.png`);
   const framedPath = path.join(FRAMED_DIR, `${baseName}.png`);
+  await waitForImagesLoaded(page);
   await page.screenshot({ path: rawPath, animations: 'disabled' });
   const bytes = await fs.readFile(rawPath);
   const html = buildFramedDeviceHtml(
