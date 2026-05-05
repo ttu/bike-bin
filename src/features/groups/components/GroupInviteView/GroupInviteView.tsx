@@ -46,45 +46,8 @@ export function GroupInviteView({
     }
   };
 
-  const trimmed = query.trim();
-  const showResults = trimmed.length > 0;
-
-  const renderBody = () => {
-    if (showResults) {
-      if (isLoading) return <CenteredLoadingIndicator />;
-      if ((results ?? []).length === 0) {
-        return (
-          <EmptyState
-            icon="account-off-outline"
-            title={t('invite.noResults')}
-            description={t('invite.noResultsDescription')}
-          />
-        );
-      }
-      return (
-        <FlatList
-          data={results ?? []}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <InvitableUserRow
-              user={item}
-              onInvite={handleInvite}
-              isPending={pendingInviteeId === item.id}
-              disabled={createInvitation.isPending}
-            />
-          )}
-          contentContainerStyle={styles.list}
-        />
-      );
-    }
-    return (
-      <EmptyState
-        icon="account-search-outline"
-        title={t('invite.promptTitle')}
-        description={t('invite.promptDescription')}
-      />
-    );
-  };
+  const showResults = query.trim().length > 0;
+  const showEmpty = showResults && !isLoading && (results ?? []).length === 0;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -98,7 +61,35 @@ export function GroupInviteView({
         />
       </Appbar.Header>
 
-      {renderBody()}
+      {!showResults ? (
+        <EmptyState
+          icon="account-search-outline"
+          title={t('invite.promptTitle')}
+          description={t('invite.promptDescription')}
+        />
+      ) : isLoading ? (
+        <CenteredLoadingIndicator />
+      ) : showEmpty ? (
+        <EmptyState
+          icon="account-off-outline"
+          title={t('invite.noResults')}
+          description={t('invite.noResultsDescription')}
+        />
+      ) : (
+        <FlatList
+          data={results ?? []}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <InvitableUserRow
+              user={item}
+              onInvite={handleInvite}
+              isPending={pendingInviteeId === item.id}
+              disabled={createInvitation.isPending}
+            />
+          )}
+          contentContainerStyle={styles.list}
+        />
+      )}
     </View>
   );
 }
