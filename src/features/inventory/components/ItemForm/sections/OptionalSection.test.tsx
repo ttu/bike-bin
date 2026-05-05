@@ -285,4 +285,11 @@ describe('OptionalSection', () => {
     fireEvent(input, 'submitEditing');
     expect(handlers.handleAddTag).toHaveBeenCalledWith('fast');
   });
+
+  it('schedules tag blur commit with current tag input on blur', () => {
+    const { handlers } = renderSection({ tagInput: 'fast' });
+    const input = screen.getByPlaceholderText('form.tagsPlaceholder');
+    fireEvent(input, 'blur');
+    expect(handlers.scheduleTagBlurCommit).toHaveBeenCalledWith('fast');
+  });
 });
