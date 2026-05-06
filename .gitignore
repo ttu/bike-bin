@@ -16,6 +16,8 @@ supabase/.temp/
 # Testing
 test-results/
 coverage/
+reports/
+.stryker-tmp/
 
 # Git worktrees
 .worktrees
