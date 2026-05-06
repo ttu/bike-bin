@@ -29,8 +29,8 @@ describe('useSearchGroups', () => {
     mockFromChains = [];
   });
 
-  it('is disabled when query is shorter than 2 characters', () => {
-    const { result } = renderHook(() => useSearchGroups('a'), {
+  it('is disabled when query is shorter than 3 characters', () => {
+    const { result } = renderHook(() => useSearchGroups('ab'), {
       wrapper: createQueryClientHookWrapper(),
     });
 

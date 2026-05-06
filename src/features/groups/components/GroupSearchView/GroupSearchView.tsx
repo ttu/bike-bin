@@ -7,6 +7,7 @@ import { spacing, borderRadius, iconSize, tabBarListScrollPaddingBottom } from '
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
 import type { SearchGroupResult } from '../../types';
+import { MIN_GROUP_SEARCH_QUERY_LENGTH } from '../../utils/groupSearchConstants';
 import type { GroupId } from '@/shared/types';
 
 type GroupSearchViewProps = {
@@ -32,7 +33,7 @@ export function GroupSearchView({
   const themed = useThemedStyles(theme);
   const { t } = useTranslation('groups');
 
-  const hasQuery = searchQuery.length >= 2;
+  const hasQuery = searchQuery.length >= MIN_GROUP_SEARCH_QUERY_LENGTH;
   const showLoading = hasQuery && isSearching;
   const showEmpty = hasQuery && !isSearching && searchResults.length === 0;
 
