@@ -116,6 +116,12 @@ jest.mock('@/features/exchange', () => ({
 jest.mock('@/features/borrow', () => ({
   useAcceptedBorrowRequestForItem: () => ({ data: undefined, isFetching: false }),
   useMarkReturned: () => ({ mutate: jest.fn() }),
+  useMarkReturnedDialogConfig: () => ({
+    title: 'borrow.confirm.markReturned.title',
+    message: 'borrow.confirm.markReturned.message',
+    cancelLabel: 'borrow.confirm.markReturned.cancel',
+    confirmLabel: 'borrow.confirm.markReturned.confirm',
+  }),
 }));
 
 describe('ItemDetailScreen back navigation', () => {

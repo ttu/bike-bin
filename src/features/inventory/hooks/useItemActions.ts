@@ -7,18 +7,20 @@ import { useUpdateItemStatus, useDeleteItem, canDelete, canUnarchive } from '@/f
 import {
   useAcceptedBorrowRequestForItem,
   useMarkReturned,
+  useMarkReturnedDialogConfig,
   ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
   BORROW_REQUESTS_QUERY_KEY,
 } from '@/features/borrow';
-import { useMarkExchanged, getExchangeDialogConfig } from '@/features/exchange';
+import { useMarkExchanged, useExchangeDialogConfig } from '@/features/exchange';
 import { GROUP_ITEMS_QUERY_KEY, SEARCH_ITEMS_QUERY_KEY } from '@/shared/api/queryKeys';
 import { ItemStatus, type Item } from '@/shared/types';
 
 export function useItemActions(item: Item) {
-  const { t } = useTranslation('exchange');
   const { t: tInv } = useTranslation('inventory');
-  const { t: tBorrow } = useTranslation('borrow');
   const { t: tCommon } = useTranslation('common');
+  const donateDialog = useExchangeDialogConfig('donate');
+  const sellDialog = useExchangeDialogConfig('sell');
+  const markReturnedDialog = useMarkReturnedDialogConfig();
   const { showSnackbarAlert } = useSnackbarAlerts();
 
   const queryClient = useQueryClient();
@@ -46,7 +48,7 @@ export function useItemActions(item: Item) {
 
   const handleMarkDonated = () => {
     openConfirm({
-      ...getExchangeDialogConfig('donate', t),
+      ...donateDialog,
       onConfirm: () => {
         markDonated.mutate(
           { itemId: item.id },
@@ -61,7 +63,7 @@ export function useItemActions(item: Item) {
 
   const handleMarkSold = () => {
     openConfirm({
-      ...getExchangeDialogConfig('sell', t),
+      ...sellDialog,
       onConfirm: () => {
         markSold.mutate(
           { itemId: item.id },
@@ -155,10 +157,7 @@ export function useItemActions(item: Item) {
     const onDone = () => onSuccess(tCommon('feedback.returned'));
 
     openConfirm({
-      title: tBorrow('confirm.markReturned.title'),
-      message: tBorrow('confirm.markReturned.message'),
-      cancelLabel: tBorrow('confirm.markReturned.cancel'),
-      confirmLabel: tBorrow('confirm.markReturned.confirm'),
+      ...markReturnedDialog,
       onConfirm: async () => {
         if (acceptedBorrowRequestId === null || acceptedBorrowRequestId === undefined) {
           try {

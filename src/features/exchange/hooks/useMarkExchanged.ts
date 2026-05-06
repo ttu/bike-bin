@@ -3,7 +3,7 @@ import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import { invalidateItemAndConversationCaches } from '@/shared/api/queryKeys';
 import { ItemStatus, type ItemId } from '@/shared/types';
-import type { ExchangeKind } from '../utils/getExchangeDialogConfig';
+import type { ExchangeKind } from './useExchangeDialogConfig';
 import { NotAuthenticatedError } from '@/shared/utils/subscriptionLimitErrors';
 
 interface MarkExchangedParams {
