@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
   Text,
@@ -43,12 +43,25 @@ export function LocationForm({
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('locations');
 
-  const softInputStyles = StyleSheet.create({
-    softInput: {
-      backgroundColor: theme.customColors.surfaceContainerHighest,
-      borderRadius: borderRadius.md,
-    },
-  });
+  const softInputStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        softInput: {
+          backgroundColor: theme.customColors.surfaceContainerHighest,
+          borderRadius: borderRadius.md,
+        },
+      }),
+    [theme],
+  );
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        areaPreview: { backgroundColor: theme.colors.secondaryContainer },
+        onSecondaryContainer: { color: theme.colors.onSecondaryContainer },
+        onSurface: { color: theme.colors.onSurface },
+      }),
+    [theme],
+  );
   const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 
@@ -143,13 +156,13 @@ export function LocationForm({
 
       {/* Area Preview */}
       {geocoded && (
-        <View style={[styles.areaPreview, { backgroundColor: theme.colors.secondaryContainer }]}>
+        <View style={[styles.areaPreview, themed.areaPreview]}>
           <MaterialCommunityIcons
             name="map-marker-check"
             size={iconSize.sm}
             color={theme.colors.onSecondaryContainer}
           />
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSecondaryContainer }}>
+          <Text variant="bodyMedium" style={themed.onSecondaryContainer}>
             {t('form.areaPreview', { areaName: geocoded.areaName })}
           </Text>
         </View>
@@ -184,7 +197,7 @@ export function LocationForm({
       {/* Primary Toggle */}
       {showPrimaryToggle && (
         <View style={styles.primaryRow}>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+          <Text variant="bodyMedium" style={themed.onSurface}>
             {t('form.primaryToggle')}
           </Text>
           <Switch value={isPrimary} onValueChange={setIsPrimary} color={theme.colors.primary} />

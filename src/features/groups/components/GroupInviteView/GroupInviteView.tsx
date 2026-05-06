@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Appbar, Text, Searchbar, Button, useTheme } from 'react-native-paper';
+import { Appbar, Text, Searchbar, Button, useTheme, type MD3Theme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { spacing, borderRadius, iconSize } from '@/shared/theme';
@@ -27,6 +27,7 @@ export function GroupInviteView({
   onError,
 }: Readonly<GroupInviteViewProps>) {
   const theme = useTheme();
+  const themed = useThemedStyles(theme);
   const { t } = useTranslation('groups');
   const [query, setQuery] = useState('');
   const [pendingInviteeId, setPendingInviteeId] = useState<UserId | undefined>(undefined);
@@ -50,8 +51,8 @@ export function GroupInviteView({
   const showEmpty = showResults && !isLoading && (results ?? []).length === 0;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
+    <View style={[styles.container, themed.background]}>
+      <Appbar.Header dark={theme.dark} style={themed.background}>
         <Appbar.BackAction onPress={onBack} />
         <Searchbar
           placeholder={t('invite.searchPlaceholder')}
@@ -106,17 +107,18 @@ function InvitableUserRow({
   disabled: boolean;
 }>) {
   const theme = useTheme();
+  const themed = useThemedStyles(theme);
   const { t } = useTranslation('groups');
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View style={[styles.card, themed.surface]}>
       <MaterialCommunityIcons
         name="account-circle"
         size={iconSize.lg}
         color={theme.colors.onSurfaceVariant}
       />
       <View style={styles.cardContent}>
-        <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+        <Text variant="titleMedium" style={themed.onSurface}>
           {user.displayName ?? t('detail.unknownMember')}
         </Text>
       </View>
@@ -130,6 +132,18 @@ function InvitableUserRow({
         {t('invite.sendInvitation')}
       </Button>
     </View>
+  );
+}
+
+function useThemedStyles(theme: MD3Theme) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        background: { backgroundColor: theme.colors.background },
+        surface: { backgroundColor: theme.colors.surface },
+        onSurface: { color: theme.colors.onSurface },
+      }),
+    [theme],
   );
 }
 

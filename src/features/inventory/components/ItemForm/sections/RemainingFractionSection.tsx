@@ -1,4 +1,5 @@
-import { View } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Text, TextInput, HelperText, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +13,10 @@ interface RemainingFractionSectionProps {
 
 export function RemainingFractionSection({ state, inputStyling }: RemainingFractionSectionProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () => StyleSheet.create({ suffix: { color: theme.colors.onSurfaceVariant } }),
+    [theme],
+  );
   const { t } = useTranslation('inventory');
   const { remainingPercentStr, setRemainingPercentStr, errors } = state;
 
@@ -32,7 +37,7 @@ export function RemainingFractionSection({ state, inputStyling }: RemainingFract
           underlineColor={inputStyling.underlineColor}
           activeUnderlineColor={inputStyling.activeUnderlineColor}
         />
-        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodyLarge" style={themed.suffix}>
           {t('form.remainingPercentSuffix')}
         </Text>
       </View>

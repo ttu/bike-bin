@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -15,6 +16,10 @@ interface NotificationBellProps {
  */
 export function NotificationBell({ unreadCount, onPress }: NotificationBellProps) {
   const theme = useTheme();
+  const themed = useMemo(
+    () => StyleSheet.create({ badge: { backgroundColor: theme.colors.error } }),
+    [theme],
+  );
   const { t } = useTranslation('notifications');
   const accessibilityLabel =
     unreadCount > 0 ? `${t('title')}, ${t('unreadBadge', { count: unreadCount })}` : t('title');
@@ -33,7 +38,7 @@ export function NotificationBell({ unreadCount, onPress }: NotificationBellProps
       />
       {unreadCount > 0 && (
         <View style={styles.badgeContainer}>
-          <Badge size={16} style={{ backgroundColor: theme.colors.error }}>
+          <Badge size={16} style={themed.badge}>
             {unreadCount > 99 ? '99+' : unreadCount}
           </Badge>
         </View>

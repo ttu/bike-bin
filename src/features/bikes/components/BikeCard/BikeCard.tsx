@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -15,16 +15,26 @@ interface BikeCardProps {
 
 export const BikeCard = memo(function BikeCard({ bike, onPress }: BikeCardProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        container: { backgroundColor: theme.colors.surface },
+        surfaceVariant: { backgroundColor: theme.colors.surfaceVariant },
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('bikes');
 
   return (
     <Pressable
       onPress={() => onPress?.(bike)}
-      style={[styles.container, { backgroundColor: theme.colors.surface }]}
+      style={[styles.container, themed.container]}
       accessibilityRole="button"
       accessibilityLabel={bike.name}
     >
-      <View style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceVariant }]}>
+      <View style={[styles.thumbnail, themed.surfaceVariant]}>
         {bike.thumbnailStoragePath ? (
           <CachedListThumbnail
             uri={
@@ -44,25 +54,18 @@ export const BikeCard = memo(function BikeCard({ bike, onPress }: BikeCardProps)
       </View>
 
       <View style={styles.content}>
-        <Text variant="titleMedium" numberOfLines={1} style={{ color: theme.colors.onSurface }}>
+        <Text variant="titleMedium" numberOfLines={1} style={themed.onSurface}>
           {bike.name}
         </Text>
 
         <View style={styles.meta}>
-          <View style={[styles.typeChip, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Text
-              variant="labelSmall"
-              style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
-            >
+          <View style={[styles.typeChip, themed.surfaceVariant]}>
+            <Text variant="labelSmall" style={[styles.chipText, themed.onSurfaceVariant]}>
               {t(`bikeType.${bike.type}`)}
             </Text>
           </View>
           {bike.brand && (
-            <Text
-              variant="bodySmall"
-              style={{ color: theme.colors.onSurfaceVariant }}
-              numberOfLines={1}
-            >
+            <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={1}>
               {bike.brand}
               {bike.year ? ` · ${bike.year}` : ''}
             </Text>

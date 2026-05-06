@@ -1,4 +1,5 @@
-import { View, Pressable } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { Text, Chip, HelperText, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { AppTheme } from '@/shared/theme';
@@ -22,6 +23,26 @@ interface CategorySectionProps {
 
 export function CategorySection({ state }: CategorySectionProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        chipSelected: { backgroundColor: theme.colors.primary },
+        chipUnselected: { backgroundColor: theme.colors.secondaryContainer },
+        onPrimary: { color: theme.colors.onPrimary },
+        onSurface: { color: theme.colors.onSurface },
+        cardActive: {
+          backgroundColor: theme.colors.primary,
+          borderColor: theme.colors.primary,
+          borderWidth: 2,
+        },
+        cardInactive: {
+          backgroundColor: theme.customColors.surfaceContainerLow,
+          borderColor: theme.colors.outlineVariant,
+          borderWidth: 1,
+        },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('inventory');
   const {
     category,
@@ -46,13 +67,8 @@ export function CategorySection({ state }: CategorySectionProps) {
               selected={active}
               onPress={() => handleCategoryChange(cat)}
               showSelectedCheck={false}
-              textStyle={active ? { color: theme.colors.onPrimary } : undefined}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor: active ? theme.colors.primary : theme.colors.secondaryContainer,
-                },
-              ]}
+              textStyle={active ? themed.onPrimary : undefined}
+              style={[styles.chip, active ? themed.chipSelected : themed.chipUnselected]}
             >
               {t(`category.${cat}`)}
             </Chip>
@@ -80,15 +96,8 @@ export function CategorySection({ state }: CategorySectionProps) {
                   onPress={() => setSubcategory(active ? '' : sub)}
                   style={[
                     styles.subcategoryCard,
-                    {
-                      flexBasis: '47%',
-                      flexGrow: 1,
-                      backgroundColor: active
-                        ? theme.colors.primary
-                        : theme.customColors.surfaceContainerLow,
-                      borderColor: active ? theme.colors.primary : theme.colors.outlineVariant,
-                      borderWidth: active ? 2 : 1,
-                    },
+                    styles.subcategoryCardLayout,
+                    active ? themed.cardActive : themed.cardInactive,
                   ]}
                 >
                   {Boolean(subIcon) && (
@@ -98,12 +107,7 @@ export function CategorySection({ state }: CategorySectionProps) {
                       color={active ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
                     />
                   )}
-                  <Text
-                    variant="labelMedium"
-                    style={{
-                      color: active ? theme.colors.onPrimary : theme.colors.onSurface,
-                    }}
-                  >
+                  <Text variant="labelMedium" style={active ? themed.onPrimary : themed.onSurface}>
                     {t(`subcategory.${sub}`)}
                   </Text>
                 </Pressable>

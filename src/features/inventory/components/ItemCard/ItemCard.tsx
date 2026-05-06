@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -21,6 +21,17 @@ interface ItemCardProps {
 
 export const ItemCard = memo(function ItemCard({ item, onPress, compact = false }: ItemCardProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        container: { backgroundColor: theme.customColors.surfaceContainerLowest },
+        thumbnail: { backgroundColor: theme.colors.surfaceVariant },
+        name: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        chip: { backgroundColor: theme.colors.surfaceVariant },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('inventory');
 
   const statusColorToken = getStatusColor(item.status);
@@ -37,12 +48,7 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
   return (
     <AnimatedPressable
       onPress={() => onPress?.(item)}
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.customColors.surfaceContainerLowest,
-        },
-      ]}
+      style={[styles.container, themed.container]}
       accessibilityRole="button"
       accessibilityLabel={
         item.quantity > 1
@@ -53,11 +59,8 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
       <View
         style={[
           styles.thumbnail,
-          {
-            width: ITEM_INVENTORY_THUMBNAIL.width,
-            height: ITEM_INVENTORY_THUMBNAIL.height,
-            backgroundColor: theme.colors.surfaceVariant,
-          },
+          themed.thumbnail,
+          { width: ITEM_INVENTORY_THUMBNAIL.width, height: ITEM_INVENTORY_THUMBNAIL.height },
         ]}
       >
         {thumbnailUri ? (
@@ -77,11 +80,7 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text
-            variant="titleMedium"
-            numberOfLines={1}
-            style={[styles.name, { color: theme.colors.onSurface }]}
-          >
+          <Text variant="titleMedium" numberOfLines={1} style={[styles.name, themed.name]}>
             {item.name}
           </Text>
           {item.status !== ItemStatus.Stored && (
@@ -96,11 +95,7 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
         </View>
 
         {!compact && (
-          <Text
-            variant="bodySmall"
-            style={{ color: theme.colors.onSurfaceVariant }}
-            numberOfLines={1}
-          >
+          <Text variant="bodySmall" style={themed.onSurfaceVariant} numberOfLines={1}>
             {t(`category.${item.category}`)}
             {item.subcategory ? t('card.metaSeparator') + t(`subcategory.${item.subcategory}`) : ''}
           </Text>
@@ -109,39 +104,22 @@ export const ItemCard = memo(function ItemCard({ item, onPress, compact = false 
         {!compact && (listAvailability.length > 0 || item.tags.length > 0 || item.quantity > 1) && (
           <View style={styles.chips}>
             {item.quantity > 1 && (
-              <View
-                style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
-                >
+              <View style={[styles.availabilityChip, themed.chip]}>
+                <Text variant="labelSmall" style={[styles.chipText, themed.onSurfaceVariant]}>
                   {t('card.quantityChip', { count: item.quantity })}
                 </Text>
               </View>
             )}
             {listAvailability.map((type) => (
-              <View
-                key={type}
-                style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
-                >
+              <View key={type} style={[styles.availabilityChip, themed.chip]}>
+                <Text variant="labelSmall" style={[styles.chipText, themed.onSurfaceVariant]}>
                   {t(`availability.${type}`)}
                 </Text>
               </View>
             ))}
             {item.tags.map((tag) => (
-              <View
-                key={`tag:${tag}`}
-                style={[styles.availabilityChip, { backgroundColor: theme.colors.surfaceVariant }]}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={[styles.chipText, { color: theme.colors.onSurfaceVariant }]}
-                >
+              <View key={`tag:${tag}`} style={[styles.availabilityChip, themed.chip]}>
+                <Text variant="labelSmall" style={[styles.chipText, themed.onSurfaceVariant]}>
                   {tag}
                 </Text>
               </View>

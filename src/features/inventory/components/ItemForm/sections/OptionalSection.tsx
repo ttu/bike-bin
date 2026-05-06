@@ -1,5 +1,5 @@
-import { useRef, useCallback, useEffect } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { useMemo, useRef, useCallback, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { Text, TextInput, Chip, Button, Menu, HelperText, useTheme } from 'react-native-paper';
 import type { AppTheme } from '@/shared/theme';
 import { ItemCategory, type DistanceUnit } from '@/shared/types';
@@ -263,6 +263,10 @@ interface UsageFieldProps {
 
 function UsageField({ usage, setUsage, distanceUnit, inputStyling }: Readonly<UsageFieldProps>) {
   const theme = useTheme<AppTheme>();
+  const themedUsage = useMemo(
+    () => StyleSheet.create({ unit: { color: theme.colors.onSurfaceVariant } }),
+    [theme],
+  );
   const { t } = useTranslation('inventory');
 
   return (
@@ -281,7 +285,7 @@ function UsageField({ usage, setUsage, distanceUnit, inputStyling }: Readonly<Us
           underlineColor={inputStyling.underlineColor}
           activeUnderlineColor={inputStyling.activeUnderlineColor}
         />
-        <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="bodyLarge" style={themedUsage.unit}>
           {distanceUnit}
         </Text>
       </View>

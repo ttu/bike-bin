@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { formatMessageTime } from '@/shared/utils';
@@ -11,6 +12,18 @@ interface ChatBubbleProps {
 
 export function ChatBubble({ message, onLongPress }: ChatBubbleProps) {
   const theme = useTheme<AppTheme>();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        bubbleOwn: { backgroundColor: theme.colors.primary },
+        bubbleOther: { backgroundColor: theme.customColors.surfaceContainerHigh },
+        textOwn: { color: theme.colors.onPrimary },
+        textOther: { color: theme.colors.onSurface },
+        timestampOwn: { color: theme.colors.onPrimary, opacity: 0.7 },
+        timestampOther: { color: theme.colors.onSurfaceVariant },
+      }),
+    [theme],
+  );
 
   const isOwn = message.isOwn;
 
@@ -26,28 +39,15 @@ export function ChatBubble({ message, onLongPress }: ChatBubbleProps) {
       <View
         style={[
           styles.bubble,
-          isOwn
-            ? [styles.bubbleOwn, { backgroundColor: theme.colors.primary }]
-            : [styles.bubbleOther, { backgroundColor: theme.customColors.surfaceContainerHigh }],
+          isOwn ? [styles.bubbleOwn, themed.bubbleOwn] : [styles.bubbleOther, themed.bubbleOther],
         ]}
       >
-        <Text
-          variant="bodyMedium"
-          style={{
-            color: isOwn ? theme.colors.onPrimary : theme.colors.onSurface,
-          }}
-        >
+        <Text variant="bodyMedium" style={isOwn ? themed.textOwn : themed.textOther}>
           {message.body}
         </Text>
         <Text
           variant="labelSmall"
-          style={[
-            styles.timestamp,
-            {
-              color: isOwn ? theme.colors.onPrimary : theme.colors.onSurfaceVariant,
-              opacity: isOwn ? 0.7 : 1,
-            },
-          ]}
+          style={[styles.timestamp, isOwn ? themed.timestampOwn : themed.timestampOther]}
         >
           {timestamp}
         </Text>

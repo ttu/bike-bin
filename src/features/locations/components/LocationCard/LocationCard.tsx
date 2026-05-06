@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -13,6 +14,17 @@ interface LocationCardProps {
 
 export function LocationCard({ location, onPress, onDelete }: LocationCardProps) {
   const theme = useTheme();
+  const themed = useMemo(
+    () =>
+      StyleSheet.create({
+        container: { backgroundColor: theme.colors.surface },
+        onSurface: { color: theme.colors.onSurface },
+        onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
+        primaryBadge: { backgroundColor: theme.colors.primaryContainer },
+        primaryBadgeText: { color: theme.colors.onPrimaryContainer },
+      }),
+    [theme],
+  );
   const { t } = useTranslation('locations');
 
   const primaryBadgeSuffix = location.isPrimary ? `, ${t('primaryBadge')}` : '';
@@ -21,7 +33,7 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
   const handleCardPress = () => onPress?.(location);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+    <View style={[styles.container, themed.container]}>
       <Pressable
         onPress={handleCardPress}
         style={styles.mainPressable}
@@ -38,21 +50,12 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
 
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text
-              variant="titleMedium"
-              numberOfLines={1}
-              style={[styles.label, { color: theme.colors.onSurface }]}
-            >
+            <Text variant="titleMedium" numberOfLines={1} style={[styles.label, themed.onSurface]}>
               {location.label}
             </Text>
             {location.isPrimary && (
-              <View
-                style={[styles.primaryBadge, { backgroundColor: theme.colors.primaryContainer }]}
-              >
-                <Text
-                  variant="labelSmall"
-                  style={[styles.badgeText, { color: theme.colors.onPrimaryContainer }]}
-                >
+              <View style={[styles.primaryBadge, themed.primaryBadge]}>
+                <Text variant="labelSmall" style={[styles.badgeText, themed.primaryBadgeText]}>
                   {t('primaryBadge')}
                 </Text>
               </View>
@@ -60,17 +63,13 @@ export function LocationCard({ location, onPress, onDelete }: LocationCardProps)
           </View>
 
           {location.areaName && (
-            <Text
-              variant="bodyMedium"
-              numberOfLines={1}
-              style={{ color: theme.colors.onSurfaceVariant }}
-            >
+            <Text variant="bodyMedium" numberOfLines={1} style={themed.onSurfaceVariant}>
               {location.areaName}
             </Text>
           )}
 
           {location.postcode && (
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text variant="bodySmall" style={themed.onSurfaceVariant}>
               {location.postcode}
             </Text>
           )}
