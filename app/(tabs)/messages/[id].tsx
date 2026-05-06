@@ -35,7 +35,7 @@ import {
 } from '@/features/messaging';
 import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
-import { useMarkExchanged, getExchangeDialogConfig } from '@/features/exchange';
+import { useMarkExchanged, useExchangeDialogConfig } from '@/features/exchange';
 import { useAuth } from '@/features/auth';
 import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
@@ -307,8 +307,12 @@ export default function ConversationDetailScreen() {
     }
   }, [exchangeConfirm, markDonated, markSold, showSnackbarAlert, tCommon]);
 
+  const donateDialogConfig = useExchangeDialogConfig('donate');
+  const sellDialogConfig = useExchangeDialogConfig('sell');
   const exchangeDialogConfig = exchangeConfirm
-    ? getExchangeDialogConfig(exchangeConfirm.kind, tExchange)
+    ? exchangeConfirm.kind === 'donate'
+      ? donateDialogConfig
+      : sellDialogConfig
     : null;
 
   const renderHeaderAvatar = () => {
