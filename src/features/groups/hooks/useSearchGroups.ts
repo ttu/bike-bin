@@ -68,6 +68,6 @@ export function useSearchGroups(query: string) {
         isMember: memberGroupIds.has(g.id as string),
       })) as SearchGroupResult[];
     },
-    enabled: query.length >= MIN_GROUP_SEARCH_QUERY_LENGTH,
+    enabled: query.trim().length >= MIN_GROUP_SEARCH_QUERY_LENGTH,
   });
 }
