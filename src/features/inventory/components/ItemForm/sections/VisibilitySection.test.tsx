@@ -104,7 +104,7 @@ function buildState(overrides: Overrides, handlers: Handlers): ItemFormState {
     handleAddTag: jest.fn(),
     handleRemoveTag: jest.fn(),
     clearTagBlurCommitTimeout: jest.fn(),
-    tagBlurCommitTimeoutRef: { current: undefined },
+    scheduleTagBlurCommit: jest.fn(),
     showOptional: false,
     setShowOptional: jest.fn(),
     errors: overrides.errors ?? {},
