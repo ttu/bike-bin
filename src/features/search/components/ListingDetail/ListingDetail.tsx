@@ -1,8 +1,7 @@
 import { View, ScrollView, useWindowDimensions } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { PhotoGallery } from '@/shared/components';
-import { type AppTheme } from '@/shared/theme';
 import { formatDistance } from '@/shared/utils';
 import { getWideDetailLayout } from '@/shared/utils/wideDetailLayout';
 import { AvailabilityType, type ItemPhoto } from '@/shared/types';
@@ -39,10 +38,9 @@ export function ListingDetail({
   onOwnerPress,
   onPhotoLongPress,
 }: ListingDetailProps) {
-  const theme = useTheme<AppTheme>();
   const { t } = useTranslation(['search', 'inventory']);
   const { isAuthenticated } = useAuth();
-  const themed = useThemedStyles(theme);
+  const themed = useThemedStyles();
   const { width: windowWidth } = useWindowDimensions();
   const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
 
@@ -71,27 +69,9 @@ export function ListingDetail({
 
   const detailContent = (
     <>
-      <ListingTitleBlock
-        item={item}
-        themed={themed}
-        categoryLabel={categoryLabel}
-        metaParts={metaParts}
-        t={t}
-      />
-      <ListingDetailStrip
-        item={item}
-        theme={theme}
-        themed={themed}
-        durationText={durationText}
-        t={t}
-      />
-      <ListingOwnerCard
-        item={item}
-        theme={theme}
-        themed={themed}
-        t={t}
-        onOwnerPress={onOwnerPress}
-      />
+      <ListingTitleBlock item={item} categoryLabel={categoryLabel} metaParts={metaParts} />
+      <ListingDetailStrip item={item} durationText={durationText} />
+      <ListingOwnerCard item={item} onOwnerPress={onOwnerPress} />
       {item.description && (
         <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onBackground}>
@@ -99,20 +79,8 @@ export function ListingDetail({
           </Text>
         </View>
       )}
-      <ListingLocationRow
-        hasLocation={hasLocation}
-        item={item}
-        theme={theme}
-        themed={themed}
-        distanceText={distanceText}
-      />
-      <ListingListedFor
-        listAvailability={listAvailability}
-        item={item}
-        theme={theme}
-        themed={themed}
-        t={t}
-      />
+      <ListingLocationRow hasLocation={hasLocation} item={item} distanceText={distanceText} />
+      <ListingListedFor listAvailability={listAvailability} item={item} />
       <ListingActions
         isAuthenticated={isAuthenticated}
         isWide={isWide}
@@ -121,7 +89,6 @@ export function ListingDetail({
         showBoth={showBoth}
         onContact={onContact}
         onRequestBorrow={onRequestBorrow}
-        t={t}
       />
     </>
   );

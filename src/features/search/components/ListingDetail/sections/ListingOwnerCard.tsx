@@ -1,24 +1,22 @@
 import { View } from 'react-native';
-import { Text, Avatar } from 'react-native-paper';
+import { Text, Avatar, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
 import { CachedAvatarImage } from '@/shared/components/CachedAvatarImage';
 import { type AppTheme } from '@/shared/theme';
 import type { SearchResultItem } from '../../../types';
-import { styles, type Themed, type TFn } from '../shared';
+import { styles, useThemedStyles } from '../shared';
 
 export function ListingOwnerCard({
   item,
-  theme,
-  themed,
-  t,
   onOwnerPress,
 }: {
   readonly item: SearchResultItem;
-  readonly theme: AppTheme;
-  readonly themed: Themed;
-  readonly t: TFn;
   readonly onOwnerPress?: () => void;
 }) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation(['search']);
+  const themed = useThemedStyles();
   return (
     <View style={[styles.section, themed.sectionBorder]}>
       <View style={[styles.ownerCard, themed.ownerCardBackground]}>

@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { useTheme } from 'react-native-paper';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import {
   WIDE_DETAIL_PAGE_MAX_WIDTH,
@@ -9,9 +9,8 @@ import {
 
 export const MIDDLE_DOT = ' · ';
 
-export type TFn = ReturnType<typeof useTranslation>['t'];
-
-export function useThemedStyles(theme: AppTheme) {
+export function useThemedStyles() {
+  const theme = useTheme<AppTheme>();
   return useMemo(
     () =>
       StyleSheet.create({

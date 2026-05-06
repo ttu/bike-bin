@@ -1,7 +1,8 @@
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { GradientButton } from '@/shared/components/GradientButton';
-import { ActionSlot, styles, type TFn } from '../shared';
+import { ActionSlot, styles } from '../shared';
 
 export function ListingActions({
   isAuthenticated,
@@ -11,7 +12,6 @@ export function ListingActions({
   showBoth,
   onContact,
   onRequestBorrow,
-  t,
 }: {
   readonly isAuthenticated: boolean;
   readonly isWide: boolean;
@@ -20,8 +20,8 @@ export function ListingActions({
   readonly showBoth: boolean;
   readonly onContact?: () => void;
   readonly onRequestBorrow?: () => void;
-  readonly t: TFn;
 }) {
+  const { t } = useTranslation(['search']);
   return (
     <View style={[styles.actionSection, isWide && styles.actionSectionWide]}>
       {isAuthenticated ? (

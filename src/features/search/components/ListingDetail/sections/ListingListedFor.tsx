@@ -1,11 +1,12 @@
 import { View } from 'react-native';
-import { Text, Chip } from 'react-native-paper';
+import { Text, Chip, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { AvailabilityType } from '@/shared/types';
 import { type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { Stamp } from '@/shared/components/Stamp/Stamp';
 import type { SearchResultItem } from '../../../types';
-import { MIDDLE_DOT, styles, type Themed, type TFn } from '../shared';
+import { MIDDLE_DOT, styles, useThemedStyles } from '../shared';
 
 const formatPrice = (price: number): string =>
   new Intl.NumberFormat(undefined, {
@@ -17,16 +18,13 @@ const formatPrice = (price: number): string =>
 export function ListingListedFor({
   listAvailability,
   item,
-  theme,
-  themed,
-  t,
 }: {
   readonly listAvailability: AvailabilityType[];
   readonly item: SearchResultItem;
-  readonly theme: AppTheme;
-  readonly themed: Themed;
-  readonly t: TFn;
 }) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation(['search']);
+  const themed = useThemedStyles();
   if (listAvailability.length === 0) return null;
   return (
     <View style={[styles.section, themed.sectionBorder]}>

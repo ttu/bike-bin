@@ -1,20 +1,19 @@
 import { View } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { type AvailabilityType } from '@/shared/types';
 import { Stamp } from '@/shared/components/Stamp/Stamp';
-import { styles, type Themed, type TFn } from '../shared';
+import { styles, useThemedStyles } from '../shared';
 
 export function ListedForSection({
   listAvailability,
   ownerGroup,
-  themed,
-  t,
 }: {
   readonly listAvailability: AvailabilityType[];
   readonly ownerGroup: { name: string } | undefined;
-  readonly themed: Themed;
-  readonly t: TFn;
 }) {
+  const { t } = useTranslation('inventory');
+  const themed = useThemedStyles();
   if (listAvailability.length === 0 && !ownerGroup) return null;
   return (
     <View style={[styles.section, themed.sectionBorder]}>

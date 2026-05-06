@@ -35,26 +35,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     borderRadius: borderRadius.md,
   },
-  conditionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  conditionValue: {
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  conditionRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  conditionButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-  },
   groupSelection: {
     marginTop: spacing.sm,
   },

@@ -1,21 +1,20 @@
 import { View } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import type { SearchResultItem } from '../../../types';
-import { MIDDLE_DOT, styles, type Themed, type TFn } from '../shared';
+import { MIDDLE_DOT, styles, useThemedStyles } from '../shared';
 
 export function ListingTitleBlock({
   item,
-  themed,
   categoryLabel,
   metaParts,
-  t,
 }: {
   readonly item: SearchResultItem;
-  readonly themed: Themed;
   readonly categoryLabel: string;
   readonly metaParts: string[];
-  readonly t: TFn;
 }) {
+  const { t } = useTranslation(['search']);
+  const themed = useThemedStyles();
   return (
     <View style={[styles.section, styles.sectionFirst, themed.sectionBorder]}>
       <View style={styles.chipRow}>

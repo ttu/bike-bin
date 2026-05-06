@@ -9,12 +9,12 @@ export interface UseBrandAutocompleteParams {
 
 export function useBrandAutocomplete({ brand, setBrand, brands }: UseBrandAutocompleteParams) {
   const [brandMenuVisible, setBrandMenuVisible] = useState(false);
-  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const cancelBlurTimeout = useCallback(() => {
-    if (blurTimeoutRef.current !== null) {
+    if (blurTimeoutRef.current !== undefined) {
       clearTimeout(blurTimeoutRef.current);
-      blurTimeoutRef.current = null;
+      blurTimeoutRef.current = undefined;
     }
   }, []);
 
@@ -53,7 +53,7 @@ export function useBrandAutocomplete({ brand, setBrand, brands }: UseBrandAutoco
   const handleBrandBlur = useCallback(() => {
     cancelBlurTimeout();
     blurTimeoutRef.current = setTimeout(() => {
-      blurTimeoutRef.current = null;
+      blurTimeoutRef.current = undefined;
       setBrandMenuVisible(false);
     }, 200);
   }, [cancelBlurTimeout]);

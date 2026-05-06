@@ -44,7 +44,7 @@ export function ItemDetail({
 }: ItemDetailProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
-  const themed = useThemedStyles(theme);
+  const themed = useThemedStyles();
   const { width: windowWidth } = useWindowDimensions();
   const { isWide, splitLayout, galleryMaxWidth } = getWideDetailLayout(windowWidth);
   const { distanceUnit } = useDistanceUnit();
@@ -84,15 +84,13 @@ export function ItemDetail({
     <>
       <TitleBlock
         item={item}
-        themed={themed}
         statusColor={statusColor}
         categoryLabel={categoryLabel}
         subcategoryLabel={subcategoryLabel}
         metaParts={metaParts}
-        t={t}
       />
-      <FigureStrip item={item} themed={themed} t={t} distanceUnit={distanceUnit} />
-      <ServiceRecord item={item} themed={themed} t={t} />
+      <FigureStrip item={item} distanceUnit={distanceUnit} />
+      <ServiceRecord item={item} />
       {item.description && (
         <View style={[styles.section, themed.sectionBorder]}>
           <Text variant="bodyMedium" style={themed.onBackground}>
@@ -117,16 +115,10 @@ export function ItemDetail({
           </View>
         </View>
       )}
-      <ListedForSection
-        listAvailability={listAvailability}
-        ownerGroup={ownerGroup}
-        themed={themed}
-        t={t}
-      />
+      <ListedForSection listAvailability={listAvailability} ownerGroup={ownerGroup} />
       <ActionsSection
         item={item}
         isWide={isWide}
-        t={t}
         canShowReturnedAction={canShowReturnedAction}
         canShowDonateAction={canShowDonateAction}
         canShowSoldAction={canShowSoldAction}

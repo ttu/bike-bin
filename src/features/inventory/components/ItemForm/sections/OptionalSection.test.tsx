@@ -36,6 +36,7 @@ interface Handlers {
   handleAddTag: jest.Mock;
   handleRemoveTag: jest.Mock;
   clearTagBlurCommitTimeout: jest.Mock;
+  scheduleTagBlurCommit: jest.Mock;
 }
 
 function buildState(overrides: OverrideProps, handlers: Handlers): ItemFormState {
@@ -107,7 +108,7 @@ function buildState(overrides: OverrideProps, handlers: Handlers): ItemFormState
     handleAddTag: handlers.handleAddTag,
     handleRemoveTag: handlers.handleRemoveTag,
     clearTagBlurCommitTimeout: handlers.clearTagBlurCommitTimeout,
-    tagBlurCommitTimeoutRef: { current: undefined },
+    scheduleTagBlurCommit: handlers.scheduleTagBlurCommit,
     showOptional: overrides.showOptional ?? true,
     setShowOptional: handlers.setShowOptional,
     errors: {},
@@ -128,6 +129,7 @@ function renderSection(overrides: OverrideProps = {}) {
     handleAddTag: jest.fn(),
     handleRemoveTag: jest.fn(),
     clearTagBlurCommitTimeout: jest.fn(),
+    scheduleTagBlurCommit: jest.fn(),
   };
 
   const state = buildState(overrides, handlers);
@@ -282,5 +284,12 @@ describe('OptionalSection', () => {
     const input = screen.getByPlaceholderText('form.tagsPlaceholder');
     fireEvent(input, 'submitEditing');
     expect(handlers.handleAddTag).toHaveBeenCalledWith('fast');
+  });
+
+  it('schedules tag blur commit with current tag input on blur', () => {
+    const { handlers } = renderSection({ tagInput: 'fast' });
+    const input = screen.getByPlaceholderText('form.tagsPlaceholder');
+    fireEvent(input, 'blur');
+    expect(handlers.scheduleTagBlurCommit).toHaveBeenCalledWith('fast');
   });
 });

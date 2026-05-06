@@ -1,23 +1,21 @@
 import { View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { type AppTheme } from '@/shared/theme';
 import type { SearchResultItem } from '../../../types';
-import { styles, type Themed } from '../shared';
+import { styles, useThemedStyles } from '../shared';
 
 export function ListingLocationRow({
   hasLocation,
   item,
-  theme,
-  themed,
   distanceText,
 }: {
   readonly hasLocation: boolean;
   readonly item: SearchResultItem;
-  readonly theme: AppTheme;
-  readonly themed: Themed;
   readonly distanceText: string | undefined;
 }) {
+  const theme = useTheme<AppTheme>();
+  const themed = useThemedStyles();
   if (!hasLocation) return null;
   return (
     <View style={[styles.section, themed.sectionBorder]} testID="location-row">
