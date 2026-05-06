@@ -107,9 +107,7 @@ function SearchResultCard({
         </Text>
       </View>
       {group.isMember ? (
-        <Chip compact textStyle={styles.chipText}>
-          {t('detail.joined')}
-        </Chip>
+        <Chip compact>{t('detail.joined')}</Chip>
       ) : (
         <Button
           mode="outlined"
@@ -168,8 +166,5 @@ const styles = StyleSheet.create({
   cardContent: {
     flex: 1,
     gap: spacing.xs,
-  },
-  chipText: {
-    fontSize: 11,
   },
 });

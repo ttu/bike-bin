@@ -67,6 +67,10 @@ export function ScreenMasthead({ eyebrow, title, counts }: Readonly<ScreenMasthe
   );
 }
 
+// Masthead typography is its own brand voice — the BigShoulders display
+// face and tighter tracking don't sit on the MD3 type ramp. Treat the
+// numbers below as the canonical source for masthead styling rather than
+// extracting them to theme tokens shared with other surfaces.
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.base,

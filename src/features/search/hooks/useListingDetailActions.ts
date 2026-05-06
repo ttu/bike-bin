@@ -2,9 +2,10 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth';
-import { useCreateBorrowRequest } from '@/features/borrow';
+import { useCreateBorrowRequest, useRequestBorrowDialogConfig } from '@/features/borrow';
 import { useCreateConversation } from '@/features/messaging';
 import { useReport } from '@/shared/hooks/useReport';
+import { useReportFeedbackMessages } from '@/shared/hooks/useReportFeedbackMessages';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
@@ -19,8 +20,8 @@ interface UseListingDetailActionsArgs {
 
 export function useListingDetailActions({ item, thisListingPath }: UseListingDetailActionsArgs) {
   const { t } = useTranslation('search');
-  const { t: tBorrow } = useTranslation('borrow');
-  const { t: tProfile } = useTranslation('profile');
+  const requestBorrowDialog = useRequestBorrowDialogConfig(item.name);
+  const reportFeedback = useReportFeedbackMessages();
   const router = useRouter();
   const { user } = useAuth();
   const { mutate: createConversation } = useCreateConversation();
@@ -62,11 +63,9 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
   }, [item.ownerId, router, thisListingPath]);
 
   const handleRequestBorrow = useCallback(() => {
+    const { errorMessage, ...dialog } = requestBorrowDialog;
     openConfirm({
-      title: tBorrow('confirm.requestBorrow.title'),
-      message: tBorrow('confirm.requestBorrow.message', { itemName: item.name }),
-      cancelLabel: tBorrow('confirm.requestBorrow.cancel'),
-      confirmLabel: tBorrow('confirm.requestBorrow.confirm'),
+      ...dialog,
       onConfirm: () => {
         // Close dialog before mutation resolves to prevent double-submit on repeated taps.
         closeConfirm();
@@ -76,7 +75,7 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
             onSuccess: () => router.push('/(tabs)/profile/borrow-requests'),
             onError: () =>
               showSnackbarAlert({
-                message: tBorrow('error.requestFailed'),
+                message: errorMessage,
                 variant: 'error',
                 duration: 'long',
               }),
@@ -86,13 +85,12 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
     });
   }, [
     item.id,
-    item.name,
+    requestBorrowDialog,
     openConfirm,
     closeConfirm,
     createBorrowRequest,
     router,
     showSnackbarAlert,
-    tBorrow,
   ]);
 
   const handlePhotoLongPress = useCallback(
@@ -118,20 +116,20 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
           onSuccess: () => {
             setReportPhotoId(undefined);
             showSnackbarAlert({
-              message: tProfile('report.successMessage'),
+              message: reportFeedback.success,
               variant: 'success',
             });
           },
           onError: () =>
             showSnackbarAlert({
-              message: tProfile('report.errorMessage'),
+              message: reportFeedback.error,
               variant: 'error',
               duration: 'long',
             }),
         },
       );
     },
-    [user, reportPhotoId, reportMutation, showSnackbarAlert, tProfile],
+    [user, reportPhotoId, reportMutation, showSnackbarAlert, reportFeedback],
   );
 
   const dismissReport = useCallback(() => setReportPhotoId(undefined), []);

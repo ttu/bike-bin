@@ -12,6 +12,7 @@ export { useDeclineBorrowRequest } from './hooks/useDeclineBorrowRequest';
 export { useCancelBorrowRequest } from './hooks/useCancelBorrowRequest';
 export { useMarkReturned } from './hooks/useMarkReturned';
 export { useMarkReturnedDialogConfig } from './hooks/useMarkReturnedDialogConfig';
+export { useRequestBorrowDialogConfig } from './hooks/useRequestBorrowDialogConfig';
 export {
   useAcceptedBorrowRequestForItem,
   ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
