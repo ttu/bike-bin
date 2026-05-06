@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react-native';
 import React from 'react';
-import { SearchFiltersProvider, useSearchFilters } from '../useSearchFilters';
+import { SearchFiltersProvider } from '../../provider';
+import { useSearchFilters } from '../useSearchFilters';
 
 function Wrapper({ children }: { readonly children: React.ReactNode }) {
   return React.createElement(SearchFiltersProvider, null, children);

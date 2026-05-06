@@ -2,8 +2,11 @@
 export type { SearchFilters, SearchResultItem, SearchSortOption, DistancePreset } from './types';
 export { DEFAULT_SEARCH_FILTERS, DISTANCE_PRESETS } from './types';
 
+// Provider + hook
+export { SearchFiltersProvider } from './provider';
+export { useSearchFilters } from './hooks/useSearchFilters';
+
 // Hooks
-export { SearchFiltersProvider, useSearchFilters } from './hooks/useSearchFilters';
 export { useSearchItems } from './hooks/useSearchItems';
 export { useListingDetail } from './hooks/useListingDetail';
 

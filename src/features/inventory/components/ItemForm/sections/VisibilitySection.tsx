@@ -11,6 +11,12 @@ interface VisibilitySectionProps {
   readonly state: ItemFormState;
 }
 
+const VISIBILITY_OPTIONS: ReadonlyArray<{ value: Visibility; labelKey: string }> = [
+  { value: Visibility.Private, labelKey: 'form.visibilityPrivate' },
+  { value: Visibility.All, labelKey: 'form.visibilityAll' },
+  { value: Visibility.Groups, labelKey: 'form.visibilityGroups' },
+];
+
 export function VisibilitySection({ state }: VisibilitySectionProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -23,88 +29,56 @@ export function VisibilitySection({ state }: VisibilitySectionProps) {
         {t('form.visibilityLabel')}
       </Text>
       <View style={styles.chipRow}>
-        <Chip
-          selected={visibility === Visibility.Private}
-          onPress={() => setVisibility(Visibility.Private)}
-          showSelectedCheck={false}
-          textStyle={
-            visibility === Visibility.Private ? { color: theme.colors.onPrimary } : undefined
-          }
-          style={[
-            styles.chip,
-            {
-              backgroundColor:
-                visibility === Visibility.Private
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-            },
-          ]}
-        >
-          {t('form.visibilityPrivate')}
-        </Chip>
-        <Chip
-          selected={visibility === Visibility.All}
-          onPress={() => setVisibility(Visibility.All)}
-          showSelectedCheck={false}
-          textStyle={visibility === Visibility.All ? { color: theme.colors.onPrimary } : undefined}
-          style={[
-            styles.chip,
-            {
-              backgroundColor:
-                visibility === Visibility.All
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-            },
-          ]}
-        >
-          {t('form.visibilityAll')}
-        </Chip>
-        <Chip
-          selected={visibility === Visibility.Groups}
-          onPress={() => setVisibility(Visibility.Groups)}
-          showSelectedCheck={false}
-          textStyle={
-            visibility === Visibility.Groups ? { color: theme.colors.onPrimary } : undefined
-          }
-          style={[
-            styles.chip,
-            {
-              backgroundColor:
-                visibility === Visibility.Groups
-                  ? theme.colors.primary
-                  : theme.colors.secondaryContainer,
-            },
-          ]}
-        >
-          {t('form.visibilityGroups')}
-        </Chip>
+        {VISIBILITY_OPTIONS.map(({ value, labelKey }) => {
+          const selected = visibility === value;
+          return (
+            <Chip
+              key={value}
+              selected={selected}
+              onPress={() => setVisibility(value)}
+              showSelectedCheck={false}
+              textStyle={selected ? { color: theme.colors.onPrimary } : undefined}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: selected
+                    ? theme.colors.primary
+                    : theme.colors.secondaryContainer,
+                },
+              ]}
+            >
+              {t(labelKey)}
+            </Chip>
+          );
+        })}
       </View>
 
       {visibility === Visibility.Groups && (
         <View style={styles.groupSelection}>
           {userGroups && userGroups.length > 0 ? (
             <View style={styles.chipRow}>
-              {userGroups.map((group: GroupWithRole) => (
-                <Chip
-                  key={group.id}
-                  selected={groupIds.includes(group.id)}
-                  onPress={() => toggleGroupId(group.id)}
-                  showSelectedCheck={false}
-                  textStyle={
-                    groupIds.includes(group.id) ? { color: theme.colors.onPrimary } : undefined
-                  }
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor: groupIds.includes(group.id)
-                        ? theme.colors.primary
-                        : theme.colors.secondaryContainer,
-                    },
-                  ]}
-                >
-                  {group.name}
-                </Chip>
-              ))}
+              {userGroups.map((group: GroupWithRole) => {
+                const selected = groupIds.includes(group.id);
+                return (
+                  <Chip
+                    key={group.id}
+                    selected={selected}
+                    onPress={() => toggleGroupId(group.id)}
+                    showSelectedCheck={false}
+                    textStyle={selected ? { color: theme.colors.onPrimary } : undefined}
+                    style={[
+                      styles.chip,
+                      {
+                        backgroundColor: selected
+                          ? theme.colors.primary
+                          : theme.colors.secondaryContainer,
+                      },
+                    ]}
+                  >
+                    {group.name}
+                  </Chip>
+                );
+              })}
             </View>
           ) : (
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>

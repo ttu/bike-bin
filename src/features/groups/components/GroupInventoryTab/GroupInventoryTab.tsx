@@ -7,8 +7,8 @@ import { GroupRole, type GroupId, type Item } from '@/shared/types';
 import { useAuth } from '@/features/auth';
 import { ItemCard, useGroupItems } from '@/features/inventory';
 import { useGroupMembers } from '@/features/groups/hooks/useGroupMembers';
-import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
-import { spacing } from '@/shared/theme';
+import { EmptyState } from '@/shared/components';
+import { spacing, tabBarListScrollPaddingBottom } from '@/shared/theme';
 
 interface GroupInventoryTabProps {
   groupId: GroupId;
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   list: {
-    paddingBottom: 100,
+    paddingBottom: tabBarListScrollPaddingBottom,
   },
   fab: {
     position: 'absolute',
