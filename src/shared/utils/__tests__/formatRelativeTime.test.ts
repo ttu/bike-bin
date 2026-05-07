@@ -2,7 +2,8 @@ import { formatRelativeTime, formatMessageTime } from '../formatRelativeTime';
 
 const t = (key: string, options?: Record<string, unknown>): string => {
   const count = options?.count;
-  return count === undefined ? key : `${key}:${String(count)}`;
+  if (typeof count !== 'number') return key;
+  return `${key}:${count}`;
 };
 
 describe('formatRelativeTime', () => {

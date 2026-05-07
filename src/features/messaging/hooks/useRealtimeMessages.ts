@@ -10,6 +10,37 @@ import { mapMessageRow } from '../utils/mapMessageRow';
 import type { ConversationListItem, MessageWithSender } from '../types';
 import type { ConversationId, MessageRow } from '@/shared/types';
 
+function prependMessageToCache(
+  old: InfiniteData<MessageWithSender[]> | undefined,
+  newMessage: MessageWithSender,
+): InfiniteData<MessageWithSender[]> | undefined {
+  if (!old) return old;
+  const alreadyPresent = old.pages.some((page) => page.some((m) => m.id === newMessage.id));
+  if (alreadyPresent) return old;
+  const [first = [], ...rest] = old.pages;
+  return { ...old, pages: [[newMessage, ...first], ...rest] };
+}
+
+function patchConversationListWithNewMessage(
+  old: ConversationListItem[] | undefined,
+  conversationId: ConversationId,
+  newMessage: MessageWithSender,
+  isFocused: boolean,
+): ConversationListItem[] | undefined {
+  if (!old) return old;
+  return old.map((conv) => {
+    if (conv.id !== conversationId) return conv;
+    const shouldKeepUnread = newMessage.isOwn || isFocused;
+    return {
+      ...conv,
+      lastMessageBody: newMessage.body,
+      lastMessageSenderId: newMessage.senderId,
+      lastMessageAt: newMessage.createdAt,
+      unreadCount: shouldKeepUnread ? conv.unreadCount : conv.unreadCount + 1,
+    };
+  });
+}
+
 interface UseRealtimeMessagesOptions {
   /**
    * When true, an arriving message marks the conversation as read instead of
@@ -62,36 +93,18 @@ export function useRealtimeMessages(
 
           queryClient.setQueryData<InfiniteData<MessageWithSender[]>>(
             [MESSAGES_QUERY_KEY, conversationId],
-            (old) => {
-              if (!old) return old;
-              const alreadyPresent = old.pages.some((page) =>
-                page.some((m) => m.id === newMessage.id),
-              );
-              if (alreadyPresent) return old;
-              const [first = [], ...rest] = old.pages;
-              return { ...old, pages: [[newMessage, ...first], ...rest] };
-            },
+            (old) => prependMessageToCache(old, newMessage),
           );
 
           queryClient.setQueryData<ConversationListItem[]>(
             [CONVERSATIONS_QUERY_KEY, userId],
-            (old) => {
-              if (!old) return old;
-              return old.map((conv) =>
-                conv.id === conversationId
-                  ? {
-                      ...conv,
-                      lastMessageBody: newMessage.body,
-                      lastMessageSenderId: newMessage.senderId,
-                      lastMessageAt: newMessage.createdAt,
-                      unreadCount:
-                        newMessage.isOwn || isFocusedRef.current
-                          ? conv.unreadCount
-                          : conv.unreadCount + 1,
-                    }
-                  : conv,
-              );
-            },
+            (old) =>
+              patchConversationListWithNewMessage(
+                old,
+                conversationId,
+                newMessage,
+                isFocusedRef.current,
+              ),
           );
 
           if (isFocusedRef.current) {

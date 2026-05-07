@@ -62,36 +62,76 @@ export function GroupInviteView({
         />
       </Appbar.Header>
 
-      {!showResults ? (
-        <EmptyState
-          icon="account-search-outline"
-          title={t('invite.promptTitle')}
-          description={t('invite.promptDescription')}
-        />
-      ) : isLoading ? (
-        <CenteredLoadingIndicator />
-      ) : showEmpty ? (
-        <EmptyState
-          icon="account-off-outline"
-          title={t('invite.noResults')}
-          description={t('invite.noResultsDescription')}
-        />
-      ) : (
-        <FlatList
-          data={results ?? []}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <InvitableUserRow
-              user={item}
-              onInvite={handleInvite}
-              isPending={pendingInviteeId === item.id}
-              disabled={createInvitation.isPending}
-            />
-          )}
-          contentContainerStyle={styles.list}
+      {renderBody({
+        showResults,
+        isLoading,
+        showEmpty,
+        results: results ?? [],
+        t,
+        handleInvite,
+        pendingInviteeId,
+        isInvitePending: createInvitation.isPending,
+      })}
+    </View>
+  );
+}
+
+type RenderBodyArgs = {
+  showResults: boolean;
+  isLoading: boolean;
+  showEmpty: boolean;
+  results: InvitableUser[];
+  t: (key: string) => string;
+  handleInvite: (id: UserId) => void;
+  pendingInviteeId: UserId | undefined;
+  isInvitePending: boolean;
+};
+
+function renderBody({
+  showResults,
+  isLoading,
+  showEmpty,
+  results,
+  t,
+  handleInvite,
+  pendingInviteeId,
+  isInvitePending,
+}: RenderBodyArgs) {
+  if (!showResults) {
+    return (
+      <EmptyState
+        icon="account-search-outline"
+        title={t('invite.promptTitle')}
+        description={t('invite.promptDescription')}
+      />
+    );
+  }
+  if (isLoading) {
+    return <CenteredLoadingIndicator />;
+  }
+  if (showEmpty) {
+    return (
+      <EmptyState
+        icon="account-off-outline"
+        title={t('invite.noResults')}
+        description={t('invite.noResultsDescription')}
+      />
+    );
+  }
+  return (
+    <FlatList
+      data={results}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <InvitableUserRow
+          user={item}
+          onInvite={handleInvite}
+          isPending={pendingInviteeId === item.id}
+          disabled={isInvitePending}
         />
       )}
-    </View>
+      contentContainerStyle={styles.list}
+    />
   );
 }
 

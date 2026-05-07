@@ -669,7 +669,7 @@ describe('mark_conversation_read RPC', () => {
     const lastReadAt = rows?.[0]?.last_read_at;
     expect(lastReadAt).toBeDefined();
     if (typeof lastReadAt !== 'string') {
-      throw new Error('expected last_read_at');
+      throw new TypeError('expected last_read_at');
     }
     expect(new Date(lastReadAt).getTime()).toBeGreaterThan(
       new Date('1970-01-01T00:00:00Z').getTime(),

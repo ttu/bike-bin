@@ -35,18 +35,16 @@ function buildSeededEntries(): SeededEntry[] {
     [['locations', 'primary', uid], DEMO_LOCATIONS.find((l) => l.isPrimary)],
   ];
   for (const item of DEMO_ITEMS) {
-    entries.push([['items', item.id], item]);
-    entries.push([['item_photos', item.id], []]);
+    entries.push([['items', item.id], item], [['item_photos', item.id], []]);
   }
   for (const bike of DEMO_BIKES) {
     entries.push([['bikes', bike.id], bike]);
   }
   for (const conv of DEMO_CONVERSATIONS) {
-    entries.push([['conversation', conv.id], conv]);
-    entries.push([
-      ['messages', conv.id],
-      { pages: [DEMO_MESSAGES[conv.id] ?? []], pageParams: [undefined] },
-    ]);
+    entries.push(
+      [['conversation', conv.id], conv],
+      [['messages', conv.id], { pages: [DEMO_MESSAGES[conv.id] ?? []], pageParams: [undefined] }],
+    );
   }
   return entries;
 }

@@ -147,10 +147,10 @@ export function makeInitialItemFormState({
   };
 }
 
-export function itemFormReducer(
+function reduceBasic(
   state: ItemFormReducerState,
   action: ItemFormAction,
-): ItemFormReducerState {
+): ItemFormReducerState | undefined {
   switch (action.type) {
     case 'setName':
       return { ...state, basic: { ...state.basic, name: action.value } };
@@ -177,19 +177,37 @@ export function itemFormReducer(
       return { ...state, basic: { ...state.basic, brand: action.value } };
     case 'setModel':
       return { ...state, basic: { ...state.basic, model: action.value } };
-    case 'toggleAvailability': {
-      const prev = state.availability.types;
-      let nextTypes: AvailabilityType[];
-      if (action.value === AvailabilityType.Private) {
-        nextTypes = prev.includes(AvailabilityType.Private) ? [] : [AvailabilityType.Private];
-      } else {
-        const filtered = prev.filter((t) => t !== AvailabilityType.Private);
-        nextTypes = filtered.includes(action.value)
-          ? filtered.filter((t) => t !== action.value)
-          : [...filtered, action.value];
-      }
-      return { ...state, availability: { ...state.availability, types: nextTypes } };
-    }
+    default:
+      return undefined;
+  }
+}
+
+function nextAvailabilityTypes(
+  prev: AvailabilityType[],
+  toggled: AvailabilityType,
+): AvailabilityType[] {
+  if (toggled === AvailabilityType.Private) {
+    return prev.includes(AvailabilityType.Private) ? [] : [AvailabilityType.Private];
+  }
+  const filtered = prev.filter((t) => t !== AvailabilityType.Private);
+  return filtered.includes(toggled)
+    ? filtered.filter((t) => t !== toggled)
+    : [...filtered, toggled];
+}
+
+function reduceAvailability(
+  state: ItemFormReducerState,
+  action: ItemFormAction,
+): ItemFormReducerState | undefined {
+  switch (action.type) {
+    case 'toggleAvailability':
+      return {
+        ...state,
+        availability: {
+          ...state.availability,
+          types: nextAvailabilityTypes(state.availability.types, action.value),
+        },
+      };
     case 'setPrice':
       return { ...state, availability: { ...state.availability, price: action.value } };
     case 'setDeposit':
@@ -201,6 +219,16 @@ export function itemFormReducer(
         ...state,
         availability: { ...state.availability, durationMenuVisible: action.value },
       };
+    default:
+      return undefined;
+  }
+}
+
+function reduceVisibility(
+  state: ItemFormReducerState,
+  action: ItemFormAction,
+): ItemFormReducerState | undefined {
+  switch (action.type) {
     case 'setVisibility':
       return { ...state, visibility: { ...state.visibility, visibility: action.value } };
     case 'toggleGroup': {
@@ -210,6 +238,16 @@ export function itemFormReducer(
         : [...ids, action.value];
       return { ...state, visibility: { ...state.visibility, groupIds: nextIds } };
     }
+    default:
+      return undefined;
+  }
+}
+
+function reduceOptional(
+  state: ItemFormReducerState,
+  action: ItemFormAction,
+): ItemFormReducerState | undefined {
+  switch (action.type) {
     case 'setShowOptional':
       return { ...state, optional: { ...state.optional, showOptional: action.value } };
     case 'setPurchaseDate':
@@ -230,28 +268,66 @@ export function itemFormReducer(
       return { ...state, optional: { ...state.optional, description: action.value } };
     case 'setRemainingPercentStr':
       return { ...state, optional: { ...state.optional, remainingPercentStr: action.value } };
+    default:
+      return undefined;
+  }
+}
+
+function appendTagIfAllowed(list: string[], raw: string): string[] {
+  const tag = sanitizeTag(raw);
+  return canAddTag(tag, list) ? [...list, tag] : list;
+}
+
+function reduceTags(
+  state: ItemFormReducerState,
+  action: ItemFormAction,
+): ItemFormReducerState | undefined {
+  switch (action.type) {
     case 'setTagInput':
       return { ...state, tags: { ...state.tags, input: action.value } };
     case 'setTagSuggestionsVisible':
       return { ...state, tags: { ...state.tags, suggestionsVisible: action.value } };
-    case 'addTag': {
-      const tag = sanitizeTag(action.value);
-      const list = canAddTag(tag, state.tags.list) ? [...state.tags.list, tag] : state.tags.list;
-      return { ...state, tags: { list, input: '', suggestionsVisible: false } };
-    }
+    case 'addTag':
+      return {
+        ...state,
+        tags: {
+          list: appendTagIfAllowed(state.tags.list, action.value),
+          input: '',
+          suggestionsVisible: false,
+        },
+      };
     case 'removeTag':
       return {
         ...state,
         tags: { ...state.tags, list: state.tags.list.filter((t) => t !== action.value) },
       };
-    case 'commitPendingTagAndSubmit': {
-      const pending = sanitizeTag(state.tags.input);
-      const list = canAddTag(pending, state.tags.list)
-        ? [...state.tags.list, pending]
-        : state.tags.list;
-      return { ...state, tags: { list, input: '', suggestionsVisible: false } };
-    }
-    case 'setErrors':
-      return { ...state, errors: action.value };
+    case 'commitPendingTagAndSubmit':
+      return {
+        ...state,
+        tags: {
+          list: appendTagIfAllowed(state.tags.list, state.tags.input),
+          input: '',
+          suggestionsVisible: false,
+        },
+      };
+    default:
+      return undefined;
   }
+}
+
+export function itemFormReducer(
+  state: ItemFormReducerState,
+  action: ItemFormAction,
+): ItemFormReducerState {
+  if (action.type === 'setErrors') {
+    return { ...state, errors: action.value };
+  }
+  return (
+    reduceBasic(state, action) ??
+    reduceAvailability(state, action) ??
+    reduceVisibility(state, action) ??
+    reduceOptional(state, action) ??
+    reduceTags(state, action) ??
+    state
+  );
 }

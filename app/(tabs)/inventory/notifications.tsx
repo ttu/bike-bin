@@ -37,12 +37,12 @@ export default function NotificationsScreen() {
       switch (type) {
         case 'new_message': {
           const rawConversationId = data.conversationId;
-          const conversationIdStr =
-            typeof rawConversationId === 'string'
-              ? rawConversationId
-              : typeof rawConversationId === 'number'
-                ? String(rawConversationId)
-                : undefined;
+          let conversationIdStr: string | undefined;
+          if (typeof rawConversationId === 'string') {
+            conversationIdStr = rawConversationId;
+          } else if (typeof rawConversationId === 'number') {
+            conversationIdStr = String(rawConversationId);
+          }
           if (conversationIdStr) {
             router.push(`/(tabs)/messages/${conversationIdStr}`);
           }
