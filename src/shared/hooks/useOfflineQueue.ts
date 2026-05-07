@@ -5,6 +5,13 @@ import { useNetworkStatus } from './useNetworkStatus';
 
 const QUEUE_STORAGE_KEY = 'offline-mutation-queue';
 
+interface QueuedMutation {
+  id: string;
+  timestamp: number;
+  mutationKey: string;
+  variables: unknown;
+}
+
 function mergeQueueAfterReplay(
   prev: QueuedMutation[],
   snapshotIds: Set<string>,
@@ -22,13 +29,6 @@ function mergeHydratedQueue(prev: QueuedMutation[], parsed: QueuedMutation[]): Q
   const seen = new Set(prev.map((m) => m.id));
   const incoming = parsed.filter((m) => !seen.has(m.id));
   return [...prev, ...incoming];
-}
-
-interface QueuedMutation {
-  id: string;
-  timestamp: number;
-  mutationKey: string;
-  variables: unknown;
 }
 
 /**

@@ -315,6 +315,10 @@ function reduceTags(
   }
 }
 
+function assertNever(action: never): never {
+  throw new Error(`itemFormReducer: unhandled ItemFormAction ${JSON.stringify(action)}`);
+}
+
 export function itemFormReducer(
   state: ItemFormReducerState,
   action: ItemFormAction,
@@ -322,12 +326,12 @@ export function itemFormReducer(
   if (action.type === 'setErrors') {
     return { ...state, errors: action.value };
   }
-  return (
+  const next =
     reduceBasic(state, action) ??
     reduceAvailability(state, action) ??
     reduceVisibility(state, action) ??
     reduceOptional(state, action) ??
-    reduceTags(state, action) ??
-    state
-  );
+    reduceTags(state, action);
+  if (next) return next;
+  return assertNever(action as never);
 }

@@ -53,14 +53,27 @@ function readServerEnv(): ServerEnv | undefined {
   return { supabaseUrl, supabaseServiceKey, supabaseAnonKey };
 }
 
+// Best-effort, per-isolate rate limit. Does not survive cold starts and is not
+// shared across isolates — for durable cross-isolate enforcement, persist to a
+// shared store (DB / gateway).
+function evictExpiredAttempts(now: number): void {
+  for (const [key, ts] of recentAttempts) {
+    if (now - ts >= RATE_LIMIT_WINDOW_MS) recentAttempts.delete(key);
+  }
+}
+
 function checkRateLimit(userId: string): number | undefined {
-  const lastAttempt = recentAttempts.get(userId);
   const now = Date.now();
+  evictExpiredAttempts(now);
+  const lastAttempt = recentAttempts.get(userId);
   if (lastAttempt && now - lastAttempt < RATE_LIMIT_WINDOW_MS) {
     return Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastAttempt)) / 1000);
   }
-  recentAttempts.set(userId, now);
   return undefined;
+}
+
+function recordAttempt(userId: string): void {
+  recentAttempts.set(userId, Date.now());
 }
 
 type ServiceClient = ReturnType<typeof createClient>;
@@ -134,8 +147,18 @@ async function purgeUserData(supabase: ServiceClient, userId: string): Promise<v
     assertNoFnError(storageError, 'remove export files from storage');
   }
 
+  const { error: exportRowsError } = await supabase
+    .from('export_requests')
+    .delete()
+    .eq('user_id', userId);
+  assertNoFnError(exportRowsError, 'delete export_requests');
+
   const { error: profileError } = await supabase.from('profiles').delete().eq('id', userId);
   assertNoFnError(profileError, 'delete profile');
+
+  // Auth user is deleted last so any failure above leaves the user able to retry.
+  const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+  assertNoFnError(authDeleteError, 'delete auth user');
 }
 
 Deno.serve(async (req) => {
@@ -182,12 +205,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(env.supabaseUrl, env.supabaseServiceKey);
     await purgeUserData(supabase, userId);
 
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
-    if (deleteError) {
-      console.error('Failed to delete auth user:', deleteError.message);
-      return jsonResponse(500, { error: 'Failed to delete auth user' });
-    }
-
+    recordAttempt(userId);
     return jsonResponse(200, { success: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
