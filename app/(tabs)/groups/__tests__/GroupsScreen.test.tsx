@@ -283,6 +283,30 @@ describe('GroupsScreen', () => {
     });
   });
 
+  it('renders the joined chip instead of a join button when the search hit is already a member', () => {
+    const searchHit: SearchGroupResult = {
+      id: 'already-in' as GroupId,
+      name: 'Already In',
+      description: undefined,
+      isPublic: true,
+      ratingAvg: 0,
+      ratingCount: 0,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      memberCount: 5,
+      isMember: true,
+    };
+    mockUseSearchGroups.mockImplementation((q: string) => ({
+      data: q.length >= 3 ? [searchHit] : [],
+      isLoading: false,
+    }));
+    renderWithProviders(<GroupsScreen />);
+    fireEvent.press(screen.getByTestId('groups-search-button'));
+    fireEvent.changeText(screen.getByPlaceholderText(groupsEn.search.placeholder), 'already');
+
+    expect(screen.getByText(groupsEn.detail.joined)).toBeTruthy();
+    expect(screen.queryByText(groupsEn.detail.joinGroup)).toBeNull();
+  });
+
   it('completes join group from search on success', async () => {
     const searchHit: SearchGroupResult = {
       id: 'join-me' as GroupId,

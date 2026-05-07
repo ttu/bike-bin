@@ -165,7 +165,6 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: undefined, // set dynamically via theme.colors.background
   },
   content: {
     flex: 1,

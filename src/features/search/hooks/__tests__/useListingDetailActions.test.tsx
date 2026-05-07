@@ -17,9 +17,22 @@ jest.mock('@/features/messaging', () => ({
 }));
 jest.mock('@/features/borrow', () => ({
   useCreateBorrowRequest: () => ({ mutate: mockCreateBorrowRequest }),
+  useRequestBorrowDialogConfig: (itemName: string) => ({
+    title: 'borrow.confirm.requestBorrow.title',
+    message: `borrow.confirm.requestBorrow.message:${itemName}`,
+    cancelLabel: 'borrow.confirm.requestBorrow.cancel',
+    confirmLabel: 'borrow.confirm.requestBorrow.confirm',
+    errorMessage: 'borrow.error.requestFailed',
+  }),
 }));
 jest.mock('@/shared/hooks/useReport', () => ({
   useReport: () => ({ mutate: mockReportMutate, isPending: false }),
+}));
+jest.mock('@/shared/hooks/useReportFeedbackMessages', () => ({
+  useReportFeedbackMessages: () => ({
+    success: 'profile.report.successMessage',
+    error: 'profile.report.errorMessage',
+  }),
 }));
 jest.mock('@/shared/components/SnackbarAlerts', () => ({
   useSnackbarAlerts: () => ({ showSnackbarAlert: mockShowSnackbarAlert }),
