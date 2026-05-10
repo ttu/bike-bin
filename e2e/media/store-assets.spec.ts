@@ -169,10 +169,13 @@ test.describe('Short screen recording', () => {
     const gifPath = path.join(GIF_DIR, 'browse-flow.gif');
 
     const context = await browser.newContext({
+      // Playwright records video at viewport CSS px (deviceScaleFactor is ignored) and defaults
+      // `size` to fit within 800×800 — i.e. it downscales below viewport. Pin `size` to the
+      // viewport so the WebM matches the still PNGs (same 430×932 mobile layout) at full
+      // viewport resolution without padding.
       viewport: { width: 430, height: 932 },
       deviceScaleFactor: 3,
-      // Encode WebM at physical pixels (3× logical) so footage is not soft vs framed PNGs.
-      recordVideo: { dir: VIDEO_DIR, size: { width: 1290, height: 2796 } },
+      recordVideo: { dir: VIDEO_DIR, size: { width: 430, height: 932 } },
     });
     const page = await context.newPage();
     await devLogin(page, { holdOnLoginScreenMs: browseRecordingMs(1400) });
