@@ -71,7 +71,7 @@ authTest.describe('Store stills', () => {
 
       await visibleExactText(loggedInPage, MAXXIS_ITEM_NAME).click();
       await loggedInPage.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10_000 });
-      await expect(loggedInPage.getByText('Condition')).toBeVisible({ timeout: 10_000 });
+      await expect(loggedInPage.getByText('Service record')).toBeVisible({ timeout: 10_000 });
       await screenshotWithPhoneFrame(context, loggedInPage, '03-item-detail');
 
       const detailUrl = loggedInPage.url();
@@ -135,10 +135,10 @@ async function runRecordedInventorySearchToEditFlow(page: Page): Promise<void> {
 
   await visibleExactText(page, MAXXIS_ITEM_NAME).click();
   await page.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 15_000 });
-  await expect(page.getByText('Condition')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Service record')).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(browseRecordingMs(500));
 
-  await page.getByRole('button').nth(1).click();
+  await page.getByRole('button', { name: 'Edit item' }).click();
   await page.waitForURL(/\/edit\//, { timeout: 15_000 });
   await expect(page.getByText('Edit item')).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(browseRecordingMs(900));
@@ -169,10 +169,13 @@ test.describe('Short screen recording', () => {
     const gifPath = path.join(GIF_DIR, 'browse-flow.gif');
 
     const context = await browser.newContext({
+      // Playwright records video at viewport CSS px (deviceScaleFactor is ignored) and defaults
+      // `size` to fit within 800×800 — i.e. it downscales below viewport. Pin `size` to the
+      // viewport so the WebM matches the still PNGs (same 430×932 mobile layout) at full
+      // viewport resolution without padding.
       viewport: { width: 430, height: 932 },
       deviceScaleFactor: 3,
-      // Encode WebM at physical pixels (3× logical) so footage is not soft vs framed PNGs.
-      recordVideo: { dir: VIDEO_DIR, size: { width: 1290, height: 2796 } },
+      recordVideo: { dir: VIDEO_DIR, size: { width: 430, height: 932 } },
     });
     const page = await context.newPage();
     await devLogin(page, { holdOnLoginScreenMs: browseRecordingMs(1400) });
