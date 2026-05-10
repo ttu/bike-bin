@@ -30,36 +30,154 @@ function assertNoFnError(error: unknown, step: string): void {
   }
 }
 
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
+
+function jsonResponse(status: number, body: unknown, extraHeaders?: Record<string, string>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: extraHeaders ? { ...JSON_HEADERS, ...extraHeaders } : JSON_HEADERS,
+  });
+}
+
+interface ServerEnv {
+  supabaseUrl: string;
+  supabaseServiceKey: string;
+  supabaseAnonKey: string;
+}
+
+function readServerEnv(): ServerEnv | undefined {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) return undefined;
+  return { supabaseUrl, supabaseServiceKey, supabaseAnonKey };
+}
+
+// Best-effort, per-isolate rate limit. Does not survive cold starts and is not
+// shared across isolates — for durable cross-isolate enforcement, persist to a
+// shared store (DB / gateway).
+function evictExpiredAttempts(now: number): void {
+  for (const [key, ts] of recentAttempts) {
+    if (now - ts >= RATE_LIMIT_WINDOW_MS) recentAttempts.delete(key);
+  }
+}
+
+function checkRateLimit(userId: string): number | undefined {
+  const now = Date.now();
+  evictExpiredAttempts(now);
+  const lastAttempt = recentAttempts.get(userId);
+  if (lastAttempt && now - lastAttempt < RATE_LIMIT_WINDOW_MS) {
+    return Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastAttempt)) / 1000);
+  }
+  return undefined;
+}
+
+function recordAttempt(userId: string): void {
+  recentAttempts.set(userId, Date.now());
+}
+
+type ServiceClient = ReturnType<typeof createClient>;
+
+async function purgeUserData(supabase: ServiceClient, userId: string): Promise<void> {
+  const { data: userItems, error: itemsSelectError } = await supabase
+    .from('items')
+    .select('id')
+    .eq('owner_id', userId);
+  assertNoFnError(itemsSelectError, 'select items');
+
+  if (userItems && userItems.length > 0) {
+    const itemIds = userItems.map((item: { id: string }) => item.id);
+    const { error: photosError } = await supabase
+      .from('item_photos')
+      .delete()
+      .in('item_id', itemIds);
+    assertNoFnError(photosError, 'delete item_photos');
+  }
+
+  const { error: deleteItemsError } = await supabase.from('items').delete().eq('owner_id', userId);
+  assertNoFnError(deleteItemsError, 'delete items');
+
+  const { error: ratingFromError } = await supabase
+    .from('ratings')
+    .update({ from_user_id: null })
+    .eq('from_user_id', userId);
+  assertNoFnError(ratingFromError, 'anonymize ratings (from_user_id)');
+
+  const { error: ratingToError } = await supabase
+    .from('ratings')
+    .update({ to_user_id: null })
+    .eq('to_user_id', userId);
+  assertNoFnError(ratingToError, 'anonymize ratings (to_user_id)');
+
+  const { error: messagesError } = await supabase
+    .from('messages')
+    .update({ sender_id: null })
+    .eq('sender_id', userId);
+  assertNoFnError(messagesError, 'anonymize messages');
+
+  const tableDeletions: Array<[string, string, string]> = [
+    ['conversation_participants', 'user_id', 'delete conversation_participants'],
+    ['borrow_requests', 'requester_id', 'delete borrow_requests'],
+    ['support_requests', 'user_id', 'delete support_requests'],
+    ['saved_locations', 'user_id', 'delete saved_locations'],
+    ['group_members', 'user_id', 'delete group_members'],
+    ['notifications', 'user_id', 'delete notifications'],
+    ['reports', 'reporter_id', 'delete reports'],
+  ];
+  for (const [table, column, step] of tableDeletions) {
+    const { error } = await supabase.from(table).delete().eq(column, userId);
+    assertNoFnError(error, step);
+  }
+
+  const { data: exportRequests, error: exportSelectError } = await supabase
+    .from('export_requests')
+    .select('storage_path')
+    .eq('user_id', userId)
+    .not('storage_path', 'is', null);
+  assertNoFnError(exportSelectError, 'select export_requests');
+
+  const storagePaths =
+    exportRequests
+      ?.map((e: { storage_path: string | null }) => e.storage_path)
+      .filter((p: string | null): p is string => !!p) ?? [];
+  if (storagePaths.length > 0) {
+    const { error: storageError } = await supabase.storage
+      .from('data-exports')
+      .remove(storagePaths);
+    assertNoFnError(storageError, 'remove export files from storage');
+  }
+
+  const { error: exportRowsError } = await supabase
+    .from('export_requests')
+    .delete()
+    .eq('user_id', userId);
+  assertNoFnError(exportRowsError, 'delete export_requests');
+
+  const { error: profileError } = await supabase.from('profiles').delete().eq('id', userId);
+  assertNoFnError(profileError, 'delete profile');
+
+  // Auth user is deleted last so any failure above leaves the user able to retry.
+  const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+  assertNoFnError(authDeleteError, 'delete auth user');
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse(405, { error: 'Method not allowed' });
   }
 
   try {
-    // Verify the user's JWT
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return jsonResponse(401, { error: 'Unauthorized' });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
-    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
-      return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    const env = readServerEnv();
+    if (!env) {
+      return jsonResponse(500, { error: 'Server misconfigured' });
     }
 
-    // User client to verify identity
-    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+    const supabaseUser = createClient(env.supabaseUrl, env.supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
@@ -68,154 +186,30 @@ Deno.serve(async (req) => {
       error: authError,
     } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return jsonResponse(401, { error: 'Unauthorized' });
     }
 
     const userId = user.id;
 
-    // Rate limit check
-    const lastAttempt = recentAttempts.get(userId);
-    const now = Date.now();
-    if (lastAttempt && now - lastAttempt < RATE_LIMIT_WINDOW_MS) {
-      const retryAfterSecs = Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastAttempt)) / 1000);
-      return new Response(JSON.stringify({ error: 'Too many requests' }), {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
+    const retryAfterSecs = checkRateLimit(userId);
+    if (retryAfterSecs !== undefined) {
+      return jsonResponse(
+        429,
+        { error: 'Too many requests' },
+        {
           'Retry-After': String(retryAfterSecs),
         },
-      });
-    }
-    recentAttempts.set(userId, now);
-
-    // Service role client for privileged operations
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { data: userItems, error: itemsSelectError } = await supabase
-      .from('items')
-      .select('id')
-      .eq('owner_id', userId);
-    assertNoFnError(itemsSelectError, 'select items');
-
-    if (userItems && userItems.length > 0) {
-      const itemIds = userItems.map((item) => item.id);
-      const { error: photosError } = await supabase
-        .from('item_photos')
-        .delete()
-        .in('item_id', itemIds);
-      assertNoFnError(photosError, 'delete item_photos');
+      );
     }
 
-    const { error: deleteItemsError } = await supabase
-      .from('items')
-      .delete()
-      .eq('owner_id', userId);
-    assertNoFnError(deleteItemsError, 'delete items');
+    const supabase = createClient(env.supabaseUrl, env.supabaseServiceKey);
+    await purgeUserData(supabase, userId);
 
-    const { error: ratingFromError } = await supabase
-      .from('ratings')
-      .update({ from_user_id: null })
-      .eq('from_user_id', userId);
-    assertNoFnError(ratingFromError, 'anonymize ratings (from_user_id)');
-
-    const { error: ratingToError } = await supabase
-      .from('ratings')
-      .update({ to_user_id: null })
-      .eq('to_user_id', userId);
-    assertNoFnError(ratingToError, 'anonymize ratings (to_user_id)');
-
-    const { error: messagesError } = await supabase
-      .from('messages')
-      .update({ sender_id: null })
-      .eq('sender_id', userId);
-    assertNoFnError(messagesError, 'anonymize messages');
-
-    const { error: participantsError } = await supabase
-      .from('conversation_participants')
-      .delete()
-      .eq('user_id', userId);
-    assertNoFnError(participantsError, 'delete conversation_participants');
-
-    const { error: borrowError } = await supabase
-      .from('borrow_requests')
-      .delete()
-      .eq('requester_id', userId);
-    assertNoFnError(borrowError, 'delete borrow_requests');
-
-    const { error: supportError } = await supabase
-      .from('support_requests')
-      .delete()
-      .eq('user_id', userId);
-    assertNoFnError(supportError, 'delete support_requests');
-
-    const { error: locationsError } = await supabase
-      .from('saved_locations')
-      .delete()
-      .eq('user_id', userId);
-    assertNoFnError(locationsError, 'delete saved_locations');
-
-    const { error: groupMembersError } = await supabase
-      .from('group_members')
-      .delete()
-      .eq('user_id', userId);
-    assertNoFnError(groupMembersError, 'delete group_members');
-
-    const { error: notificationsError } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('user_id', userId);
-    assertNoFnError(notificationsError, 'delete notifications');
-
-    const { error: reportsError } = await supabase
-      .from('reports')
-      .delete()
-      .eq('reporter_id', userId);
-    assertNoFnError(reportsError, 'delete reports');
-
-    const { data: exportRequests, error: exportSelectError } = await supabase
-      .from('export_requests')
-      .select('storage_path')
-      .eq('user_id', userId)
-      .not('storage_path', 'is', null);
-    assertNoFnError(exportSelectError, 'select export_requests');
-
-    if (exportRequests && exportRequests.length > 0) {
-      const storagePaths = exportRequests
-        .map((e) => e.storage_path)
-        .filter((p): p is string => !!p);
-      if (storagePaths.length > 0) {
-        const { error: storageError } = await supabase.storage
-          .from('data-exports')
-          .remove(storagePaths);
-        assertNoFnError(storageError, 'remove export files from storage');
-      }
-    }
-
-    const { error: profileError } = await supabase.from('profiles').delete().eq('id', userId);
-    assertNoFnError(profileError, 'delete profile');
-
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
-    if (deleteError) {
-      console.error('Failed to delete auth user:', deleteError.message);
-      return new Response(JSON.stringify({ error: 'Failed to delete auth user' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    recordAttempt(userId);
+    return jsonResponse(200, { success: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     console.error('delete-account error:', message);
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse(500, { error: message });
   }
 });

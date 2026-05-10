@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   AvailabilityType,
   ItemCategory,
+  type DistanceUnit,
   type GroupId,
   type ItemCondition,
   type Visibility,
@@ -18,7 +19,6 @@ import { SUBCATEGORIES, DEFAULT_BRANDS } from '../../constants';
 import { useDistanceUnit } from '@/features/profile';
 import { useBrandAutocomplete } from '@/shared/hooks/useBrandAutocomplete';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
-import type { DistanceUnit } from '@/shared/types';
 
 import {
   itemFormReducer,

@@ -10,12 +10,24 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { encodeReturnPath } from '@/shared/utils/returnPath';
 import type { ReportReason } from '@/shared/components';
-import type { ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
+import type { GroupId, ItemId, ItemPhoto, ItemPhotoId, UserId } from '@/shared/types';
 import type { SearchResultItem } from '../types';
+
+type ContactParams = { itemId: ItemId; groupId: GroupId } | { itemId: ItemId; otherUserId: UserId };
 
 interface UseListingDetailActionsArgs {
   readonly item: SearchResultItem;
   readonly thisListingPath: string;
+}
+
+function resolveContactParams(item: SearchResultItem): ContactParams | undefined {
+  if (item.groupId !== undefined) {
+    return { itemId: item.id, groupId: item.groupId };
+  }
+  if (item.ownerId !== undefined) {
+    return { itemId: item.id, otherUserId: item.ownerId };
+  }
+  return undefined;
 }
 
 export function useListingDetailActions({ item, thisListingPath }: UseListingDetailActionsArgs) {
@@ -36,12 +48,7 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
   const handleContact = useCallback(() => {
     // Group items use the shared-inbox path (all admins as participants);
     // personal items use the direct owner path.
-    const params =
-      item.groupId !== undefined
-        ? { itemId: item.id, groupId: item.groupId }
-        : item.ownerId !== undefined
-          ? { itemId: item.id, otherUserId: item.ownerId }
-          : undefined;
+    const params = resolveContactParams(item);
     if (!params) return;
     createConversation(params, {
       onSuccess: (result) => router.push(`/messages/${result.conversationId}`),

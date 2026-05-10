@@ -5,6 +5,13 @@ import { useNetworkStatus } from './useNetworkStatus';
 
 const QUEUE_STORAGE_KEY = 'offline-mutation-queue';
 
+interface QueuedMutation {
+  id: string;
+  timestamp: number;
+  mutationKey: string;
+  variables: unknown;
+}
+
 function mergeQueueAfterReplay(
   prev: QueuedMutation[],
   snapshotIds: Set<string>,
@@ -18,11 +25,10 @@ function mergeQueueAfterReplay(
   });
 }
 
-interface QueuedMutation {
-  id: string;
-  timestamp: number;
-  mutationKey: string;
-  variables: unknown;
+function mergeHydratedQueue(prev: QueuedMutation[], parsed: QueuedMutation[]): QueuedMutation[] {
+  const seen = new Set(prev.map((m) => m.id));
+  const incoming = parsed.filter((m) => !seen.has(m.id));
+  return [...prev, ...incoming];
 }
 
 /**
@@ -43,10 +49,7 @@ export function useOfflineQueue() {
         if (stored) {
           try {
             const parsed = JSON.parse(stored) as QueuedMutation[];
-            setQueue((prev) => {
-              const seen = new Set(prev.map((m) => m.id));
-              return [...prev, ...parsed.filter((m) => !seen.has(m.id))];
-            });
+            setQueue((prev) => mergeHydratedQueue(prev, parsed));
           } catch {
             // Corrupted data, reset
             AsyncStorage.removeItem(QUEUE_STORAGE_KEY);

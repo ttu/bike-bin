@@ -90,6 +90,11 @@ function ProfileTabIcon({ color, size }: TabBarIconProps) {
   return <MaterialCommunityIcons name="account-outline" size={size} color={color} />;
 }
 
+// Defined at module scope (rather than inline in `tabBar`) so React Navigation
+// renders it from the parent's render tree — passing `AppTabBar` directly breaks
+// its `useTheme()` with "Invalid hook call".
+const renderAppTabBar = (props: BottomTabBarProps) => <AppTabBar {...props} />;
+
 const tabBarStyles = StyleSheet.create({
   container: {
     position: 'absolute',
@@ -121,9 +126,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      // Render via inline arrow: React Navigation calls `tabBar` from the parent's render,
-      // so passing AppTabBar directly breaks its useTheme() with "Invalid hook call".
-      tabBar={(props) => <AppTabBar {...props} />}
+      tabBar={renderAppTabBar}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,

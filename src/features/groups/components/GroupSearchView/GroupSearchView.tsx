@@ -49,25 +49,49 @@ export function GroupSearchView({
         />
       </Appbar.Header>
 
-      {showLoading ? (
-        <CenteredLoadingIndicator />
-      ) : showEmpty ? (
-        <EmptyState
-          icon="account-group-outline"
-          title={t('search.noResults')}
-          description={t('search.noResultsDescription')}
-        />
-      ) : (
-        <FlatList
-          data={searchResults}
-          renderItem={({ item }) => (
-            <SearchResultCard group={item} onJoin={onJoinGroup} isJoining={isJoining} />
-          )}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-        />
-      )}
+      {renderBody({ showLoading, showEmpty, searchResults, onJoinGroup, isJoining, t })}
     </View>
+  );
+}
+
+type RenderBodyArgs = {
+  showLoading: boolean;
+  showEmpty: boolean;
+  searchResults: SearchGroupResult[];
+  onJoinGroup: (groupId: GroupId) => void;
+  isJoining: boolean;
+  t: (key: string) => string;
+};
+
+function renderBody({
+  showLoading,
+  showEmpty,
+  searchResults,
+  onJoinGroup,
+  isJoining,
+  t,
+}: RenderBodyArgs) {
+  if (showLoading) {
+    return <CenteredLoadingIndicator />;
+  }
+  if (showEmpty) {
+    return (
+      <EmptyState
+        icon="account-group-outline"
+        title={t('search.noResults')}
+        description={t('search.noResultsDescription')}
+      />
+    );
+  }
+  return (
+    <FlatList
+      data={searchResults}
+      renderItem={({ item }) => (
+        <SearchResultCard group={item} onJoin={onJoinGroup} isJoining={isJoining} />
+      )}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.list}
+    />
   );
 }
 
