@@ -428,6 +428,15 @@ const styles = StyleSheet.create({
   viewModeTogglePressed: {
     opacity: 0.72,
   },
+  viewModeBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   searchbar: {
     borderRadius: borderRadius.xl,
   },
@@ -498,6 +507,35 @@ const styles = StyleSheet.create({
   },
 });
 
+function ViewModeBadge({
+  icon,
+  active,
+  theme,
+}: Readonly<{
+  icon: ComponentProps<typeof MaterialCommunityIcons>['name'];
+  active: boolean;
+  theme: AppTheme;
+}>) {
+  return (
+    <View
+      style={[
+        styles.viewModeBadge,
+        active && {
+          backgroundColor: theme.colors.primary,
+          borderColor: theme.colors.onBackground,
+        },
+      ]}
+    >
+      <MaterialCommunityIcons
+        name={icon}
+        size={iconSize.sm}
+        color={active ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
+        importantForAccessibility="no"
+      />
+    </View>
+  );
+}
+
 function InventorySearchToolbar({
   theme,
   searchPlaceholder,
@@ -543,18 +581,8 @@ function InventorySearchToolbar({
             pressed && styles.viewModeTogglePressed,
           ]}
         >
-          <MaterialCommunityIcons
-            name="view-list"
-            size={iconSize.sm}
-            color={viewMode === 'list' ? theme.colors.primary : theme.colors.onSurfaceVariant}
-            importantForAccessibility="no"
-          />
-          <MaterialCommunityIcons
-            name="view-grid"
-            size={iconSize.sm}
-            color={viewMode === 'gallery' ? theme.colors.primary : theme.colors.onSurfaceVariant}
-            importantForAccessibility="no"
-          />
+          <ViewModeBadge icon="format-list-bulleted" active={viewMode === 'list'} theme={theme} />
+          <ViewModeBadge icon="view-grid-outline" active={viewMode === 'gallery'} theme={theme} />
         </Pressable>
       )}
     </View>
