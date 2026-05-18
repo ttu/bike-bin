@@ -245,7 +245,8 @@ export default function InventoryScreen() {
 
   const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
 
-  const sortLabelText = t(`sort.${sortOption}`);
+  const sortLabelText = t(`sort.short.${sortOption}`);
+  const sortA11yValue = t(`sort.${sortOption}`);
 
   const listHeader = useMemo(
     () => (
@@ -271,6 +272,7 @@ export default function InventoryScreen() {
         filteredItemsCount={filteredItems.length}
         sortOption={sortOption}
         sortLabelText={sortLabelText}
+        sortA11yValue={sortA11yValue}
         cycleSortOption={cycleSortOption}
         heroItem={heroItem}
         onHeroPress={handleItemPress}
@@ -296,6 +298,7 @@ export default function InventoryScreen() {
       toggleTagFilter,
       sortOption,
       sortLabelText,
+      sortA11yValue,
       cycleSortOption,
       filteredItems.length,
       heroItem,
@@ -418,7 +421,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: spacing.md,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     minHeight: 56,
@@ -427,6 +430,13 @@ const styles = StyleSheet.create({
   },
   viewModeTogglePressed: {
     opacity: 0.72,
+  },
+  viewModeBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   searchbar: {
     borderRadius: borderRadius.xl,
@@ -441,9 +451,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
-  },
-  filterRowSpacer: {
-    flex: 1,
   },
   sortButton: {
     flexDirection: 'row',
@@ -501,6 +508,36 @@ const styles = StyleSheet.create({
   },
 });
 
+function ViewModeBadge({
+  icon,
+  active,
+  theme,
+}: Readonly<{
+  icon: ComponentProps<typeof MaterialCommunityIcons>['name'];
+  active: boolean;
+  theme: AppTheme;
+}>) {
+  return (
+    <View
+      style={[
+        styles.viewModeBadge,
+        active && {
+          backgroundColor: theme.colors.primary,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: theme.colors.onBackground,
+        },
+      ]}
+    >
+      <MaterialCommunityIcons
+        name={icon}
+        size={iconSize.sm}
+        color={active ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
+        importantForAccessibility="no"
+      />
+    </View>
+  );
+}
+
 function InventorySearchToolbar({
   theme,
   searchPlaceholder,
@@ -546,18 +583,8 @@ function InventorySearchToolbar({
             pressed && styles.viewModeTogglePressed,
           ]}
         >
-          <MaterialCommunityIcons
-            name="view-list"
-            size={iconSize.sm}
-            color={viewMode === 'list' ? theme.colors.primary : theme.colors.onSurfaceVariant}
-            importantForAccessibility="no"
-          />
-          <MaterialCommunityIcons
-            name="view-grid"
-            size={iconSize.sm}
-            color={viewMode === 'gallery' ? theme.colors.primary : theme.colors.onSurfaceVariant}
-            importantForAccessibility="no"
-          />
+          <ViewModeBadge icon="format-list-bulleted" active={viewMode === 'list'} theme={theme} />
+          <ViewModeBadge icon="view-grid-outline" active={viewMode === 'gallery'} theme={theme} />
         </Pressable>
       )}
     </View>
@@ -643,6 +670,7 @@ interface InventoryListHeaderProps {
   readonly filteredItemsCount: number;
   readonly sortOption: InventorySortOption;
   readonly sortLabelText: string;
+  readonly sortA11yValue: string;
   readonly cycleSortOption: () => void;
   readonly heroItem: Item | undefined;
   readonly onHeroPress: (item: Item) => void;
@@ -662,7 +690,6 @@ function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
     onHeroPress,
     sortOption,
   } = props;
-  const showFilterRow = hasTagsOrArchived || filteredItemsCount > 0;
   const showTagScroll = tagSectionVisible && userTags && userTags.length > 0;
 
   return (
@@ -671,14 +698,14 @@ function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
         eyebrow={t('masthead.eyebrow')}
         title={t('masthead.title')}
         counts={mastheadCounts}
+        trailing={filteredItemsCount > 0 ? <SortControl {...props} /> : undefined}
       />
       <DemoBanner />
       <SyncBanner />
       <CategoryFilter selected={selectedCategory} onSelect={onSelectCategory} />
-      {showFilterRow && (
+      {hasTagsOrArchived && (
         <View style={styles.filterRow}>
           <FilterChips {...props} />
-          {filteredItemsCount > 0 && <SortControl {...props} />}
         </View>
       )}
       {showTagScroll && userTags ? <TagScrollRow {...props} userTags={userTags} /> : undefined}
@@ -762,30 +789,28 @@ function SortControl({
   t,
   cycleSortOption,
   sortLabelText,
+  sortA11yValue,
 }: Readonly<InventoryListHeaderProps>) {
   return (
-    <>
-      <View style={styles.filterRowSpacer} />
-      <Pressable
-        onPress={cycleSortOption}
-        style={({ pressed }) => [
-          styles.sortButton,
-          themeStyles.sortButtonVariant,
-          pressed && styles.sortButtonPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
-      >
-        <MaterialCommunityIcons
-          name="sort"
-          size={iconSize.sm}
-          color={theme.colors.onSurfaceVariant}
-        />
-        <Text variant="labelMedium" style={themeStyles.sortLabel}>
-          {sortLabelText}
-        </Text>
-      </Pressable>
-    </>
+    <Pressable
+      onPress={cycleSortOption}
+      style={({ pressed }) => [
+        styles.sortButton,
+        themeStyles.sortButtonVariant,
+        pressed && styles.sortButtonPressed,
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`${t('sort.label')}, ${sortA11yValue}, ${t('sort.hint')}`}
+    >
+      <MaterialCommunityIcons
+        name="sort"
+        size={iconSize.sm}
+        color={theme.colors.onSurfaceVariant}
+      />
+      <Text variant="labelMedium" style={themeStyles.sortLabel}>
+        {sortLabelText}
+      </Text>
+    </Pressable>
   );
 }
 
