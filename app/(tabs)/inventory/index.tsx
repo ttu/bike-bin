@@ -435,8 +435,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -525,6 +523,7 @@ function ViewModeBadge({
         styles.viewModeBadge,
         active && {
           backgroundColor: theme.colors.primary,
+          borderWidth: StyleSheet.hairlineWidth,
           borderColor: theme.colors.onBackground,
         },
       ]}
