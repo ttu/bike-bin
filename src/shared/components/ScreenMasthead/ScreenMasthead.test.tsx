@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { lightTheme } from '@/shared/theme';
@@ -45,6 +45,18 @@ describe('ScreenMasthead', () => {
     expect(flat.color).toBe(lightTheme.customColors.accent);
     const stamp = screen.getByText('listed');
     expect(StyleSheet.flatten(stamp.props.style).color).toBe(lightTheme.customColors.accent);
+  });
+
+  it('renders trailing slot inside counts row when provided', () => {
+    renderWithProviders(
+      <ScreenMasthead
+        title="Inventory"
+        counts={[{ value: 12, label: 'items' }]}
+        trailing={<Text testID="sort-slot">RECENT</Text>}
+      />,
+    );
+    expect(screen.getByTestId('sort-slot')).toBeTruthy();
+    expect(screen.getByText('RECENT')).toBeTruthy();
   });
 
   it('applies tight letterSpacing on title', () => {

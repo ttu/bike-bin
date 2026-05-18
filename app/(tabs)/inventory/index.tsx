@@ -442,9 +442,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
   },
-  filterRowSpacer: {
-    flex: 1,
-  },
   sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -662,7 +659,6 @@ function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
     onHeroPress,
     sortOption,
   } = props;
-  const showFilterRow = hasTagsOrArchived || filteredItemsCount > 0;
   const showTagScroll = tagSectionVisible && userTags && userTags.length > 0;
 
   return (
@@ -671,14 +667,14 @@ function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
         eyebrow={t('masthead.eyebrow')}
         title={t('masthead.title')}
         counts={mastheadCounts}
+        trailing={filteredItemsCount > 0 ? <SortControl {...props} /> : undefined}
       />
       <DemoBanner />
       <SyncBanner />
       <CategoryFilter selected={selectedCategory} onSelect={onSelectCategory} />
-      {showFilterRow && (
+      {hasTagsOrArchived && (
         <View style={styles.filterRow}>
           <FilterChips {...props} />
-          {filteredItemsCount > 0 && <SortControl {...props} />}
         </View>
       )}
       {showTagScroll && userTags ? <TagScrollRow {...props} userTags={userTags} /> : undefined}
@@ -764,28 +760,25 @@ function SortControl({
   sortLabelText,
 }: Readonly<InventoryListHeaderProps>) {
   return (
-    <>
-      <View style={styles.filterRowSpacer} />
-      <Pressable
-        onPress={cycleSortOption}
-        style={({ pressed }) => [
-          styles.sortButton,
-          themeStyles.sortButtonVariant,
-          pressed && styles.sortButtonPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
-      >
-        <MaterialCommunityIcons
-          name="sort"
-          size={iconSize.sm}
-          color={theme.colors.onSurfaceVariant}
-        />
-        <Text variant="labelMedium" style={themeStyles.sortLabel}>
-          {sortLabelText}
-        </Text>
-      </Pressable>
-    </>
+    <Pressable
+      onPress={cycleSortOption}
+      style={({ pressed }) => [
+        styles.sortButton,
+        themeStyles.sortButtonVariant,
+        pressed && styles.sortButtonPressed,
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
+    >
+      <MaterialCommunityIcons
+        name="sort"
+        size={iconSize.sm}
+        color={theme.colors.onSurfaceVariant}
+      />
+      <Text variant="labelMedium" style={themeStyles.sortLabel}>
+        {sortLabelText}
+      </Text>
+    </Pressable>
   );
 }
 

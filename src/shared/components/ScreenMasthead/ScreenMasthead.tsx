@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react';
+import { Fragment, useMemo, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { spacing, type AppTheme } from '@/shared/theme';
@@ -14,9 +14,15 @@ interface ScreenMastheadProps {
   eyebrow?: string;
   title: string;
   counts?: ScreenMastheadCount[];
+  trailing?: ReactNode;
 }
 
-export function ScreenMasthead({ eyebrow, title, counts }: Readonly<ScreenMastheadProps>) {
+export function ScreenMasthead({
+  eyebrow,
+  title,
+  counts,
+  trailing,
+}: Readonly<ScreenMastheadProps>) {
   const theme = useTheme<AppTheme>();
 
   const dynamicStyles = useMemo(
@@ -61,6 +67,12 @@ export function ScreenMasthead({ eyebrow, title, counts }: Readonly<ScreenMasthe
               </View>
             </Fragment>
           ))}
+          {trailing ? (
+            <>
+              <View style={styles.trailingSpacer} />
+              <View style={styles.trailingSlot}>{trailing}</View>
+            </>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -104,5 +116,13 @@ const styles = StyleSheet.create({
   countValue: {
     fontSize: 22,
     lineHeight: 24,
+  },
+  trailingSpacer: {
+    flex: 1,
+    minWidth: spacing.base,
+  },
+  trailingSlot: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
 });
