@@ -9,9 +9,9 @@
       "listed": "listed"
     }
   },
-  "searchPlaceholder_one": "Search {{count}} item in your collection...",
-  "searchPlaceholder_other": "Search {{count}} items in your collection...",
-  "searchPlaceholderEmpty": "Search your collection...",
+  "searchPlaceholder_one": "Search {{count}} item…",
+  "searchPlaceholder_other": "Search {{count}} items…",
+  "searchPlaceholderEmpty": "Search collection…",
   "showingItems_one": "Showing {{count}} item",
   "showingItems_other": "Showing {{count}} items",
   "categoriesLabel": "Categories",
@@ -273,7 +273,12 @@
     "recentlyAdded": "Recently added",
     "recentlyUpdated": "Recently updated",
     "name": "Name",
-    "hint": "Tap to cycle sort order"
+    "hint": "Tap to cycle sort order",
+    "short": {
+      "recentlyAdded": "Recent",
+      "recentlyUpdated": "Updated",
+      "name": "Name"
+    }
   },
   "hero": {
     "recentlyAdded": "Recently added",

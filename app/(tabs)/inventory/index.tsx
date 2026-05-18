@@ -245,7 +245,8 @@ export default function InventoryScreen() {
 
   const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
 
-  const sortLabelText = t(`sort.${sortOption}`);
+  const sortLabelText = t(`sort.short.${sortOption}`);
+  const sortA11yValue = t(`sort.${sortOption}`);
 
   const listHeader = useMemo(
     () => (
@@ -271,6 +272,7 @@ export default function InventoryScreen() {
         filteredItemsCount={filteredItems.length}
         sortOption={sortOption}
         sortLabelText={sortLabelText}
+        sortA11yValue={sortA11yValue}
         cycleSortOption={cycleSortOption}
         heroItem={heroItem}
         onHeroPress={handleItemPress}
@@ -296,6 +298,7 @@ export default function InventoryScreen() {
       toggleTagFilter,
       sortOption,
       sortLabelText,
+      sortA11yValue,
       cycleSortOption,
       filteredItems.length,
       heroItem,
@@ -418,7 +421,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: spacing.md,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     minHeight: 56,
@@ -668,6 +671,7 @@ interface InventoryListHeaderProps {
   readonly filteredItemsCount: number;
   readonly sortOption: InventorySortOption;
   readonly sortLabelText: string;
+  readonly sortA11yValue: string;
   readonly cycleSortOption: () => void;
   readonly heroItem: Item | undefined;
   readonly onHeroPress: (item: Item) => void;
@@ -786,6 +790,7 @@ function SortControl({
   t,
   cycleSortOption,
   sortLabelText,
+  sortA11yValue,
 }: Readonly<InventoryListHeaderProps>) {
   return (
     <Pressable
@@ -796,7 +801,7 @@ function SortControl({
         pressed && styles.sortButtonPressed,
       ]}
       accessibilityRole="button"
-      accessibilityLabel={`${t('sort.label')}, ${sortLabelText}, ${t('sort.hint')}`}
+      accessibilityLabel={`${t('sort.label')}, ${sortA11yValue}, ${t('sort.hint')}`}
     >
       <MaterialCommunityIcons
         name="sort"
