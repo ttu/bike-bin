@@ -11,7 +11,10 @@ export async function signInAsReviewer(
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      return { ok: false, error: 'invalidCredentials' };
+      if (error.code === 'invalid_credentials') {
+        return { ok: false, error: 'invalidCredentials' };
+      }
+      return { ok: false, error: 'network' };
     }
     return { ok: true };
   } catch {

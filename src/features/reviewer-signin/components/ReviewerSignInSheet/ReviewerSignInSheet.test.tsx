@@ -66,6 +66,8 @@ describe('ReviewerSignInSheet', () => {
     expect(await findByText(/Sign-in failed/i)).toBeTruthy();
     expect(onDismiss).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
+    expect(getByLabelText('Email').props.value).toBe('a@b.test');
+    expect(getByLabelText('Password').props.value).toBe('wrong');
   });
 
   it('does not submit when fields are empty', () => {

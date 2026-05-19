@@ -49,12 +49,13 @@ export function ReviewerSignInSheet({ visible, onDismiss }: ReviewerSignInSheetP
   };
 
   const handleSubmit = async () => {
-    if (!email || !password || submitting) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password || submitting) {
       return;
     }
     setSubmitting(true);
     setError(undefined);
-    const result = await signInAsReviewer(email.trim(), password);
+    const result = await signInAsReviewer(trimmedEmail, password);
     if (result.ok) {
       reset();
       onDismiss();
@@ -65,7 +66,7 @@ export function ReviewerSignInSheet({ visible, onDismiss }: ReviewerSignInSheetP
     setSubmitting(false);
   };
 
-  const submitDisabled = submitting || !email || !password;
+  const submitDisabled = submitting || !email.trim() || !password;
 
   return (
     <Portal>

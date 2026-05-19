@@ -69,6 +69,9 @@ export default function LoginScreen() {
               onLongPress={reviewerLongPress.onLongPress}
               delayLongPress={reviewerLongPress.delayLongPress}
               testID="reviewer-signin-trigger"
+              accessible={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
             >
               <SocketBBMark size={LOGO_SIZE} />
             </Pressable>
