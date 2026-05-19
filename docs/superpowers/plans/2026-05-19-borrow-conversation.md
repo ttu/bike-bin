@@ -1098,6 +1098,59 @@ git commit -m "i18n: pickup lifecycle strings"
 
 ---
 
+## Task 15a: Update seed data for new lifecycle
+
+**Files:**
+- Modify: `supabase/seed.sql`
+
+Existing seed has `accepted` borrow_requests against `loaned` items (e.g. `d0000001-0006`, `d0000001-0009`) and against `stored` items (e.g. `d0000002-0001`). Under the new lifecycle, that's inconsistent.
+
+**Rule of thumb:**
+- `accepted` request + `loaned` item → change request to `picked_up` (mid-loan, showcase the "borrowed" state).
+- `accepted` request + `stored` item → change item to `reserved` (awaiting pickup state).
+
+- [ ] **Step 1: Audit** — list every `accepted` borrow_request and the matching item status:
+
+```bash
+grep -nE "'accepted'" supabase/seed.sql
+```
+
+Cross-check with the items inserts.
+
+- [ ] **Step 2: Update request rows** in the `borrow_requests` INSERT to use `picked_up` where the item is currently `loaned`:
+  - `f2000001-0001-...` (Park Tool PCS-10.3 Stand, item `d0000001-0006` is `loaned`) → `picked_up`
+  - `f2000001-0004-...` (Lezyne Digital Floor Drive, item `d0000001-0009` is `loaned`) → `picked_up`
+
+- [ ] **Step 3: Update item rows** to `reserved` for `accepted`-request items that are currently `stored`:
+  - `d0000002-0001-...` (Co-op torque wrench) → `reserved`
+  - `d0000001-0005-4000-8000-000000000004` (Topeak Joe Blow Sport III) → `reserved`
+
+- [ ] **Step 4: Reset DB to verify seed runs cleanly**
+
+```bash
+npm run db:reset
+```
+
+Expected: no constraint or trigger errors. The seed insert path bypasses the state-machine trigger (inserts only fire it for snapshot-owner), so this should just work.
+
+- [ ] **Step 5: Spot-check via psql**
+
+```bash
+docker exec supabase_db_bike-bin psql -U postgres -d postgres -c \
+  "SELECT br.id, br.status, i.status AS item_status FROM borrow_requests br JOIN items i ON i.id = br.item_id ORDER BY br.created_at;"
+```
+
+Expected: every `accepted` row has `item_status = reserved`; every `picked_up` row has `item_status = loaned`.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add supabase/seed.sql
+git commit -m "chore: align seed data with three-step borrow lifecycle"
+```
+
+---
+
 ## Task 16: E2E happy path
 
 **Files:**
@@ -1208,17 +1261,8 @@ PR body should include:
 
 ---
 
-## Open questions before execution
+## Decisions locked in
 
-1. **Data migration for in-flight requests at deploy.** Existing `accepted` requests today have item status `Loaned`. Under the new mapping, `accepted` implies `Reserved`. Do we (a) backfill any currently-accepted requests to `picked_up` (since they've effectively been handed off), or (b) leave them and accept that the item status briefly disagrees with the new mapping until they get returned? Recommend (a) — add a one-shot SQL block at the top of `00041_borrow_state_machine.sql`:
-
-```sql
-UPDATE borrow_requests
-SET status = 'picked_up', updated_at = NOW()
-WHERE status = 'accepted'
-  AND EXISTS (SELECT 1 FROM items WHERE items.id = borrow_requests.item_id AND items.status = 'loaned');
-```
-
-2. **Who can mark pickup?** The plan assumes owner-only. Could also be either party (requester confirms receipt). Stick with owner-only for v1.
-
-3. **System message in chat on borrow events.** The current plan does not insert a system message into the conversation when accept/pickup/return fires. Worth adding later for clarity, but requires a `messages.kind` column — out of scope for this plan.
+1. **No production data migration.** Pre-release — no users yet. Seed data is updated via Task 15a below.
+2. **Owner-only pickup.** RPC + trigger + `canMarkPickedUp` all enforce `owner OR group admin` for the `accepted → picked_up` transition.
+3. **No system messages in chat on borrow events** for v1. Worth a follow-up but requires `messages.kind` — out of scope.
