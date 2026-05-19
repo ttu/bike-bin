@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
@@ -6,21 +6,28 @@ import { BikeType, type BikeId } from '@/shared/types';
 import EditBikeScreen from '../[id]';
 
 const mockRouterNavigate = jest.fn();
+let beforeRemoveHandler:
+  | ((e: { preventDefault: () => void; data: { action: { type: string } } }) => void)
+  | undefined;
 
-jest.mock('expo-router', () => {
-  const { mockExpoRouterNavigation } =
-    jest.requireActual<typeof import('@/test/routerMocks')>('@/test/routerMocks');
-  return {
-    ...mockExpoRouterNavigation,
-    useLocalSearchParams: () => ({ id: 'bike-123' }),
-    router: {
-      navigate: (...args: unknown[]) => mockRouterNavigate(...args),
-      canDismiss: () => true,
-      dismiss: jest.fn(),
-      replace: jest.fn(),
-    },
-  };
-});
+jest.mock('expo-router', () => ({
+  useLocalSearchParams: () => ({ id: 'bike-123' }),
+  useNavigation: () => ({
+    addListener: jest.fn((event: string, handler: typeof beforeRemoveHandler) => {
+      if (event === 'beforeRemove') {
+        beforeRemoveHandler = handler;
+      }
+      return jest.fn();
+    }),
+    dispatch: jest.fn(),
+  }),
+  router: {
+    navigate: (...args: unknown[]) => mockRouterNavigate(...args),
+    canDismiss: () => true,
+    dismiss: jest.fn(),
+    replace: jest.fn(),
+  },
+}));
 
 jest.mock('react-native-safe-area-context', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -53,9 +60,11 @@ const mockBike = createMockBike({
   year: 2024,
 });
 
+let mockPhotos: { id: string; storagePath: string; sortOrder: number }[] = [];
+
 jest.mock('@/features/bikes', () => ({
   useBike: () => ({ data: mockBike }),
-  useBikePhotos: () => ({ data: [] }),
+  useBikePhotos: () => ({ data: mockPhotos }),
   useUpdateBike: () => ({ mutate: jest.fn(), isPending: false }),
   useDeleteBike: () => ({ mutate: mockDeleteMutate }),
   useBikePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
@@ -92,6 +101,8 @@ jest.mock('@tanstack/react-query', () => {
 describe('EditBikeScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPhotos = [];
+    beforeRemoveHandler = undefined;
   });
 
   it('does not show bike id label in the hero header', () => {
@@ -117,6 +128,25 @@ describe('EditBikeScreen confirmations', () => {
     fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockDeleteMutate).toHaveBeenCalledWith('bike-123', expect.any(Object));
+  });
+
+  it('does not mark the screen dirty when a photo is added (uploads commit immediately)', () => {
+    mockPhotos = [];
+    const { rerender } = renderWithProviders(<EditBikeScreen />);
+
+    mockPhotos = [{ id: 'photo-1', storagePath: 'photo-1.jpg', sortOrder: 0 }];
+    rerender(<EditBikeScreen />);
+
+    const preventDefault = jest.fn();
+    act(() => {
+      beforeRemoveHandler?.({
+        preventDefault,
+        data: { action: { type: 'GO_BACK' } },
+      });
+    });
+
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(screen.queryByText('Discard changes?')).toBeNull();
   });
 
   it('shows validation feedback snackbar when save fails client-side validation', async () => {

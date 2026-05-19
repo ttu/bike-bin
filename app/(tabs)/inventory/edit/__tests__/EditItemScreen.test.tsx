@@ -92,10 +92,12 @@ const mockItem = createMockItem({
 
 const mockMutateAsync = jest.fn();
 
+let mockPhotos: { id: string; storagePath: string; sortOrder: number }[] = [];
+
 jest.mock('@/features/inventory', () => ({
   ...jest.requireActual('@/features/inventory'),
   useItem: () => ({ data: mockItem, isLoading: false, isSuccess: true }),
-  useItemPhotos: () => ({ data: [], isSuccess: true }),
+  useItemPhotos: () => ({ data: mockPhotos, isSuccess: true }),
   useUpdateItem: () => ({ mutateAsync: mockMutateAsync, isPending: false }),
   useDeleteItem: () => ({ mutateAsync: jest.fn() }),
   usePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
@@ -116,6 +118,7 @@ describe('EditItemScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMutateAsync.mockResolvedValue(undefined);
+    mockPhotos = [];
   });
 
   it('does not show inventory id label in the hero header', () => {
@@ -200,6 +203,25 @@ describe('EditItemScreen', () => {
     await waitFor(() => {
       expect(router.dismiss).toHaveBeenCalledWith(1);
     });
+  });
+
+  it('does not mark the screen dirty when a photo is added (uploads commit immediately)', () => {
+    mockPhotos = [];
+    const { rerender } = renderWithProviders(<EditItemScreen />);
+
+    mockPhotos = [{ id: 'photo-1', storagePath: 'photo-1.jpg', sortOrder: 0 }];
+    rerender(<EditItemScreen />);
+
+    const preventDefault = jest.fn();
+    act(() => {
+      beforeRemoveHandler?.({
+        preventDefault,
+        data: { action: { type: 'GO_BACK' } },
+      });
+    });
+
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(screen.queryByText('Discard changes?')).toBeNull();
   });
 
   it('shows validation feedback snackbar when save fails client-side validation', async () => {
