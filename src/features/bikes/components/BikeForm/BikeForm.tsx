@@ -56,8 +56,8 @@ export function BikeForm({
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      {photoSection}
       {headerComponent}
+      {photoSection}
 
       <BrandSection state={state} inputStyling={inputStyling} />
       <ModelSection state={state} inputStyling={inputStyling} />
