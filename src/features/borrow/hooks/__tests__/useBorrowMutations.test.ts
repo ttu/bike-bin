@@ -20,6 +20,12 @@ jest.mock('@/shared/api/supabase', () => ({
 }));
 jest.mock('@/features/auth', () => mockAuthModule);
 
+const mockResolveConversation = jest.fn();
+jest.mock('@/features/messaging', () => ({
+  resolveConversation: (...args: unknown[]) => mockResolveConversation(...args),
+  CONVERSATIONS_QUERY_KEY: 'conversations',
+}));
+
 // Import after mocks
 import { useCreateBorrowRequest } from '../useCreateBorrowRequest';
 import { useAcceptBorrowRequest } from '../useAcceptBorrowRequest';
@@ -27,6 +33,7 @@ import { useCancelBorrowRequest } from '../useCancelBorrowRequest';
 import { useDeclineBorrowRequest } from '../useDeclineBorrowRequest';
 import { useMarkReturned } from '../useMarkReturned';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
+import type { ConversationId, ItemId } from '@/shared/types';
 
 const DEFAULT_RPC_DATA = { id: 'req-1' };
 const DEFAULT_SUPABASE_ERROR = { message: 'fail' };
@@ -62,25 +69,99 @@ function setupChainError(error?: unknown) {
 beforeEach(() => jest.clearAllMocks());
 
 describe('useCreateBorrowRequest', () => {
-  it('creates a borrow request and updates item status', async () => {
+  it('creates a borrow request without changing item status', async () => {
     setupChain({ id: 'req-1' });
+    mockResolveConversation.mockResolvedValue({
+      conversationId: 'conv-1' as ConversationId,
+      isExisting: false,
+    });
+
     const { result } = renderHook(() => useCreateBorrowRequest(), {
       wrapper: createQueryClientHookWrapper(),
     });
 
-    result.current.mutate({ itemId: 'item-1' as never, message: 'Please!' });
+    result.current.mutate({
+      itemId: 'item-1' as never,
+      ownerId: 'owner-1' as never,
+      message: 'Please!',
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual({ id: 'req-1' });
+    expect(result.current.data).toEqual({ requestId: 'req-1', conversationId: 'conv-1' });
+    // item status must NOT be updated
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 
-  it('propagates errors', async () => {
-    setupChainError();
+  it('returns a conversationId pointing at the (item, owner) conversation', async () => {
+    setupChain({ id: 'req-2' });
+    mockResolveConversation.mockResolvedValue({
+      conversationId: 'conv-abc' as ConversationId,
+      isExisting: true,
+    });
+
+    const { result } = renderHook(() => useCreateBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({ itemId: 'item-2' as never, ownerId: 'owner-2' as never });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.conversationId).toBe('conv-abc');
+    expect(mockResolveConversation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        itemId: 'item-2',
+        otherUserId: 'owner-2',
+      }),
+    );
+  });
+
+  it('reuses an existing conversation for the same (item, owner)', async () => {
+    setupChain({ id: 'req-3' });
+    mockResolveConversation.mockResolvedValue({
+      conversationId: 'conv-existing' as ConversationId,
+      isExisting: true,
+    });
+
+    const { result } = renderHook(() => useCreateBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({ itemId: 'item-3' as never, ownerId: 'owner-3' as never });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.conversationId).toBe('conv-existing');
+
+    // Second call — resolveConversation still returns the same id (isExisting: true)
+    setupChain({ id: 'req-4' });
+    result.current.mutate({ itemId: 'item-3' as ItemId, ownerId: 'owner-3' as never });
+    await waitFor(() => expect(result.current.data?.conversationId).toBe('conv-existing'));
+    expect(mockResolveConversation).toHaveBeenCalledTimes(2);
+  });
+
+  it('throws when neither ownerId nor groupId provided', async () => {
+    setupChain({ id: 'req-1' });
+
     const { result } = renderHook(() => useCreateBorrowRequest(), {
       wrapper: createQueryClientHookWrapper(),
     });
 
     result.current.mutate({ itemId: 'item-1' as never });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toMatchObject({
+      message: 'Either ownerId or groupId must be provided',
+    });
+    // borrow_requests INSERT must not have been called
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('propagates errors from the borrow_requests insert', async () => {
+    setupChainError();
+
+    const { result } = renderHook(() => useCreateBorrowRequest(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    result.current.mutate({ itemId: 'item-1' as never, ownerId: 'owner-1' as never });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
   });

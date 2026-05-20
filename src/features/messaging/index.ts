@@ -22,6 +22,13 @@ export {
   type UserBorrowHistory,
 } from './hooks/useUserBorrowHistory';
 
+// Utils
+export { resolveConversation } from './utils/resolveConversation';
+export type {
+  ResolveConversationArgs,
+  ResolveConversationResult,
+} from './utils/resolveConversation';
+
 // Components
 export { ConversationCard } from './components/ConversationCard/ConversationCard';
 export { ChatBubble } from './components/ChatBubble/ChatBubble';

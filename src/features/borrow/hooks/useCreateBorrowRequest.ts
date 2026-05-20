@@ -2,11 +2,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/api/supabase';
 import { useAuth } from '@/features/auth';
 import { invalidateBorrowMutationCaches } from './invalidateBorrowMutationCaches';
-import { ItemStatus, type ItemId } from '@/shared/types';
+import type { ConversationId, GroupId, ItemId, UserId } from '@/shared/types';
+import { resolveConversation, CONVERSATIONS_QUERY_KEY } from '@/features/messaging';
 
-interface CreateBorrowRequestParams {
+export interface CreateBorrowRequestParams {
   itemId: ItemId;
+  ownerId?: UserId;
+  groupId?: GroupId;
   message?: string;
+}
+
+export interface CreateBorrowRequestResult {
+  requestId: string;
+  conversationId: ConversationId;
 }
 
 export function useCreateBorrowRequest() {
@@ -14,33 +22,43 @@ export function useCreateBorrowRequest() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ itemId, message }: CreateBorrowRequestParams) => {
+    mutationFn: async ({
+      itemId,
+      ownerId,
+      groupId,
+      message,
+    }: CreateBorrowRequestParams): Promise<CreateBorrowRequestResult> => {
       if (!user) throw new Error('Must be authenticated to create borrow requests');
 
-      // Create the borrow request
+      if (!ownerId && !groupId) {
+        throw new Error('Either ownerId or groupId must be provided');
+      }
+
       const { data: request, error: reqError } = await supabase
         .from('borrow_requests')
         .insert({
           item_id: itemId,
           requester_id: user.id,
-          message: message?.trim() || null,
+          message: message?.trim() ?? null,
         })
         .select()
         .single();
 
       if (reqError) throw reqError;
 
-      const { error: itemError } = await supabase
-        .from('items')
-        .update({ status: ItemStatus.Reserved })
-        .eq('id', itemId);
+      const conv = await resolveConversation({
+        supabase,
+        itemId,
+        selfId: user.id,
+        otherUserId: ownerId,
+        groupId,
+      });
 
-      if (itemError) throw itemError;
-
-      return request;
+      return { requestId: (request as { id: string }).id, conversationId: conv.conversationId };
     },
     onSuccess: async () => {
       await invalidateBorrowMutationCaches(queryClient);
+      await queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
     },
   });
 }
