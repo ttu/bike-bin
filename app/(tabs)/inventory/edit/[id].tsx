@@ -22,7 +22,6 @@ import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import { useValidationErrorSnackbar } from '@/shared/hooks/useValidationErrorSnackbar';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
-import { usePhotoDirtyTracking } from '@/shared/hooks/usePhotoDirtyTracking';
 import { supabase } from '@/shared/api/supabase';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import type { ItemId } from '@/shared/types';
@@ -35,8 +34,8 @@ export default function EditItemScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const itemId = id as ItemId;
 
-  const { data: item, isLoading, isSuccess: itemReady } = useItem(itemId);
-  const { data: photos = [], isSuccess: photosReady } = useItemPhotos(itemId);
+  const { data: item, isLoading } = useItem(itemId);
+  const { data: photos = [] } = useItemPhotos(itemId);
   const [formDirty, setFormDirty] = useState(false);
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
@@ -46,11 +45,8 @@ export default function EditItemScreen() {
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
-  const photosDirty = usePhotoDirtyTracking(photos, itemReady, photosReady);
-  const isScreenDirty = formDirty || photosDirty;
-
   const { bypassNextNavigation } = useUnsavedChangesExitGuard({
-    isDirty: isScreenDirty,
+    isDirty: formDirty,
     title: tCommon('unsavedChanges.title'),
     message: tCommon('unsavedChanges.message'),
     confirmLabel: tCommon('unsavedChanges.discard'),

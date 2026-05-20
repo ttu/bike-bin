@@ -83,24 +83,55 @@ const mockItem = createMockItem({
   name: 'Test Chain',
   category: ItemCategory.Component,
   subcategory: 'drivetrain',
+  brand: 'Shimano',
+  model: 'XT',
+  description: '',
   condition: ItemCondition.Good,
   status: ItemStatus.Stored,
   availabilityTypes: [AvailabilityType.Borrowable],
+  price: undefined,
+  deposit: undefined,
+  borrowDuration: undefined,
+  storageLocation: undefined,
+  age: undefined,
+  usageKm: undefined,
+  purchaseDate: undefined,
+  mountedDate: undefined,
+  pickupLocationId: undefined,
   visibility: Visibility.Private,
   tags: ['shimano', 'road', '11-speed'],
 });
 
 const mockMutateAsync = jest.fn();
 
+let mockPhotos: { id: string; storagePath: string; sortOrder: number }[] = [];
+
 jest.mock('@/features/inventory', () => ({
   ...jest.requireActual('@/features/inventory'),
   useItem: () => ({ data: mockItem, isLoading: false, isSuccess: true }),
-  useItemPhotos: () => ({ data: [], isSuccess: true }),
+  useItemPhotos: () => ({ data: mockPhotos, isSuccess: true }),
   useUpdateItem: () => ({ mutateAsync: mockMutateAsync, isPending: false }),
   useDeleteItem: () => ({ mutateAsync: jest.fn() }),
   usePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
   useUserTags: () => ({ data: ['shimano', 'road', '11-speed', 'mtb'] }),
 }));
+
+let capturedExitGuardIsDirty: boolean | undefined;
+
+jest.mock('@/shared/hooks/useUnsavedChangesExitGuard', () => {
+  const actual = jest.requireActual<typeof import('@/shared/hooks/useUnsavedChangesExitGuard')>(
+    '@/shared/hooks/useUnsavedChangesExitGuard',
+  );
+  return {
+    ...actual,
+    useUnsavedChangesExitGuard: (
+      params: Parameters<typeof actual.useUnsavedChangesExitGuard>[0],
+    ) => {
+      capturedExitGuardIsDirty = params.isDirty;
+      return actual.useUnsavedChangesExitGuard(params);
+    },
+  };
+});
 
 jest.mock('@tanstack/react-query', () => {
   const actual = jest.requireActual('@tanstack/react-query');
@@ -116,6 +147,9 @@ describe('EditItemScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMutateAsync.mockResolvedValue(undefined);
+    mockPhotos = [];
+    beforeRemoveHandler = undefined;
+    capturedExitGuardIsDirty = undefined;
   });
 
   it('does not show inventory id label in the hero header', () => {
@@ -200,6 +234,16 @@ describe('EditItemScreen', () => {
     await waitFor(() => {
       expect(router.dismiss).toHaveBeenCalledWith(1);
     });
+  });
+
+  it('does not pass photo state into the unsaved-changes exit guard', () => {
+    mockPhotos = [];
+    const { rerender } = renderWithProviders(<EditItemScreen />);
+    expect(capturedExitGuardIsDirty).toBe(false);
+
+    mockPhotos = [{ id: 'photo-1', storagePath: 'photo-1.jpg', sortOrder: 0 }];
+    rerender(<EditItemScreen />);
+    expect(capturedExitGuardIsDirty).toBe(false);
   });
 
   it('shows validation feedback snackbar when save fails client-side validation', async () => {

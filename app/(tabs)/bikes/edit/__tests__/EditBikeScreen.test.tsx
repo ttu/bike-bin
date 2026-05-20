@@ -53,15 +53,34 @@ const mockBike = createMockBike({
   year: 2024,
 });
 
+let mockPhotos: { id: string; storagePath: string; sortOrder: number }[] = [];
+
 jest.mock('@/features/bikes', () => ({
-  useBike: () => ({ data: mockBike }),
-  useBikePhotos: () => ({ data: [] }),
+  useBike: () => ({ data: mockBike, isSuccess: true }),
+  useBikePhotos: () => ({ data: mockPhotos, isSuccess: true }),
   useUpdateBike: () => ({ mutate: jest.fn(), isPending: false }),
   useDeleteBike: () => ({ mutate: mockDeleteMutate }),
   useBikePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
   useSwapBikePhotoOrder: () => ({ mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false }),
   useRemoveBikePhoto: () => ({ mutate: jest.fn(), isPending: false }),
 }));
+
+let capturedExitGuardIsDirty: boolean | undefined;
+
+jest.mock('@/shared/hooks/useUnsavedChangesExitGuard', () => {
+  const actual = jest.requireActual<typeof import('@/shared/hooks/useUnsavedChangesExitGuard')>(
+    '@/shared/hooks/useUnsavedChangesExitGuard',
+  );
+  return {
+    ...actual,
+    useUnsavedChangesExitGuard: (
+      params: Parameters<typeof actual.useUnsavedChangesExitGuard>[0],
+    ) => {
+      capturedExitGuardIsDirty = params.isDirty;
+      return actual.useUnsavedChangesExitGuard(params);
+    },
+  };
+});
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -92,6 +111,8 @@ jest.mock('@tanstack/react-query', () => {
 describe('EditBikeScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPhotos = [];
+    capturedExitGuardIsDirty = undefined;
   });
 
   it('does not show bike id label in the hero header', () => {
@@ -117,6 +138,16 @@ describe('EditBikeScreen confirmations', () => {
     fireEvent.press(getByTestId('confirm-dialog-confirm'));
 
     expect(mockDeleteMutate).toHaveBeenCalledWith('bike-123', expect.any(Object));
+  });
+
+  it('does not pass photo state into the unsaved-changes exit guard', () => {
+    mockPhotos = [];
+    const { rerender } = renderWithProviders(<EditBikeScreen />);
+    expect(capturedExitGuardIsDirty).toBe(false);
+
+    mockPhotos = [{ id: 'photo-1', storagePath: 'photo-1.jpg', sortOrder: 0 }];
+    rerender(<EditBikeScreen />);
+    expect(capturedExitGuardIsDirty).toBe(false);
   });
 
   it('shows validation feedback snackbar when save fails client-side validation', async () => {

@@ -20,7 +20,6 @@ import { PhotoPicker } from '@/shared/components/PhotoPicker/PhotoPicker';
 import { CachedListThumbnail, ConfirmDialog, LoadingScreen } from '@/shared/components';
 import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
-import { usePhotoDirtyTracking } from '@/shared/hooks/usePhotoDirtyTracking';
 import { supabase } from '@/shared/api/supabase';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
@@ -34,8 +33,8 @@ export default function EditBikeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const bikeId = id as BikeId;
 
-  const { data: bike, isLoading, isSuccess: bikeReady } = useBike(bikeId);
-  const { data: photos = [], isSuccess: photosReady } = useBikePhotos(bikeId);
+  const { data: bike, isLoading } = useBike(bikeId);
+  const { data: photos = [] } = useBikePhotos(bikeId);
   const [formDirty, setFormDirty] = useState(false);
   const updateBike = useUpdateBike();
   const deleteBike = useDeleteBike();
@@ -44,11 +43,8 @@ export default function EditBikeScreen() {
 
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
 
-  const photosDirty = usePhotoDirtyTracking(photos, bikeReady, photosReady);
-  const isScreenDirty = formDirty || photosDirty;
-
   const { bypassNextNavigation } = useUnsavedChangesExitGuard({
-    isDirty: isScreenDirty,
+    isDirty: formDirty,
     title: tCommon('unsavedChanges.title'),
     message: tCommon('unsavedChanges.message'),
     confirmLabel: tCommon('unsavedChanges.discard'),
