@@ -28,6 +28,7 @@
     "status": {
       "pending": "Pending",
       "accepted": "Accepted",
+      "picked_up": "Picked up",
       "rejected": "Declined",
       "returned": "Returned",
       "cancelled": "Cancelled"
@@ -64,8 +65,14 @@
     },
     "accept": {
       "title": "Accept request?",
-      "message": "The item will be marked as loaned to {{name}}.",
+      "message": "The item will be reserved for {{name}} until pickup.",
       "confirm": "Accept",
+      "cancel": "Cancel"
+    },
+    "markPickedUp": {
+      "title": "Mark as picked up?",
+      "message": "Confirm that {{name}} has picked up the item.",
+      "confirm": "Mark Picked Up",
       "cancel": "Cancel"
     },
     "decline": {
@@ -92,6 +99,7 @@
     "accepted": "Request accepted",
     "declined": "Request declined",
     "cancelled": "Request cancelled",
+    "pickedUp": "Marked as picked up",
     "returned": "Item marked as returned"
   },
   "error": {
