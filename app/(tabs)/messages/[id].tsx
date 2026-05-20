@@ -36,6 +36,7 @@ import {
 import type { MessageWithSender } from '@/features/messaging';
 import { useItem } from '@/features/inventory';
 import { useMarkExchanged, useExchangeDialogConfig } from '@/features/exchange';
+import { BorrowRequestActionsBanner, useActiveBorrowRequestForItem } from '@/features/borrow';
 import { useAuth } from '@/features/auth';
 import { ConfirmDialog, LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
 import { useReport } from '@/shared/hooks/useReport';
@@ -163,6 +164,13 @@ export default function ConversationDetailScreen() {
 
   // Trust signal — currently a stub (returns 0/0) until borrow analytics ship
   const { data: borrowHistory } = useUserBorrowHistory(conversation?.otherParticipantId);
+
+  // Live borrow request (if any) for the item this conversation is about.
+  // Surfaces the action banner (accept / decline / mark picked up / mark returned / cancel)
+  // inline above the messages, so the conversation stays the primary surface.
+  const { data: activeBorrowRequest } = useActiveBorrowRequestForItem(conversation?.itemId, {
+    enabled: !!conversation?.itemId,
+  });
 
   // Owner/status from conversation when `useItem` is still loading (same source as list/detail).
   const itemStatusForExchange =
@@ -413,6 +421,14 @@ export default function ConversationDetailScreen() {
         {/* Item-context strip (slim hairline-bordered row) */}
         {conversation?.itemId ? (
           <ItemContextStrip conversation={conversation} onPress={handleViewItem} />
+        ) : null}
+
+        {/* Borrow actions banner (only when there's a live request for this item) */}
+        {activeBorrowRequest && user ? (
+          <BorrowRequestActionsBanner
+            request={activeBorrowRequest}
+            currentUserId={user.id as never}
+          />
         ) : null}
 
         {/* Messages list (inverted = newest at bottom) */}
