@@ -38,7 +38,22 @@
     "accept": "Accept",
     "decline": "Decline",
     "cancel": "Cancel Request",
+    "markPickedUp": "Mark Picked Up",
     "markReturned": "Mark Returned"
+  },
+  "banner": {
+    "pending": {
+      "owner": "{{name}} wants to borrow this item.",
+      "requester": "Waiting for the owner's response."
+    },
+    "accepted": {
+      "owner": "Accepted — hand it off to {{name}} and mark picked up.",
+      "requester": "Accepted — coordinate pickup with the owner."
+    },
+    "picked_up": {
+      "owner": "{{name}} has picked up the item.",
+      "requester": "You have picked up the item."
+    }
   },
   "confirm": {
     "requestBorrow": {
@@ -81,7 +96,12 @@
   },
   "error": {
     "requestFailed": "Failed to send borrow request",
-    "actionFailed": "Failed to update request"
+    "actionFailed": "Failed to update request",
+    "acceptFailed": "Failed to accept request",
+    "declineFailed": "Failed to decline request",
+    "cancelFailed": "Failed to cancel request",
+    "pickupFailed": "Failed to mark as picked up",
+    "markReturnedFailed": "Failed to mark as returned"
   },
   "profileMenu": {
     "label": "Borrow Requests",

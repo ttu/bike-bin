@@ -3,6 +3,7 @@ export type { BorrowRequestWithDetails } from './types';
 
 // Components
 export { BorrowRequestCard } from './components/BorrowRequestCard/BorrowRequestCard';
+export { BorrowRequestActionsBanner } from './components/BorrowRequestActionsBanner/BorrowRequestActionsBanner';
 
 // Hooks
 export { useBorrowRequests, BORROW_REQUESTS_QUERY_KEY } from './hooks/useBorrowRequests';
