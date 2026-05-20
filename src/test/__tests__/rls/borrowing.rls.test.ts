@@ -157,7 +157,7 @@ describe('borrow_requests — UPDATE (state machine)', () => {
     await adminClient.from('borrow_requests').delete().eq('id', id);
   });
 
-  it('owner can mark an accepted request as returned', async () => {
+  it('accepted -> returned direct update is rejected (must go via picked_up)', async () => {
     const { data: brData, error: brError } = await adminClient
       .from('borrow_requests')
       .insert({ item_id: itemId, requester_id: requester.id, status: 'accepted' })
@@ -170,7 +170,7 @@ describe('borrow_requests — UPDATE (state machine)', () => {
       .from('borrow_requests')
       .update({ status: 'returned' })
       .eq('id', id);
-    expect(error).toBeNull();
+    expect(error).toBeTruthy();
     await adminClient.from('borrow_requests').delete().eq('id', id);
   });
 
@@ -219,5 +219,181 @@ describe('borrow_requests — UPDATE (state machine)', () => {
       .select();
     expect(error).toBeNull(); // RLS silently filters
     expect(data).toEqual([]);
+  });
+
+  it('pending -> picked_up direct update is rejected (invalid transition)', async () => {
+    const id = await seedPendingBorrowRequest();
+    const { error } = await owner.client
+      .from('borrow_requests')
+      .update({ status: 'picked_up' })
+      .eq('id', id);
+    expect(error).toBeTruthy();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('only owner can mark accepted request as picked_up (requester is rejected)', async () => {
+    const { data: brData, error: brError } = await adminClient
+      .from('borrow_requests')
+      .insert({ item_id: itemId, requester_id: requester.id, status: 'accepted' })
+      .select('id')
+      .single();
+    if (brError) throw new Error(`Failed to seed accepted borrow_request: ${brError.message}`);
+    const id = brData.id as string;
+
+    const { error } = await requester.client
+      .from('borrow_requests')
+      .update({ status: 'picked_up' })
+      .eq('id', id);
+    expect(error).toBeTruthy();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('owner can cancel an accepted request', async () => {
+    const { data: brData, error: brError } = await adminClient
+      .from('borrow_requests')
+      .insert({ item_id: itemId, requester_id: requester.id, status: 'accepted' })
+      .select('id')
+      .single();
+    if (brError) throw new Error(`Failed to seed accepted borrow_request: ${brError.message}`);
+    const id = brData.id as string;
+
+    const { error } = await owner.client
+      .from('borrow_requests')
+      .update({ status: 'cancelled' })
+      .eq('id', id);
+    expect(error).toBeNull();
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+});
+
+// ============================================================
+// borrow_requests — RPC transition_borrow_request (three-step lifecycle)
+// ============================================================
+
+describe('borrow_requests — RPC transition_borrow_request (three-step lifecycle)', () => {
+  it('accept transitions item stored -> reserved via RPC', async () => {
+    const id = await seedPendingBorrowRequest();
+
+    const { error } = await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'accepted',
+      p_new_item_status: 'reserved',
+    });
+    expect(error).toBeNull();
+
+    const { data: br } = await adminClient
+      .from('borrow_requests')
+      .select('status')
+      .eq('id', id)
+      .single();
+    expect(br?.status).toBe('accepted');
+
+    const { data: item } = await adminClient
+      .from('items')
+      .select('status')
+      .eq('id', itemId)
+      .single();
+    expect(item?.status).toBe('reserved');
+
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+    await adminClient.from('items').update({ status: 'stored' }).eq('id', itemId);
+  });
+
+  it('pickup transitions item reserved -> loaned via RPC', async () => {
+    // Set up: seed pending, accept it (sets item to reserved)
+    const id = await seedPendingBorrowRequest();
+    const { error: acceptError } = await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'accepted',
+      p_new_item_status: 'reserved',
+    });
+    expect(acceptError).toBeNull();
+
+    const { error } = await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'picked_up',
+      p_new_item_status: 'loaned',
+    });
+    expect(error).toBeNull();
+
+    const { data: br } = await adminClient
+      .from('borrow_requests')
+      .select('status')
+      .eq('id', id)
+      .single();
+    expect(br?.status).toBe('picked_up');
+
+    const { data: item } = await adminClient
+      .from('items')
+      .select('status')
+      .eq('id', itemId)
+      .single();
+    expect(item?.status).toBe('loaned');
+
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+    await adminClient.from('items').update({ status: 'stored' }).eq('id', itemId);
+  });
+
+  it('return from picked_up sets item stored via RPC', async () => {
+    // Set up: seed pending, accept, pickup
+    const id = await seedPendingBorrowRequest();
+    await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'accepted',
+      p_new_item_status: 'reserved',
+    });
+    await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'picked_up',
+      p_new_item_status: 'loaned',
+    });
+
+    const { error } = await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'returned',
+      p_new_item_status: 'stored',
+    });
+    expect(error).toBeNull();
+
+    const { data: br } = await adminClient
+      .from('borrow_requests')
+      .select('status')
+      .eq('id', id)
+      .single();
+    expect(br?.status).toBe('returned');
+
+    const { data: item } = await adminClient
+      .from('items')
+      .select('status')
+      .eq('id', itemId)
+      .single();
+    expect(item?.status).toBe('stored');
+
+    await adminClient.from('borrow_requests').delete().eq('id', id);
+  });
+
+  it('accepted -> cancelled via RPC sets item stored', async () => {
+    const id = await seedPendingBorrowRequest();
+    await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'accepted',
+      p_new_item_status: 'reserved',
+    });
+
+    const { error } = await owner.client.rpc('transition_borrow_request', {
+      p_request_id: id,
+      p_new_request_status: 'cancelled',
+      p_new_item_status: 'stored',
+    });
+    expect(error).toBeNull();
+
+    const { data: item } = await adminClient
+      .from('items')
+      .select('status')
+      .eq('id', itemId)
+      .single();
+    expect(item?.status).toBe('stored');
+
+    await adminClient.from('borrow_requests').delete().eq('id', id);
   });
 });
