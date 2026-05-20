@@ -139,8 +139,10 @@ describe('useListingDetailActions', () => {
   });
 
   describe('handleRequestBorrow', () => {
-    it('opens the confirm dialog and submits the borrow request on confirm', () => {
-      mockCreateBorrowRequest.mockImplementation((_params, opts) => opts.onSuccess());
+    it('submits borrow request for personal item and navigates to chat thread on success', () => {
+      mockCreateBorrowRequest.mockImplementation((_params, opts) =>
+        opts.onSuccess({ requestId: 'req-1', conversationId: 'conv-1' }),
+      );
 
       const { result } = renderHook(() =>
         useListingDetailActions({ item: baseItem, thisListingPath: '/p' }),
@@ -152,10 +154,46 @@ describe('useListingDetailActions', () => {
       act(() => result.current.confirmDialogProps.onConfirm());
 
       expect(mockCreateBorrowRequest).toHaveBeenCalledWith(
-        { itemId: baseItem.id },
+        { itemId: baseItem.id, ownerId: 'owner-1', groupId: undefined },
         expect.any(Object),
       );
-      expect(mockRouterPush).toHaveBeenCalledWith('/(tabs)/profile/borrow-requests');
+      expect(mockRouterPush).toHaveBeenCalledWith('/messages/conv-1');
+    });
+
+    it('submits borrow request for group item with groupId and navigates to chat thread', () => {
+      const groupItem = createMockSearchResultItem({
+        ownerId: undefined,
+        groupId: 'group-9' as GroupId,
+      });
+      mockCreateBorrowRequest.mockImplementation((_params, opts) =>
+        opts.onSuccess({ requestId: 'req-2', conversationId: 'conv-2' }),
+      );
+
+      const { result } = renderHook(() =>
+        useListingDetailActions({ item: groupItem, thisListingPath: '/p' }),
+      );
+
+      act(() => result.current.handleRequestBorrow());
+      act(() => result.current.confirmDialogProps.onConfirm());
+
+      expect(mockCreateBorrowRequest).toHaveBeenCalledWith(
+        { itemId: groupItem.id, ownerId: undefined, groupId: 'group-9' },
+        expect.any(Object),
+      );
+      expect(mockRouterPush).toHaveBeenCalledWith('/messages/conv-2');
+    });
+
+    it('is a no-op when item has neither ownerId nor groupId', () => {
+      const orphan = createMockSearchResultItem({ ownerId: undefined, groupId: undefined });
+
+      const { result } = renderHook(() =>
+        useListingDetailActions({ item: orphan, thisListingPath: '/p' }),
+      );
+
+      act(() => result.current.handleRequestBorrow());
+
+      expect(result.current.confirmDialogProps.visible).toBe(false);
+      expect(mockCreateBorrowRequest).not.toHaveBeenCalled();
     });
 
     it('shows snackbar when borrow request fails', () => {
