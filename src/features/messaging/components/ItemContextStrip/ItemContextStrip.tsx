@@ -15,13 +15,20 @@ interface ItemContextStripProps {
   onPress?: () => void;
 }
 
-type ContextKey = 'borrowAccepted' | 'donationAccepted' | 'saleAccepted' | 'stored' | undefined;
+type ContextKey =
+  | 'borrowAwaitingPickup'
+  | 'borrowInProgress'
+  | 'donationAccepted'
+  | 'saleAccepted'
+  | 'stored'
+  | undefined;
 
 function deriveContextKey(status: string | undefined): ContextKey {
   switch (status) {
     case ItemStatus.Loaned:
+      return 'borrowInProgress';
     case ItemStatus.Reserved:
-      return 'borrowAccepted';
+      return 'borrowAwaitingPickup';
     case ItemStatus.Donated:
       return 'donationAccepted';
     case ItemStatus.Sold:

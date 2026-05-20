@@ -46,17 +46,17 @@ describe('ItemContextStrip', () => {
     expect(onPress).toHaveBeenCalled();
   });
 
-  it('renders borrow context and warning status chip for loaned items', () => {
+  it('renders in-progress borrow context and warning status chip for loaned items', () => {
     const conv = createMockConversationListItem({ itemStatus: 'loaned' });
     const { getByText } = renderWithProviders(<ItemContextStrip conversation={conv} />);
-    expect(getByText('Borrow · accepted')).toBeTruthy();
+    expect(getByText('Borrow · in progress')).toBeTruthy();
     expect(getByText('Loaned')).toBeTruthy();
   });
 
-  it('renders borrow context for reserved items', () => {
+  it('renders awaiting-pickup borrow context for reserved items', () => {
     const conv = createMockConversationListItem({ itemStatus: 'reserved' });
     const { getByText } = renderWithProviders(<ItemContextStrip conversation={conv} />);
-    expect(getByText('Borrow · accepted')).toBeTruthy();
+    expect(getByText('Borrow · awaiting pickup')).toBeTruthy();
     expect(getByText('Reserved')).toBeTruthy();
   });
 

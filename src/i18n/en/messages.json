@@ -35,7 +35,8 @@
   "chat": {
     "trustSignal": "Borrowed {{count}} times · always returned",
     "context": {
-      "borrowAccepted": "Borrow · accepted",
+      "borrowAwaitingPickup": "Borrow · awaiting pickup",
+      "borrowInProgress": "Borrow · in progress",
       "donationAccepted": "Donation · accepted",
       "saleAccepted": "Sale · accepted",
       "stored": "Available",
