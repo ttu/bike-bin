@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockBike } from '@/test/factories';
 import { mockAuthModule } from '@/test/authMocks';
@@ -6,28 +6,21 @@ import { BikeType, type BikeId } from '@/shared/types';
 import EditBikeScreen from '../[id]';
 
 const mockRouterNavigate = jest.fn();
-let beforeRemoveHandler:
-  | ((e: { preventDefault: () => void; data: { action: { type: string } } }) => void)
-  | undefined;
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ id: 'bike-123' }),
-  useNavigation: () => ({
-    addListener: jest.fn((event: string, handler: typeof beforeRemoveHandler) => {
-      if (event === 'beforeRemove') {
-        beforeRemoveHandler = handler;
-      }
-      return jest.fn();
-    }),
-    dispatch: jest.fn(),
-  }),
-  router: {
-    navigate: (...args: unknown[]) => mockRouterNavigate(...args),
-    canDismiss: () => true,
-    dismiss: jest.fn(),
-    replace: jest.fn(),
-  },
-}));
+jest.mock('expo-router', () => {
+  const { mockExpoRouterNavigation } =
+    jest.requireActual<typeof import('@/test/routerMocks')>('@/test/routerMocks');
+  return {
+    ...mockExpoRouterNavigation,
+    useLocalSearchParams: () => ({ id: 'bike-123' }),
+    router: {
+      navigate: (...args: unknown[]) => mockRouterNavigate(...args),
+      canDismiss: () => true,
+      dismiss: jest.fn(),
+      replace: jest.fn(),
+    },
+  };
+});
 
 jest.mock('react-native-safe-area-context', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -63,14 +56,31 @@ const mockBike = createMockBike({
 let mockPhotos: { id: string; storagePath: string; sortOrder: number }[] = [];
 
 jest.mock('@/features/bikes', () => ({
-  useBike: () => ({ data: mockBike }),
-  useBikePhotos: () => ({ data: mockPhotos }),
+  useBike: () => ({ data: mockBike, isSuccess: true }),
+  useBikePhotos: () => ({ data: mockPhotos, isSuccess: true }),
   useUpdateBike: () => ({ mutate: jest.fn(), isPending: false }),
   useDeleteBike: () => ({ mutate: mockDeleteMutate }),
   useBikePhotoUpload: () => ({ pickAndUpload: jest.fn(), isUploading: false }),
   useSwapBikePhotoOrder: () => ({ mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false }),
   useRemoveBikePhoto: () => ({ mutate: jest.fn(), isPending: false }),
 }));
+
+let capturedExitGuardIsDirty: boolean | undefined;
+
+jest.mock('@/shared/hooks/useUnsavedChangesExitGuard', () => {
+  const actual = jest.requireActual<typeof import('@/shared/hooks/useUnsavedChangesExitGuard')>(
+    '@/shared/hooks/useUnsavedChangesExitGuard',
+  );
+  return {
+    ...actual,
+    useUnsavedChangesExitGuard: (
+      params: Parameters<typeof actual.useUnsavedChangesExitGuard>[0],
+    ) => {
+      capturedExitGuardIsDirty = params.isDirty;
+      return actual.useUnsavedChangesExitGuard(params);
+    },
+  };
+});
 
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
@@ -102,7 +112,7 @@ describe('EditBikeScreen confirmations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPhotos = [];
-    beforeRemoveHandler = undefined;
+    capturedExitGuardIsDirty = undefined;
   });
 
   it('does not show bike id label in the hero header', () => {
@@ -130,23 +140,14 @@ describe('EditBikeScreen confirmations', () => {
     expect(mockDeleteMutate).toHaveBeenCalledWith('bike-123', expect.any(Object));
   });
 
-  it('does not mark the screen dirty when a photo is added (uploads commit immediately)', () => {
+  it('does not pass photo state into the unsaved-changes exit guard', () => {
     mockPhotos = [];
     const { rerender } = renderWithProviders(<EditBikeScreen />);
+    expect(capturedExitGuardIsDirty).toBe(false);
 
     mockPhotos = [{ id: 'photo-1', storagePath: 'photo-1.jpg', sortOrder: 0 }];
     rerender(<EditBikeScreen />);
-
-    const preventDefault = jest.fn();
-    act(() => {
-      beforeRemoveHandler?.({
-        preventDefault,
-        data: { action: { type: 'GO_BACK' } },
-      });
-    });
-
-    expect(preventDefault).not.toHaveBeenCalled();
-    expect(screen.queryByText('Discard changes?')).toBeNull();
+    expect(capturedExitGuardIsDirty).toBe(false);
   });
 
   it('shows validation feedback snackbar when save fails client-side validation', async () => {
