@@ -10,6 +10,7 @@ export { useCreateBorrowRequest } from './hooks/useCreateBorrowRequest';
 export { useAcceptBorrowRequest } from './hooks/useAcceptBorrowRequest';
 export { useDeclineBorrowRequest } from './hooks/useDeclineBorrowRequest';
 export { useCancelBorrowRequest } from './hooks/useCancelBorrowRequest';
+export { useMarkPickedUp } from './hooks/useMarkPickedUp';
 export { useMarkReturned } from './hooks/useMarkReturned';
 export { useMarkReturnedDialogConfig } from './hooks/useMarkReturnedDialogConfig';
 export { useRequestBorrowDialogConfig } from './hooks/useRequestBorrowDialogConfig';
