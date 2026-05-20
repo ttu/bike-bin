@@ -40,6 +40,7 @@ Expected: migrations apply cleanly through `00012_functions_business.sql`.
 ## File Structure
 
 **New files**
+
 - `supabase/migrations/00040_borrow_picked_up.sql` — new request status + transition rules + RPC update
 - `src/features/borrow/hooks/useMarkPickedUp.ts`
 - `src/features/borrow/hooks/usePendingBorrowRequestForItem.ts`
@@ -52,6 +53,7 @@ Expected: migrations apply cleanly through `00012_functions_business.sql`.
 - `__tests__/rls/borrow-picked-up.rls.test.ts`
 
 **Modified files**
+
 - `src/shared/types/borrow.ts` (or wherever `BorrowRequestStatus` lives) — add `PickedUp`
 - `src/features/borrow/hooks/useCreateBorrowRequest.ts` — drop item-status flip, add conversation creation, return `conversationId`
 - `src/features/borrow/hooks/useAcceptBorrowRequest.ts` — `newItemStatus: Reserved`
@@ -66,6 +68,7 @@ Expected: migrations apply cleanly through `00012_functions_business.sql`.
 - `src/shared/i18n/locales/en/messages.json` (+ other locales) — chat context strings if needed
 
 **Tests touched**
+
 - `src/features/borrow/hooks/__tests__/useBorrowMutations.test.ts`
 - `src/features/borrow/utils/__tests__/borrowWorkflow.test.ts` (or create if absent)
 - `src/features/search/hooks/__tests__/useListingDetailActions.test.tsx`
@@ -78,6 +81,7 @@ Expected: migrations apply cleanly through `00012_functions_business.sql`.
 ## Task 1: Add `picked_up` request status enum value (DB)
 
 **Files:**
+
 - Create: `supabase/migrations/00040_borrow_picked_up.sql`
 - Test: `__tests__/rls/borrow-picked-up.rls.test.ts`
 
@@ -130,7 +134,7 @@ Create `supabase/migrations/00040_borrow_picked_up.sql`:
 ALTER TYPE borrow_request_status ADD VALUE IF NOT EXISTS 'picked_up' AFTER 'accepted';
 ```
 
-Note: Postgres requires `ADD VALUE` to commit before the value is usable in subsequent statements *in the same transaction*. Split the trigger/RPC updates into Task 2 (a separate migration file) so we don't fight that.
+Note: Postgres requires `ADD VALUE` to commit before the value is usable in subsequent statements _in the same transaction_. Split the trigger/RPC updates into Task 2 (a separate migration file) so we don't fight that.
 
 - [ ] **Step 4: Run migrations and re-run the test**
 
@@ -153,19 +157,20 @@ git commit -m "feat: add picked_up borrow request status"
 ## Task 2: Update transition trigger + RPC for new state machine
 
 **Files:**
+
 - Create: `supabase/migrations/00041_borrow_state_machine.sql`
 - Modify: assertions in `__tests__/rls/borrow-picked-up.rls.test.ts`
 
 **Allowed transitions after this task:**
 
-| From | To | Item status change | Actor |
-|---|---|---|---|
-| pending | accepted | stored → reserved | owner / group admin |
-| pending | rejected | (none) | owner / group admin |
-| pending | cancelled | (none) | requester |
-| accepted | picked_up | reserved → loaned | owner / group admin |
-| accepted | cancelled | reserved → stored | requester or owner/admin |
-| picked_up | returned | loaned → stored | owner / group admin |
+| From      | To        | Item status change | Actor                    |
+| --------- | --------- | ------------------ | ------------------------ |
+| pending   | accepted  | stored → reserved  | owner / group admin      |
+| pending   | rejected  | (none)             | owner / group admin      |
+| pending   | cancelled | (none)             | requester                |
+| accepted  | picked_up | reserved → loaned  | owner / group admin      |
+| accepted  | cancelled | reserved → stored  | requester or owner/admin |
+| picked_up | returned  | loaned → stored    | owner / group admin      |
 
 - [ ] **Step 1: Write failing test for each allowed and disallowed transition**
 
@@ -178,13 +183,21 @@ it('accept transitions item stored -> reserved', async () => {
   // assert: request.status = accepted, item.status = reserved
 });
 
-it('picked_up transitions item reserved -> loaned', async () => { /* ... */ });
+it('picked_up transitions item reserved -> loaned', async () => {
+  /* ... */
+});
 
-it('returned from picked_up sets item stored', async () => { /* ... */ });
+it('returned from picked_up sets item stored', async () => {
+  /* ... */
+});
 
-it('rejects pending -> picked_up', async () => { /* ... */ });
+it('rejects pending -> picked_up', async () => {
+  /* ... */
+});
 
-it('rejects accepted -> returned (must go through picked_up)', async () => { /* ... */ });
+it('rejects accepted -> returned (must go through picked_up)', async () => {
+  /* ... */
+});
 ```
 
 Use the RLS test helpers already in `__tests__/rls/helpers/` (look at existing borrow tests for shape).
@@ -379,6 +392,7 @@ git commit -m "feat: three-step borrow lifecycle (accept→reserved→pickup→l
 ## Task 3: Add `BorrowRequestStatus.PickedUp` to TS types
 
 **Files:**
+
 - Modify: `src/shared/types/borrow.ts` (or wherever the enum lives — grep `BorrowRequestStatus` to locate)
 
 - [ ] **Step 1: Locate the enum**
@@ -408,6 +422,7 @@ git commit -am "feat: add BorrowRequestStatus.PickedUp"
 ## Task 4: Extract conversation find-or-create into a shared util
 
 **Files:**
+
 - Create: `src/features/messaging/utils/resolveConversation.ts`
 - Create: `src/features/messaging/utils/__tests__/resolveConversation.test.ts`
 - Modify: `src/features/messaging/hooks/useCreateConversation.ts`
@@ -437,12 +452,19 @@ describe('resolveConversation', () => {
 
   it('creates a new conversation when none exists', async () => {
     // arrange empty result for existing lookup
-    const result = await resolveConversation({ supabase: mockSupabase, itemId, selfId, otherUserId });
+    const result = await resolveConversation({
+      supabase: mockSupabase,
+      itemId,
+      selfId,
+      otherUserId,
+    });
     expect(result.isExisting).toBe(false);
     expect(mockSupabase.from).toHaveBeenCalledWith('conversations');
   });
 
-  it('uses group admins as participants when groupId is provided', async () => { /* ... */ });
+  it('uses group admins as participants when groupId is provided', async () => {
+    /* ... */
+  });
 });
 ```
 
@@ -461,7 +483,13 @@ Create `src/features/messaging/utils/resolveConversation.ts` that exports:
 ```ts
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { randomUuidV4 } from '@/shared/utils/randomUuid';
-import { GroupRole, type ConversationId, type ItemId, type UserId, type GroupId } from '@/shared/types';
+import {
+  GroupRole,
+  type ConversationId,
+  type ItemId,
+  type UserId,
+  type GroupId,
+} from '@/shared/types';
 
 export interface ResolveConversationArgs {
   supabase: SupabaseClient;
@@ -476,7 +504,9 @@ export interface ResolveConversationResult {
   isExisting: boolean;
 }
 
-export async function resolveConversation(args: ResolveConversationArgs): Promise<ResolveConversationResult> {
+export async function resolveConversation(
+  args: ResolveConversationArgs,
+): Promise<ResolveConversationResult> {
   // Move the bodies of findExistingConversation, fetchGroupAdminIds,
   // resolveOtherParticipantIds, insertConversationAndParticipants here
   // — verbatim, with `supabase` passed in instead of imported.
@@ -500,7 +530,9 @@ return useMutation({
     if (!otherUserId && !groupId) throw new Error('Either otherUserId or groupId must be provided');
     return resolveConversation({ supabase, itemId, selfId: user.id, otherUserId, groupId });
   },
-  onSuccess: async () => { /* unchanged */ },
+  onSuccess: async () => {
+    /* unchanged */
+  },
 });
 ```
 
@@ -524,6 +556,7 @@ git commit -m "refactor: extract conversation find-or-create into shared util"
 ## Task 5: `useCreateBorrowRequest` opens a conversation, no longer reserves the item
 
 **Files:**
+
 - Modify: `src/features/borrow/hooks/useCreateBorrowRequest.ts`
 - Modify: `src/features/borrow/hooks/__tests__/useBorrowMutations.test.ts`
 
@@ -543,7 +576,9 @@ it('returns a conversationId pointing at the (item, owner) conversation', async 
   expect(result.conversationId).toBeDefined();
 });
 
-it('reuses an existing conversation for the same (item, owner)', async () => { /* ... */ });
+it('reuses an existing conversation for the same (item, owner)', async () => {
+  /* ... */
+});
 ```
 
 Remove any assertion that item status becomes `Reserved` on request creation.
@@ -584,7 +619,12 @@ export function useCreateBorrowRequest() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ itemId, ownerId, groupId, message }: CreateBorrowRequestParams): Promise<CreateBorrowRequestResult> => {
+    mutationFn: async ({
+      itemId,
+      ownerId,
+      groupId,
+      message,
+    }: CreateBorrowRequestParams): Promise<CreateBorrowRequestResult> => {
       if (!user) throw new Error('Must be authenticated to create borrow requests');
       if (!ownerId && !groupId) throw new Error('Either ownerId or groupId must be provided');
 
@@ -633,6 +673,7 @@ git commit -m "feat: borrow request opens a conversation, no longer reserves ite
 ## Task 6: Accept goes to Reserved
 
 **Files:**
+
 - Modify: `src/features/borrow/hooks/useAcceptBorrowRequest.ts`
 - Modify: `src/features/borrow/hooks/__tests__/useBorrowMutations.test.ts`
 
@@ -678,6 +719,7 @@ git commit -am "feat: accept borrow request reserves the item"
 ## Task 7: `useMarkPickedUp`
 
 **Files:**
+
 - Create: `src/features/borrow/hooks/useMarkPickedUp.ts`
 - Create: `src/features/borrow/hooks/__tests__/useMarkPickedUp.test.ts`
 - Modify: `src/features/borrow/index.ts`
@@ -691,9 +733,15 @@ import { useMarkPickedUp } from '../useMarkPickedUp';
 // Use the same harness as useBorrowMutations.test.ts
 
 describe('useMarkPickedUp', () => {
-  it('transitions accepted->picked_up and reserved->loaned', async () => { /* ... */ });
-  it('errors when called by a non-owner', async () => { /* ... */ });
-  it('errors when request is not in accepted state', async () => { /* ... */ });
+  it('transitions accepted->picked_up and reserved->loaned', async () => {
+    /* ... */
+  });
+  it('errors when called by a non-owner', async () => {
+    /* ... */
+  });
+  it('errors when request is not in accepted state', async () => {
+    /* ... */
+  });
 });
 ```
 
@@ -737,6 +785,7 @@ git commit -m "feat: useMarkPickedUp hook for handoff transition"
 ## Task 8: Update `borrowWorkflow` predicates + actions
 
 **Files:**
+
 - Modify: `src/features/borrow/utils/borrowWorkflow.ts`
 - Create/Modify: `src/features/borrow/utils/__tests__/borrowWorkflow.test.ts`
 
@@ -746,23 +795,45 @@ Cover every cell in the matrix:
 
 ```ts
 describe('canMarkPickedUp', () => {
-  it('true when request is accepted, item reserved, user is owner', () => { /* ... */ });
-  it('false when request is pending', () => { /* ... */ });
-  it('false when user is not owner', () => { /* ... */ });
+  it('true when request is accepted, item reserved, user is owner', () => {
+    /* ... */
+  });
+  it('false when request is pending', () => {
+    /* ... */
+  });
+  it('false when user is not owner', () => {
+    /* ... */
+  });
 });
 
 describe('canMarkReturned', () => {
-  it('true when request is picked_up, item loaned, user is owner', () => { /* ... */ });
-  it('false when request is accepted but item still reserved', () => { /* ... */ });
+  it('true when request is picked_up, item loaned, user is owner', () => {
+    /* ... */
+  });
+  it('false when request is accepted but item still reserved', () => {
+    /* ... */
+  });
 });
 
 describe('getRequestActions', () => {
-  it('returns [accept, decline] for pending+owner', () => { /* ... */ });
-  it('returns [cancel] for pending+requester', () => { /* ... */ });
-  it('returns [markPickedUp, cancel] for accepted+owner', () => { /* ... */ });
-  it('returns [cancel] for accepted+requester', () => { /* ... */ });
-  it('returns [markReturned] for picked_up+owner', () => { /* ... */ });
-  it('returns [] for picked_up+requester', () => { /* ... */ });
+  it('returns [accept, decline] for pending+owner', () => {
+    /* ... */
+  });
+  it('returns [cancel] for pending+requester', () => {
+    /* ... */
+  });
+  it('returns [markPickedUp, cancel] for accepted+owner', () => {
+    /* ... */
+  });
+  it('returns [cancel] for accepted+requester', () => {
+    /* ... */
+  });
+  it('returns [markReturned] for picked_up+owner', () => {
+    /* ... */
+  });
+  it('returns [] for picked_up+requester', () => {
+    /* ... */
+  });
 });
 ```
 
@@ -835,6 +906,7 @@ git commit -am "feat: borrowWorkflow supports pickup and accepted-cancel"
 ## Task 9: Listing detail navigates to chat after request
 
 **Files:**
+
 - Modify: `src/features/search/hooks/useListingDetailActions.ts`
 - Modify: `src/features/search/hooks/__tests__/useListingDetailActions.test.tsx`
 - Modify: `app/(tabs)/search/__tests__/ListingDetailScreen.test.tsx`
@@ -860,29 +932,34 @@ Remove the existing assertion that we navigate to `/(tabs)/profile/borrow-reques
 In `useListingDetailActions.ts` (line ~72):
 
 ```ts
-const handleRequestBorrow = useCallback(() => {
-  const params = resolveContactParams(item);
-  if (!params) return;
-  const { errorMessage, ...dialog } = requestBorrowDialog;
-  openConfirm({
-    ...dialog,
-    onConfirm: () => {
-      closeConfirm();
-      createBorrowRequest(
-        {
-          itemId: item.id,
-          ownerId: 'otherUserId' in params ? params.otherUserId : undefined,
-          groupId: 'groupId' in params ? params.groupId : undefined,
-        },
-        {
-          onSuccess: ({ conversationId }) => router.push(`/messages/${conversationId}`),
-          onError: () =>
-            showSnackbarAlert({ message: errorMessage, variant: 'error', duration: 'long' }),
-        },
-      );
-    },
-  });
-}, [/* updated deps */]);
+const handleRequestBorrow = useCallback(
+  () => {
+    const params = resolveContactParams(item);
+    if (!params) return;
+    const { errorMessage, ...dialog } = requestBorrowDialog;
+    openConfirm({
+      ...dialog,
+      onConfirm: () => {
+        closeConfirm();
+        createBorrowRequest(
+          {
+            itemId: item.id,
+            ownerId: 'otherUserId' in params ? params.otherUserId : undefined,
+            groupId: 'groupId' in params ? params.groupId : undefined,
+          },
+          {
+            onSuccess: ({ conversationId }) => router.push(`/messages/${conversationId}`),
+            onError: () =>
+              showSnackbarAlert({ message: errorMessage, variant: 'error', duration: 'long' }),
+          },
+        );
+      },
+    });
+  },
+  [
+    /* updated deps */
+  ],
+);
 ```
 
 - [ ] **Step 4: Run all search tests**
@@ -902,11 +979,12 @@ git commit -am "feat: borrow request navigates to chat thread"
 ## Task 10: `usePendingBorrowRequestForItem`
 
 **Files:**
+
 - Create: `src/features/borrow/hooks/usePendingBorrowRequestForItem.ts`
 - Create: test next to it
 - Modify: `src/features/borrow/index.ts`
 
-Mirror `useAcceptedBorrowRequestForItem` but filter for *active* requests (`Pending`, `Accepted`, or `PickedUp` — anything not terminal). The banner needs a single source of truth: "what's the live request for this item, for me?"
+Mirror `useAcceptedBorrowRequestForItem` but filter for _active_ requests (`Pending`, `Accepted`, or `PickedUp` — anything not terminal). The banner needs a single source of truth: "what's the live request for this item, for me?"
 
 - [ ] **Step 1: Write failing test** covering: returns the live request, ignores terminal ones, returns undefined if no live request.
 
@@ -929,6 +1007,7 @@ git commit -am "feat: usePendingBorrowRequestForItem for chat banner"
 ## Task 11: `BorrowRequestActionsBanner`
 
 **Files:**
+
 - Create: `src/features/borrow/components/BorrowRequestActionsBanner/BorrowRequestActionsBanner.tsx`
 - Create: `BorrowRequestActionsBanner.test.tsx`
 - Create: `BorrowRequestActionsBanner.stories.tsx`
@@ -939,11 +1018,21 @@ git commit -am "feat: usePendingBorrowRequestForItem for chat banner"
 - [ ] **Step 1: Write failing test**
 
 ```tsx
-it('renders accept and decline for pending request when current user is owner', () => { /* ... */ });
-it('renders mark-picked-up when accepted and item reserved', () => { /* ... */ });
-it('renders mark-returned when picked_up and item loaned', () => { /* ... */ });
-it('renders cancel for the requester while request is active', () => { /* ... */ });
-it('renders nothing when no actions apply', () => { /* ... */ });
+it('renders accept and decline for pending request when current user is owner', () => {
+  /* ... */
+});
+it('renders mark-picked-up when accepted and item reserved', () => {
+  /* ... */
+});
+it('renders mark-returned when picked_up and item loaned', () => {
+  /* ... */
+});
+it('renders cancel for the requester while request is active', () => {
+  /* ... */
+});
+it('renders nothing when no actions apply', () => {
+  /* ... */
+});
 ```
 
 - [ ] **Step 2: Run, verify fail**
@@ -971,14 +1060,19 @@ git commit -am "feat: BorrowRequestActionsBanner for inline chat actions"
 ## Task 12: Render banner in chat screen
 
 **Files:**
+
 - Modify: `app/(tabs)/messages/[id].tsx`
 - Modify: `app/(tabs)/messages/__tests__/...` (whichever covers `[id].tsx`)
 
 - [ ] **Step 1: Locate the existing chat screen test**, write a failing test:
 
 ```tsx
-it('renders BorrowRequestActionsBanner when there is a live borrow request for the item', () => { /* ... */ });
-it('does not render the banner when no live request exists', () => { /* ... */ });
+it('renders BorrowRequestActionsBanner when there is a live borrow request for the item', () => {
+  /* ... */
+});
+it('does not render the banner when no live request exists', () => {
+  /* ... */
+});
 ```
 
 - [ ] **Step 2: Run, verify fail**
@@ -990,10 +1084,12 @@ In `[id].tsx`, where the chat shell renders (just above the composer / just belo
 ```tsx
 const { data: liveRequest } = usePendingBorrowRequestForItem(conversation?.itemId);
 // ...
-{liveRequest && <BorrowRequestActionsBanner request={liveRequest} />}
+{
+  liveRequest && <BorrowRequestActionsBanner request={liveRequest} />;
+}
 ```
 
-Decide placement carefully — likely *between* `ItemContextStrip` and the messages list, sticky-ish so it stays in view.
+Decide placement carefully — likely _between_ `ItemContextStrip` and the messages list, sticky-ish so it stays in view.
 
 - [ ] **Step 4: Run, verify pass; commit**
 
@@ -1006,10 +1102,12 @@ git commit -am "feat: surface borrow actions in chat thread"
 ## Task 13: Update `ItemContextStrip` copy for new `Reserved` meaning
 
 **Files:**
+
 - Modify: `src/features/messaging/components/ItemContextStrip/ItemContextStrip.tsx`
 - Modify: `src/shared/i18n/locales/*/messages.json`
 
 The `borrowAccepted` context key today is used for both `Loaned` and `Reserved`. Under the new lifecycle:
+
 - `Reserved` = accepted, awaiting pickup
 - `Loaned` = picked up, currently borrowed
 
@@ -1035,6 +1133,7 @@ git commit -am "feat: distinct chat context for reserved vs loaned"
 ## Task 14: Update `BorrowRequestCard` to surface pickup action
 
 **Files:**
+
 - Modify: `src/features/borrow/components/BorrowRequestCard/BorrowRequestCard.tsx`
 - Modify: its test file
 
@@ -1054,6 +1153,7 @@ git commit -am "feat: BorrowRequestCard renders pickup action"
 ## Task 15: i18n strings for the new lifecycle
 
 **Files:**
+
 - Modify: `src/shared/i18n/locales/en/borrow.json` (+ each other locale present in `src/shared/i18n/locales/*/`)
 
 Add (at minimum):
@@ -1101,11 +1201,13 @@ git commit -m "i18n: pickup lifecycle strings"
 ## Task 15a: Update seed data for new lifecycle
 
 **Files:**
+
 - Modify: `supabase/seed.sql`
 
 Existing seed has `accepted` borrow_requests against `loaned` items (e.g. `d0000001-0006`, `d0000001-0009`) and against `stored` items (e.g. `d0000002-0001`). Under the new lifecycle, that's inconsistent.
 
 **Rule of thumb:**
+
 - `accepted` request + `loaned` item → change request to `picked_up` (mid-loan, showcase the "borrowed" state).
 - `accepted` request + `stored` item → change item to `reserved` (awaiting pickup state).
 
@@ -1154,6 +1256,7 @@ git commit -m "chore: align seed data with three-step borrow lifecycle"
 ## Task 16: E2E happy path
 
 **Files:**
+
 - Create or modify: `e2e/borrow.spec.ts`
 
 - [ ] **Step 1: Outline the spec**
@@ -1192,6 +1295,7 @@ git commit -m "test: e2e borrow conversation happy path"
 ## Task 17: Audit `Reserved` copy across the app
 
 **Files:**
+
 - search-only
 
 Per the design risk flagged in brainstorming: `Reserved` now means "accepted, awaiting pickup," not "request pending."
@@ -1218,6 +1322,7 @@ git commit -am "docs: align Reserved copy with new pickup lifecycle"
 ## Task 18: Docs
 
 **Files:**
+
 - Modify: `docs/feature-design.md` and/or `docs/functional-specs.md`
 - Modify: `docs/datamodel.md` (note new `picked_up` enum value)
 
@@ -1255,6 +1360,7 @@ gh pr create --title "feat: borrow conversation thread + three-step lifecycle" -
 ```
 
 PR body should include:
+
 - Summary (chat-first borrow UX, new pickup step, accept now means Reserved not Loaned)
 - Migration impact (new enum value, RPC mapping change, item status changes for in-flight requests at deploy time — note any data fix needed for existing `Loaned` items)
 - Test plan (RLS, unit, E2E)
