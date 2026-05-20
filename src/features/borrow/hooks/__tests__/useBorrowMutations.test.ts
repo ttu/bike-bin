@@ -180,7 +180,7 @@ describe('useAcceptBorrowRequest', () => {
     expect(mockRpc).toHaveBeenCalledWith('transition_borrow_request', {
       p_request_id: 'req-1',
       p_new_request_status: 'accepted',
-      p_new_item_status: 'loaned',
+      p_new_item_status: 'reserved',
     });
   });
 
