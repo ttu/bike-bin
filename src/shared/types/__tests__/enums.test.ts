@@ -83,13 +83,14 @@ describe('BorrowRequestStatus', () => {
   it('has correct keys and values', () => {
     expect(BorrowRequestStatus.Pending).toBe('pending');
     expect(BorrowRequestStatus.Accepted).toBe('accepted');
+    expect(BorrowRequestStatus.PickedUp).toBe('picked_up');
     expect(BorrowRequestStatus.Rejected).toBe('rejected');
     expect(BorrowRequestStatus.Returned).toBe('returned');
     expect(BorrowRequestStatus.Cancelled).toBe('cancelled');
   });
 
-  it('has exactly 5 entries', () => {
-    expect(Object.keys(BorrowRequestStatus)).toHaveLength(5);
+  it('has exactly 6 entries', () => {
+    expect(Object.keys(BorrowRequestStatus)).toHaveLength(6);
   });
 });
 
