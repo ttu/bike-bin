@@ -11,7 +11,7 @@ type BorrowableItem = Pick<Item, 'status' | 'availabilityTypes' | 'ownerId'>;
 type RequestInfo = Pick<BorrowRequest, 'status' | 'requesterId'>;
 type ReturnableItem = Pick<Item, 'status' | 'ownerId'>;
 
-export type RequestAction = 'accept' | 'decline' | 'cancel' | 'markReturned';
+export type RequestAction = 'accept' | 'decline' | 'cancel' | 'markPickedUp' | 'markReturned';
 
 /**
  * Whether a user can request to borrow this item.
@@ -51,15 +51,35 @@ export function canDeclineRequest(
 
 /**
  * Whether the current user can cancel this borrow request.
- * True if request is Pending and user is the requester.
+ * True if request is Pending or Accepted and user is the requester.
  */
 export function canCancelRequest(request: RequestInfo, userId: UserId): boolean {
-  return request.status === BorrowRequestStatus.Pending && request.requesterId === userId;
+  return (
+    (request.status === BorrowRequestStatus.Pending ||
+      request.status === BorrowRequestStatus.Accepted) &&
+    request.requesterId === userId
+  );
+}
+
+/**
+ * Whether the current user can mark the item as picked up.
+ * True if request is Accepted, item is Reserved, and user is the owner.
+ */
+export function canMarkPickedUp(
+  request: RequestInfo,
+  item: Pick<Item, 'status' | 'ownerId'>,
+  userId: UserId,
+): boolean {
+  return (
+    request.status === BorrowRequestStatus.Accepted &&
+    item.status === ItemStatus.Reserved &&
+    item.ownerId === userId
+  );
 }
 
 /**
  * Whether the current user can mark the item as returned.
- * True if request is Accepted, item is Loaned, and user is the owner.
+ * True if request is PickedUp, item is Loaned, and user is the owner.
  */
 export function canMarkReturned(
   request: RequestInfo,
@@ -67,7 +87,7 @@ export function canMarkReturned(
   userId: UserId,
 ): boolean {
   return (
-    request.status === BorrowRequestStatus.Accepted &&
+    request.status === BorrowRequestStatus.PickedUp &&
     item.status === ItemStatus.Loaned &&
     item.ownerId === userId
   );
@@ -80,7 +100,7 @@ export function getRequestActions(
   request: RequestInfo,
   userId: UserId,
   itemOwnerId: UserId,
-  item?: ReturnableItem,
+  item?: Pick<Item, 'status' | 'ownerId'>,
 ): RequestAction[] {
   const actions: RequestAction[] = [];
 
@@ -92,6 +112,9 @@ export function getRequestActions(
   }
   if (canCancelRequest(request, userId)) {
     actions.push('cancel');
+  }
+  if (item && canMarkPickedUp(request, item, userId)) {
+    actions.push('markPickedUp');
   }
   if (item && canMarkReturned(request, item, userId)) {
     actions.push('markReturned');

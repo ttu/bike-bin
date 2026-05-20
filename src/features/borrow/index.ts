@@ -25,6 +25,7 @@ export {
   canAcceptRequest,
   canDeclineRequest,
   canCancelRequest,
+  canMarkPickedUp,
   canMarkReturned,
   getRequestActions,
 } from './utils/borrowWorkflow';

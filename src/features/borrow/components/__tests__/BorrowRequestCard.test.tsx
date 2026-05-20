@@ -88,9 +88,9 @@ describe('BorrowRequestCard', () => {
       expect(onDecline).toHaveBeenCalledWith(request);
     });
 
-    it('shows Mark Returned button for accepted/loaned request', () => {
+    it('shows Mark Returned button for picked_up/loaned request', () => {
       const request = createRequest({
-        status: BorrowRequestStatus.Accepted,
+        status: BorrowRequestStatus.PickedUp,
         itemStatus: ItemStatus.Loaned,
       });
       const { getByTestId } = renderWithProviders(
@@ -101,7 +101,7 @@ describe('BorrowRequestCard', () => {
 
     it('fires onMarkReturned when Mark Returned is pressed', () => {
       const request = createRequest({
-        status: BorrowRequestStatus.Accepted,
+        status: BorrowRequestStatus.PickedUp,
         itemStatus: ItemStatus.Loaned,
       });
       const onMarkReturned = jest.fn();
