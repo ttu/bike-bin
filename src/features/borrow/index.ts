@@ -18,6 +18,10 @@ export {
   useAcceptedBorrowRequestForItem,
   ACCEPTED_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
 } from './hooks/useAcceptedBorrowRequestForItem';
+export {
+  useActiveBorrowRequestForItem,
+  ACTIVE_BORROW_REQUEST_FOR_ITEM_QUERY_KEY,
+} from './hooks/useActiveBorrowRequestForItem';
 
 // Utils
 export {

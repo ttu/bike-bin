@@ -5,6 +5,7 @@ import {
   SEARCH_ITEMS_QUERY_KEY,
 } from '@/shared/api/queryKeys';
 import { BORROW_REQUESTS_QUERY_KEY } from './useBorrowRequests';
+import { ACTIVE_BORROW_REQUEST_FOR_ITEM_QUERY_KEY } from './useActiveBorrowRequestForItem';
 
 /**
  * Invalidate caches affected by a borrow-request mutation (create, cancel,
@@ -17,6 +18,7 @@ export async function invalidateBorrowMutationCaches(
 ): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: [BORROW_REQUESTS_QUERY_KEY] }),
+    queryClient.invalidateQueries({ queryKey: [ACTIVE_BORROW_REQUEST_FOR_ITEM_QUERY_KEY] }),
     queryClient.invalidateQueries({ queryKey: ITEMS_QUERY_KEY }),
     queryClient.invalidateQueries({ queryKey: GROUP_ITEMS_QUERY_KEY }),
     queryClient.invalidateQueries({ queryKey: SEARCH_ITEMS_QUERY_KEY }),
