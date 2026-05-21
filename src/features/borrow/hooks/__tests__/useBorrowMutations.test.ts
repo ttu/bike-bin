@@ -31,7 +31,6 @@ import { useCreateBorrowRequest } from '../useCreateBorrowRequest';
 import { useAcceptBorrowRequest } from '../useAcceptBorrowRequest';
 import { useCancelBorrowRequest } from '../useCancelBorrowRequest';
 import { useDeclineBorrowRequest } from '../useDeclineBorrowRequest';
-import { useMarkPickedUp } from '../useMarkPickedUp';
 import { useMarkReturned } from '../useMarkReturned';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 import type { ConversationId, ItemId } from '@/shared/types';
@@ -181,42 +180,13 @@ describe('useAcceptBorrowRequest', () => {
     expect(mockRpc).toHaveBeenCalledWith('transition_borrow_request', {
       p_request_id: 'req-1',
       p_new_request_status: 'accepted',
-      p_new_item_status: 'reserved',
-    });
-  });
-
-  it('propagates RPC errors', async () => {
-    setupRpcError();
-    const { result } = renderHook(() => useAcceptBorrowRequest(), {
-      wrapper: createQueryClientHookWrapper(),
-    });
-
-    result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
-
-    await waitFor(() => expect(result.current.isError).toBe(true));
-  });
-});
-
-describe('useMarkPickedUp', () => {
-  it('marks an accepted request as picked up via RPC', async () => {
-    setupRpc({ id: 'req-1', status: 'picked_up' });
-    const { result } = renderHook(() => useMarkPickedUp(), {
-      wrapper: createQueryClientHookWrapper(),
-    });
-
-    result.current.mutate({ requestId: 'req-1' as never, itemId: 'item-1' as never });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockRpc).toHaveBeenCalledWith('transition_borrow_request', {
-      p_request_id: 'req-1',
-      p_new_request_status: 'picked_up',
       p_new_item_status: 'loaned',
     });
   });
 
   it('propagates RPC errors', async () => {
     setupRpcError();
-    const { result } = renderHook(() => useMarkPickedUp(), {
+    const { result } = renderHook(() => useAcceptBorrowRequest(), {
       wrapper: createQueryClientHookWrapper(),
     });
 

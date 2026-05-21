@@ -17,13 +17,11 @@ const REQUESTER_USER_ID = 'requester-user' as UserId;
 const mockAcceptMutate = jest.fn();
 const mockDeclineMutate = jest.fn();
 const mockCancelMutate = jest.fn();
-const mockMarkPickedUpMutate = jest.fn();
 const mockMarkReturnedMutate = jest.fn();
 
 const mockAccept = { mutate: mockAcceptMutate, isPending: false };
 const mockDecline = { mutate: mockDeclineMutate, isPending: false };
 const mockCancel = { mutate: mockCancelMutate, isPending: false };
-const mockMarkPickedUp = { mutate: mockMarkPickedUpMutate, isPending: false };
 const mockMarkReturned = { mutate: mockMarkReturnedMutate, isPending: false };
 
 jest.mock('../../hooks/useAcceptBorrowRequest', () => ({
@@ -34,9 +32,6 @@ jest.mock('../../hooks/useDeclineBorrowRequest', () => ({
 }));
 jest.mock('../../hooks/useCancelBorrowRequest', () => ({
   useCancelBorrowRequest: () => mockCancel,
-}));
-jest.mock('../../hooks/useMarkPickedUp', () => ({
-  useMarkPickedUp: () => mockMarkPickedUp,
 }));
 jest.mock('../../hooks/useMarkReturned', () => ({
   useMarkReturned: () => mockMarkReturned,
@@ -72,15 +67,14 @@ beforeEach(() => {
   mockAccept.isPending = false;
   mockDecline.isPending = false;
   mockCancel.isPending = false;
-  mockMarkPickedUp.isPending = false;
   mockMarkReturned.isPending = false;
 });
 
 describe('BorrowRequestActionsBanner', () => {
   describe('renders nothing when no actions available', () => {
-    it('returns null for PickedUp + requester', () => {
+    it('returns null for Accepted + requester', () => {
       const request = createRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
         itemStatus: ItemStatus.Loaned,
         requesterId: REQUESTER_USER_ID,
         itemOwnerId: OWNER_USER_ID,
@@ -92,7 +86,6 @@ describe('BorrowRequestActionsBanner', () => {
       expect(queryByTestId('actions-banner-accept')).toBeNull();
       expect(queryByTestId('actions-banner-decline')).toBeNull();
       expect(queryByTestId('actions-banner-cancel')).toBeNull();
-      expect(queryByTestId('actions-banner-mark-picked-up')).toBeNull();
       expect(queryByTestId('actions-banner-mark-returned')).toBeNull();
     });
 
@@ -104,7 +97,6 @@ describe('BorrowRequestActionsBanner', () => {
       expect(queryByTestId('actions-banner-accept')).toBeNull();
       expect(queryByTestId('actions-banner-decline')).toBeNull();
       expect(queryByTestId('actions-banner-cancel')).toBeNull();
-      expect(queryByTestId('actions-banner-mark-picked-up')).toBeNull();
       expect(queryByTestId('actions-banner-mark-returned')).toBeNull();
     });
   });
@@ -177,43 +169,30 @@ describe('BorrowRequestActionsBanner', () => {
   });
 
   describe('Accepted + owner', () => {
-    it('renders markPickedUp button when item is reserved', () => {
-      const request = createRequest({
-        status: BorrowRequestStatus.Accepted,
-        itemStatus: ItemStatus.Reserved,
-      });
-      const { getByTestId } = renderWithProviders(
-        <BorrowRequestActionsBanner request={request} currentUserId={OWNER_USER_ID} />,
-      );
-      expect(getByTestId('actions-banner-mark-picked-up')).toBeTruthy();
-    });
-
-    it('calls markPickedUp mutation when button pressed', () => {
-      const request = createRequest({
-        status: BorrowRequestStatus.Accepted,
-        itemStatus: ItemStatus.Reserved,
-      });
-      const { getByTestId } = renderWithProviders(
-        <BorrowRequestActionsBanner request={request} currentUserId={OWNER_USER_ID} />,
-      );
-      fireEvent.press(getByTestId('actions-banner-mark-picked-up'));
-      expect(mockMarkPickedUpMutate).toHaveBeenCalledWith(
-        { requestId: 'req-1', itemId: 'item-1' },
-        expect.objectContaining({ onError: expect.any(Function) }),
-      );
-    });
-  });
-
-  describe('PickedUp + owner', () => {
     it('renders markReturned button when item is loaned', () => {
       const request = createRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
         itemStatus: ItemStatus.Loaned,
       });
       const { getByTestId } = renderWithProviders(
         <BorrowRequestActionsBanner request={request} currentUserId={OWNER_USER_ID} />,
       );
       expect(getByTestId('actions-banner-mark-returned')).toBeTruthy();
+    });
+
+    it('calls markReturned mutation when button pressed', () => {
+      const request = createRequest({
+        status: BorrowRequestStatus.Accepted,
+        itemStatus: ItemStatus.Loaned,
+      });
+      const { getByTestId } = renderWithProviders(
+        <BorrowRequestActionsBanner request={request} currentUserId={OWNER_USER_ID} />,
+      );
+      fireEvent.press(getByTestId('actions-banner-mark-returned'));
+      expect(mockMarkReturnedMutate).toHaveBeenCalledWith(
+        { requestId: 'req-1', itemId: 'item-1' },
+        expect.objectContaining({ onError: expect.any(Function) }),
+      );
     });
   });
 

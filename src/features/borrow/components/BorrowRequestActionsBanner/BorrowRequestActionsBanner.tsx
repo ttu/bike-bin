@@ -11,7 +11,6 @@ import { getRequestActions } from '../../utils/borrowWorkflow';
 import { useAcceptBorrowRequest } from '../../hooks/useAcceptBorrowRequest';
 import { useDeclineBorrowRequest } from '../../hooks/useDeclineBorrowRequest';
 import { useCancelBorrowRequest } from '../../hooks/useCancelBorrowRequest';
-import { useMarkPickedUp } from '../../hooks/useMarkPickedUp';
 import { useMarkReturned } from '../../hooks/useMarkReturned';
 
 interface BorrowRequestActionsBannerProps {
@@ -25,8 +24,6 @@ function getContextKey(status: BorrowRequestStatus, isOwner: boolean): string | 
       return isOwner ? 'banner.pending.owner' : 'banner.pending.requester';
     case BorrowRequestStatus.Accepted:
       return isOwner ? 'banner.accepted.owner' : 'banner.accepted.requester';
-    case BorrowRequestStatus.PickedUp:
-      return isOwner ? 'banner.picked_up.owner' : 'banner.picked_up.requester';
     default:
       return undefined;
   }
@@ -43,7 +40,6 @@ export function BorrowRequestActionsBanner({
   const acceptMutation = useAcceptBorrowRequest();
   const declineMutation = useDeclineBorrowRequest();
   const cancelMutation = useCancelBorrowRequest();
-  const markPickedUpMutation = useMarkPickedUp();
   const markReturnedMutation = useMarkReturned();
 
   const themed = useMemo(
@@ -71,7 +67,6 @@ export function BorrowRequestActionsBanner({
     acceptMutation.isPending ||
     declineMutation.isPending ||
     cancelMutation.isPending ||
-    markPickedUpMutation.isPending ||
     markReturnedMutation.isPending;
 
   const contextKey = getContextKey(request.status, isOwner);
@@ -114,21 +109,6 @@ export function BorrowRequestActionsBanner({
         onError: () => {
           showSnackbarAlert({
             message: t('error.cancelFailed'),
-            variant: 'error',
-            duration: 'long',
-          });
-        },
-      },
-    );
-  };
-
-  const handleMarkPickedUp = () => {
-    markPickedUpMutation.mutate(
-      { requestId: request.id, itemId: request.itemId },
-      {
-        onError: () => {
-          showSnackbarAlert({
-            message: t('error.pickupFailed'),
             variant: 'error',
             duration: 'long',
           });
@@ -191,15 +171,6 @@ export function BorrowRequestActionsBanner({
           >
             {t('actions.cancel')}
           </Button>
-        )}
-        {actions.includes('markPickedUp') && (
-          <GradientButton
-            onPress={handleMarkPickedUp}
-            disabled={isAnyPending}
-            testID="actions-banner-mark-picked-up"
-          >
-            {t('actions.markPickedUp')}
-          </GradientButton>
         )}
         {actions.includes('markReturned') && (
           <GradientButton

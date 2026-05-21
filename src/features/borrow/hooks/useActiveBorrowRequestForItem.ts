@@ -14,15 +14,11 @@ import type { BorrowRequestWithDetails } from '../types';
 /** Query key for the "active borrow request for this item" lookup. */
 export const ACTIVE_BORROW_REQUEST_FOR_ITEM_QUERY_KEY = 'activeBorrowRequestForItem' as const;
 
-const ACTIVE_STATUSES = [
-  BorrowRequestStatus.Pending,
-  BorrowRequestStatus.Accepted,
-  BorrowRequestStatus.PickedUp,
-];
+const ACTIVE_STATUSES = [BorrowRequestStatus.Pending, BorrowRequestStatus.Accepted];
 
 /**
  * Returns the single live (non-terminal) borrow request for a given item, or null.
- * Live means the request is Pending, Accepted, or PickedUp — i.e. it still needs
+ * Live means the request is Pending or Accepted — i.e. it still needs
  * action from someone. Used by the chat-thread actions banner.
  */
 export function useActiveBorrowRequestForItem(

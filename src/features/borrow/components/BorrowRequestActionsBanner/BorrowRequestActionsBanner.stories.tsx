@@ -47,11 +47,6 @@ const pendingOwner = makeRequest({
 
 const acceptedOwner = makeRequest({
   status: BorrowRequestStatus.Accepted,
-  itemStatus: ItemStatus.Reserved,
-});
-
-const pickedUpOwner = makeRequest({
-  status: BorrowRequestStatus.PickedUp,
   itemStatus: ItemStatus.Loaned,
 });
 
@@ -69,17 +64,9 @@ export const Default: Story = {
 };
 
 export const Accepted: Story = {
-  name: 'Accepted (owner, item reserved)',
+  name: 'Accepted (owner, item loaned)',
   args: {
     request: acceptedOwner,
-    currentUserId: ownerId,
-  },
-};
-
-export const PickedUp: Story = {
-  name: 'PickedUp (owner, item loaned)',
-  args: {
-    request: pickedUpOwner,
     currentUserId: ownerId,
   },
 };

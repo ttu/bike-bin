@@ -16,7 +16,6 @@ interface BorrowRequestCardProps {
   readonly onAccept?: (request: BorrowRequestWithDetails) => void;
   readonly onDecline?: (request: BorrowRequestWithDetails) => void;
   readonly onCancel?: (request: BorrowRequestWithDetails) => void;
-  readonly onMarkPickedUp?: (request: BorrowRequestWithDetails) => void;
   readonly onMarkReturned?: (request: BorrowRequestWithDetails) => void;
   readonly onPress?: (request: BorrowRequestWithDetails) => void;
 }
@@ -27,7 +26,6 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
   onAccept,
   onDecline,
   onCancel,
-  onMarkPickedUp,
   onMarkReturned,
   onPress,
 }: BorrowRequestCardProps) {
@@ -75,9 +73,6 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
         break;
       case 'cancel':
         onCancel?.(request);
-        break;
-      case 'markPickedUp':
-        onMarkPickedUp?.(request);
         break;
       case 'markReturned':
         onMarkReturned?.(request);
@@ -177,15 +172,6 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
               {t('actions.cancel')}
             </Button>
           )}
-          {actions.includes('markPickedUp') && (
-            <GradientButton
-              onPress={() => handleAction('markPickedUp')}
-              style={styles.actionButton}
-              testID="mark-picked-up-button"
-            >
-              {t('actions.markPickedUp')}
-            </GradientButton>
-          )}
           {actions.includes('markReturned') && (
             <GradientButton
               onPress={() => handleAction('markReturned')}
@@ -209,7 +195,6 @@ function getStatusColor(
     case BorrowRequestStatus.Pending:
       return { bg: theme.colors.secondaryContainer, text: theme.colors.onSecondaryContainer };
     case BorrowRequestStatus.Accepted:
-    case BorrowRequestStatus.PickedUp:
       return { bg: theme.colors.primaryContainer, text: theme.colors.onPrimaryContainer };
     case BorrowRequestStatus.Rejected:
       return { bg: theme.colors.errorContainer, text: theme.colors.onErrorContainer };

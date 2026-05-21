@@ -181,7 +181,7 @@ describe('BorrowRequestsScreen', () => {
   it('shows active borrow and completes mark returned', async () => {
     mockRequests = [
       createRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
         itemOwnerId: CURRENT_USER_ID,
         requesterId: OTHER_USER_ID,
         itemStatus: ItemStatus.Loaned,
@@ -279,7 +279,7 @@ describe('BorrowRequestsScreen', () => {
     );
     mockRequests = [
       createRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
         itemOwnerId: CURRENT_USER_ID,
         requesterId: OTHER_USER_ID,
         itemStatus: ItemStatus.Loaned,

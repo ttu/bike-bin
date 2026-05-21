@@ -116,7 +116,7 @@ Each enum is created with its feature migration (e.g. `subscription_*` in `00002
 | `item_visibility`         | `private`, `groups`, `all`                                                                                                                                        |
 | `bike_type`               | `road`, `gravel`, `mtb`, `cyclo`, `enduro`, `xc`, `downhill`, `bmx`, `fatbike`, `city`, `touring`, `other` (extended in migration `00017_bike_type_extended.sql`) |
 | `group_role`              | `admin`, `member`                                                                                                                                                 |
-| `borrow_request_status`   | `pending`, `accepted`, `picked_up`, `rejected`, `returned`, `cancelled`                                                                                           |
+| `borrow_request_status`   | `pending`, `accepted`, `rejected`, `returned`, `cancelled`                                                                                                        |
 | `transaction_type`        | `borrow`, `donate`, `sell`                                                                                                                                        |
 | `support_status`          | `open`, `closed`                                                                                                                                                  |
 | `report_target_type`      | `item`, `user`, `item_photo`, `message`                                                                                                                           |

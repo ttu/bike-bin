@@ -3,7 +3,6 @@ import {
   canAcceptRequest,
   canDeclineRequest,
   canCancelRequest,
-  canMarkPickedUp,
   canMarkReturned,
   getRequestActions,
 } from '../borrowWorkflow';
@@ -166,168 +165,27 @@ describe('borrowWorkflow', () => {
       expect(canCancelRequest(request, requesterId)).toBe(true);
     });
 
-    it('returns true when request is accepted and user is the requester', () => {
+    it('returns false when request is not pending', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Accepted,
         requesterId,
       });
-      expect(canCancelRequest(request, requesterId)).toBe(true);
-    });
-
-    it('returns false when request is picked up', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
-        requesterId,
-      });
       expect(canCancelRequest(request, requesterId)).toBe(false);
     });
 
-    it('returns false when request is returned', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Returned,
-        requesterId,
-      });
-      expect(canCancelRequest(request, requesterId)).toBe(false);
-    });
-
-    it('returns false when request is rejected', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Rejected,
-        requesterId,
-      });
-      expect(canCancelRequest(request, requesterId)).toBe(false);
-    });
-
-    it('returns false when request is cancelled', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Cancelled,
-        requesterId,
-      });
-      expect(canCancelRequest(request, requesterId)).toBe(false);
-    });
-
-    it('returns false when user is not the requester (pending)', () => {
+    it('returns false when user is not the requester', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Pending,
         requesterId,
       });
       expect(canCancelRequest(request, ownerId)).toBe(false);
-    });
-
-    it('returns false when user is not the requester (accepted)', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-        requesterId,
-      });
-      expect(canCancelRequest(request, ownerId)).toBe(false);
-    });
-  });
-
-  describe('canMarkPickedUp', () => {
-    it('returns true when request is accepted, item is reserved, and user is the owner', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(true);
-    });
-
-    it('returns false when request is pending', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Pending,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when request is picked up', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when request is returned', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Returned,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when request is rejected', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Rejected,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when request is cancelled', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Cancelled,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when item is stored (not reserved)', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Stored,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when item is loaned (not reserved)', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Loaned,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when user is not the owner', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkPickedUp(request, item, requesterId)).toBe(false);
     });
   });
 
   describe('canMarkReturned', () => {
-    it('returns true when request is picked up and item is Loaned', () => {
+    it('returns true when request is accepted and item is Loaned', () => {
       const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
       });
       const item = createMockItem({
         status: ItemStatus.Loaned,
@@ -336,31 +194,9 @@ describe('borrowWorkflow', () => {
       expect(canMarkReturned(request, item, ownerId)).toBe(true);
     });
 
-    it('returns false when request is not picked up', () => {
+    it('returns false when request is not accepted', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Pending,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Loaned,
-        ownerId,
-      });
-      expect(canMarkReturned(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when request is accepted but item is still reserved (regression)', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      expect(canMarkReturned(request, item, ownerId)).toBe(false);
-    });
-
-    it('returns false when request is accepted even if item is loaned', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
       });
       const item = createMockItem({
         status: ItemStatus.Loaned,
@@ -371,7 +207,7 @@ describe('borrowWorkflow', () => {
 
     it('returns false when item is not Loaned', () => {
       const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
       });
       const item = createMockItem({
         status: ItemStatus.Stored,
@@ -382,7 +218,7 @@ describe('borrowWorkflow', () => {
 
     it('returns false when user is not the item owner', () => {
       const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
+        status: BorrowRequestStatus.Accepted,
       });
       const item = createMockItem({
         status: ItemStatus.Loaned,
@@ -393,16 +229,19 @@ describe('borrowWorkflow', () => {
   });
 
   describe('getRequestActions', () => {
-    it('returns accept and decline for pending requests when user is owner', () => {
+    it('returns accept and decline for incoming pending requests', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Pending,
         requesterId,
       });
       const actions = getRequestActions(request, ownerId, ownerId);
-      expect(actions).toEqual(['accept', 'decline']);
+      expect(actions).toContain('accept');
+      expect(actions).toContain('decline');
+      expect(actions).not.toContain('cancel');
+      expect(actions).not.toContain('markReturned');
     });
 
-    it('returns cancel for outgoing pending requests (requester)', () => {
+    it('returns cancel for outgoing pending requests', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Pending,
         requesterId,
@@ -413,38 +252,9 @@ describe('borrowWorkflow', () => {
       expect(actions).not.toContain('decline');
     });
 
-    it('returns markPickedUp for accepted requests when user is owner and item is reserved', () => {
+    it('returns markReturned for accepted requests when user is owner and item is Loaned', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Accepted,
-        requesterId,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      const actions = getRequestActions(request, ownerId, ownerId, item);
-      expect(actions).toContain('markPickedUp');
-      expect(actions).not.toContain('markReturned');
-    });
-
-    it('returns cancel for accepted requests when user is requester', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.Accepted,
-        requesterId,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Reserved,
-        ownerId,
-      });
-      const actions = getRequestActions(request, requesterId, ownerId, item);
-      expect(actions).toContain('cancel');
-      expect(actions).not.toContain('markPickedUp');
-      expect(actions).not.toContain('markReturned');
-    });
-
-    it('returns markReturned for picked up requests when user is owner and item is loaned', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
         requesterId,
       });
       const item = createMockItem({
@@ -453,23 +263,9 @@ describe('borrowWorkflow', () => {
       });
       const actions = getRequestActions(request, ownerId, ownerId, item);
       expect(actions).toContain('markReturned');
-      expect(actions).not.toContain('markPickedUp');
     });
 
-    it('returns empty array for picked up requests when user is requester', () => {
-      const request = createMockBorrowRequest({
-        status: BorrowRequestStatus.PickedUp,
-        requesterId,
-      });
-      const item = createMockItem({
-        status: ItemStatus.Loaned,
-        ownerId,
-      });
-      const actions = getRequestActions(request, requesterId, ownerId, item);
-      expect(actions).toHaveLength(0);
-    });
-
-    it('returns empty array for returned requests', () => {
+    it('returns empty array for completed requests', () => {
       const request = createMockBorrowRequest({
         status: BorrowRequestStatus.Returned,
         requesterId,

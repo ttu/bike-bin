@@ -67,8 +67,7 @@ export default function BorrowRequestsScreen() {
     () =>
       (allRequests ?? []).filter(
         (r) =>
-          (r.status === BorrowRequestStatus.Accepted ||
-            r.status === BorrowRequestStatus.PickedUp) &&
+          r.status === BorrowRequestStatus.Accepted &&
           (r.itemOwnerId === userId || r.requesterId === userId),
       ),
     [allRequests, userId],

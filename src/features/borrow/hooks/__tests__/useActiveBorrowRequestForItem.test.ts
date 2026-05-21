@@ -81,7 +81,7 @@ describe('useActiveBorrowRequestForItem', () => {
     expect(result.current.data?.itemName).toBe('Road Bike');
   });
 
-  it('filters by the live statuses (pending, accepted, picked_up)', async () => {
+  it('filters by the live statuses (pending, accepted)', async () => {
     mockMaybeSingle.mockResolvedValue({ data: null, error: null });
 
     renderHook(() => useActiveBorrowRequestForItem('item-1' as ItemId, { enabled: true }), {
@@ -92,7 +92,6 @@ describe('useActiveBorrowRequestForItem', () => {
     expect(mockIn).toHaveBeenCalledWith('status', [
       BorrowRequestStatus.Pending,
       BorrowRequestStatus.Accepted,
-      BorrowRequestStatus.PickedUp,
     ]);
   });
 

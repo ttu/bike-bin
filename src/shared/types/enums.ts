@@ -45,7 +45,6 @@ export type Visibility = (typeof Visibility)[keyof typeof Visibility];
 export const BorrowRequestStatus = {
   Pending: 'pending',
   Accepted: 'accepted',
-  PickedUp: 'picked_up',
   Rejected: 'rejected',
   Returned: 'returned',
   Cancelled: 'cancelled',

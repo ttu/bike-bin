@@ -28,7 +28,6 @@
     "status": {
       "pending": "Pending",
       "accepted": "Accepted",
-      "picked_up": "Picked up",
       "rejected": "Declined",
       "returned": "Returned",
       "cancelled": "Cancelled"
@@ -39,7 +38,6 @@
     "accept": "Accept",
     "decline": "Decline",
     "cancel": "Cancel Request",
-    "markPickedUp": "Mark Picked Up",
     "markReturned": "Mark Returned"
   },
   "banner": {
@@ -48,12 +46,8 @@
       "requester": "Waiting for the owner's response."
     },
     "accepted": {
-      "owner": "Accepted — hand it off to {{name}} and mark picked up.",
-      "requester": "Accepted — coordinate pickup with the owner."
-    },
-    "picked_up": {
-      "owner": "{{name}} has picked up the item.",
-      "requester": "You have picked up the item."
+      "owner": "{{name}} is borrowing this item. Mark returned when it's back.",
+      "requester": "You're borrowing this item."
     }
   },
   "confirm": {
@@ -65,14 +59,8 @@
     },
     "accept": {
       "title": "Accept request?",
-      "message": "The item will be reserved for {{name}} until pickup.",
+      "message": "The item will be marked as loaned to {{name}}.",
       "confirm": "Accept",
-      "cancel": "Cancel"
-    },
-    "markPickedUp": {
-      "title": "Mark as picked up?",
-      "message": "Confirm that {{name}} has picked up the item.",
-      "confirm": "Mark Picked Up",
       "cancel": "Cancel"
     },
     "decline": {
@@ -99,7 +87,6 @@
     "accepted": "Request accepted",
     "declined": "Request declined",
     "cancelled": "Request cancelled",
-    "pickedUp": "Marked as picked up",
     "returned": "Item marked as returned"
   },
   "error": {
@@ -108,7 +95,6 @@
     "acceptFailed": "Failed to accept request",
     "declineFailed": "Failed to decline request",
     "cancelFailed": "Failed to cancel request",
-    "pickupFailed": "Failed to mark as picked up",
     "markReturnedFailed": "Failed to mark as returned"
   },
   "profileMenu": {

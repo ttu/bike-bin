@@ -4,6 +4,6 @@ import { useBorrowTransition } from './useBorrowTransition';
 export function useAcceptBorrowRequest() {
   return useBorrowTransition({
     newRequestStatus: BorrowRequestStatus.Accepted,
-    newItemStatus: ItemStatus.Reserved,
+    newItemStatus: ItemStatus.Loaned,
   });
 }
