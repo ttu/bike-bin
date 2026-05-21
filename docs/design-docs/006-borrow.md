@@ -42,7 +42,7 @@ Item status `Reserved` is not used in this flow.
 
 ## Architecture
 
-```
+```text
 src/features/borrow/
 ├── components/
 │   ├── BorrowRequestCard/

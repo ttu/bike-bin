@@ -68,10 +68,16 @@ export function useActiveBorrowRequestForItem(
         availability_types: string[];
       } | null;
 
-      const ownerId = item?.owner_id ?? '';
-      const profileMap = await fetchPublicProfilesMap([data.requester_id as string, ownerId]);
+      // If the item was deleted but the request row lingers, suppress the banner
+      // rather than fabricate `itemName: 'Unknown item'` / empty-string branded IDs.
+      if (!item) return null;
+
+      const profileIds = [data.requester_id as string, item.owner_id].filter(
+        (id): id is string => id.length > 0,
+      );
+      const profileMap = await fetchPublicProfilesMap(profileIds);
       const requesterProfile = profileMap.get(data.requester_id as string);
-      const ownerProfile = profileMap.get(ownerId);
+      const ownerProfile = profileMap.get(item.owner_id);
 
       return {
         id: data.id as BorrowRequestId,
@@ -82,10 +88,10 @@ export function useActiveBorrowRequestForItem(
         actedBy: (data.acted_by as UserId | null) ?? undefined,
         createdAt: data.created_at as string,
         updatedAt: data.updated_at as string,
-        itemName: item?.name ?? 'Unknown item',
-        itemStatus: (item?.status ?? 'stored') as ItemStatus,
-        itemOwnerId: ownerId as UserId,
-        itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? [],
+        itemName: item.name,
+        itemStatus: item.status as ItemStatus,
+        itemOwnerId: item.owner_id as UserId,
+        itemAvailabilityTypes: item.availability_types as AvailabilityType[],
         requesterName: requesterProfile?.displayName,
         requesterAvatarUrl: requesterProfile?.avatarUrl,
         ownerName: ownerProfile?.displayName,

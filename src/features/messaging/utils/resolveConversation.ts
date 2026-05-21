@@ -58,10 +58,13 @@ async function findExistingConversation(
   otherUserId: UserId | undefined,
   groupId: GroupId | undefined,
 ): Promise<ConversationId | undefined> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('conversations')
     .select(`id, conversation_participants!inner (user_id)`)
     .eq('item_id', itemId);
+  // Propagate the error so the caller doesn't silently fall through and create
+  // a duplicate conversation when a transient read fails.
+  if (error) throw error;
   if (!data) return undefined;
   const existing = data as unknown as ExistingConv[];
 

@@ -75,6 +75,42 @@ describe('resolveConversation – existing personal conversation', () => {
 });
 
 // ---------------------------------------------------------------------------
+// 2b. Lookup error propagates instead of silently creating a duplicate
+// ---------------------------------------------------------------------------
+
+describe('resolveConversation – existing-lookup error', () => {
+  it('throws when the existing-conversation lookup returns an error', async () => {
+    const insertMock = jest.fn();
+    const supabase = {
+      from: makeFrom({
+        conversations: () => ({
+          select: () => ({
+            eq: () =>
+              Promise.resolve({
+                data: null,
+                error: { message: 'transient read failure' },
+              }),
+          }),
+        }),
+        conversation_participants: () => ({ insert: insertMock }),
+      }),
+    } as unknown as SupabaseClient;
+
+    await expect(
+      resolveConversation({
+        supabase,
+        itemId: 'item-1' as ItemId,
+        selfId: 'user-self',
+        otherUserId: 'user-other' as UserId,
+      }),
+    ).rejects.toMatchObject({ message: 'transient read failure' });
+
+    // Ensure we didn't fall through and start creating a duplicate.
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 3. Creates a new conversation when none exists (personal item)
 // ---------------------------------------------------------------------------
 

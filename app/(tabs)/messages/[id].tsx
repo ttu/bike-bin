@@ -427,7 +427,7 @@ export default function ConversationDetailScreen() {
         {activeBorrowRequest && user ? (
           <BorrowRequestActionsBanner
             request={activeBorrowRequest}
-            currentUserId={user.id as never}
+            currentUserId={user.id as UserId}
           />
         ) : null}
 
