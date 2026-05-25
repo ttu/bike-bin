@@ -27,6 +27,9 @@ export const ConversationCard = memo(function ConversationCard({
         containerSurface: {
           backgroundColor: theme.customColors.surfaceContainerLowest,
         },
+        containerSurfaceUnread: {
+          backgroundColor: theme.customColors.surfaceContainerHigh,
+        },
         avatarIcon: {
           backgroundColor: theme.colors.surfaceVariant,
         },
@@ -62,6 +65,7 @@ export const ConversationCard = memo(function ConversationCard({
 
   const isCompleted =
     conversation.itemStatus === ItemStatus.Sold || conversation.itemStatus === ItemStatus.Donated;
+  const isUnread = conversation.unreadCount > 0;
 
   let statusSuffixKey: 'conversation.itemSold' | 'conversation.itemDonated' | undefined;
   if (conversation.itemStatus === ItemStatus.Sold) {
@@ -95,14 +99,19 @@ export const ConversationCard = memo(function ConversationCard({
   return (
     <AnimatedPressable
       onPress={() => onPress?.(conversation)}
-      style={[styles.container, themedStyles.containerSurface, isCompleted && styles.dimmed]}
+      style={[
+        styles.container,
+        isUnread ? themedStyles.containerSurfaceUnread : themedStyles.containerSurface,
+        isCompleted && styles.dimmed,
+      ]}
       accessibilityLabel={displayName}
       accessibilityRole="button"
+      testID="conversation-card"
     >
       {/* Avatar */}
       <View style={styles.avatarContainer}>
         {avatarNode}
-        {conversation.unreadCount > 0 && (
+        {isUnread && (
           <View style={[styles.unreadDot, themedStyles.unreadDot]} testID="unread-dot" />
         )}
       </View>
@@ -131,10 +140,7 @@ export const ConversationCard = memo(function ConversationCard({
         <Text
           variant="bodySmall"
           numberOfLines={1}
-          style={[
-            styles.preview,
-            conversation.unreadCount > 0 ? themedStyles.previewUnread : themedStyles.preview,
-          ]}
+          style={[styles.preview, isUnread ? themedStyles.previewUnread : themedStyles.preview]}
         >
           {lastMessagePreview}
         </Text>
