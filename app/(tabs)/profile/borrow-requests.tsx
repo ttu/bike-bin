@@ -2,7 +2,9 @@ import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import { useCreateConversation } from '@/features/messaging';
 import { spacing } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
@@ -31,6 +33,7 @@ export default function BorrowRequestsScreen() {
 
   const { user } = useAuth();
   const userId = (user?.id ?? '') as UserId;
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<Tab>('incoming');
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
@@ -40,6 +43,27 @@ export default function BorrowRequestsScreen() {
   const declineRequest = useDeclineBorrowRequest();
   const cancelRequest = useCancelBorrowRequest();
   const markReturned = useMarkReturned();
+  const { mutate: openConversation } = useCreateConversation();
+
+  const handleOpenConversation = useCallback(
+    (request: BorrowRequestWithDetails) => {
+      const otherUserId =
+        request.itemOwnerId === userId ? request.requesterId : request.itemOwnerId;
+      openConversation(
+        { itemId: request.itemId, otherUserId },
+        {
+          onSuccess: (result) => router.push(`/messages/${result.conversationId}`),
+          onError: () =>
+            showSnackbarAlert({
+              message: tCommon('errors.generic'),
+              variant: 'error',
+              duration: 'long',
+            }),
+        },
+      );
+    },
+    [userId, openConversation, router, showSnackbarAlert, tCommon],
+  );
 
   const incoming = useMemo(
     () =>
@@ -228,10 +252,11 @@ export default function BorrowRequestsScreen() {
           onDecline={handleDecline}
           onCancel={handleCancel}
           onMarkReturned={handleMarkReturned}
+          onPress={handleOpenConversation}
         />
       </View>
     ),
-    [userId, handleAccept, handleDecline, handleCancel, handleMarkReturned],
+    [userId, handleAccept, handleDecline, handleCancel, handleMarkReturned, handleOpenConversation],
   );
 
   const emptyConfig = {
