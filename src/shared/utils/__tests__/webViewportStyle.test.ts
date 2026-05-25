@@ -7,7 +7,7 @@ describe('getWebViewportStyle', () => {
     expect(getWebViewportStyle()).toEqual({
       flex: 1,
       width: '100%',
-      minHeight: '100vh',
+      minHeight: '100dvh',
     });
   });
 

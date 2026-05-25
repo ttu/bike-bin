@@ -9,7 +9,7 @@ export function getWebViewportStyle(): ViewStyle | undefined {
     return {
       flex: 1,
       width: '100%',
-      minHeight: '100vh',
+      minHeight: '100dvh',
     } as unknown as ViewStyle;
   }
   return undefined;
