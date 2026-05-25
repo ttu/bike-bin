@@ -80,7 +80,7 @@ export function getRequestActions(
   request: RequestInfo,
   userId: UserId,
   itemOwnerId: UserId,
-  item?: ReturnableItem,
+  item?: Pick<Item, 'status' | 'ownerId'>,
 ): RequestAction[] {
   const actions: RequestAction[] = [];
 

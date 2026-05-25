@@ -40,6 +40,16 @@
     "cancel": "Cancel Request",
     "markReturned": "Mark Returned"
   },
+  "banner": {
+    "pending": {
+      "owner": "{{name}} wants to borrow this item.",
+      "requester": "Waiting for the owner's response."
+    },
+    "accepted": {
+      "owner": "{{name}} is borrowing this item. Mark returned when it's back.",
+      "requester": "You're borrowing this item."
+    }
+  },
   "confirm": {
     "requestBorrow": {
       "title": "Request to borrow?",
@@ -81,7 +91,11 @@
   },
   "error": {
     "requestFailed": "Failed to send borrow request",
-    "actionFailed": "Failed to update request"
+    "actionFailed": "Failed to update request",
+    "acceptFailed": "Failed to accept request",
+    "declineFailed": "Failed to decline request",
+    "cancelFailed": "Failed to cancel request",
+    "markReturnedFailed": "Failed to mark as returned"
   },
   "profileMenu": {
     "label": "Borrow Requests",

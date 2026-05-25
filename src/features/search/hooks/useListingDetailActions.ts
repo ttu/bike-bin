@@ -70,6 +70,8 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
   }, [item.ownerId, router, thisListingPath]);
 
   const handleRequestBorrow = useCallback(() => {
+    const params = resolveContactParams(item);
+    if (!params) return;
     const { errorMessage, ...dialog } = requestBorrowDialog;
     openConfirm({
       ...dialog,
@@ -77,9 +79,13 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
         // Close dialog before mutation resolves to prevent double-submit on repeated taps.
         closeConfirm();
         createBorrowRequest(
-          { itemId: item.id },
           {
-            onSuccess: () => router.push('/(tabs)/profile/borrow-requests'),
+            itemId: item.id,
+            ownerId: 'otherUserId' in params ? params.otherUserId : undefined,
+            groupId: 'groupId' in params ? params.groupId : undefined,
+          },
+          {
+            onSuccess: ({ conversationId }) => router.push(`/messages/${conversationId}`),
             onError: () =>
               showSnackbarAlert({
                 message: errorMessage,
@@ -91,7 +97,7 @@ export function useListingDetailActions({ item, thisListingPath }: UseListingDet
       },
     });
   }, [
-    item.id,
+    item,
     requestBorrowDialog,
     openConfirm,
     closeConfirm,
