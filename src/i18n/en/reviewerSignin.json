@@ -1,0 +1,16 @@
+{
+  "sheet": {
+    "eyebrow": "App Store Reviewer Access",
+    "title": "Reviewer sign-in",
+    "subtitle": "For App Store review only. Regular users sign in above.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "cancel": "Cancel",
+    "submit": "Sign in",
+    "footer": "Credentials provided in App Store Connect review notes."
+  },
+  "errors": {
+    "invalidCredentials": "Sign-in failed. Check the credentials in App Store Connect.",
+    "network": "Network error. Try again."
+  }
+}

@@ -10,6 +10,7 @@ import { supabase } from '@/shared/api/supabase';
 import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
 import { isPasswordDemoLoginEnabled } from '@/shared/utils/env';
 import { SocketBBMark } from '@/shared/components';
+import { ReviewerSignInSheet, useReviewerLongPress } from '@/features/reviewer-signin';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
 
 const MAX_CONTENT_WIDTH = 480;
@@ -26,6 +27,8 @@ export default function LoginScreen() {
   const { enterDemoMode } = useDemoMode();
   const [isDevExpanded, setIsDevExpanded] = useState(false);
   const [signingInAs, setSigningInAs] = useState<string | null>(null);
+  const [reviewerSheetVisible, setReviewerSheetVisible] = useState(false);
+  const reviewerLongPress = useReviewerLongPress(() => setReviewerSheetVisible(true));
   const themed = useThemedStyles(theme);
 
   const handleDevLogin = async (email: string) => {
@@ -62,7 +65,16 @@ export default function LoginScreen() {
         <View style={styles.content}>
           {/* Masthead */}
           <View style={styles.masthead}>
-            <SocketBBMark size={LOGO_SIZE} />
+            <Pressable
+              onLongPress={reviewerLongPress.onLongPress}
+              delayLongPress={reviewerLongPress.delayLongPress}
+              testID="reviewer-signin-trigger"
+              accessible={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <SocketBBMark size={LOGO_SIZE} />
+            </Pressable>
             <View style={[styles.rule, { backgroundColor: theme.colors.outlineVariant }]} />
             <Text variant="displayLarge" style={[styles.title, themed.onBackground]}>
               {t('welcome.title')}
@@ -225,6 +237,10 @@ export default function LoginScreen() {
           </View>
         </View>
       </ScrollView>
+      <ReviewerSignInSheet
+        visible={reviewerSheetVisible}
+        onDismiss={() => setReviewerSheetVisible(false)}
+      />
     </View>
   );
 }

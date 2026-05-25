@@ -18,6 +18,7 @@ import notificationsEn from '@/i18n/en/notifications.json';
 import profileEn from '@/i18n/en/profile.json';
 import demoEn from '@/i18n/en/demo.json';
 import storybookEn from '@/i18n/en/storybook.json';
+import reviewerSigninEn from '@/i18n/en/reviewerSignin.json';
 
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'en';
 
@@ -42,6 +43,7 @@ i18n.use(initReactI18next).init({
     'profile',
     'demo',
     'storybook',
+    'reviewerSignin',
   ],
   resources: {
     en: {
@@ -61,6 +63,7 @@ i18n.use(initReactI18next).init({
       profile: profileEn,
       demo: demoEn,
       storybook: storybookEn,
+      reviewerSignin: reviewerSigninEn,
     },
   },
   interpolation: {
