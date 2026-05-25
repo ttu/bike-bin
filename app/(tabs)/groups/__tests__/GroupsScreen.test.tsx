@@ -6,6 +6,14 @@ import commonEn from '@/i18n/en/common.json';
 import groupsEn from '@/i18n/en/groups.json';
 import GroupsScreen from '../index';
 
+jest.mock('@/features/locations', () => ({
+  geocodePostcode: jest.fn().mockResolvedValue({
+    areaName: 'Berlin Mitte, Germany',
+    lat: 52.5316,
+    lng: 13.3888,
+  }),
+}));
+
 const mockShowSnackbarAlert = jest.fn();
 jest.mock('@/shared/components/SnackbarAlerts', () => {
   const actual = jest.requireActual<typeof import('@/shared/components/SnackbarAlerts')>(
@@ -73,6 +81,9 @@ describe('GroupsScreen', () => {
     name: 'Test Group',
     description: undefined,
     isPublic: true,
+    postcode: '10115',
+    country: 'de',
+    areaName: 'Berlin Mitte, Germany',
     createdAt: '2024-01-01T00:00:00.000Z',
     ratingAvg: 0,
     ratingCount: 0,
@@ -144,12 +155,22 @@ describe('GroupsScreen', () => {
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByLabelText(groupsEn.empty.cta));
     fireEvent.changeText(screen.getByPlaceholderText(groupsEn.create.namePlaceholder), 'New Crew');
+    fireEvent.changeText(screen.getByTestId('group-form-postcode'), '10115');
+    fireEvent(screen.getByTestId('group-form-postcode'), 'blur');
+    await waitFor(() => {
+      expect(screen.getByText('Berlin Mitte, Germany')).toBeTruthy();
+    });
     fireEvent.press(screen.getByTestId('groups-create-save'));
     await waitFor(() => {
       expect(mockCreateMutateAsync).toHaveBeenCalledWith({
         name: 'New Crew',
         description: undefined,
         isPublic: false,
+        postcode: '10115',
+        country: undefined,
+        areaName: 'Berlin Mitte, Germany',
+        latitude: 52.5316,
+        longitude: 13.3888,
       });
       expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
         expect.objectContaining({ message: commonEn.feedback.groupCreated, variant: 'success' }),
@@ -247,6 +268,11 @@ describe('GroupsScreen', () => {
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByLabelText(groupsEn.empty.cta));
     fireEvent.changeText(screen.getByPlaceholderText(groupsEn.create.namePlaceholder), 'Boom');
+    fireEvent.changeText(screen.getByTestId('group-form-postcode'), '10115');
+    fireEvent(screen.getByTestId('group-form-postcode'), 'blur');
+    await waitFor(() => {
+      expect(screen.getByText('Berlin Mitte, Germany')).toBeTruthy();
+    });
     fireEvent.press(screen.getByTestId('groups-create-save'));
     await waitFor(() => {
       expect(mockShowSnackbarAlert).toHaveBeenCalledWith(
@@ -261,6 +287,9 @@ describe('GroupsScreen', () => {
       name: 'Join Me',
       description: undefined,
       isPublic: true,
+      postcode: '10115',
+      country: 'de',
+      areaName: 'Berlin Mitte, Germany',
       ratingAvg: 0,
       ratingCount: 0,
       createdAt: '2024-01-01T00:00:00.000Z',
@@ -289,6 +318,9 @@ describe('GroupsScreen', () => {
       name: 'Already In',
       description: undefined,
       isPublic: true,
+      postcode: '10115',
+      country: 'de',
+      areaName: 'Berlin Mitte, Germany',
       ratingAvg: 0,
       ratingCount: 0,
       createdAt: '2024-01-01T00:00:00.000Z',
@@ -313,6 +345,9 @@ describe('GroupsScreen', () => {
       name: 'Join Me',
       description: undefined,
       isPublic: true,
+      postcode: '10115',
+      country: 'de',
+      areaName: 'Berlin Mitte, Germany',
       ratingAvg: 0,
       ratingCount: 0,
       createdAt: '2024-01-01T00:00:00.000Z',

@@ -247,6 +247,9 @@ export function createMockGroup(overrides?: Partial<Group>): Group {
     name: faker.company.name(),
     description: faker.helpers.maybe(() => faker.lorem.sentence()),
     isPublic: faker.datatype.boolean(),
+    postcode: faker.location.zipCode(),
+    country: 'de',
+    areaName: faker.location.city(),
     ratingAvg:
       ratingCount === 0
         ? 0

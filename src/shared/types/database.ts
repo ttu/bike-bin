@@ -446,29 +446,41 @@ export type Database = {
       };
       groups: {
         Row: {
+          area_name: string | null;
+          coordinates: unknown;
+          country: string | null;
           created_at: string;
           description: string | null;
           id: string;
           is_public: boolean;
           name: string;
+          postcode: string | null;
           rating_avg: number;
           rating_count: number;
         };
         Insert: {
+          area_name?: string | null;
+          coordinates: unknown;
+          country?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
           is_public?: boolean;
           name: string;
+          postcode?: string | null;
           rating_avg?: number;
           rating_count?: number;
         };
         Update: {
+          area_name?: string | null;
+          coordinates?: unknown;
+          country?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
           is_public?: boolean;
           name?: string;
+          postcode?: string | null;
           rating_avg?: number;
           rating_count?: number;
         };
@@ -1304,6 +1316,7 @@ export type Database = {
           query?: string;
         };
         Returns: {
+          area_name: string | null;
           availability_types: string[];
           borrow_duration: string;
           brand: string;
@@ -1313,6 +1326,7 @@ export type Database = {
           deposit: number;
           description: string;
           distance_meters: number;
+          group_id: string | null;
           id: string;
           model: string;
           name: string;

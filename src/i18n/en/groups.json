@@ -22,7 +22,13 @@
     "publicLabel": "Public group",
     "publicDescription": "Anyone can find and request to join",
     "privateDescription": "Invite-only, not shown in search",
+    "postcodeLabel": "Postcode",
+    "postcodeHelper": "Used so members can see group items in nearby search.",
+    "postcodePlaceholder": "e.g. 10115",
     "save": "Create Group"
+  },
+  "form": {
+    "geocodeFailed": "Could not find that postcode. Please check and try again."
   },
   "detail": {
     "members": "Members",
@@ -90,7 +96,8 @@
     "selectedCount_other": "{{count}} groups selected"
   },
   "validation": {
-    "nameRequired": "Name is required"
+    "nameRequired": "Name is required",
+    "postcodeRequired": "Postcode is required"
   },
   "inventory": {
     "sectionTitle": "Inventory",

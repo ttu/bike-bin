@@ -180,13 +180,17 @@ INSERT INTO items (id, owner_id, bike_id, name, category, subcategory, brand, mo
 
 -- ── Groups ──────────────────────────────────────────────────
 -- ON CONFLICT: remote re-seed deletes auth users (profiles cascade) but groups rows persist (no FK from groups to users).
-INSERT INTO groups (id, name, description, is_public, created_at) VALUES
-  ('e0000001-0001-4000-8000-000000000001', 'Berlin Bike Co-op', 'Community bike parts exchange for Berlin cyclists. Share tools, swap components, help each other out.', true, now() - interval '365 days'),
-  ('e0000001-0002-4000-8000-000000000001', 'Berlin MTB Crew',   'Mountain bikers in Berlin. Trail info, group rides, parts sharing.', true, now() - interval '200 days')
+INSERT INTO groups (id, name, description, is_public, postcode, country, area_name, coordinates, created_at) VALUES
+  ('e0000001-0001-4000-8000-000000000001', 'Berlin Bike Co-op', 'Community bike parts exchange for Berlin cyclists. Share tools, swap components, help each other out.', true, '10115', 'de', 'Berlin Mitte, Berlin, Germany',     ST_SetSRID(ST_MakePoint(13.3888, 52.5316), 4326)::geography, now() - interval '365 days'),
+  ('e0000001-0002-4000-8000-000000000001', 'Berlin MTB Crew',   'Mountain bikers in Berlin. Trail info, group rides, parts sharing.',                                  true, '12099', 'de', 'Tempelhof, Berlin, Germany',         ST_SetSRID(ST_MakePoint(13.3870, 52.4670), 4326)::geography, now() - interval '200 days')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
-  is_public = EXCLUDED.is_public;
+  is_public = EXCLUDED.is_public,
+  postcode = EXCLUDED.postcode,
+  country = EXCLUDED.country,
+  area_name = EXCLUDED.area_name,
+  coordinates = EXCLUDED.coordinates;
 
 INSERT INTO group_members (group_id, user_id, role, joined_at) VALUES
   ('e0000001-0001-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'admin',  now() - interval '365 days'),

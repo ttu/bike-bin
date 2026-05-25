@@ -4,6 +4,11 @@ export interface GroupFormData {
   name: string;
   description?: string;
   isPublic: boolean;
+  postcode: string;
+  country?: string;
+  areaName: string;
+  latitude: number;
+  longitude: number;
 }
 
 export type GroupWithRole = Group & {

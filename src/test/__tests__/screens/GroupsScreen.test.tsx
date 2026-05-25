@@ -18,6 +18,14 @@ jest.mock('@/shared/api/supabase', () => ({
   },
 }));
 
+jest.mock('@/features/locations', () => ({
+  geocodePostcode: jest.fn().mockResolvedValue({
+    areaName: 'Berlin Mitte, Germany',
+    lat: 52.5316,
+    lng: 13.3888,
+  }),
+}));
+
 const mockPush = jest.fn();
 
 jest.mock('expo-router', () => ({
@@ -36,6 +44,9 @@ const mockSearchGroup: SearchGroupResult = {
   name: 'Search Club',
   description: 'A group',
   isPublic: true,
+  postcode: '10115',
+  country: 'de',
+  areaName: 'Berlin Mitte, Germany',
   createdAt: new Date().toISOString(),
   memberCount: 3,
   isMember: false,
@@ -102,6 +113,11 @@ describe('GroupsScreen', () => {
     renderWithProviders(<GroupsScreen />);
     fireEvent.press(screen.getByText(groupsEn.empty.cta));
     fireEvent.changeText(screen.getByPlaceholderText(groupsEn.create.namePlaceholder), 'My Group');
+    fireEvent.changeText(screen.getByTestId('group-form-postcode'), '10115');
+    fireEvent(screen.getByTestId('group-form-postcode'), 'blur');
+    await waitFor(() => {
+      expect(screen.getByText('Berlin Mitte, Germany')).toBeTruthy();
+    });
     const saveButtons = screen.getAllByText(groupsEn.create.save);
     fireEvent.press(saveButtons[saveButtons.length - 1]);
     await waitFor(() => {

@@ -102,6 +102,8 @@ function createRpcRow(overrides?: Record<string, unknown>) {
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-15T00:00:00Z',
     distance_meters: 1500,
+    area_name: null,
+    group_id: null,
     ...overrides,
   };
 }
@@ -332,8 +334,8 @@ describe('useSearchItems', () => {
     expect(result.current.data![1].id).toBe('item-1');
   });
 
-  it('enriches results with owner profile data', async () => {
-    const row = createRpcRow({ owner_id: 'owner-abc' });
+  it('enriches results with owner profile data and area name from RPC', async () => {
+    const row = createRpcRow({ owner_id: 'owner-abc', area_name: 'Kreuzberg' });
     mockRpc.mockResolvedValue({ data: [row], error: null });
 
     mockFetchPublicProfilesMap.mockResolvedValue(
@@ -350,30 +352,6 @@ describe('useSearchItems', () => {
         ],
       ]),
     );
-
-    mockFrom.mockImplementation((table: string) => {
-      if (table === 'saved_locations') {
-        return {
-          select: () => ({
-            in: () =>
-              Promise.resolve({
-                data: [{ id: 'loc-2', area_name: 'Kreuzberg' }],
-                error: null,
-              }),
-          }),
-        };
-      }
-      if (table === 'item_photos') {
-        return {
-          select: () => ({
-            in: () => ({
-              order: () => Promise.resolve({ data: [], error: null }),
-            }),
-          }),
-        };
-      }
-      return { select: mockSelect };
-    });
 
     const filters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, query: 'cassette' };
     const { result } = renderHook(() => useSearchItems({ filters }), {

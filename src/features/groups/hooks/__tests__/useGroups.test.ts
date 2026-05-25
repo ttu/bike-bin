@@ -80,6 +80,11 @@ describe('useCreateGroup', () => {
       name: 'Test Group',
       description: 'A test group',
       isPublic: true,
+      postcode: '10115',
+      country: 'de',
+      areaName: 'Berlin Mitte, Germany',
+      latitude: 52.5316,
+      longitude: 13.3888,
     });
 
     // Verify insert was called (first for group, then for member)
@@ -98,6 +103,10 @@ describe('useCreateGroup', () => {
       result.current.mutateAsync({
         name: 'Test Group',
         isPublic: true,
+        postcode: '10115',
+        areaName: 'Berlin Mitte, Germany',
+        latitude: 52.5316,
+        longitude: 13.3888,
       }),
     ).rejects.toThrow('RLS violation');
   });
