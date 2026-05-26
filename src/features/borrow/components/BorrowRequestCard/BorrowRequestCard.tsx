@@ -81,16 +81,14 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
   };
 
   return (
-    <View style={[styles.container, themed.container]}>
-      <Pressable
-        onPress={() => onPress?.(request)}
-        style={({ pressed }) => [
-          styles.pressableContent,
-          actions.length === 0 && styles.pressableContentBottomPad,
-          pressed && themed.pressedBg,
-        ]}
-        accessibilityLabel={`${t('card.itemLabel', { itemName: request.itemName })} - ${personLabel}`}
-        accessibilityRole="button"
+    <Pressable
+      onPress={() => onPress?.(request)}
+      style={({ pressed }) => [styles.container, themed.container, pressed && themed.pressedBg]}
+      accessibilityLabel={`${t('card.itemLabel', { itemName: request.itemName })} - ${personLabel}`}
+      accessibilityRole="button"
+    >
+      <View
+        style={[styles.pressableContent, actions.length === 0 && styles.pressableContentBottomPad]}
       >
         {/* Header row: avatar + person info + status badge */}
         <View style={styles.header}>
@@ -136,9 +134,8 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
         <Text variant="labelSmall" style={[styles.timestamp, themed.onSurfaceVariant]}>
           {t('card.requestedAt', { time: formatRelativeTime(request.createdAt, t) })}
         </Text>
-      </Pressable>
+      </View>
 
-      {/* Action buttons — outside the Pressable to avoid nested <button> on web */}
       {actions.length > 0 && (
         <View style={styles.actions}>
           {actions.includes('accept') && (
@@ -183,7 +180,7 @@ export const BorrowRequestCard = memo(function BorrowRequestCard({
           )}
         </View>
       )}
-    </View>
+    </Pressable>
   );
 });
 

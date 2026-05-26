@@ -260,6 +260,23 @@ describe('BorrowRequestCard', () => {
       fireEvent.press(getByLabelText(/Shimano XT Derailleur/));
       expect(onPress).toHaveBeenCalledWith(request);
     });
+
+    it('does not fire onPress when an action button is pressed', () => {
+      const request = createRequest({ status: BorrowRequestStatus.Pending });
+      const onPress = jest.fn();
+      const onAccept = jest.fn();
+      const { getByTestId } = renderWithProviders(
+        <BorrowRequestCard
+          request={request}
+          currentUserId={CURRENT_USER_ID}
+          onAccept={onAccept}
+          onPress={onPress}
+        />,
+      );
+      fireEvent.press(getByTestId('accept-button'));
+      expect(onAccept).toHaveBeenCalledWith(request);
+      expect(onPress).not.toHaveBeenCalled();
+    });
   });
 
   describe('timestamp', () => {
