@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { FlatList, StyleSheet, View, type ListRenderItem } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import {
 import {
   ConversationCard,
   useConversations,
+  useUnreadCountByConversation,
   type ConversationListItem,
 } from '@/features/messaging';
 import { LoadingScreen } from '@/shared/components';
@@ -44,6 +45,20 @@ export default function MessagesScreen() {
   const router = useRouter();
 
   const { data: conversations, isLoading } = useConversations();
+  const { data: unreadByConv } = useUnreadCountByConversation();
+
+  // fetchConversationsForUser hard-codes unreadCount to 0 for real users; the
+  // per-conversation counts live in a separate RPC. Merge them here so cards
+  // can highlight unread rows. In demo mode unreadByConv is a seeded scalar
+  // rather than a Map — fall back to the conversation's own count then.
+  const conversationsWithUnread = useMemo(() => {
+    if (!conversations) return conversations;
+    if (!(unreadByConv instanceof Map)) return conversations;
+    return conversations.map((c) => ({
+      ...c,
+      unreadCount: unreadByConv.get(c.id) ?? 0,
+    }));
+  }, [conversations, unreadByConv]);
 
   const handleConversationPress = useCallback(
     (conversation: ConversationListItem) => {
@@ -61,7 +76,7 @@ export default function MessagesScreen() {
     return <LoadingScreen />;
   }
 
-  const hasConversations = conversations && conversations.length > 0;
+  const hasConversations = conversationsWithUnread && conversationsWithUnread.length > 0;
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
@@ -77,7 +92,7 @@ export default function MessagesScreen() {
           ]}
         >
           <FlatList
-            data={conversations}
+            data={conversationsWithUnread}
             keyExtractor={(item) => item.id}
             renderItem={renderConversationItem}
             ItemSeparatorComponent={ItemSeparator}

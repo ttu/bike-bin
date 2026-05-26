@@ -1,7 +1,15 @@
+import { StyleSheet, type ViewStyle } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockConversationListItem } from '@/test/factories';
 import { ConversationCard } from '../ConversationCard/ConversationCard';
+
+function getFlattenedBackground(node: {
+  props: { style?: ViewStyle | ViewStyle[] };
+}): ViewStyle['backgroundColor'] {
+  const flattened = StyleSheet.flatten(node.props.style);
+  return flattened?.backgroundColor;
+}
 
 describe('ConversationCard', () => {
   it('renders other participant name', () => {
@@ -66,6 +74,22 @@ describe('ConversationCard', () => {
     const conv = createMockConversationListItem({ unreadCount: 0 });
     const { queryByTestId } = renderWithProviders(<ConversationCard conversation={conv} />);
     expect(queryByTestId('unread-dot')).toBeNull();
+  });
+
+  it('uses a tinted row background when unreadCount > 0', () => {
+    const unread = createMockConversationListItem({ unreadCount: 2 });
+    const read = createMockConversationListItem({ unreadCount: 0 });
+    const { getByTestId, rerender } = renderWithProviders(
+      <ConversationCard conversation={unread} />,
+    );
+    const unreadBg = getFlattenedBackground(getByTestId('conversation-card'));
+
+    rerender(<ConversationCard conversation={read} />);
+    const readBg = getFlattenedBackground(getByTestId('conversation-card'));
+
+    expect(unreadBg).toBeDefined();
+    expect(readBg).toBeDefined();
+    expect(unreadBg).not.toBe(readBg);
   });
 
   it('fires onPress with conversation', () => {
