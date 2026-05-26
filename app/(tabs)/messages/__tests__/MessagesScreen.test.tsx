@@ -3,7 +3,11 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockConversationListItem } from '@/test/factories';
-import { useConversations, type ConversationListItem } from '@/features/messaging';
+import {
+  useConversations,
+  useUnreadCountByConversation,
+  type ConversationListItem,
+} from '@/features/messaging';
 import MessagesScreen from '../index';
 
 jest.mock('@/shared/api/supabase', () => ({
@@ -54,16 +58,17 @@ jest.mock('@/features/messaging', () => {
   const { View, Text, Pressable } = require('react-native');
   return {
     useConversations: jest.fn(),
+    useUnreadCountByConversation: jest.fn(),
     ConversationCard: ({
       conversation,
       onPress,
     }: {
-      readonly conversation: { otherParticipantName: string };
+      readonly conversation: { otherParticipantName: string; unreadCount: number };
       readonly onPress?: (c: unknown) => void;
     }) => (
       <Pressable
         onPress={() => onPress?.(conversation)}
-        accessibilityLabel={conversation.otherParticipantName}
+        accessibilityLabel={`${conversation.otherParticipantName} unread:${conversation.unreadCount}`}
       >
         <View>
           <Text>{conversation.otherParticipantName}</Text>
@@ -74,10 +79,14 @@ jest.mock('@/features/messaging', () => {
 });
 
 const mockUseConversations = jest.mocked(useConversations);
+const mockUseUnreadCountByConversation = jest.mocked(useUnreadCountByConversation);
 
 describe('MessagesScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseUnreadCountByConversation.mockReturnValue({
+      data: undefined,
+    } as unknown as ReturnType<typeof useUnreadCountByConversation>);
   });
 
   it('shows loading screen while conversations load', () => {
@@ -106,7 +115,48 @@ describe('MessagesScreen', () => {
       isLoading: false,
     } as unknown as UseQueryResult<ConversationListItem[], Error>);
     const { getByLabelText } = renderWithProviders(<MessagesScreen />);
-    fireEvent.press(getByLabelText('Alice'));
+    fireEvent.press(getByLabelText(/^Alice unread:/));
     expect(mockPush).toHaveBeenCalledWith('/messages/conv-1');
+  });
+
+  it('merges per-conversation unread counts from the RPC into each card', () => {
+    const a = createMockConversationListItem({
+      id: 'conv-a' as ConversationListItem['id'],
+      otherParticipantName: 'Alice',
+      unreadCount: 0,
+    });
+    const b = createMockConversationListItem({
+      id: 'conv-b' as ConversationListItem['id'],
+      otherParticipantName: 'Bob',
+      unreadCount: 0,
+    });
+    mockUseConversations.mockReturnValue({
+      data: [a, b],
+      isLoading: false,
+    } as unknown as UseQueryResult<ConversationListItem[], Error>);
+    mockUseUnreadCountByConversation.mockReturnValue({
+      data: new Map([[a.id, 3]]),
+    } as unknown as ReturnType<typeof useUnreadCountByConversation>);
+
+    const { getByLabelText } = renderWithProviders(<MessagesScreen />);
+    expect(getByLabelText('Alice unread:3')).toBeTruthy();
+    expect(getByLabelText('Bob unread:0')).toBeTruthy();
+  });
+
+  it('falls back to seeded unreadCount when the RPC data is not a Map (demo mode)', () => {
+    const seeded = createMockConversationListItem({
+      otherParticipantName: 'Alice',
+      unreadCount: 2,
+    });
+    mockUseConversations.mockReturnValue({
+      data: [seeded],
+      isLoading: false,
+    } as unknown as UseQueryResult<ConversationListItem[], Error>);
+    mockUseUnreadCountByConversation.mockReturnValue({
+      data: 2 as unknown as Map<ConversationListItem['id'], number>,
+    } as unknown as ReturnType<typeof useUnreadCountByConversation>);
+
+    const { getByLabelText } = renderWithProviders(<MessagesScreen />);
+    expect(getByLabelText('Alice unread:2')).toBeTruthy();
   });
 });
