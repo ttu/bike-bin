@@ -114,6 +114,7 @@ function createRequest(overrides?: Partial<BorrowRequestWithDetails>): BorrowReq
     itemName: 'Test Item',
     itemStatus: ItemStatus.Reserved,
     itemOwnerId: CURRENT_USER_ID,
+    itemGroupId: undefined,
     itemAvailabilityTypes: [AvailabilityType.Borrowable],
     requesterName: 'Alice',
     requesterAvatarUrl: undefined,
@@ -324,6 +325,30 @@ describe('BorrowRequestsScreen', () => {
     await waitFor(() => {
       expect(mockCreateConversation).toHaveBeenCalledWith(
         { itemId: 'item-1', otherUserId: OTHER_USER_ID },
+        expect.any(Object),
+      );
+    });
+  });
+
+  it('routes by groupId when the borrow request is for a group-owned item', async () => {
+    mockRequests = [
+      createRequest({
+        status: BorrowRequestStatus.Pending,
+        // Group-owned items have a NULL items.owner_id, surfaced as '' through the hook.
+        itemOwnerId: '' as UserId,
+        itemGroupId: 'group-1' as unknown as BorrowRequestWithDetails['itemGroupId'],
+        requesterId: CURRENT_USER_ID,
+      }),
+    ];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByText(borrowEn.tabs.outgoing));
+    const card = screen.getByLabelText(
+      new RegExp(`${borrowEn.card.itemLabel.replace('{{itemName}}', 'Test Item')}`),
+    );
+    fireEvent.press(card);
+    await waitFor(() => {
+      expect(mockCreateConversation).toHaveBeenCalledWith(
+        { itemId: 'item-1', groupId: 'group-1' },
         expect.any(Object),
       );
     });

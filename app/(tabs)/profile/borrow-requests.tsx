@@ -47,20 +47,23 @@ export default function BorrowRequestsScreen() {
 
   const handleOpenConversation = useCallback(
     (request: BorrowRequestWithDetails) => {
-      const otherUserId =
-        request.itemOwnerId === userId ? request.requesterId : request.itemOwnerId;
-      openConversation(
-        { itemId: request.itemId, otherUserId },
-        {
-          onSuccess: (result) => router.push(`/messages/${result.conversationId}`),
-          onError: () =>
-            showSnackbarAlert({
-              message: tCommon('errors.generic'),
-              variant: 'error',
-              duration: 'long',
-            }),
-        },
-      );
+      // Group-owned items: route by group (admins are the conversation participants).
+      // Personal items: pair the current user with the other party (requester or owner).
+      const params = request.itemGroupId
+        ? { itemId: request.itemId, groupId: request.itemGroupId }
+        : {
+            itemId: request.itemId,
+            otherUserId: request.itemOwnerId === userId ? request.requesterId : request.itemOwnerId,
+          };
+      openConversation(params, {
+        onSuccess: (result) => router.push(`/messages/${result.conversationId}`),
+        onError: () =>
+          showSnackbarAlert({
+            message: tCommon('errors.generic'),
+            variant: 'error',
+            duration: 'long',
+          }),
+      });
     },
     [userId, openConversation, router, showSnackbarAlert, tCommon],
   );

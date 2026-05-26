@@ -27,6 +27,7 @@ function createRequest(overrides?: Partial<BorrowRequestWithDetails>): BorrowReq
     itemName: 'Shimano XT Derailleur',
     itemStatus: ItemStatus.Reserved,
     itemOwnerId: CURRENT_USER_ID,
+    itemGroupId: undefined,
     itemAvailabilityTypes: [AvailabilityType.Borrowable],
     requesterName: 'Alice',
     requesterAvatarUrl: undefined,

@@ -30,6 +30,7 @@ function makeRequest(overrides: Partial<BorrowRequestWithDetails>): BorrowReques
     itemName: 'Floor pump',
     itemStatus: ItemStatus.Stored,
     itemOwnerId: ownerId,
+    itemGroupId: undefined,
     itemAvailabilityTypes: [AvailabilityType.Borrowable],
     requesterName: 'Alex Rider',
     requesterAvatarUrl: undefined,
