@@ -14,6 +14,9 @@
     "postcodeLabel": "Postcode"
   },
   "form": {
+    "countryLabel": "Country",
+    "countryPlaceholder": "Select country",
+    "countrySearchPlaceholder": "Search countries",
     "postcodeLabel": "Postcode / ZIP",
     "postcodePlaceholder": "Enter your postcode",
     "labelLabel": "Label",
