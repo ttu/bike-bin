@@ -120,18 +120,18 @@ E2E is unchanged — existing location flows still work with the default country
 
 ### Files touched
 
-| File | Change |
-|---|---|
-| `src/features/locations/components/LocationForm/LocationForm.tsx` | Add country state, picker, pass to `geocodePostcode` |
-| `src/features/locations/components/LocationForm/__tests__/LocationForm.test.tsx` | Extend tests |
-| `src/shared/components/CountryPicker/CountryPicker.tsx` | New |
-| `src/shared/components/CountryPicker/__tests__/CountryPicker.test.tsx` | New |
-| `src/shared/components/CountryPicker/index.ts` | New |
-| `src/shared/data/countries.ts` | New |
-| `src/shared/data/__tests__/countries.test.ts` | New |
-| `src/shared/utils/getDefaultCountry.ts` | New |
-| `src/shared/utils/__tests__/getDefaultCountry.test.ts` | New |
-| `src/i18n/locales/*/locations.json` | Three new keys |
+| File                                                                             | Change                                               |
+| -------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `src/features/locations/components/LocationForm/LocationForm.tsx`                | Add country state, picker, pass to `geocodePostcode` |
+| `src/features/locations/components/LocationForm/__tests__/LocationForm.test.tsx` | Extend tests                                         |
+| `src/shared/components/CountryPicker/CountryPicker.tsx`                          | New                                                  |
+| `src/shared/components/CountryPicker/__tests__/CountryPicker.test.tsx`           | New                                                  |
+| `src/shared/components/CountryPicker/index.ts`                                   | New                                                  |
+| `src/shared/data/countries.ts`                                                   | New                                                  |
+| `src/shared/data/__tests__/countries.test.ts`                                    | New                                                  |
+| `src/shared/utils/getDefaultCountry.ts`                                          | New                                                  |
+| `src/shared/utils/__tests__/getDefaultCountry.test.ts`                           | New                                                  |
+| `src/i18n/locales/*/locations.json`                                              | Three new keys                                       |
 
 ### Risks
 

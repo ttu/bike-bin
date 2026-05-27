@@ -78,9 +78,7 @@ export function CountryPicker({ value, onChange, label, error }: CountryPickerPr
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length === 0) return COUNTRIES;
-    return COUNTRIES.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.code.startsWith(q),
-    );
+    return COUNTRIES.filter((c) => c.name.toLowerCase().includes(q) || c.code.startsWith(q));
   }, [query]);
 
   const handleSelect = useCallback(
@@ -116,11 +114,7 @@ export function CountryPicker({ value, onChange, label, error }: CountryPickerPr
       </Pressable>
 
       <Portal>
-        <Modal
-          visible={open}
-          onDismiss={() => setOpen(false)}
-          contentContainerStyle={styles.modal}
-        >
+        <Modal visible={open} onDismiss={() => setOpen(false)} contentContainerStyle={styles.modal}>
           {open ? (
             <>
               <TextInput
@@ -138,10 +132,7 @@ export function CountryPicker({ value, onChange, label, error }: CountryPickerPr
                 keyExtractor={(item) => item.code}
                 keyboardShouldPersistTaps="handled"
                 renderItem={({ item }) => (
-                  <Pressable
-                    onPress={() => handleSelect(item.code)}
-                    accessibilityRole="button"
-                  >
+                  <Pressable onPress={() => handleSelect(item.code)} accessibilityRole="button">
                     <View style={styles.row}>
                       <Text variant="bodyLarge">{countryFlag(item.code)}</Text>
                       <Text variant="bodyMedium" style={styles.rowName}>

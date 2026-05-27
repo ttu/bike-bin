@@ -14,26 +14,27 @@
 
 ## File Structure
 
-| File | Status | Responsibility |
-|---|---|---|
-| `src/shared/data/countries.ts` | Create | Static ISO 3166-1 alpha-2 list (`code`, `name`). |
-| `src/shared/data/__tests__/countries.test.ts` | Create | Sanity tests over the static list. |
-| `src/shared/utils/getDefaultCountry.ts` | Create | Read `expo-localization` region, lowercase, fall back to `'fi'`. |
-| `src/shared/utils/__tests__/getDefaultCountry.test.ts` | Create | Cover the locale-present, missing, and malformed cases. |
-| `src/shared/utils/countryFlag.ts` | Create | Convert alpha-2 → unicode regional-indicator flag emoji. |
-| `src/shared/utils/__tests__/countryFlag.test.ts` | Create | Spot-check `fi`, `gb`, `us`; verify graceful return for bad input. |
-| `src/shared/components/CountryPicker/CountryPicker.tsx` | Create | Paper-styled trigger + modal with search + `FlatList`. |
-| `src/shared/components/CountryPicker/__tests__/CountryPicker.test.tsx` | Create | Render, open, search, select. |
-| `src/shared/components/CountryPicker/index.ts` | Create | Public re-export. |
-| `src/i18n/en/locations.json` | Modify | Add three new keys under `form.*`. |
-| `src/features/locations/components/LocationForm/LocationForm.tsx` | Modify | Add country state + picker; pass country to `geocodePostcode`; auto re-geocode on country change. |
-| `src/features/locations/components/LocationForm/__tests__/LocationForm.test.tsx` | Modify | Extend with country-default, country-change, and `geocodePostcode(postcode, country)` cases. |
+| File                                                                             | Status | Responsibility                                                                                    |
+| -------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
+| `src/shared/data/countries.ts`                                                   | Create | Static ISO 3166-1 alpha-2 list (`code`, `name`).                                                  |
+| `src/shared/data/__tests__/countries.test.ts`                                    | Create | Sanity tests over the static list.                                                                |
+| `src/shared/utils/getDefaultCountry.ts`                                          | Create | Read `expo-localization` region, lowercase, fall back to `'fi'`.                                  |
+| `src/shared/utils/__tests__/getDefaultCountry.test.ts`                           | Create | Cover the locale-present, missing, and malformed cases.                                           |
+| `src/shared/utils/countryFlag.ts`                                                | Create | Convert alpha-2 → unicode regional-indicator flag emoji.                                          |
+| `src/shared/utils/__tests__/countryFlag.test.ts`                                 | Create | Spot-check `fi`, `gb`, `us`; verify graceful return for bad input.                                |
+| `src/shared/components/CountryPicker/CountryPicker.tsx`                          | Create | Paper-styled trigger + modal with search + `FlatList`.                                            |
+| `src/shared/components/CountryPicker/__tests__/CountryPicker.test.tsx`           | Create | Render, open, search, select.                                                                     |
+| `src/shared/components/CountryPicker/index.ts`                                   | Create | Public re-export.                                                                                 |
+| `src/i18n/en/locations.json`                                                     | Modify | Add three new keys under `form.*`.                                                                |
+| `src/features/locations/components/LocationForm/LocationForm.tsx`                | Modify | Add country state + picker; pass country to `geocodePostcode`; auto re-geocode on country change. |
+| `src/features/locations/components/LocationForm/__tests__/LocationForm.test.tsx` | Modify | Extend with country-default, country-change, and `geocodePostcode(postcode, country)` cases.      |
 
 ---
 
 ### Task 1: Static ISO 3166-1 country list
 
 **Files:**
+
 - Create: `src/shared/data/countries.ts`
 - Test: `src/shared/data/__tests__/countries.test.ts`
 
@@ -114,6 +115,7 @@ git commit -m "feat: static ISO 3166-1 country list"
 ### Task 2: Country flag emoji util
 
 **Files:**
+
 - Create: `src/shared/utils/countryFlag.ts`
 - Test: `src/shared/utils/__tests__/countryFlag.test.ts`
 
@@ -188,6 +190,7 @@ git commit -m "feat: country flag emoji util"
 ### Task 3: Default country from device locale
 
 **Files:**
+
 - Create: `src/shared/utils/getDefaultCountry.ts`
 - Test: `src/shared/utils/__tests__/getDefaultCountry.test.ts`
 
@@ -275,6 +278,7 @@ git commit -m "feat: getDefaultCountry util from device locale"
 ### Task 4: i18n keys
 
 **Files:**
+
 - Modify: `src/i18n/en/locations.json`
 
 - [ ] **Step 1: Add new keys**
@@ -309,6 +313,7 @@ git commit -m "feat: i18n keys for country picker"
 ### Task 5: `CountryPicker` shared component
 
 **Files:**
+
 - Create: `src/shared/components/CountryPicker/CountryPicker.tsx`
 - Create: `src/shared/components/CountryPicker/index.ts`
 - Test: `src/shared/components/CountryPicker/__tests__/CountryPicker.test.tsx`
@@ -451,9 +456,7 @@ export function CountryPicker({ value, onChange, label, error }: CountryPickerPr
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length === 0) return COUNTRIES;
-    return COUNTRIES.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.code.startsWith(q),
-    );
+    return COUNTRIES.filter((c) => c.name.toLowerCase().includes(q) || c.code.startsWith(q));
   }, [query]);
 
   const handleSelect = useCallback(
@@ -482,11 +485,7 @@ export function CountryPicker({ value, onChange, label, error }: CountryPickerPr
       </Pressable>
 
       <Portal>
-        <Modal
-          visible={open}
-          onDismiss={() => setOpen(false)}
-          contentContainerStyle={styles.modal}
-        >
+        <Modal visible={open} onDismiss={() => setOpen(false)} contentContainerStyle={styles.modal}>
           <TextInput
             mode="flat"
             placeholder={t('form.countrySearchPlaceholder')}
@@ -548,6 +547,7 @@ git commit -m "feat: CountryPicker shared component"
 ### Task 6: Wire the picker into `LocationForm`
 
 **Files:**
+
 - Modify: `src/features/locations/components/LocationForm/LocationForm.tsx`
 - Modify: `src/features/locations/components/LocationForm/__tests__/LocationForm.test.tsx`
 
@@ -619,17 +619,20 @@ Expected: existing cases still PASS; the three new cases FAIL (country field abs
 Apply the following changes in `src/features/locations/components/LocationForm/LocationForm.tsx`:
 
 1. Add imports near the existing imports:
+
    ```ts
    import { CountryPicker } from '@/shared/components/CountryPicker';
    import { getDefaultCountry } from '@/shared/utils/getDefaultCountry';
    ```
 
 2. Add country state alongside the existing `useState` calls (after the `postcode` state):
+
    ```ts
    const [country, setCountry] = useState<string>(getDefaultCountry());
    ```
 
 3. Update `handleGeocodePostcode` to read `country` and pass it through. Also extract the call signature so the country-change handler can reuse it. The simplest correct change is:
+
    ```ts
    const handleGeocodePostcode = useCallback(async () => {
      if (!postcode.trim()) return;
@@ -648,6 +651,7 @@ Apply the following changes in `src/features/locations/components/LocationForm/L
    ```
 
 4. Add a country-change handler that clears `geocoded` and auto re-runs geocoding when a postcode is already present:
+
    ```ts
    const handleCountryChange = useCallback(
      (next: string) => {
@@ -662,7 +666,9 @@ Apply the following changes in `src/features/locations/components/LocationForm/L
      [postcode, handleGeocodePostcode],
    );
    ```
-   Note: `handleGeocodePostcode` reads `country` from its closure. Because we call `setCountry(next)` first, the next render produces a new `handleGeocodePostcode` with the updated `country`. But the call inside `handleCountryChange` still references the *current* closure. To avoid that staleness, change `handleGeocodePostcode` to accept an optional override and pass `next` through:
+
+   Note: `handleGeocodePostcode` reads `country` from its closure. Because we call `setCountry(next)` first, the next render produces a new `handleGeocodePostcode` with the updated `country`. But the call inside `handleCountryChange` still references the _current_ closure. To avoid that staleness, change `handleGeocodePostcode` to accept an optional override and pass `next` through:
+
    ```ts
    const handleGeocodePostcode = useCallback(
      async (countryOverride?: string) => {
@@ -683,7 +689,9 @@ Apply the following changes in `src/features/locations/components/LocationForm/L
      [postcode, country, t],
    );
    ```
+
    Then `handleCountryChange` becomes:
+
    ```ts
    const handleCountryChange = useCallback(
      (next: string) => {
@@ -695,15 +703,13 @@ Apply the following changes in `src/features/locations/components/LocationForm/L
      [postcode, handleGeocodePostcode],
    );
    ```
+
    The `TextInput`'s `onBlur` keeps calling `handleGeocodePostcode()` (no arg).
 
 5. Render the `CountryPicker` above the postcode block. Insert after the existing `<View style={styles.container}>` opener and before the existing postcode `<Text variant="labelLarge" …>`:
+
    ```tsx
-   <CountryPicker
-     value={country}
-     onChange={handleCountryChange}
-     label={t('form.countryLabel')}
-   />
+   <CountryPicker value={country} onChange={handleCountryChange} label={t('form.countryLabel')} />
    ```
 
 6. The `LocationFormData` interface stays unchanged. The country is not part of `onSave`'s payload.
