@@ -30,7 +30,7 @@ Make postcode geocoding deterministic by requiring a country alongside the postc
 
 - Add `country` state: `useState<string>(getDefaultCountry())`. Lowercase ISO 3166-1 alpha-2.
 - Render a new country field above the postcode field, using the new `CountryPicker` shared component.
-- Changing the country clears `geocoded` (mirrors the existing postcode-change behavior so a stale area preview doesn't linger).
+- Changing the country clears `geocoded` and, if a non-empty postcode is already present, immediately re-runs `handleGeocodePostcode` so the area preview refreshes without requiring the user to re-blur the postcode field.
 - Pass `country` as the second argument to `geocodePostcode(postcode, country)` in `handleGeocodePostcode`.
 - `LocationFormData` interface is unchanged. The country is form-internal; it is not part of `onSave`'s payload and is not persisted.
 
@@ -82,9 +82,10 @@ User types postcode and blurs the field
   → handleGeocodePostcode() runs
   → geocodePostcode(postcode, country)              (Edge Function returns areaName, lat, lng)
   → geocoded state populated → area preview renders
-User changes country
-  → geocoded cleared (stale preview removed)
-  → user blurs postcode again to re-trigger geocoding
+User changes country (postcode already filled)
+  → geocoded cleared
+  → handleGeocodePostcode() re-runs automatically with the new country
+  → area preview refreshes
 User taps Save
   → onSave({ postcode, label, isPrimary, geocoded })  (country not in payload)
 ```
@@ -100,6 +101,7 @@ We do not add a separate "no match in selected country" copy — the existing er
 - **`LocationForm.test.tsx`** — extend existing suite:
   - country defaults from `getDefaultCountry()` (mocked)
   - changing the country clears the geocoded preview
+  - changing the country with a postcode already present auto-triggers `geocodePostcode(postcode, newCountry)`
   - `geocodePostcode` is called with `(postcode, country)`
 - **`CountryPicker.test.tsx`** — new:
   - renders the selected country's name
