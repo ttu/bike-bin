@@ -181,15 +181,18 @@ describe('LocationForm', () => {
     const postcode = getByPlaceholderText('Enter your postcode');
     fireEvent.changeText(postcode, '00100');
     fireEvent(postcode, 'blur');
-    await waitFor(() => expect(queryByText(/Area:/)).toBeTruthy());
+    await waitFor(() => expect(getByText('Area: Helsinki')).toBeTruthy());
 
     mockGeocodePostcode.mockResolvedValueOnce({ areaName: 'London', lat: 51.5, lng: -0.1 });
     fireEvent.press(getByText('Finland'));
     fireEvent.changeText(getByPlaceholderText('Search countries'), 'united king');
     fireEvent.press(getByText('United Kingdom'));
 
+    expect(queryByText('Area: Helsinki')).toBeNull();
+
     await waitFor(() => {
       expect(mockGeocodePostcode).toHaveBeenLastCalledWith('00100', 'gb');
     });
+    await waitFor(() => expect(getByText('Area: London')).toBeTruthy());
   });
 });

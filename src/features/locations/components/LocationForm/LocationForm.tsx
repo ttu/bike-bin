@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
   Text,
@@ -79,22 +79,29 @@ export function LocationForm({
     geocode?: string;
   }>({});
 
+  const geocodeRequestIdRef = useRef(0);
+
   const handleGeocodePostcode = useCallback(
     async (countryOverride?: string) => {
       if (!postcode.trim()) return;
 
       const effectiveCountry = countryOverride ?? country;
+      const requestId = ++geocodeRequestIdRef.current;
       setIsGeocoding(true);
       setGeocoded(undefined);
       setErrors((prev) => ({ ...prev, geocode: undefined }));
 
       try {
         const result = await geocodePostcode(postcode, effectiveCountry);
+        if (geocodeRequestIdRef.current !== requestId) return;
         setGeocoded(result);
       } catch {
+        if (geocodeRequestIdRef.current !== requestId) return;
         setErrors((prev) => ({ ...prev, geocode: t('errors.geocodeFailed') }));
       } finally {
-        setIsGeocoding(false);
+        if (geocodeRequestIdRef.current === requestId) {
+          setIsGeocoding(false);
+        }
       }
     },
     [postcode, country, t],
