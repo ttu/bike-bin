@@ -65,7 +65,7 @@ Make postcode geocoding deterministic by requiring a country alongside the postc
 
 ### i18n
 
-New keys under `locales/en/locations.json` (and the other locale files we already maintain):
+New keys under `src/i18n/en/locations.json` (and the other locale files we already maintain, i.e. `src/i18n/<locale>/locations.json`):
 
 - `form.countryLabel` — "Country"
 - `form.countryPlaceholder` — "Select country"
@@ -75,7 +75,7 @@ Country **names** in the picker stay English-only at launch. Localizing ~250 nam
 
 ### Data flow
 
-```
+```text
 User opens LocationForm
   → country defaults to getDefaultCountry()         (e.g. 'fi' from device locale)
 User types postcode and blurs the field
@@ -131,7 +131,7 @@ E2E is unchanged — existing location flows still work with the default country
 | `src/shared/data/__tests__/countries.test.ts`                                    | New                                                  |
 | `src/shared/utils/getDefaultCountry.ts`                                          | New                                                  |
 | `src/shared/utils/__tests__/getDefaultCountry.test.ts`                           | New                                                  |
-| `src/i18n/locales/*/locations.json`                                              | Three new keys                                       |
+| `src/i18n/<locale>/locations.json` (e.g. `src/i18n/en/locations.json`)           | Three new keys                                       |
 
 ### Risks
 
