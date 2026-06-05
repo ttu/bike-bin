@@ -4,6 +4,7 @@ import { Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '@/features/messaging';
+import { isMarketplaceEnabled, isGroupsEnabled } from '@/shared/utils/featureFlags';
 import { spacing, type AppTheme } from '@/shared/theme';
 import { navigateToTabRoot } from '@/shared/utils/navigateToTabRoot';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -151,6 +152,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="search"
+        redirect={!isMarketplaceEnabled}
         options={{
           title: t('tabs.search'),
           tabBarAccessibilityLabel: t('tabs.search'),
@@ -159,6 +161,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="groups"
+        redirect={!isGroupsEnabled}
         options={{
           title: t('tabs.groups'),
           tabBarAccessibilityLabel: t('tabs.groups'),
@@ -167,6 +170,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="messages"
+        redirect={!isMarketplaceEnabled}
         options={{
           title: t('tabs.messages'),
           tabBarAccessibilityLabel: t('tabs.messages'),

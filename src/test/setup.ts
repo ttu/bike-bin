@@ -1,5 +1,12 @@
 import '@testing-library/react-native/matchers';
 
+// Feature flags default OFF everywhere (see src/shared/utils/featureFlags.ts).
+// Force them on in the test environment so the existing suite continues to
+// render gated surfaces. Tests covering the off behavior override these via
+// `jest.isolateModules` after deleting/changing the env var.
+process.env.EXPO_PUBLIC_FEATURE_MARKETPLACE = 'true';
+process.env.EXPO_PUBLIC_FEATURE_GROUPS = 'true';
+
 // Avoid loading native WebBrowser / auth-session in Jest (pulls in via auth → OAuth helpers).
 // Default mocks must return the same shapes as the Expo APIs when awaited (see signInWithOAuthProvider).
 jest.mock('expo-web-browser', () => ({

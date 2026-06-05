@@ -81,16 +81,34 @@ See [testing.md](testing.md) and [code-quality.md](code-quality.md) for coverage
 
 ## Environment variables
 
-The app reads these `EXPO_PUBLIC_*` variables (see `src/shared/api/supabase.ts` and `src/shared/utils/env.ts`):
+The app reads these `EXPO_PUBLIC_*` variables (see `src/shared/api/supabase.ts`, `src/shared/utils/env.ts`, and `src/shared/utils/featureFlags.ts`):
 
-| Variable                        | Purpose                              | Where to get it                    |
-| ------------------------------- | ------------------------------------ | ---------------------------------- |
-| `EXPO_PUBLIC_SUPABASE_URL`      | Local or remote Supabase API URL     | `npm run db:status` → API URL      |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous (public) API key  | `npm run db:status` → anon key     |
-| `EXPO_PUBLIC_SENTRY_DSN`        | Sentry DSN for error tracking        | Sentry project settings (optional) |
-| `EXPO_PUBLIC_ENV`               | App environment (`development`, etc) | Defaults to `development` if unset |
+| Variable                          | Purpose                                   | Where to get it                    |
+| --------------------------------- | ----------------------------------------- | ---------------------------------- |
+| `EXPO_PUBLIC_SUPABASE_URL`        | Local or remote Supabase API URL          | `npm run db:status` → API URL      |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY`   | Supabase anonymous (public) API key       | `npm run db:status` → anon key     |
+| `EXPO_PUBLIC_SENTRY_DSN`          | Sentry DSN for error tracking             | Sentry project settings (optional) |
+| `EXPO_PUBLIC_ENV`                 | App environment (`development`, etc)      | Defaults to `development` if unset |
+| `EXPO_PUBLIC_FEATURE_MARKETPLACE` | Enable Buy/Sell/Borrow, Messages, ratings | `'true'` to enable; off otherwise  |
+| `EXPO_PUBLIC_FEATURE_GROUPS`      | Enable Groups (tab + group conversations) | `'true'` to enable; off otherwise  |
 
 Set these in an `.env` file at the project root or via your shell. Expo loads `EXPO_PUBLIC_*` vars automatically.
+
+### Feature flags
+
+Incomplete surfaces are gated behind **build-time** feature flags (`src/shared/utils/featureFlags.ts`). A flag is **off unless** its env var is exactly the string `'true'` — the default everywhere (including production) is **off**, so releases hide unfinished work until the flag is explicitly enabled. Flipping a flag requires a rebuild/redeploy; there is no runtime/remote config.
+
+- **`EXPO_PUBLIC_FEATURE_MARKETPLACE`** gates the entangled Buy/Sell/Borrow surface: the Search and Messages tabs and their routes, the item form's availability options (sell/borrow/donate — items stay Private when off), borrow requests, and ratings/reviews (which are downstream of transactions).
+- **`EXPO_PUBLIC_FEATURE_GROUPS`** gates the Groups tab and group conversations.
+
+For local development, enable both in `.env.local`:
+
+```sh
+EXPO_PUBLIC_FEATURE_MARKETPLACE=true
+EXPO_PUBLIC_FEATURE_GROUPS=true
+```
+
+The Jest suite forces both flags on (`src/test/setup.ts`) so gated surfaces are exercised; tests covering the off behavior override the env var with `jest.isolateModules` or by mocking `featureFlags`.
 
 ### Google sign-in (OAuth)
 
