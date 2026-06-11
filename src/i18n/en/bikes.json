@@ -1,5 +1,9 @@
 {
   "title": "My Bikes",
+  "masthead": {
+    "eyebrow": "Your rides",
+    "title": "Bikes"
+  },
   "addBike": "Add Bike",
   "editBike": "Edit Bike",
   "noBikes": "No bikes yet",

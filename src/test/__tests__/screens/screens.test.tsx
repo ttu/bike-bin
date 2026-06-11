@@ -97,6 +97,6 @@ describe('Tab screens render visible content', () => {
 
   it('Profile screen shows heading', () => {
     renderWithProviders(<ProfileScreen />);
-    expect(screen.getByText('Profile')).toBeVisible();
+    expect(screen.getByText('PROFILE')).toBeVisible();
   });
 });

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
-import { Appbar, Text, FAB as Fab, Button, useTheme } from 'react-native-paper';
+import { Text, FAB as Fab, Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import {
 } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
+import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
 import { useSnackbarAlerts } from '@/shared/components/SnackbarAlerts';
 import {
   useGroups,
@@ -203,16 +204,29 @@ export default function GroupsScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header dark={theme.dark} style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.Content title={t('title')} />
-        <Appbar.Action
-          icon="magnify"
-          onPress={() => setMode('search')}
-          testID="groups-search-button"
-          accessibilityLabel={t('search.placeholder')}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background, paddingTop: insets.top },
+      ]}
+    >
+      <ScreenMasthead eyebrow={t('masthead.eyebrow')} title={t('masthead.title')} />
+      <Pressable
+        onPress={() => setMode('search')}
+        testID="groups-search-button"
+        accessibilityRole="button"
+        accessibilityLabel={t('search.placeholder')}
+        style={[styles.searchTrigger, { backgroundColor: theme.colors.surfaceVariant }]}
+      >
+        <MaterialCommunityIcons
+          name="magnify"
+          size={iconSize.md}
+          color={theme.colors.onSurfaceVariant}
         />
-      </Appbar.Header>
+        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+          {t('search.placeholder')}
+        </Text>
+      </Pressable>
 
       {renderBody()}
 
@@ -372,6 +386,17 @@ function PendingInvitationsSection({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  searchTrigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minHeight: 48,
+    marginHorizontal: spacing.base,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.xl,
   },
   card: {
     flexDirection: 'row',

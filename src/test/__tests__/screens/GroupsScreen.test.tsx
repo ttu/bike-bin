@@ -72,7 +72,7 @@ describe('GroupsScreen', () => {
   it('shows empty state on the groups tab root', () => {
     renderWithProviders(<GroupsScreen />);
     expect(screen.getByText(groupsEn.empty.title)).toBeTruthy();
-    expect(screen.getByText(groupsEn.title)).toBeTruthy();
+    expect(screen.getByText(groupsEn.masthead.title.toUpperCase())).toBeTruthy();
   });
 
   it('opens create mode and returns to list', () => {
@@ -80,7 +80,7 @@ describe('GroupsScreen', () => {
     fireEvent.press(screen.getByText(groupsEn.empty.cta));
     expect(screen.getByText(groupsEn.create.nameLabel)).toBeTruthy();
     fireEvent.press(screen.getByLabelText('Back'));
-    expect(screen.getByText(groupsEn.title)).toBeTruthy();
+    expect(screen.getByText(groupsEn.masthead.title.toUpperCase())).toBeTruthy();
   });
 
   it('opens search mode', () => {

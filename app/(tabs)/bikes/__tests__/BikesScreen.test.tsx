@@ -70,6 +70,13 @@ describe('BikesScreen', () => {
     mockBikeCapacityState.isReady = true;
   });
 
+  it('renders the masthead eyebrow and title', () => {
+    mockUseBikes.mockReturnValue({ data: [], isLoading: false });
+    const { getByText } = renderWithProviders(<BikesScreen />);
+    expect(getByText(bikesEn.masthead.eyebrow)).toBeTruthy();
+    expect(getByText(bikesEn.masthead.title.toUpperCase())).toBeTruthy();
+  });
+
   it('renders empty state and navigates to new bike from CTA', () => {
     mockUseBikes.mockReturnValue({ data: [], isLoading: false });
     const { getByText } = renderWithProviders(<BikesScreen />);
