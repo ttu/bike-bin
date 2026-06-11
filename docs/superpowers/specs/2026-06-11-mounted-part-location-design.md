@@ -107,12 +107,22 @@ While the item is mounted, the location field is read-only.
 - `app/(tabs)/inventory/edit/[id].tsx` computes
   `locationLocked = item.status === ItemStatus.Mounted && item.bikeId !== undefined`
   and passes it as a new prop to `ItemForm`.
-- Thread the prop `ItemForm → OptionalSection → StorageField` (add to
-  `ItemFormProps` in `src/features/inventory/components/ItemForm/types.ts` and to
-  the relevant section props).
+- `locationLocked` is **form-level configuration**, not derived form state — it
+  is analogous to the existing `isEditMode` / `submitBlockedMessage` props on
+  `ItemFormProps` (`src/features/inventory/components/ItemForm/types.ts`).
+  Sections currently receive field data via a single `state: ItemFormState`
+  object (built by `useItemFormState`) plus `inputStyling`, *not* individual
+  field props. Add `locationLocked?: boolean` to `ItemFormProps`, then pass it
+  from `ItemForm` directly to `OptionalSection` (a sibling prop alongside
+  `state`/`inputStyling`), and from `OptionalSection` to `StorageField`. Default
+  `false`.
 - When locked, `StorageField`:
   - renders the `TextInput` with `editable={false}`,
-  - does not open the autocomplete suggestion menu,
+  - explicitly guards the autocomplete suggestion menu so it never opens (with
+    `editable={false}` the input won't focus or change, so the menu already
+    won't open via `onFocus`/`onChangeText`, but keep an explicit guard so the
+    `storageMenuVisible && existingStorageLocations.length > 0` block stays
+    closed),
   - shows a `HelperText` with a new i18n key, e.g.
     `inventory:form.storageLockedMounted` →
     *"Location is set automatically while this part is mounted on a bike."*
@@ -139,6 +149,12 @@ displayed locations without a manual refresh.
   disabled and the helper text is shown when `locationLocked` is true; editable
   with no helper otherwise.
 - **Unit test** (`useUpdateBike`): a rename invalidates the `['items']` query.
+
+When implementing the edit-form lock, confirm the locked location field does not
+mark the edit screen dirty (the form receives the locked bike-name value as
+`initialData.storageLocation`, so it should already match — this intersects with
+the recent "do not mark edit screens dirty on photo changes" fix; verify, don't
+assume).
 
 ## Documentation
 
