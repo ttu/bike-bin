@@ -2,6 +2,8 @@ import React from 'react';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import searchEn from '@/i18n/en/search.json';
+import messagesEn from '@/i18n/en/messages.json';
+import profileEn from '@/i18n/en/profile.json';
 import InventoryScreen from '../../../../app/(tabs)/inventory/index';
 import SearchScreen from '../../../../app/(tabs)/search/index';
 import MessagesScreen from '../../../../app/(tabs)/messages/index';
@@ -92,11 +94,11 @@ describe('Tab screens render visible content', () => {
 
   it('Messages screen shows heading', () => {
     renderWithProviders(<MessagesScreen />);
-    expect(screen.getByText('MESSAGES')).toBeVisible();
+    expect(screen.getByText(messagesEn.masthead.title.toUpperCase())).toBeVisible();
   });
 
   it('Profile screen shows heading', () => {
     renderWithProviders(<ProfileScreen />);
-    expect(screen.getByText('PROFILE')).toBeVisible();
+    expect(screen.getByText(profileEn.masthead.title.toUpperCase())).toBeVisible();
   });
 });
