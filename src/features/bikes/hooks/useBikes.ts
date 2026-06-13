@@ -126,6 +126,10 @@ export function useUpdateBike() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['bikes', user!.id] });
       queryClient.invalidateQueries({ queryKey: ['bikes', variables.id] });
+      // A rename re-syncs storage_location on mounted parts (DB trigger), so
+      // refresh item-facing caches too.
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['mounted-parts', variables.id] });
     },
   });
 }

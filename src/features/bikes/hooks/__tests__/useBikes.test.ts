@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
+import { QueryClient } from '@tanstack/react-query';
 import { createMockBike } from '@/test/factories';
 import {
   mockSelect,
@@ -381,6 +382,44 @@ describe('useUpdateBike', () => {
         condition: ItemCondition.Good,
       }),
     ).rejects.toThrow('Update failed');
+  });
+
+  it('invalidates the items cache so renamed mounted parts refresh', async () => {
+    const bike = createMockBike({ name: 'Renamed' });
+    mockUpdate.mockReturnValue({
+      eq: mockEq.mockReturnValue({
+        select: mockSelect.mockReturnValue({
+          single: mockSingle.mockResolvedValue({
+            data: {
+              id: bike.id,
+              owner_id: bike.ownerId,
+              name: 'Renamed',
+              type: bike.type,
+              created_at: bike.createdAt,
+              updated_at: bike.updatedAt,
+            },
+            error: null,
+          }),
+        }),
+      }),
+    });
+
+    const invalidateSpy = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
+
+    const { result } = renderHook(() => useUpdateBike(), {
+      wrapper: createQueryClientHookWrapper(),
+    });
+
+    await result.current.mutateAsync({
+      id: bike.id,
+      name: 'Renamed',
+      type: BikeType.Road,
+      condition: ItemCondition.Good,
+    });
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items'] });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['mounted-parts', bike.id] });
+    invalidateSpy.mockRestore();
   });
 });
 
