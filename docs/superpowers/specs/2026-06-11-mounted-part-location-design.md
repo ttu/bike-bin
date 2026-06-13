@@ -75,7 +75,7 @@ Notes:
 
 - While an item is mounted, any update overwrites `storage_location` with the
   bike name. Manual edits to the location are therefore ignored while mounted —
-  this is intended ("the location *is* the bike name").
+  this is intended ("the location _is_ the bike name").
 - Bike deletion fires this trigger via `ON DELETE SET NULL` (an UPDATE that nulls
   `bike_id`), so deleting a bike clears its parts' location and resets their
   status to `stored`.
@@ -111,7 +111,7 @@ While the item is mounted, the location field is read-only.
   is analogous to the existing `isEditMode` / `submitBlockedMessage` props on
   `ItemFormProps` (`src/features/inventory/components/ItemForm/types.ts`).
   Sections currently receive field data via a single `state: ItemFormState`
-  object (built by `useItemFormState`) plus `inputStyling`, *not* individual
+  object (built by `useItemFormState`) plus `inputStyling`, _not_ individual
   field props. Add `locationLocked?: boolean` to `ItemFormProps`, then pass it
   from `ItemForm` directly to `OptionalSection` (a sibling prop alongside
   `state`/`inputStyling`), and from `OptionalSection` to `StorageField`. Default
@@ -125,7 +125,7 @@ While the item is mounted, the location field is read-only.
     closed),
   - shows a `HelperText` with a new i18n key, e.g.
     `inventory:form.storageLockedMounted` →
-    *"Location is set automatically while this part is mounted on a bike."*
+    _"Location is set automatically while this part is mounted on a bike."_
 - The create flow (`app/(tabs)/inventory/new.tsx`) is unaffected — a brand-new
   item cannot be mounted, so `locationLocked` defaults to `false`.
 

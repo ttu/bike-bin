@@ -38,6 +38,8 @@ Related: **`item_photos`**, **`item_groups`** (many-to-many with `groups`).
 
 **Lifecycle (app):** Owners may set `status` to **`archived`** or back to **`stored`** (unarchive) when RLS allows updates — see `items_update_own` (not loaned/reserved) and migration **`00005_borrow_requests.sql`** for borrow-lock exceptions. Product behavior for **Remove from inventory** / **Restore** is documented in [design-docs/003-inventory.md](design-docs/003-inventory.md).
 
+**Mounted-part location** (`00022_mounted_part_location.sql`): while `status = 'mounted'` and `bike_id` is set, `storage_location` is automatically the bike's `name`. A `BEFORE INSERT OR UPDATE` trigger on `items` sets it on attach (and re-locks it on any write while mounted), and clears it on detach — also resetting `status` to `stored` when a mounted row loses its `bike_id` (e.g. the bike is deleted via `ON DELETE SET NULL`). An `AFTER UPDATE OF name` trigger on `bikes` re-syncs `storage_location` on all of that bike's mounted parts when it is renamed. The location field is read-only in the item edit form while the part is mounted.
+
 ### `item_photos` → `ItemPhoto`
 
 Ordered photos for an item; `storage_path` points at Supabase Storage.

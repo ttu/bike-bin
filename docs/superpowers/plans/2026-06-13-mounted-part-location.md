@@ -42,6 +42,7 @@ If `db:start` reports a stuck container, follow the "Local Supabase troubleshoot
 ## Task 1: Database triggers + RLS integration tests
 
 **Files:**
+
 - Create: `supabase/migrations/00022_mounted_part_location.sql`
 - Test: `src/test/__tests__/rls/mounted-part-location.rls.test.ts`
 
@@ -63,11 +64,7 @@ afterAll(async () => {
 });
 
 async function seedBike(name: string): Promise<string> {
-  const { data, error } = await user.client
-    .from('bikes')
-    .insert({ name })
-    .select('id')
-    .single();
+  const { data, error } = await user.client.from('bikes').insert({ name }).select('id').single();
   if (error) throw new Error(`seed bike: ${error.message}`);
   return data.id as string;
 }
@@ -254,6 +251,7 @@ git commit -m "feat: derive mounted part location from bike via db triggers"
 ## Task 2: `useUpdateBike` invalidates the items cache
 
 **Files:**
+
 - Modify: `src/features/bikes/hooks/useBikes.ts:126-129` (`useUpdateBike.onSuccess`)
 - Test: `src/features/bikes/hooks/__tests__/useBikes.test.ts` (in `describe('useUpdateBike')`)
 
@@ -268,8 +266,14 @@ it('invalidates the items cache so renamed mounted parts refresh', async () => {
     eq: mockEq.mockReturnValue({
       select: mockSelect.mockReturnValue({
         single: mockSingle.mockResolvedValue({
-          data: { id: bike.id, owner_id: bike.ownerId, name: 'Renamed', type: bike.type,
-                  created_at: bike.createdAt, updated_at: bike.updatedAt },
+          data: {
+            id: bike.id,
+            owner_id: bike.ownerId,
+            name: 'Renamed',
+            type: bike.type,
+            created_at: bike.createdAt,
+            updated_at: bike.updatedAt,
+          },
           error: null,
         }),
       }),
@@ -282,7 +286,10 @@ it('invalidates the items cache so renamed mounted parts refresh', async () => {
     wrapper: createQueryClientHookWrapper(),
   });
   await result.current.mutateAsync({
-    id: bike.id, name: 'Renamed', type: BikeType.Road, condition: ItemCondition.Good,
+    id: bike.id,
+    name: 'Renamed',
+    type: BikeType.Road,
+    condition: ItemCondition.Good,
   });
 
   expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['items'] });
@@ -327,6 +334,7 @@ git commit -m "feat: invalidate items cache on bike update for mounted-part loca
 ## Task 3: Edit-form location lock
 
 **Files:**
+
 - Modify: `src/i18n/en/inventory.json` (`form.storageLockedMounted`)
 - Modify: `src/features/inventory/components/ItemForm/types.ts` (`ItemFormProps`)
 - Modify: `src/features/inventory/components/ItemForm/ItemForm.tsx`
@@ -347,6 +355,7 @@ In `src/i18n/en/inventory.json`, add inside the `form` object (alongside `storag
 **Important about this test file:** the helper is `renderSection(overrides: OverrideProps = {})` (single arg, returns `{ handlers }`), it renders `<OptionalSection state={state} inputStyling={inputStyling} />`, and `react-i18next` is mocked with `t: (key) => key`. So assertions must target the **i18n key** (`'form.storageLockedMounted'`), NOT the English string. The storage input is queried via `screen.getByPlaceholderText('form.storagePlaceholder')`.
 
 Changes to make:
+
 - Add `locationLocked?: boolean` to the `OverrideProps` interface.
 - Thread it through `renderSection` into the rendered element: `<OptionalSection state={state} inputStyling={inputStyling} locationLocked={overrides.locationLocked} />`.
 - Add a test: when `locationLocked` is true and `showOptional` is true, the helper key `'form.storageLockedMounted'` is shown, and typing into the storage input does NOT call `setStorageLocation` (field is read-only).
@@ -395,6 +404,7 @@ Expected: FAIL — `OptionalSection` does not accept `locationLocked`; helper te
 - [ ] **Step 5: Implement the lock in OptionalSection / StorageField**
 
 In `OptionalSection.tsx`:
+
 - Add `locationLocked` to `OptionalSectionProps` (`readonly locationLocked?: boolean;`) and to the function signature with default `false`.
 - Pass `locationLocked` to `<StorageField ... />`.
 - Add `locationLocked` to `StorageFieldProps`.
@@ -409,6 +419,7 @@ Keep all styles in the existing `StyleSheet` (`../styles`); no inline styles. Us
 - [ ] **Step 6: Wire the edit screen**
 
 In `app/(tabs)/inventory/edit/[id].tsx`:
+
 - Import `ItemStatus` from `@/shared/types` if not already imported.
 - Where `<ItemForm ... />` is rendered, pass:
 
@@ -442,6 +453,7 @@ git commit -m "feat: lock item location field while part is mounted"
 ## Task 4: Docs + full validation
 
 **Files:**
+
 - Modify: `docs/datamodel.md`
 
 - [ ] **Step 1: Document the behavior**
