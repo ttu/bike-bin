@@ -12,9 +12,14 @@ import { styles } from '../styles';
 interface OptionalSectionProps {
   readonly state: ItemFormState;
   readonly inputStyling: InputStyling;
+  readonly locationLocked?: boolean;
 }
 
-export function OptionalSection({ state, inputStyling }: Readonly<OptionalSectionProps>) {
+export function OptionalSection({
+  state,
+  inputStyling,
+  locationLocked = false,
+}: Readonly<OptionalSectionProps>) {
   const { t } = useTranslation('inventory');
   const {
     showOptional,
@@ -95,6 +100,7 @@ export function OptionalSection({ state, inputStyling }: Readonly<OptionalSectio
             setStorageMenuVisible={setStorageMenuVisible}
             existingStorageLocations={existingStorageLocations}
             inputStyling={inputStyling}
+            locationLocked={locationLocked}
           />
           <DescriptionField
             description={description}
@@ -300,6 +306,7 @@ interface StorageFieldProps {
   readonly setStorageMenuVisible: (v: boolean) => void;
   readonly existingStorageLocations: string[];
   readonly inputStyling: InputStyling;
+  readonly locationLocked?: boolean;
 }
 
 function StorageField({
@@ -309,6 +316,7 @@ function StorageField({
   setStorageMenuVisible,
   existingStorageLocations,
   inputStyling,
+  locationLocked = false,
 }: Readonly<StorageFieldProps>) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('inventory');
@@ -331,12 +339,15 @@ function StorageField({
       <View style={styles.autocompleteWrapper}>
         <TextInput
           mode="flat"
+          editable={!locationLocked}
           value={storageLocation}
           onChangeText={(text) => {
+            if (locationLocked) return;
             setStorageLocation(text);
             setStorageMenuVisible(text.length > 0 && existingStorageLocations.length > 0);
           }}
           onFocus={() => {
+            if (locationLocked) return;
             if (existingStorageLocations.length > 0) setStorageMenuVisible(true);
           }}
           onBlur={() => {
@@ -351,7 +362,7 @@ function StorageField({
           underlineColor={inputStyling.underlineColor}
           activeUnderlineColor={inputStyling.activeUnderlineColor}
         />
-        {storageMenuVisible && existingStorageLocations.length > 0 && (
+        {!locationLocked && storageMenuVisible && existingStorageLocations.length > 0 && (
           <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
             <ScrollView
               style={styles.suggestionsList}
@@ -383,6 +394,11 @@ function StorageField({
           </View>
         )}
       </View>
+      {locationLocked && (
+        <HelperText type="info" visible>
+          {t('form.storageLockedMounted')}
+        </HelperText>
+      )}
     </>
   );
 }

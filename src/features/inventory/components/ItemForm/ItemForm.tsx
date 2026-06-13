@@ -33,6 +33,7 @@ export function ItemForm({
   submitBlockedMessage,
   onDirtyChange,
   onValidationError,
+  locationLocked = false,
 }: Readonly<ItemFormProps>) {
   const theme = useTheme<AppTheme>();
   const state = useItemFormState({ initialData, initialCategory, onSave, onValidationError });
@@ -73,7 +74,7 @@ export function ItemForm({
 
       <AvailabilitySection state={state} inputStyling={inputStyling} />
       <VisibilitySection state={state} />
-      <OptionalSection state={state} inputStyling={inputStyling} />
+      <OptionalSection state={state} inputStyling={inputStyling} locationLocked={locationLocked} />
 
       {hasSubmitBlock ? (
         <Banner visible icon="information" style={styles.limitBanner}>

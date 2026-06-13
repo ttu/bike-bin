@@ -245,6 +245,7 @@
     "datePlaceholder": "YYYY-MM-DD",
     "storageLabel": "Storage location",
     "storagePlaceholder": "e.g. Garage shelf",
+    "storageLockedMounted": "Location is set automatically while this part is mounted on a bike.",
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Additional notes...",
     "save": "Save",
