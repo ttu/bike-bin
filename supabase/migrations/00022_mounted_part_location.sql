@@ -2,6 +2,13 @@
 -- While an item is mounted on a bike, items.storage_location is the bike's name.
 -- Set on attach, kept in sync on bike rename, cleared on detach / bike deletion.
 
+-- Invariant: a mounted item must reference a bike. The triggers below never
+-- produce a mounted row without a bike, but this enforces it for any direct
+-- write path too.
+ALTER TABLE public.items
+  ADD CONSTRAINT items_mounted_requires_bike_id
+  CHECK (status <> 'mounted' OR bike_id IS NOT NULL);
+
 CREATE OR REPLACE FUNCTION public.sync_item_storage_location()
 RETURNS trigger
 LANGUAGE plpgsql

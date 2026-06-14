@@ -64,7 +64,11 @@ afterAll(async () => {
 });
 
 async function seedBike(name: string): Promise<string> {
-  const { data, error } = await user.client.from('bikes').insert({ name }).select('id').single();
+  const { data, error } = await user.client
+    .from('bikes')
+    .insert({ owner_id: user.id, name })
+    .select('id')
+    .single();
   if (error) throw new Error(`seed bike: ${error.message}`);
   return data.id as string;
 }

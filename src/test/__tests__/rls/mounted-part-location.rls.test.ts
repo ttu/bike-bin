@@ -91,6 +91,19 @@ describe('mounted part location trigger', () => {
     expect(item.storage_location).toBe('New Name');
   });
 
+  it('rejects marking an item mounted without a bike', async () => {
+    const itemId = await seedStoredItem('Loose chain');
+
+    const { error } = await user.client
+      .from('items')
+      .update({ status: 'mounted' })
+      .eq('id', itemId);
+
+    expect(error).not.toBeNull();
+    expect(error?.code).toBe('23514');
+    expect(error?.message).toContain('items_mounted_requires_bike_id');
+  });
+
   it('clears location and resets status to stored when the bike is deleted', async () => {
     const bikeId = await seedBike('Doomed Bike');
     const itemId = await seedStoredItem('Saddle');
