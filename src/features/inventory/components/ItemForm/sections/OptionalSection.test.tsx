@@ -23,6 +23,7 @@ interface OverrideProps {
   tags?: string[];
   tagInput?: string;
   filteredTagSuggestions?: string[];
+  locationLocked?: boolean;
 }
 
 interface Handlers {
@@ -141,7 +142,11 @@ function renderSection(overrides: OverrideProps = {}) {
 
   const utils = render(
     <PaperProvider theme={lightTheme}>
-      <OptionalSection state={state} inputStyling={inputStyling} />
+      <OptionalSection
+        state={state}
+        inputStyling={inputStyling}
+        locationLocked={overrides.locationLocked}
+      />
     </PaperProvider>,
   );
 
@@ -232,6 +237,25 @@ describe('OptionalSection', () => {
     fireEvent.changeText(input, 'g');
     expect(handlers.setStorageLocation).toHaveBeenCalledWith('g');
     expect(handlers.setStorageMenuVisible).toHaveBeenCalledWith(true);
+  });
+
+  it('locks the storage field when locationLocked is true', () => {
+    const { handlers } = renderSection({
+      storageLocation: 'Trek Domane',
+      existingStorageLocations: ['Garage'],
+      locationLocked: true,
+    });
+
+    expect(screen.getByText('form.storageLockedMounted')).toBeTruthy();
+
+    const input = screen.getByPlaceholderText('form.storagePlaceholder');
+    fireEvent.changeText(input, 'Manual edit');
+    expect(handlers.setStorageLocation).not.toHaveBeenCalled();
+  });
+
+  it('does not show the locked helper when not mounted', () => {
+    renderSection({ storageLocation: 'Garage shelf' });
+    expect(screen.queryByText('form.storageLockedMounted')).toBeNull();
   });
 
   it('hides storage suggestions on blur after a delay', () => {

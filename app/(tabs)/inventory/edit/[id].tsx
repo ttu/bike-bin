@@ -24,7 +24,7 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { useUnsavedChangesExitGuard } from '@/shared/hooks/useUnsavedChangesExitGuard';
 import { supabase } from '@/shared/api/supabase';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
-import type { ItemId } from '@/shared/types';
+import { ItemStatus, type ItemId } from '@/shared/types';
 
 export default function EditItemScreen() {
   const theme = useTheme<AppTheme>();
@@ -262,6 +262,7 @@ export default function EditItemScreen() {
         photoSection={photoSection}
         onDirtyChange={setFormDirty}
         onValidationError={handleValidationError}
+        locationLocked={item.status === ItemStatus.Mounted && item.bikeId !== undefined}
       />
       <ConfirmDialog
         {...confirmDialogProps}

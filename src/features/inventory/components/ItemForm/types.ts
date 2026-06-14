@@ -25,6 +25,8 @@ export interface ItemFormProps {
   onDirtyChange?: (dirty: boolean) => void;
   /** Called when client-side validation fails (e.g. show a snackbar listing issues off-screen). */
   onValidationError?: (messages: string[]) => void;
+  /** When true, the location field is read-only (e.g. the part is mounted on a bike). */
+  locationLocked?: boolean;
 }
 
 export interface InputStyling {
