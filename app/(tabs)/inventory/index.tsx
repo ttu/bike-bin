@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, type ComponentProps, type ReactElement } from 'react';
 import {
   View,
+  Animated,
   FlatList,
   ScrollView,
   StyleSheet,
@@ -8,7 +9,10 @@ import {
   useWindowDimensions,
   Pressable,
   type CellRendererProps,
+  type LayoutChangeEvent,
   type ListRenderItem,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -245,6 +249,34 @@ export default function InventoryScreen() {
 
   const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
 
+  // Collapsing header: the title + search block slides up out of view as the
+  // list scrolls down and slides back into view as it scrolls up. Driven by a
+  // diffClamp over the scroll offset so the reveal tracks scroll direction.
+  const [scrollY] = useState(() => new Animated.Value(0));
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  const onHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    setHeaderHeight((prev) => (prev === height ? prev : height));
+  }, []);
+
+  const headerTranslateY = useMemo(() => {
+    const clampHeight = Math.max(headerHeight, 1);
+    return Animated.diffClamp(scrollY, 0, clampHeight).interpolate({
+      inputRange: [0, clampHeight],
+      outputRange: [0, -clampHeight],
+      extrapolate: 'clamp',
+    });
+  }, [headerHeight, scrollY]);
+
+  const onListScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: false,
+      }),
+    [scrollY],
+  );
+
   const sortLabelText = t(`sort.short.${sortOption}`);
   const sortA11yValue = t(`sort.${sortOption}`);
 
@@ -252,9 +284,7 @@ export default function InventoryScreen() {
     () => (
       <InventoryListHeader
         theme={theme}
-        themeStyles={themeStyles}
         t={t}
-        mastheadCounts={mastheadCounts}
         userTags={userTags}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
@@ -269,20 +299,14 @@ export default function InventoryScreen() {
         tagChipLabel={tagChipLabel}
         toggleTagFilter={toggleTagFilter}
         tagSectionVisible={tagSectionVisible}
-        filteredItemsCount={filteredItems.length}
         sortOption={sortOption}
-        sortLabelText={sortLabelText}
-        sortA11yValue={sortA11yValue}
-        cycleSortOption={cycleSortOption}
         heroItem={heroItem}
         onHeroPress={handleItemPress}
       />
     ),
     [
       theme,
-      themeStyles,
       t,
-      mastheadCounts,
       userTags,
       selectedTags,
       selectedCategory,
@@ -297,10 +321,6 @@ export default function InventoryScreen() {
       toggleTerminal,
       toggleTagFilter,
       sortOption,
-      sortLabelText,
-      sortA11yValue,
-      cycleSortOption,
-      filteredItems.length,
       heroItem,
       handleItemPress,
     ],
@@ -325,10 +345,10 @@ export default function InventoryScreen() {
 
   const listContentContainerStyle = useMemo(
     () => [
-      { paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
+      { paddingTop: headerHeight, paddingBottom: fabListScrollPaddingBottom(insets.bottom) },
       listItems.length === 0 && !heroItem ? styles.listContentContainerEmpty : undefined,
     ],
-    [insets.bottom, listItems.length, heroItem],
+    [headerHeight, insets.bottom, listItems.length, heroItem],
   );
 
   const listFooter = useMemo(
@@ -353,24 +373,7 @@ export default function InventoryScreen() {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, paddingTop: insets.top },
-      ]}
-    >
-      <InventorySearchToolbar
-        theme={theme}
-        searchPlaceholder={searchPlaceholder}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        isLoading={isLoading}
-        filteredCount={filteredItems.length}
-        viewMode={viewMode}
-        toggleViewMode={toggleViewMode}
-        viewModeA11yLabel={t('viewMode.toggleA11y')}
-      />
-
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <InventoryItemsSection
         showInitialLoading={showInitialLoading}
         viewMode={viewMode}
@@ -382,7 +385,50 @@ export default function InventoryScreen() {
         listContentContainerStyle={listContentContainerStyle}
         refreshControl={refreshControl}
         listFooter={listFooter}
+        onScroll={onListScroll}
       />
+
+      <Animated.View
+        testID="inventory-collapsing-header"
+        onLayout={onHeaderLayout}
+        style={[
+          styles.collapsingHeader,
+          {
+            backgroundColor: theme.colors.background,
+            paddingTop: insets.top,
+            transform: [{ translateY: headerTranslateY }],
+          },
+        ]}
+      >
+        <ScreenMasthead
+          eyebrow={t('masthead.eyebrow')}
+          title={t('masthead.title')}
+          counts={mastheadCounts}
+          trailing={
+            filteredItems.length > 0 ? (
+              <SortControl
+                theme={theme}
+                themeStyles={themeStyles}
+                t={t}
+                cycleSortOption={cycleSortOption}
+                sortLabelText={sortLabelText}
+                sortA11yValue={sortA11yValue}
+              />
+            ) : undefined
+          }
+        />
+        <InventorySearchToolbar
+          theme={theme}
+          searchPlaceholder={searchPlaceholder}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          isLoading={isLoading}
+          filteredCount={filteredItems.length}
+          viewMode={viewMode}
+          toggleViewMode={toggleViewMode}
+          viewModeA11yLabel={t('viewMode.toggleA11y')}
+        />
+      </Animated.View>
 
       {filteredItems.length > 0 && (
         <Fab
@@ -404,6 +450,13 @@ export default function InventoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  collapsingHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -602,6 +655,7 @@ function InventoryItemsSection({
   listContentContainerStyle,
   refreshControl,
   listFooter,
+  onScroll,
 }: Readonly<{
   showInitialLoading: boolean;
   viewMode: InventoryViewMode;
@@ -613,6 +667,7 @@ function InventoryItemsSection({
   listContentContainerStyle: StyleProp<ViewStyle> | Array<StyleProp<ViewStyle>>;
   refreshControl: ReactElement<ComponentProps<typeof RefreshControl>> | undefined;
   listFooter: ReactElement | undefined;
+  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }>) {
   if (showInitialLoading) {
     return <CenteredLoadingIndicator />;
@@ -636,6 +691,8 @@ function InventoryItemsSection({
         refreshControl={refreshControl}
         contentContainerStyle={listContentContainerStyle}
         ListFooterComponent={listFooter}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
       />
     </View>
   );
@@ -650,9 +707,7 @@ function getThemeStyles(theme: MD3Theme) {
 
 interface InventoryListHeaderProps {
   readonly theme: AppTheme;
-  readonly themeStyles: ReturnType<typeof getThemeStyles>;
   readonly t: ReturnType<typeof useTranslation>['t'];
-  readonly mastheadCounts: ScreenMastheadCount[];
   readonly userTags: string[] | undefined;
   readonly selectedCategory: ItemCategory | undefined;
   readonly onSelectCategory: (category: ItemCategory | undefined) => void;
@@ -667,11 +722,7 @@ interface InventoryListHeaderProps {
   readonly tagChipLabel: string;
   readonly toggleTagFilter: () => void;
   readonly tagSectionVisible: boolean;
-  readonly filteredItemsCount: number;
   readonly sortOption: InventorySortOption;
-  readonly sortLabelText: string;
-  readonly sortA11yValue: string;
-  readonly cycleSortOption: () => void;
   readonly heroItem: Item | undefined;
   readonly onHeroPress: (item: Item) => void;
 }
@@ -679,12 +730,10 @@ interface InventoryListHeaderProps {
 function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
   const {
     t,
-    mastheadCounts,
     userTags,
     selectedCategory,
     onSelectCategory,
     hasTagsOrArchived,
-    filteredItemsCount,
     tagSectionVisible,
     heroItem,
     onHeroPress,
@@ -694,12 +743,6 @@ function InventoryListHeader(props: Readonly<InventoryListHeaderProps>) {
 
   return (
     <>
-      <ScreenMasthead
-        eyebrow={t('masthead.eyebrow')}
-        title={t('masthead.title')}
-        counts={mastheadCounts}
-        trailing={filteredItemsCount > 0 ? <SortControl {...props} /> : undefined}
-      />
       <DemoBanner />
       <SyncBanner />
       <CategoryFilter selected={selectedCategory} onSelect={onSelectCategory} />
@@ -783,6 +826,15 @@ function FilterChips({
   );
 }
 
+interface SortControlProps {
+  readonly theme: AppTheme;
+  readonly themeStyles: ReturnType<typeof getThemeStyles>;
+  readonly t: ReturnType<typeof useTranslation>['t'];
+  readonly cycleSortOption: () => void;
+  readonly sortLabelText: string;
+  readonly sortA11yValue: string;
+}
+
 function SortControl({
   theme,
   themeStyles,
@@ -790,7 +842,7 @@ function SortControl({
   cycleSortOption,
   sortLabelText,
   sortA11yValue,
-}: Readonly<InventoryListHeaderProps>) {
+}: Readonly<SortControlProps>) {
   return (
     <Pressable
       onPress={cycleSortOption}
