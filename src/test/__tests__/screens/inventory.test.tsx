@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { screen, fireEvent, waitFor, within } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test/utils';
 import { createMockItem } from '@/test/factories';
 import { ItemCategory, ItemStatus, type Item } from '@/shared/types';
@@ -88,6 +88,31 @@ describe('InventoryScreen', () => {
   it('renders the search bar', () => {
     renderWithProviders(<InventoryScreen />);
     expect(screen.getByPlaceholderText(/Search/)).toBeTruthy();
+  });
+
+  it('groups the title and search bar in the collapsing header', () => {
+    renderWithProviders(<InventoryScreen />);
+    const header = screen.getByTestId('inventory-collapsing-header');
+    // The masthead title now lives in the pinned header, with the search bar
+    // directly beneath it (previously the search bar sat above the title).
+    expect(within(header).getByText('INVENTORY')).toBeTruthy();
+    expect(within(header).getByPlaceholderText(/Search/)).toBeTruthy();
+  });
+
+  it('keeps the title pinned while the items list scrolls', () => {
+    mockLocalInventory.items = [createMockItem({ name: 'Chain Tool' })];
+    renderWithProviders(<InventoryScreen />);
+    const list = screen.getByTestId('inventory-items-list');
+    // Scrolling drives the collapsing-header animation; it must not throw and
+    // the title stays mounted because the header is pinned (not list content).
+    fireEvent.scroll(list, {
+      nativeEvent: {
+        contentOffset: { y: 240 },
+        contentSize: { height: 1200, width: 320 },
+        layoutMeasurement: { height: 600, width: 320 },
+      },
+    });
+    expect(screen.getByText('INVENTORY')).toBeTruthy();
   });
 
   it('renders empty state when no items', () => {
