@@ -1,5 +1,9 @@
 {
   "title": "Profile",
+  "masthead": {
+    "eyebrow": "Your account",
+    "title": "Profile"
+  },
   "header": {
     "guest": "Guest",
     "memberSince": "Member since {{date}}",

@@ -96,6 +96,12 @@ describe('GroupsScreen', () => {
     mockRejectMutateAsync.mockResolvedValue(undefined);
   });
 
+  it('renders the masthead eyebrow and title', () => {
+    renderWithProviders(<GroupsScreen />);
+    expect(screen.getByText(groupsEn.masthead.eyebrow)).toBeTruthy();
+    expect(screen.getByText(groupsEn.masthead.title.toUpperCase())).toBeTruthy();
+  });
+
   it('shows loading when groups list is empty and loading', () => {
     mockUseGroups.mockReturnValue({
       data: [],

@@ -14,6 +14,7 @@ import { BorrowRequestStatus, type UserId } from '@/shared/types';
 import { useDemoMode, DemoBanner } from '@/features/demo';
 import { ConfirmDialog } from '@/shared/components';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
+import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -77,11 +78,7 @@ export default function ProfileScreen() {
           { paddingBottom: tabBarListScrollPaddingBottom + insets.bottom + spacing.lg },
         ]}
       >
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-            {t('title')}
-          </Text>
-        </View>
+        <ScreenMasthead eyebrow={t('masthead.eyebrow')} title={t('masthead.title')} />
 
         <DemoBanner />
 
@@ -298,11 +295,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     // Base spacing for tab-bar screens; final value is adjusted per-device in render.
     paddingBottom: tabBarListScrollPaddingBottom,
-  },
-  header: {
-    paddingHorizontal: spacing.base,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.md,
   },
   profileLoading: {
     marginHorizontal: spacing.base,

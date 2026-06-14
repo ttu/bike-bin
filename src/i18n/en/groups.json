@@ -1,5 +1,9 @@
 {
   "title": "Groups",
+  "masthead": {
+    "eyebrow": "Your circles",
+    "title": "Groups"
+  },
   "profileMenu": {
     "label": "Groups"
   },

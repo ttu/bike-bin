@@ -85,8 +85,14 @@ describe('ProfileScreen', () => {
 
   it('shows profile loading indicator while profile query is loading', () => {
     renderWithProviders(<ProfileScreen />);
-    expect(screen.getByText(profileEn.title)).toBeTruthy();
+    expect(screen.getByText(profileEn.masthead.title.toUpperCase())).toBeTruthy();
     expect(screen.getByLabelText(commonEn.loading.a11y)).toBeTruthy();
+  });
+
+  it('renders the masthead eyebrow and title', () => {
+    renderWithProviders(<ProfileScreen />);
+    expect(screen.getByText(profileEn.masthead.eyebrow)).toBeTruthy();
+    expect(screen.getByText(profileEn.masthead.title.toUpperCase())).toBeTruthy();
   });
 
   it('does not render a Groups menu row (Groups is its own top-level tab)', () => {

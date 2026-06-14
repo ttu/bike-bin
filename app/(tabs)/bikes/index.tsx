@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, type ListRenderItem } from 'react-native';
-import { Text, FAB as Fab, useTheme } from 'react-native-paper';
+import { FAB as Fab, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { useBikes, useBikeRowCapacity } from '@/features/bikes';
 import { BikeCard } from '@/features/bikes/components/BikeCard/BikeCard';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
+import { ScreenMasthead } from '@/shared/components/ScreenMasthead';
 import { spacing, fabListScrollPaddingBottom, fabOffsetAboveTabBar } from '@/shared/theme';
 
 export default function BikesScreen() {
@@ -77,11 +78,7 @@ export default function BikesScreen() {
 
   return (
     <View style={[styles.container, insetsStyles.container]}>
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-          {t('title')}
-        </Text>
-      </View>
+      <ScreenMasthead eyebrow={t('masthead.eyebrow')} title={t('masthead.title')} />
 
       {renderBody()}
 
@@ -102,13 +99,6 @@ export default function BikesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
   },
   fab: {
     position: 'absolute',
