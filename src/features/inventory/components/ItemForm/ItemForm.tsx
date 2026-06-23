@@ -3,6 +3,7 @@ import { ScrollView } from 'react-native';
 import { Banner, Text, useTheme } from 'react-native-paper';
 import { borderRadius, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
+import { isMarketplaceEnabled } from '@/shared/utils/featureFlags';
 import { ItemCategory } from '@/shared/types';
 
 import { useItemFormState } from './useItemFormState';
@@ -72,7 +73,9 @@ export function ItemForm({
         <RemainingFractionSection state={state} inputStyling={inputStyling} />
       )}
 
-      <AvailabilitySection state={state} inputStyling={inputStyling} />
+      {/* Availability (sell/borrow/donate) is a marketplace surface; hidden when
+          the marketplace is disabled. Items then stay Private (the form default). */}
+      {isMarketplaceEnabled && <AvailabilitySection state={state} inputStyling={inputStyling} />}
       <VisibilitySection state={state} />
       <OptionalSection state={state} inputStyling={inputStyling} locationLocked={locationLocked} />
 

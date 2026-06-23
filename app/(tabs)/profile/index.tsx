@@ -11,6 +11,7 @@ import { useBorrowRequests } from '@/features/borrow';
 import { ProfileHeader, useProfile, useDistanceUnit } from '@/features/profile';
 import { useThemePreference, type ThemePreference } from '@/shared/hooks/useThemePreference';
 import { BorrowRequestStatus, type UserId } from '@/shared/types';
+import { isMarketplaceEnabled } from '@/shared/utils/featureFlags';
 import { useDemoMode, DemoBanner } from '@/features/demo';
 import { ConfirmDialog } from '@/shared/components';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
@@ -130,13 +131,15 @@ export default function ProfileScreen() {
           onPress={() => router.push('/(tabs)/profile/locations')}
         />
 
-        {/* Borrow Requests */}
-        <MenuItem
-          icon="swap-horizontal"
-          label={tBorrow('profileMenu.label')}
-          badge={incomingPendingCount}
-          onPress={() => router.push('/(tabs)/profile/borrow-requests')}
-        />
+        {/* Borrow Requests — marketplace surface, hidden when disabled */}
+        {isMarketplaceEnabled && (
+          <MenuItem
+            icon="swap-horizontal"
+            label={tBorrow('profileMenu.label')}
+            badge={incomingPendingCount}
+            onPress={() => router.push('/(tabs)/profile/borrow-requests')}
+          />
+        )}
 
         {/* Notification Settings */}
         <MenuItem

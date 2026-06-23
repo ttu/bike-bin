@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Appbar, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LoadingScreen, ReportDialog, type ReportReason } from '@/shared/components';
@@ -18,8 +18,20 @@ import { useReturnNavigation } from '@/shared/hooks/useReturnNavigation';
 import { usePublicProfile, usePublicListings } from '@/features/profile';
 import { useUserRatings } from '@/features/ratings/hooks/useUserRatings';
 import { ReviewCard } from '@/features/ratings/components/ReviewCard/ReviewCard';
+import { isMarketplaceEnabled } from '@/shared/utils/featureFlags';
 
 export default function PublicUserProfileScreen() {
+  // Public profiles surface reviews + listings (marketplace data) and are only
+  // reachable from marketplace entry points. Guard against deep links when the
+  // marketplace is disabled. The wrapper calls no hooks, so hook order in the
+  // content component is unaffected.
+  if (!isMarketplaceEnabled) {
+    return <Redirect href="/(tabs)/inventory" />;
+  }
+  return <PublicUserProfileScreenContent />;
+}
+
+function PublicUserProfileScreenContent() {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('ratings');
   const { t: tProfile } = useTranslation('profile');

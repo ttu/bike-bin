@@ -20,10 +20,22 @@ import {
 } from '@/features/borrow';
 import type { BorrowRequestWithDetails } from '@/features/borrow';
 import { BorrowRequestStatus, type UserId } from '@/shared/types';
+import { isMarketplaceEnabled } from '@/shared/utils/featureFlags';
+import { Redirect } from 'expo-router';
 
 type Tab = 'incoming' | 'outgoing' | 'active';
 
 export default function BorrowRequestsScreen() {
+  // Borrow requests are a marketplace surface. Guard deep links when the
+  // marketplace is disabled. The wrapper calls no hooks, so hook order in the
+  // content component is unaffected.
+  if (!isMarketplaceEnabled) {
+    return <Redirect href="/(tabs)/inventory" />;
+  }
+  return <BorrowRequestsScreenContent />;
+}
+
+function BorrowRequestsScreenContent() {
   const theme = useTheme();
   const { t } = useTranslation('borrow');
   const { t: tCommon } = useTranslation('common');

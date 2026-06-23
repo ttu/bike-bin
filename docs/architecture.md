@@ -75,6 +75,14 @@ High-level structure:
 
 File names map to URLs; dynamic segments use `[id]` (or similar) as in Expo Router conventions.
 
+### Feature-flag gating
+
+Incomplete surfaces are hidden behind build-time flags (`src/shared/utils/featureFlags.ts`, default off; see [development.md](development.md#feature-flags)). Gating has three layers:
+
+1. **Tabs** — gated `<Tabs.Screen>` entries set `redirect={!flag}`; expo-router drops the screen from the navigator entirely, so the tab and its route disappear. `EXPO_PUBLIC_FEATURE_MARKETPLACE` gates **Search** + **Messages**; `EXPO_PUBLIC_FEATURE_GROUPS` gates **Groups**.
+2. **Route guards** — gated routes that live under an always-on stack (`profile/borrow-requests`, `profile/[userId]`) return `<Redirect href="/(tabs)/inventory" />` from a thin wrapper component when their flag is off, protecting against deep links. The redirect target (Inventory) is never flagged, so there are no redirect loops.
+3. **Inline UI** — widgets that bleed a flagged surface into a shipping screen are hidden at the call site (e.g. the item form's availability section, the profile borrow-requests menu item).
+
 ---
 
 ## Data flow

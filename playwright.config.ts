@@ -45,9 +45,14 @@ export default defineConfig({
     // Cold Metro + first web bundle can exceed 30s when no other dev server is warming the cache.
     timeout: isolatedPlaywright ? 120_000 : 30_000,
     // Metro reads RCT_METRO_PORT; CLI --port is not always enough for web.
+    // Feature flags default off (src/shared/utils/featureFlags.ts); force them on
+    // so E2E exercises the full tab shell + marketplace/groups surfaces regardless
+    // of the CI environment's env vars (mirrors src/test/setup.ts for unit tests).
     env: {
       ...process.env,
       RCT_METRO_PORT: webPort,
+      EXPO_PUBLIC_FEATURE_MARKETPLACE: 'true',
+      EXPO_PUBLIC_FEATURE_GROUPS: 'true',
     },
   },
 });
