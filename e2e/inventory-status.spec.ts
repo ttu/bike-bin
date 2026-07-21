@@ -7,8 +7,8 @@ import { test, expect } from './fixtures';
 /** Wait for item detail page to load after clicking an item. */
 async function waitForItemDetail(page: import('@playwright/test').Page) {
   await page.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-  // Wait for detail content to render
-  await page.waitForTimeout(500);
+  // <LoadingScreen /> renders a progressbar until the item query resolves.
+  await expect(page.getByRole('progressbar')).toBeHidden({ timeout: 10000 });
 }
 
 test.describe('Mark as Sold', () => {

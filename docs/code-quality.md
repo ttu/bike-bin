@@ -7,17 +7,36 @@
 
 ## Tools
 
-| Tool            | Role                               | Config                                                                       |
-| --------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
-| **ESLint**      | TypeScript + React + hooks rules   | `eslint.config.js`                                                           |
-| **Prettier**    | Consistent formatting              | `.prettierrc` (and Prettier embedded in ESLint via `eslint-config-prettier`) |
-| **TypeScript**  | Strict type checking               | `tsconfig.json` — `npm run type-check`                                       |
-| **Husky**       | Git hooks                          | `prepare` script → `.husky/`                                                 |
-| **lint-staged** | Staged files only on commit        | `package.json` `lint-staged`                                                 |
-| **Codecov**     | Coverage reports and patch targets | `codecov.yml` + GitHub integration                                           |
-| **SonarCloud**  | Static analysis (optional in CI)   | `.github/workflows/ci.yml`                                                   |
+| Tool            | Role                                       | Config                                                                       |
+| --------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
+| **ESLint**      | TypeScript + React + hooks + SonarJS rules | `eslint.config.js`                                                           |
+| **Prettier**    | Consistent formatting                      | `.prettierrc` (and Prettier embedded in ESLint via `eslint-config-prettier`) |
+| **TypeScript**  | Strict type checking                       | `tsconfig.json` — `npm run type-check`                                       |
+| **Husky**       | Git hooks                                  | `prepare` script → `.husky/`                                                 |
+| **lint-staged** | Staged files only on commit                | `package.json` `lint-staged`                                                 |
+| **Codecov**     | Coverage reports and patch targets         | `codecov.yml` + GitHub integration                                           |
+| **SonarCloud**  | Static analysis (optional in CI)           | `.github/workflows/ci.yml`                                                   |
 
 ESLint **ignores** include `node_modules`, `dist`, `.expo`, `coverage`, `.worktrees`.
+
+### SonarJS rules
+
+`eslint-plugin-sonarjs` runs its **full `recommended` set** at `error` severity, in both the app
+config block and the `supabase/functions` + `.rnstorybook` block. This catches code smells locally
+and on every commit, ahead of the SonarCloud job in CI.
+
+There are **no rule-level overrides** — the preset is enabled as-is so newly added SonarJS rules
+apply automatically. The only suppressions are three inline `eslint-disable-next-line` comments,
+each with a written justification:
+
+| Location                                        | Rule                     | Why                                                                                |
+| ----------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
+| `e2e/media/store-assets.spec.ts`                | `no-fixed-wait-in-tests` | Hold durations that pace the marketing recording; the pause _is_ the artifact      |
+| `src/features/profile/hooks/useLatestExport.ts` | `function-return-type`   | TanStack's `refetchInterval` contract is `number \| false`                         |
+| `src/shared/utils/randomUuid.ts`                | `pseudo-random`          | `Math.random` fallback generates DB primary keys, not secrets; access is RLS-gated |
+
+When a SonarJS rule fires, prefer fixing the code. Reach for an inline disable only when the rule
+genuinely does not apply, and always state why on the same line.
 
 ---
 

@@ -56,9 +56,7 @@ export default function BikesScreen() {
           icon="bicycle"
           title={t('noBikes')}
           description={
-            blockNewBikes && limit !== undefined
-              ? t('limit.emptyStateDescription', { limit })
-              : t('noBikesDescription')
+            blockNewBikes ? t('limit.emptyStateDescription', { limit }) : t('noBikesDescription')
           }
           ctaLabel={t('addBike')}
           onCtaPress={handleAddPress}

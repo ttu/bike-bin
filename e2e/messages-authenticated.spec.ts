@@ -78,7 +78,7 @@ test.describe('Conversations list', () => {
     });
 
     // Time indicators are relative and shift — verify at least one exists
-    await expect(loggedInPage.getByText(/\d+[hd]/).first()).toBeVisible({ timeout: 10000 });
+    await expect(loggedInPage.getByText(/\d{1,3}[hd]/).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('conversations are ordered by recency', async ({ loggedInPage }) => {

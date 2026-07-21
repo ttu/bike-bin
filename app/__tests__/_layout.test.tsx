@@ -108,7 +108,7 @@ jest.mock('react-native-safe-area-context', () => {
 /** Re-run `app/_layout` top-level (incl. `storybookEnabled`) without `jest.resetModules()`, which reloads React and breaks hooks in RTL. */
 function evictLayoutFromRequireCache(): void {
   const layoutPath = require.resolve('../_layout');
-  Reflect.deleteProperty(require.cache as Record<string, NodeModule>, layoutPath);
+  Reflect.deleteProperty(require.cache, layoutPath);
 }
 
 describe('app/_layout', () => {

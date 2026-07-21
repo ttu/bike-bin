@@ -13,7 +13,7 @@ import type { Page } from '@playwright/test';
  */
 async function expectVisibleSearchResultsBanner(page: Page) {
   await expect(async () => {
-    const lines = page.getByText(/\d+ results? within \d+ km/);
+    const lines = page.getByText(/\d{1,9} results? within \d{1,9} km/);
     const count = await lines.count();
     expect(count).toBeGreaterThan(0);
     let found = false;
@@ -61,7 +61,7 @@ test.describe('Search with authenticated user', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
   });
@@ -73,7 +73,7 @@ test.describe('Search with authenticated user', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -88,7 +88,7 @@ test.describe('Search with authenticated user', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -102,7 +102,7 @@ test.describe('Search with authenticated user', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -118,7 +118,7 @@ test.describe('Search with authenticated user', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -154,7 +154,7 @@ test.describe('Listing detail', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -177,7 +177,7 @@ test.describe('Listing detail', () => {
     await searchInput.fill('shimano');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -200,7 +200,7 @@ test.describe('Listing detail', () => {
     await searchInput.fill('shimano');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -212,7 +212,7 @@ test.describe('Listing detail', () => {
 
     await loggedInPage.waitForURL((url) => /\/search\/?$/.test(url.pathname), { timeout: 10000 });
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
   });
@@ -226,7 +226,7 @@ test.describe('Listing detail', () => {
     await searchInput.fill('a');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 

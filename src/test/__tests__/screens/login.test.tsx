@@ -55,21 +55,16 @@ describe('Login screen', () => {
     mockAppleSignInEnabled = false;
   });
 
-  it('renders app title', () => {
+  it.each([
+    { field: 'app title', text: 'Bike Bin' },
+    { field: 'tagline', text: 'From bikers to bikers.' },
+    {
+      field: 'welcome description',
+      text: 'Your parts, tools, and builds in one place. Share them when you want.',
+    },
+  ])('renders $field', ({ text }) => {
     const { getByText } = renderWithProviders(<LoginScreen />);
-    expect(getByText('Bike Bin')).toBeTruthy();
-  });
-
-  it('renders tagline', () => {
-    const { getByText } = renderWithProviders(<LoginScreen />);
-    expect(getByText('From bikers to bikers.')).toBeTruthy();
-  });
-
-  it('renders welcome description', () => {
-    const { getByText } = renderWithProviders(<LoginScreen />);
-    expect(
-      getByText('Your parts, tools, and builds in one place. Share them when you want.'),
-    ).toBeTruthy();
+    expect(getByText(text)).toBeTruthy();
   });
 
   it('hides Continue with Apple while Apple sign-in is disabled', () => {

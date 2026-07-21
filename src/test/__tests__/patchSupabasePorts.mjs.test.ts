@@ -27,7 +27,8 @@ api_url = "http://127.0.0.1"
 `,
       'utf8',
     );
-    execFileSync('node', [script, cfg, '55421'], { cwd: repoRoot, encoding: 'utf-8' });
+    // `process.execPath` is the absolute path of the Node running this test — no PATH lookup.
+    execFileSync(process.execPath, [script, cfg, '55421'], { cwd: repoRoot, encoding: 'utf-8' });
     const out = readFileSync(cfg, 'utf8');
     expect(out).toContain('port = 55421');
     expect(out).toContain('port = 55422');

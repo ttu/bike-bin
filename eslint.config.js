@@ -2,6 +2,7 @@ const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const reactPlugin = require('eslint-plugin-react');
 const reactHooksPlugin = require('eslint-plugin-react-hooks');
+const sonarjsPlugin = require('eslint-plugin-sonarjs');
 const prettierConfig = require('eslint-config-prettier');
 
 module.exports = [
@@ -33,6 +34,7 @@ module.exports = [
       '@typescript-eslint': tsPlugin,
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
+      sonarjs: sonarjsPlugin,
     },
     settings: {
       react: { version: 'detect' },
@@ -41,6 +43,7 @@ module.exports = [
       ...tsPlugin.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
+      ...sonarjsPlugin.configs.recommended.rules,
       ...prettierConfig.rules,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
@@ -63,6 +66,7 @@ module.exports = [
       '@typescript-eslint': tsPlugin,
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
+      sonarjs: sonarjsPlugin,
     },
     settings: {
       react: { version: 'detect' },
@@ -71,6 +75,7 @@ module.exports = [
       ...tsPlugin.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
+      ...sonarjsPlugin.configs.recommended.rules,
       ...prettierConfig.rules,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',

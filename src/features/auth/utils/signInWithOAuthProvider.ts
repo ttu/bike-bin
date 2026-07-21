@@ -5,7 +5,8 @@ import { supabase } from '@/shared/api/supabase';
 
 WebBrowser.maybeCompleteAuthSession();
 
-function parseAuthCallbackParams(input: string): Record<string, string> {
+/** Keys are absent unless the provider sent them, so values are optional by construction. */
+function parseAuthCallbackParams(input: string): Record<string, string | undefined> {
   const url = new URL(input, 'https://phony.example');
   const params = Object.fromEntries(url.searchParams.entries());
   if (url.hash) {
@@ -42,7 +43,7 @@ export async function signInWithOAuthProvider(provider: 'google' | 'apple'): Pro
 
   if (error) throw error;
   const authUrl = data.url;
-  if (authUrl === undefined || authUrl === '') {
+  if (!authUrl) {
     throw new Error('OAuth URL missing');
   }
 

@@ -46,26 +46,19 @@ describe('ItemContextStrip', () => {
     expect(onPress).toHaveBeenCalled();
   });
 
-  it('renders borrow context and warning status chip for loaned items', () => {
-    const conv = createMockConversationListItem({ itemStatus: 'loaned' });
-    const { getByText } = renderWithProviders(<ItemContextStrip conversation={conv} />);
-    expect(getByText('Borrow · accepted')).toBeTruthy();
-    expect(getByText('Loaned')).toBeTruthy();
-  });
-
-  it('renders borrow context for reserved items', () => {
-    const conv = createMockConversationListItem({ itemStatus: 'reserved' });
-    const { getByText } = renderWithProviders(<ItemContextStrip conversation={conv} />);
-    expect(getByText('Borrow · accepted')).toBeTruthy();
-    expect(getByText('Reserved')).toBeTruthy();
-  });
-
-  it('renders donation context and success status chip for donated items', () => {
-    const conv = createMockConversationListItem({ itemStatus: 'donated' });
-    const { getByText } = renderWithProviders(<ItemContextStrip conversation={conv} />);
-    expect(getByText('Donation · accepted')).toBeTruthy();
-    expect(getByText('Donated')).toBeTruthy();
-  });
+  it.each([
+    { itemStatus: 'loaned', context: 'Borrow · accepted', chip: 'Loaned' },
+    { itemStatus: 'reserved', context: 'Borrow · accepted', chip: 'Reserved' },
+    { itemStatus: 'donated', context: 'Donation · accepted', chip: 'Donated' },
+  ])(
+    'renders "$context" and a "$chip" status chip for $itemStatus items',
+    ({ itemStatus, context, chip }) => {
+      const conv = createMockConversationListItem({ itemStatus });
+      const { getByText } = renderWithProviders(<ItemContextStrip conversation={conv} />);
+      expect(getByText(context)).toBeTruthy();
+      expect(getByText(chip)).toBeTruthy();
+    },
+  );
 
   it('renders sale context and success status chip for sold items', () => {
     const conv = createMockConversationListItem({ itemStatus: 'sold' });

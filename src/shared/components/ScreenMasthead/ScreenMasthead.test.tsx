@@ -62,6 +62,6 @@ describe('ScreenMasthead', () => {
   it('applies tight letterSpacing on title', () => {
     renderWithProviders(<ScreenMasthead title="Nearby" />);
     const flat = StyleSheet.flatten(screen.getByText('NEARBY').props.style);
-    expect(flat.letterSpacing).toBe(-1.2);
+    expect(flat.letterSpacing).toBeCloseTo(-1.2);
   });
 });

@@ -44,6 +44,16 @@ function browseRecordingMs(baseMs: number): number {
   return Math.round(baseMs * BROWSE_RECORDING_PACE);
 }
 
+/**
+ * Deliberate on-screen hold for `browse-flow.webm`. Unlike a test wait there is no observable
+ * condition to synchronise on — the pause itself is the artifact, giving viewers time to read the
+ * screen. Every call site syncs on a real assertion first; this only controls playback pacing.
+ */
+async function holdForRecording(page: Page, baseMs: number): Promise<void> {
+  // eslint-disable-next-line sonarjs/no-fixed-wait-in-tests -- recording pacing, not synchronisation
+  await page.waitForTimeout(browseRecordingMs(baseMs));
+}
+
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
@@ -75,7 +85,7 @@ authTest.describe('Store stills', () => {
       await screenshotWithPhoneFrame(context, loggedInPage, '03-item-detail');
 
       const detailUrl = loggedInPage.url();
-      const idMatch = detailUrl.match(/\/inventory\/([a-f0-9-]{36})/i);
+      const idMatch = /\/inventory\/([a-f0-9-]{36})/i.exec(detailUrl);
       if (idMatch === null) {
         throw new Error(`Expected UUID item id in URL, got: ${detailUrl}`);
       }
@@ -124,29 +134,29 @@ async function runRecordedInventorySearchToEditFlow(page: Page): Promise<void> {
   await expect(
     page.getByRole('switch', { name: INVENTORY_LAYOUT_TOGGLE_NAME, exact: true }),
   ).toBeVisible({ timeout: 45_000 });
-  await page.waitForTimeout(browseRecordingMs(600));
+  await holdForRecording(page, 600);
 
   const collectionSearch = page.getByPlaceholder(/Search .*collection\.\.\./);
   await expect(collectionSearch).toBeVisible({ timeout: 15_000 });
   await collectionSearch.click();
   await collectionSearch.pressSequentially('maxxis', { delay: browseRecordingMs(120) });
   await expect(visibleExactText(page, MAXXIS_ITEM_NAME)).toBeVisible({ timeout: 15_000 });
-  await page.waitForTimeout(browseRecordingMs(500));
+  await holdForRecording(page, 500);
 
   await visibleExactText(page, MAXXIS_ITEM_NAME).click();
   await page.waitForURL(/\/inventory\/[a-zA-Z0-9-]+/, { timeout: 15_000 });
   await expect(page.getByText('Service record')).toBeVisible({ timeout: 15_000 });
-  await page.waitForTimeout(browseRecordingMs(500));
+  await holdForRecording(page, 500);
 
   await page.getByRole('button', { name: 'Edit item' }).click();
   await page.waitForURL(/\/edit\//, { timeout: 15_000 });
   await expect(page.getByText('Edit item')).toBeVisible({ timeout: 15_000 });
-  await page.waitForTimeout(browseRecordingMs(900));
+  await holdForRecording(page, 900);
 }
 
 async function expectVisibleSearchResultsBanner(page: Page): Promise<void> {
   await expect(async () => {
-    const lines = page.getByText(/\d+ results? within \d+ km/);
+    const lines = page.getByText(/\d{1,9} results? within \d{1,9} km/);
     const count = await lines.count();
     expect(count).toBeGreaterThan(0);
     let found = false;

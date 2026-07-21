@@ -32,7 +32,8 @@ export function useLatestExport(userId: string | undefined) {
       return mapExportRow(data as Record<string, unknown>);
     },
     enabled: !!userId,
-    refetchInterval: (query) => {
+    // eslint-disable-next-line sonarjs/function-return-type -- TanStack's contract is `number | false`; `false` is the only way to stop polling.
+    refetchInterval: (query): number | false => {
       const status = query.state.data?.status;
       // Poll every 5s while pending/processing
       if (status === 'pending' || status === 'processing') return 5000;

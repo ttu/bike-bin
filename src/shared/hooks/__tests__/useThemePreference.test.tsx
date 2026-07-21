@@ -80,7 +80,7 @@ describe('ThemePreferenceProvider', () => {
     fireEvent.press(getByText('go-light'));
 
     await waitFor(() => {
-      expect(persisted.length).toBe(2);
+      expect(persisted).toHaveLength(2);
     });
 
     expect(mockedSetItem).toHaveBeenCalledTimes(2);

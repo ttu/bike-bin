@@ -203,7 +203,7 @@ describe('ListingDetailScreen', () => {
     };
     expect(result.groupId).toBe('group-1');
     expect(result.groupName).toBe('Bike Club');
-    expect(result.groupRatingAvg).toBe(4.2);
+    expect(result.groupRatingAvg).toBeCloseTo(4.2);
     expect(result.groupRatingCount).toBe(5);
     expect(result.ownerId).toBeUndefined();
   });

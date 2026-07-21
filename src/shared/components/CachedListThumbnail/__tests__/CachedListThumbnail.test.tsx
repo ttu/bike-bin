@@ -18,10 +18,7 @@ describe('CachedListThumbnail', () => {
 
   it('uses memory-disk cache and cover fit', () => {
     render(
-      <CachedListThumbnail
-        uri="https://cdn.example.com/a.jpg"
-        style={StyleSheet.absoluteFillObject}
-      />,
+      <CachedListThumbnail uri="https://cdn.example.com/a.jpg" style={StyleSheet.absoluteFill} />,
     );
     expect(mockImage).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -39,7 +36,7 @@ describe('CachedListThumbnail', () => {
       <CachedListThumbnail
         uri="https://cdn.example.com/a.jpg"
         cacheKey="user/x/photo.webp"
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />,
     );
     expect(mockImage).toHaveBeenCalledWith(

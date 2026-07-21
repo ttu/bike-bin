@@ -34,7 +34,7 @@ test.describe('Search screen (guest)', () => {
     await navigateToSearch(page);
 
     await page.getByRole('button', { name: /^Sign in$/ }).click();
-    await page.waitForURL(/\/login/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
   });
 });
 

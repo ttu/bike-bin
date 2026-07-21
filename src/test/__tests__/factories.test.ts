@@ -62,7 +62,7 @@ describe('createMockItem', () => {
   it('applies overrides', () => {
     const item = createMockItem({ name: 'My Tire', price: 19.99 });
     expect(item.name).toBe('My Tire');
-    expect(item.price).toBe(19.99);
+    expect(item.price).toBeCloseTo(19.99);
   });
 });
 

@@ -72,9 +72,6 @@ test.describe('Conversation detail structure', () => {
     await page.goto('/messages/non-existent-id');
 
     // Should show some UI (loading screen or error) — not a blank page
-    // The page should at minimum have some rendered content
-    await page.waitForTimeout(2000);
-    const bodyText = await page.textContent('body');
-    expect(bodyText).toBeTruthy();
+    await expect(page.getByText(/\S/).first()).toBeVisible({ timeout: 10000 });
   });
 });

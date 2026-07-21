@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text, Avatar, Appbar, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -117,20 +117,24 @@ function PublicUserProfileScreenContent() {
     );
   };
 
-  const renderReviews = () => {
+  const renderReviews = (): ReactNode => {
     if (ratingsLoading) return <CenteredLoadingIndicator fill={false} />;
     if (ratings && ratings.length > 0) {
-      return ratings.map((rating) => (
-        <ReviewCard
-          key={rating.id}
-          reviewerName={rating.reviewer.displayName}
-          isDeletedReviewer={rating.fromUserId === undefined}
-          score={rating.score}
-          text={rating.text}
-          transactionType={rating.transactionType}
-          createdAt={rating.createdAt}
-        />
-      ));
+      return (
+        <>
+          {ratings.map((rating) => (
+            <ReviewCard
+              key={rating.id}
+              reviewerName={rating.reviewer.displayName}
+              isDeletedReviewer={rating.fromUserId === undefined}
+              score={rating.score}
+              text={rating.text}
+              transactionType={rating.transactionType}
+              createdAt={rating.createdAt}
+            />
+          ))}
+        </>
+      );
     }
     return (
       <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
@@ -139,44 +143,52 @@ function PublicUserProfileScreenContent() {
     );
   };
 
-  const renderListings = () => {
+  const renderListings = (): ReactNode => {
     if (listingsLoading) return <CenteredLoadingIndicator fill={false} />;
     if (listings && listings.length > 0) {
-      return listings.map((listing) => (
-        <Pressable
-          key={listing.id}
-          style={[styles.listingCard, { backgroundColor: theme.colors.surfaceVariant }]}
-          onPress={() =>
-            router.push({
-              pathname: '/(tabs)/search/[id]',
-              params: {
-                id: listing.id,
-                returnPath: encodeReturnPath(`/(tabs)/profile/${userId}`),
-              },
-            })
-          }
-          accessibilityRole="button"
-        >
-          <View style={styles.listingContent}>
-            <Text variant="titleSmall" style={{ color: theme.colors.onSurface }} numberOfLines={1}>
-              {listing.name}
-            </Text>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              {listing.category} · {listing.condition}
-            </Text>
-            {listing.availabilityTypes.length > 0 && (
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {listing.availabilityTypes.join(', ')}
-              </Text>
-            )}
-          </View>
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={iconSize.md}
-            color={theme.colors.onSurfaceVariant}
-          />
-        </Pressable>
-      ));
+      return (
+        <>
+          {listings.map((listing) => (
+            <Pressable
+              key={listing.id}
+              style={[styles.listingCard, { backgroundColor: theme.colors.surfaceVariant }]}
+              onPress={() =>
+                router.push({
+                  pathname: '/(tabs)/search/[id]',
+                  params: {
+                    id: listing.id,
+                    returnPath: encodeReturnPath(`/(tabs)/profile/${userId}`),
+                  },
+                })
+              }
+              accessibilityRole="button"
+            >
+              <View style={styles.listingContent}>
+                <Text
+                  variant="titleSmall"
+                  style={{ color: theme.colors.onSurface }}
+                  numberOfLines={1}
+                >
+                  {listing.name}
+                </Text>
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {listing.category} · {listing.condition}
+                </Text>
+                {listing.availabilityTypes.length > 0 && (
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    {listing.availabilityTypes.join(', ')}
+                  </Text>
+                )}
+              </View>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={iconSize.md}
+                color={theme.colors.onSurfaceVariant}
+              />
+            </Pressable>
+          ))}
+        </>
+      );
     }
     return (
       <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
