@@ -7,6 +7,15 @@ const mockSignInWithGoogle = jest.fn();
 const mockSignInWithApple = jest.fn();
 const mockReplace = jest.fn();
 
+// Read through a getter so each test can flip the build-time flag; login.tsx
+// compiles its import to a property access on the module object.
+let mockAppleSignInEnabled = false;
+jest.mock('@/shared/utils/featureFlags', () => ({
+  get isAppleSignInEnabled() {
+    return mockAppleSignInEnabled;
+  },
+}));
+
 jest.mock('@/shared/api/supabase', () => ({
   supabase: {
     auth: {
@@ -38,6 +47,7 @@ jest.mock('expo-router', () => {
 describe('Login screen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppleSignInEnabled = false;
   });
 
   it('renders app title', () => {
@@ -57,7 +67,13 @@ describe('Login screen', () => {
     ).toBeTruthy();
   });
 
-  it('renders Continue with Apple button', () => {
+  it('hides Continue with Apple while Apple sign-in is disabled', () => {
+    const { queryByText } = renderWithProviders(<LoginScreen />);
+    expect(queryByText('Continue with Apple')).toBeNull();
+  });
+
+  it('renders Continue with Apple when Apple sign-in is enabled', () => {
+    mockAppleSignInEnabled = true;
     const { getByText } = renderWithProviders(<LoginScreen />);
     expect(getByText('Continue with Apple')).toBeTruthy();
   });
@@ -73,6 +89,7 @@ describe('Login screen', () => {
   });
 
   it('tapping Apple sign-in calls signInWithApple', () => {
+    mockAppleSignInEnabled = true;
     const { getByText } = renderWithProviders(<LoginScreen />);
     fireEvent.press(getByText('Continue with Apple'));
     expect(mockSignInWithApple).toHaveBeenCalled();

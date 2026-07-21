@@ -1,6 +1,7 @@
 describe('featureFlags', () => {
   const originalMarketplace = process.env.EXPO_PUBLIC_FEATURE_MARKETPLACE;
   const originalGroups = process.env.EXPO_PUBLIC_FEATURE_GROUPS;
+  const originalAppleSignIn = process.env.EXPO_PUBLIC_FEATURE_APPLE_SIGNIN;
 
   const restore = (key: string, original: string | undefined) => {
     if (original === undefined) {
@@ -13,6 +14,7 @@ describe('featureFlags', () => {
   afterEach(() => {
     restore('EXPO_PUBLIC_FEATURE_MARKETPLACE', originalMarketplace);
     restore('EXPO_PUBLIC_FEATURE_GROUPS', originalGroups);
+    restore('EXPO_PUBLIC_FEATURE_APPLE_SIGNIN', originalAppleSignIn);
     jest.resetModules();
   });
 
@@ -43,6 +45,21 @@ describe('featureFlags', () => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { isGroupsEnabled } = require('./featureFlags') as typeof import('./featureFlags');
       expect(isGroupsEnabled).toBe(expected);
+    });
+  });
+
+  it.each<[string | undefined, boolean]>([
+    ['true', true],
+    ['false', false],
+    ['1', false],
+    ['', false],
+    [undefined, false],
+  ])('isAppleSignInEnabled when EXPO_PUBLIC_FEATURE_APPLE_SIGNIN=%s is %s', (value, expected) => {
+    restore('EXPO_PUBLIC_FEATURE_APPLE_SIGNIN', value);
+    jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { isAppleSignInEnabled } = require('./featureFlags') as typeof import('./featureFlags');
+      expect(isAppleSignInEnabled).toBe(expected);
     });
   });
 

@@ -9,6 +9,7 @@ import { useDemoMode } from '@/features/demo';
 import { supabase } from '@/shared/api/supabase';
 import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
 import { isPasswordDemoLoginEnabled } from '@/shared/utils/env';
+import { isAppleSignInEnabled } from '@/shared/utils/featureFlags';
 import { SocketBBMark } from '@/shared/components';
 import { ReviewerSignInSheet, useReviewerLongPress } from '@/features/reviewer-signin';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
@@ -30,6 +31,7 @@ export default function LoginScreen() {
   const [reviewerSheetVisible, setReviewerSheetVisible] = useState(false);
   const reviewerLongPress = useReviewerLongPress(() => setReviewerSheetVisible(true));
   const themed = useThemedStyles(theme);
+  const googleForeground = isAppleSignInEnabled ? theme.colors.onSurface : theme.colors.background;
 
   const handleDevLogin = async (email: string) => {
     setSigningInAs(email);
@@ -90,49 +92,53 @@ export default function LoginScreen() {
           {/* Bottom group: actions, divider, demo/dev, expandable users */}
           <View style={styles.bottomGroup}>
             <View style={styles.actions}>
-              <Pressable
-                onPress={signInWithApple}
-                style={({ pressed }) => [
-                  styles.primaryAction,
-                  { backgroundColor: theme.colors.onBackground },
-                  pressed && styles.pressed,
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={t('welcome.continueWithApple')}
-              >
-                <MaterialCommunityIcons name="apple" size={20} color={theme.colors.background} />
-                <Text
-                  variant="labelLarge"
-                  style={[styles.actionLabel, { color: theme.colors.background }]}
+              {isAppleSignInEnabled && (
+                <Pressable
+                  onPress={signInWithApple}
+                  style={({ pressed }) => [
+                    styles.primaryAction,
+                    { backgroundColor: theme.colors.onBackground },
+                    pressed && styles.pressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('welcome.continueWithApple')}
                 >
-                  {t('welcome.continueWithApple')}
-                </Text>
-                <MaterialCommunityIcons
-                  name="arrow-right"
-                  size={18}
-                  color={theme.colors.background}
-                />
-              </Pressable>
+                  <MaterialCommunityIcons name="apple" size={20} color={theme.colors.background} />
+                  <Text
+                    variant="labelLarge"
+                    style={[styles.actionLabel, { color: theme.colors.background }]}
+                  >
+                    {t('welcome.continueWithApple')}
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="arrow-right"
+                    size={18}
+                    color={theme.colors.background}
+                  />
+                </Pressable>
+              )}
 
+              {/* Google is the filled primary action whenever Apple is hidden. */}
               <Pressable
                 onPress={signInWithGoogle}
                 style={({ pressed }) => [
-                  styles.secondaryAction,
-                  { borderColor: theme.colors.outline },
+                  isAppleSignInEnabled ? styles.secondaryAction : styles.primaryAction,
+                  isAppleSignInEnabled
+                    ? { borderColor: theme.colors.outline }
+                    : { backgroundColor: theme.colors.onBackground },
                   pressed && styles.pressed,
                 ]}
                 accessibilityRole="button"
                 accessibilityLabel={t('welcome.continueWithGoogle')}
               >
-                <MaterialCommunityIcons name="google" size={20} color={theme.colors.onSurface} />
-                <Text variant="labelLarge" style={[styles.actionLabel, themed.onSurface]}>
+                <MaterialCommunityIcons name="google" size={20} color={googleForeground} />
+                <Text
+                  variant="labelLarge"
+                  style={[styles.actionLabel, { color: googleForeground }]}
+                >
                   {t('welcome.continueWithGoogle')}
                 </Text>
-                <MaterialCommunityIcons
-                  name="arrow-right"
-                  size={18}
-                  color={theme.colors.onSurface}
-                />
+                <MaterialCommunityIcons name="arrow-right" size={18} color={googleForeground} />
               </Pressable>
 
               <Pressable
@@ -250,7 +256,6 @@ function useThemedStyles(theme: AppTheme) {
     () =>
       StyleSheet.create({
         onBackground: { color: theme.colors.onBackground },
-        onSurface: { color: theme.colors.onSurface },
         onSurfaceVariant: { color: theme.colors.onSurfaceVariant },
         primary: { color: theme.colors.primary },
       }),

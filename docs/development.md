@@ -83,14 +83,15 @@ See [testing.md](testing.md) and [code-quality.md](code-quality.md) for coverage
 
 The app reads these `EXPO_PUBLIC_*` variables (see `src/shared/api/supabase.ts`, `src/shared/utils/env.ts`, and `src/shared/utils/featureFlags.ts`):
 
-| Variable                          | Purpose                                   | Where to get it                    |
-| --------------------------------- | ----------------------------------------- | ---------------------------------- |
-| `EXPO_PUBLIC_SUPABASE_URL`        | Local or remote Supabase API URL          | `npm run db:status` → API URL      |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY`   | Supabase anonymous (public) API key       | `npm run db:status` → anon key     |
-| `EXPO_PUBLIC_SENTRY_DSN`          | Sentry DSN for error tracking             | Sentry project settings (optional) |
-| `EXPO_PUBLIC_ENV`                 | App environment (`development`, etc)      | Defaults to `development` if unset |
-| `EXPO_PUBLIC_FEATURE_MARKETPLACE` | Enable Buy/Sell/Borrow, Messages, ratings | `'true'` to enable; off otherwise  |
-| `EXPO_PUBLIC_FEATURE_GROUPS`      | Enable Groups (tab + group conversations) | `'true'` to enable; off otherwise  |
+| Variable                           | Purpose                                   | Where to get it                    |
+| ---------------------------------- | ----------------------------------------- | ---------------------------------- |
+| `EXPO_PUBLIC_SUPABASE_URL`         | Local or remote Supabase API URL          | `npm run db:status` → API URL      |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY`    | Supabase anonymous (public) API key       | `npm run db:status` → anon key     |
+| `EXPO_PUBLIC_SENTRY_DSN`           | Sentry DSN for error tracking             | Sentry project settings (optional) |
+| `EXPO_PUBLIC_ENV`                  | App environment (`development`, etc)      | Defaults to `development` if unset |
+| `EXPO_PUBLIC_FEATURE_MARKETPLACE`  | Enable Buy/Sell/Borrow, Messages, ratings | `'true'` to enable; off otherwise  |
+| `EXPO_PUBLIC_FEATURE_GROUPS`       | Enable Groups (tab + group conversations) | `'true'` to enable; off otherwise  |
+| `EXPO_PUBLIC_FEATURE_APPLE_SIGNIN` | Enable "Continue with Apple" on login     | `'true'` to enable; off otherwise  |
 
 Set these in an `.env` file at the project root or via your shell. Expo loads `EXPO_PUBLIC_*` vars automatically.
 
@@ -100,15 +101,16 @@ Incomplete surfaces are gated behind **build-time** feature flags (`src/shared/u
 
 - **`EXPO_PUBLIC_FEATURE_MARKETPLACE`** gates the entangled Buy/Sell/Borrow surface: the Search and Messages tabs and their routes, the item form's availability options (sell/borrow/donate — items stay Private when off), borrow requests, and ratings/reviews (which are downstream of transactions).
 - **`EXPO_PUBLIC_FEATURE_GROUPS`** gates the Groups tab and group conversations.
+- **`EXPO_PUBLIC_FEATURE_APPLE_SIGNIN`** gates the "Continue with Apple" button on the login screen. While it is off, **Google is the only sign-in provider** and takes the filled primary button slot. Turning it on requires the Apple provider to be configured in Supabase Auth first. Microsoft sign-in is not implemented yet and has no flag.
 
-For local development, enable both in `.env.local`:
+For local development, enable the marketplace and groups flags in `.env.local`:
 
 ```sh
 EXPO_PUBLIC_FEATURE_MARKETPLACE=true
 EXPO_PUBLIC_FEATURE_GROUPS=true
 ```
 
-The Jest suite forces both flags on (`src/test/setup.ts`) so gated surfaces are exercised; tests covering the off behavior override the env var with `jest.isolateModules` or by mocking `featureFlags`.
+The Jest suite forces the marketplace and groups flags on (`src/test/setup.ts`) so gated surfaces are exercised; tests covering the off behavior override the env var with `jest.isolateModules` or by mocking `featureFlags`. `EXPO_PUBLIC_FEATURE_APPLE_SIGNIN` is deliberately **not** forced on, so the suite renders the shipping (Google-only) login screen; the login tests mock `featureFlags` to cover the enabled branch.
 
 ### Google sign-in (OAuth)
 

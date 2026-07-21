@@ -37,12 +37,12 @@ test.describe('Unauthenticated flow', () => {
     await expect(page.getByText('From bikers to bikers')).toBeVisible();
   });
 
-  test('login screen shows sign-in buttons', async ({ page }) => {
+  test('login screen offers Google as the only sign-in provider', async ({ page }) => {
     await page.goto('/');
     await page.waitForURL(/\/login/);
 
-    await expect(page.getByRole('button', { name: /Continue with Apple/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /Continue with Google/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Continue with Apple/ })).toHaveCount(0);
   });
 
   test('browse without signing in navigates to inventory', async ({ page }) => {
