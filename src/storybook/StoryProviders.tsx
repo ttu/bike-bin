@@ -19,6 +19,16 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
 });
 
+function StoryThemeProviders({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <ThemePreferenceProvider>
+      <PaperProvider theme={lightTheme}>
+        <SnackbarAlertsProvider>{children}</SnackbarAlertsProvider>
+      </PaperProvider>
+    </ThemePreferenceProvider>
+  );
+}
+
 export function StoryProviders({ children }: Readonly<{ children: React.ReactNode }>) {
   const queryClient = useMemo(() => createStorybookQueryClient(), []);
 
@@ -27,11 +37,7 @@ export function StoryProviders({ children }: Readonly<{ children: React.ReactNod
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <ThemePreferenceProvider>
-              <PaperProvider theme={lightTheme}>
-                <SnackbarAlertsProvider>{children}</SnackbarAlertsProvider>
-              </PaperProvider>
-            </ThemePreferenceProvider>
+            <StoryThemeProviders>{children}</StoryThemeProviders>
           </AuthProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

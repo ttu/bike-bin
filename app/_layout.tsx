@@ -1,5 +1,5 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -52,6 +52,16 @@ if (typeof sentryDsn === 'string' && sentryDsn.trim().length > 0) {
 
 SplashScreen.preventAutoHideAsync();
 
+function AppStateProviders({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <SnackbarAlertsProvider>
+      <AuthProvider>
+        <DemoModeProvider>{children}</DemoModeProvider>
+      </AuthProvider>
+    </SnackbarAlertsProvider>
+  );
+}
+
 function AppContent() {
   const { effectiveTheme } = useThemePreference();
   const theme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
@@ -59,13 +69,9 @@ function AppContent() {
   return (
     <GestureHandlerRootView style={[layoutStyles.gestureRoot, getWebViewportStyle()]}>
       <PaperProvider theme={theme}>
-        <SnackbarAlertsProvider>
-          <AuthProvider>
-            <DemoModeProvider>
-              <Stack screenOptions={{ headerShown: false }} />
-            </DemoModeProvider>
-          </AuthProvider>
-        </SnackbarAlertsProvider>
+        <AppStateProviders>
+          <Stack screenOptions={{ headerShown: false }} />
+        </AppStateProviders>
       </PaperProvider>
     </GestureHandlerRootView>
   );

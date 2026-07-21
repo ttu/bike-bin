@@ -11,6 +11,34 @@ interface ReviewerSignInSheetProps {
   readonly onDismiss: () => void;
 }
 
+interface SheetActionsProps {
+  readonly onCancel: () => void;
+  readonly onSubmit: () => void;
+  readonly submitting: boolean;
+  readonly submitDisabled: boolean;
+}
+
+function SheetActions({ onCancel, onSubmit, submitting, submitDisabled }: SheetActionsProps) {
+  const { t } = useTranslation('reviewerSignin');
+
+  return (
+    <View style={styles.actions}>
+      <Button mode="outlined" onPress={onCancel} disabled={submitting} style={styles.actionButton}>
+        {t('sheet.cancel')}
+      </Button>
+      <Button
+        mode="contained"
+        onPress={onSubmit}
+        loading={submitting}
+        disabled={submitDisabled}
+        style={styles.actionButton}
+      >
+        {t('sheet.submit')}
+      </Button>
+    </View>
+  );
+}
+
 export function ReviewerSignInSheet({ visible, onDismiss }: ReviewerSignInSheetProps) {
   const theme = useTheme<AppTheme>();
   const { t } = useTranslation('reviewerSignin');
@@ -125,25 +153,12 @@ export function ReviewerSignInSheet({ visible, onDismiss }: ReviewerSignInSheetP
               </Text>
             )}
 
-            <View style={styles.actions}>
-              <Button
-                mode="outlined"
-                onPress={handleDismiss}
-                disabled={submitting}
-                style={styles.actionButton}
-              >
-                {t('sheet.cancel')}
-              </Button>
-              <Button
-                mode="contained"
-                onPress={handleSubmit}
-                loading={submitting}
-                disabled={submitDisabled}
-                style={styles.actionButton}
-              >
-                {t('sheet.submit')}
-              </Button>
-            </View>
+            <SheetActions
+              onCancel={handleDismiss}
+              onSubmit={handleSubmit}
+              submitting={submitting}
+              submitDisabled={submitDisabled}
+            />
 
             <Text variant="bodySmall" style={[styles.footer, themed.footer]}>
               {t('sheet.footer')}
