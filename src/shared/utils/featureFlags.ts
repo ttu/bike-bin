@@ -14,3 +14,11 @@ export const isMarketplaceEnabled = process.env.EXPO_PUBLIC_FEATURE_MARKETPLACE 
 
 /** Groups tab + group conversations. */
 export const isGroupsEnabled = process.env.EXPO_PUBLIC_FEATURE_GROUPS === 'true';
+
+/**
+ * "Continue with Apple" on the login screen. Off for now — Google is the only
+ * enabled provider until Apple (and later Microsoft) sign-in is set up. Unlike
+ * the flags above this one is NOT forced on in src/test/setup.ts, so the suite
+ * exercises the shipping default; the login tests turn it on where they need it.
+ */
+export const isAppleSignInEnabled = process.env.EXPO_PUBLIC_FEATURE_APPLE_SIGNIN === 'true';

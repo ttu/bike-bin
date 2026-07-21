@@ -14,7 +14,7 @@
 | Decision                | Resolution                                                                                                                                                                                                                                                                                                                 |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Username → Display name | **Display name + internal ID.** Display names are not unique. Users are identified internally by UUID. No "taken" errors during onboarding. **Note:** The functional spec uses "username" — this design supersedes that terminology. All references to "username" in the functional spec should be read as "display name." |
-| OAuth providers         | Google + Apple only. No email/password or magic link.                                                                                                                                                                                                                                                                      |
+| OAuth providers         | Google only for now (Apple gated behind `EXPO_PUBLIC_FEATURE_APPLE_SIGNIN`; Microsoft planned). No email/password or magic link.                                                                                                                                                                                           |
 | Email verification      | Handled by OAuth provider. No in-app verification.                                                                                                                                                                                                                                                                         |
 
 ### 1.2 Account Deletion (GDPR)
@@ -231,8 +231,8 @@ My Profile & Settings
 ### 3.1 Welcome Screen
 
 - App logo + tagline ("From bikers to bikers")
-- "Continue with Apple" button (dark, prominent)
-- "Continue with Google" button (outlined)
+- "Continue with Google" button — currently the only provider, so it takes the dark, prominent slot
+- "Continue with Apple" button (dark, prominent) — hidden unless `EXPO_PUBLIC_FEATURE_APPLE_SIGNIN=true`; when shown it is the primary action and Google drops to outlined
 - "Browse without signing in →" text link (→ limited main app)
 
 ### 3.2 Onboarding — Profile Setup (Step 1/2)

@@ -26,6 +26,15 @@ jest.mock('@/shared/utils/env', () => ({
   isPasswordDemoLoginEnabled: false,
 }));
 
+// Read through a getter so each test can flip the build-time flag; login.tsx
+// compiles its import to a property access on the module object.
+let mockAppleSignInEnabled = false;
+jest.mock('@/shared/utils/featureFlags', () => ({
+  get isAppleSignInEnabled() {
+    return mockAppleSignInEnabled;
+  },
+}));
+
 jest.mock('@/features/auth', () => ({
   useAuth: () => ({
     signInWithGoogle: mockSignInWithGoogle,
@@ -45,6 +54,7 @@ jest.mock('@/features/demo', () => {
 describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppleSignInEnabled = false;
   });
 
   it('navigates to inventory when browsing without signing in', () => {
@@ -60,7 +70,14 @@ describe('LoginScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/inventory');
   });
 
+  it('does not offer Apple sign-in while the flag is off', () => {
+    const { queryByLabelText } = renderWithProviders(<LoginScreen />);
+    expect(queryByLabelText('Continue with Apple')).toBeNull();
+    expect(mockSignInWithApple).not.toHaveBeenCalled();
+  });
+
   it('invokes Apple sign-in when Continue with Apple is pressed', () => {
+    mockAppleSignInEnabled = true;
     const { getByLabelText } = renderWithProviders(<LoginScreen />);
     fireEvent.press(getByLabelText('Continue with Apple'));
     expect(mockSignInWithApple).toHaveBeenCalled();

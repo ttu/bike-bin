@@ -9,7 +9,7 @@
 
 ### 1.1 Login methods
 
-- **OAuth only:** Google and Apple via Supabase Auth. No email+password or magic link for MVP.
+- **OAuth only:** Google via Supabase Auth. No email+password or magic link for MVP. Apple is implemented but gated off behind `EXPO_PUBLIC_FEATURE_APPLE_SIGNIN` until its provider credentials are configured; Microsoft is planned and not yet implemented.
 - **Email verification:** Handled by the identity provider (Google/Apple verify the email address). No separate in-app email confirmation flow needed.
 - **No password storage:** Since we use OAuth exclusively, we never store or manage passwords. Supabase Auth stores the OAuth identity link and session tokens.
 - **Production web URLs:** The Expo web app is served at **https://app.bikebin.app**. The static marketing site is **https://bikebin.app** (Astro in `sites/marketing/`). Configure Supabase **Site URL** and **Redirect URLs** for the app origin; add the marketing origin only if the landing site embeds Supabase Auth. Register the same redirect URIs in Google and Apple OAuth consoles.
