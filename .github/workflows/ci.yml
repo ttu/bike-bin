@@ -181,6 +181,10 @@ jobs:
         env:
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
           EXPO_PUBLIC_ENV: preview
+          # PR previews exercise the full app: enable gated surfaces (marketplace + groups)
+          # so remote-smoke/remote-full see all 6 tabs. See src/shared/utils/featureFlags.ts.
+          EXPO_PUBLIC_FEATURE_MARKETPLACE: 'true'
+          EXPO_PUBLIC_FEATURE_GROUPS: 'true'
           NODE_ENV: production
       # EAS deploy reads .env* when building the upload manifest; mirror the same
       # EXPO_PUBLIC_* the export step used (Supabase from GITHUB_ENV via resolver).
@@ -194,12 +198,16 @@ jobs:
             `EXPO_PUBLIC_SUPABASE_ANON_KEY=${esc(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY)}`,
             `EXPO_PUBLIC_ENV=${esc(process.env.EXPO_PUBLIC_ENV)}`,
             `EXPO_PUBLIC_SENTRY_DSN=${esc(process.env.EXPO_PUBLIC_SENTRY_DSN)}`,
+            `EXPO_PUBLIC_FEATURE_MARKETPLACE=${esc(process.env.EXPO_PUBLIC_FEATURE_MARKETPLACE)}`,
+            `EXPO_PUBLIC_FEATURE_GROUPS=${esc(process.env.EXPO_PUBLIC_FEATURE_GROUPS)}`,
           ];
           fs.writeFileSync('.env.production.local', lines.join('\n') + '\n', 'utf8');
           NODE
         env:
           EXPO_PUBLIC_ENV: preview
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          EXPO_PUBLIC_FEATURE_MARKETPLACE: 'true'
+          EXPO_PUBLIC_FEATURE_GROUPS: 'true'
       - name: Deploy to EAS Hosting (preview)
         id: deploy_preview
         run: |
