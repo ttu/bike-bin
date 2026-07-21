@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { supabase } from '@/shared/api/supabase';
-import { TEST_USERS, TEST_USER_PASSWORD, MAIN_TEST_USER } from '@/shared/constants/testUsers';
+import { TEST_USERS, MAIN_TEST_USER } from '@/shared/constants/testUsers';
 import { isPasswordDemoLoginEnabled } from '@/shared/utils/env';
 import { isAppleSignInEnabled } from '@/shared/utils/featureFlags';
 import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
+import { signInAsTestUser } from '../../utils/signInAsTestUser';
 
 const ACTION_HEIGHT = 48;
 
@@ -39,19 +38,8 @@ export function LoginActionPanel({
 
   const handleDevLogin = async (email: string) => {
     setSigningInAs(email);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password: TEST_USER_PASSWORD,
-      });
-      if (error) {
-        console.error('Dev login failed:', error.message);
-        setSigningInAs(undefined);
-        return;
-      }
-      router.replace('/(tabs)/inventory');
-    } catch (e) {
-      console.error('Dev login error:', e);
+    const signedIn = await signInAsTestUser(email);
+    if (!signedIn) {
       setSigningInAs(undefined);
     }
   };
