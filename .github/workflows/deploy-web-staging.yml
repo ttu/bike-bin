@@ -75,6 +75,10 @@ jobs:
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
           EXPO_PUBLIC_ENV: staging
+          # Staging previews the full app: enable gated surfaces (marketplace + groups).
+          # Production omits these so the first release ships gated. See src/shared/utils/featureFlags.ts.
+          EXPO_PUBLIC_FEATURE_MARKETPLACE: 'true'
+          EXPO_PUBLIC_FEATURE_GROUPS: 'true'
           NODE_ENV: production
       - name: Deploy to EAS Hosting (staging alias)
         id: deploy
