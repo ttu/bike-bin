@@ -117,14 +117,17 @@ describe('ItemForm', () => {
     expect(getByText('Suggested duration')).toBeTruthy();
   });
 
-  it('defaults visibility to Private (Only me)', () => {
+  it('defaults visibility to Private (Only me)', async () => {
     const { getByText, getByPlaceholderText } = renderWithProviders(<ItemForm {...defaultProps} />);
 
-    // The "Only me" chip should be selected by default
-    // We verify this by checking the form submits with visibility: 'private'
+    // The "Only me" chip should be selected by default — verified via the submitted payload.
     fireEvent.changeText(getByPlaceholderText('e.g. Shimano 105 Cassette'), 'Test Item');
     fireEvent.press(getByText('Components'));
     fireEvent.press(getByText('Save'));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ visibility: 'private' }));
+    });
   });
 
   it('shows validation errors for missing required fields on submit', async () => {

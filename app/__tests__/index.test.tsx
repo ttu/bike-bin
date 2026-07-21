@@ -46,24 +46,29 @@ describe('app/index', () => {
     expect(getByTestId('loading-screen')).toBeTruthy();
   });
 
-  it('redirects to inventory when demo mode is on', () => {
-    mockUseAuth.mockReturnValue({ isLoading: false, isAuthenticated: false });
-    mockUseDemoMode.mockReturnValue({ isDemoMode: true });
+  it.each([
+    {
+      scenario: 'demo mode is on',
+      isAuthenticated: false,
+      isDemoMode: true,
+      href: '/(tabs)/inventory',
+    },
+    {
+      scenario: 'not authenticated and not demo',
+      isAuthenticated: false,
+      isDemoMode: false,
+      href: '/(auth)/login',
+    },
+    {
+      scenario: 'authenticated',
+      isAuthenticated: true,
+      isDemoMode: false,
+      href: '/(tabs)/inventory',
+    },
+  ])('redirects to $href when $scenario', ({ isAuthenticated, isDemoMode, href }) => {
+    mockUseAuth.mockReturnValue({ isLoading: false, isAuthenticated });
+    mockUseDemoMode.mockReturnValue({ isDemoMode });
     const { getByTestId } = renderWithProviders(<Index />);
-    expect(getByTestId('redirect-href').props.children).toBe('/(tabs)/inventory');
-  });
-
-  it('redirects to login when not authenticated and not demo', () => {
-    mockUseAuth.mockReturnValue({ isLoading: false, isAuthenticated: false });
-    mockUseDemoMode.mockReturnValue({ isDemoMode: false });
-    const { getByTestId } = renderWithProviders(<Index />);
-    expect(getByTestId('redirect-href').props.children).toBe('/(auth)/login');
-  });
-
-  it('redirects to inventory when authenticated', () => {
-    mockUseAuth.mockReturnValue({ isLoading: false, isAuthenticated: true });
-    mockUseDemoMode.mockReturnValue({ isDemoMode: false });
-    const { getByTestId } = renderWithProviders(<Index />);
-    expect(getByTestId('redirect-href').props.children).toBe('/(tabs)/inventory');
+    expect(getByTestId('redirect-href').props.children).toBe(href);
   });
 });

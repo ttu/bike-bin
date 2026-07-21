@@ -20,6 +20,6 @@ export function easPreviewDeploymentIdFromPrComment(body: string): string | unde
   }
 
   /** Preview URLs: https://{sub}--{deploymentId}.expo.app/ */
-  const fromHost = /--([0-9a-z_-]+)\.expo\.app/i.exec(url);
+  const fromHost = /--([0-9a-z_-]{1,63})\.expo\.app/i.exec(url);
   return fromHost?.[1];
 }

@@ -1,9 +1,17 @@
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { SaveFormat } from 'expo-image-manipulator';
 import { getInfoAsync } from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
+// Contextual API: ImageManipulator.manipulate(uri).resize({ width }).renderAsync() -> saveAsync().
+const mockManipulate = jest.fn();
+const mockResize = jest.fn();
+const mockRenderAsync = jest.fn();
+const mockSaveAsync = jest.fn();
+
 jest.mock('expo-image-manipulator', () => ({
-  manipulateAsync: jest.fn(),
+  ImageManipulator: {
+    manipulate: (...args: unknown[]) => mockManipulate(...args),
+  },
   SaveFormat: { JPEG: 'jpeg' },
 }));
 
@@ -16,7 +24,6 @@ import {
   MOBILE_UPLOAD_MAX_BYTES,
 } from '../compressImageForMobileUpload';
 
-const mockManipulate = manipulateAsync as jest.MockedFunction<typeof manipulateAsync>;
 const mockGetInfo = getInfoAsync as jest.MockedFunction<typeof getInfoAsync>;
 
 function fileInfo(uri: string, size: number) {
@@ -29,30 +36,42 @@ function fileInfo(uri: string, size: number) {
   };
 }
 
+/** Widths passed to `resize()`, in call order. */
+function resizedWidths(): number[] {
+  return mockResize.mock.calls.map((c) => (c[0] as { width: number }).width);
+}
+
 describe('compressImageForMobileUpload', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockManipulate.mockReset();
+    mockResize.mockReset();
+    mockRenderAsync.mockReset();
+    mockSaveAsync.mockReset();
     mockGetInfo.mockReset();
+
+    mockManipulate.mockReturnValue({ resize: mockResize });
+    mockResize.mockReturnValue({ renderAsync: mockRenderAsync });
+    mockRenderAsync.mockResolvedValue({ saveAsync: mockSaveAsync });
   });
 
   it('returns first output when size is within max bytes', async () => {
-    mockManipulate.mockResolvedValue({ uri: 'file:///out1.jpg', width: 1, height: 1 });
+    mockSaveAsync.mockResolvedValue({ uri: 'file:///out1.jpg', width: 1, height: 1 });
     mockGetInfo.mockResolvedValue(fileInfo('file:///out1.jpg', 100_000));
 
     const result = await compressImageForMobileUpload('file:///in.jpg');
 
     expect(result.uri).toBe('file:///out1.jpg');
-    expect(mockManipulate).toHaveBeenCalledTimes(1);
-    expect(mockManipulate).toHaveBeenCalledWith(
-      'file:///in.jpg',
-      [{ resize: { width: 1024 } }],
+    expect(mockSaveAsync).toHaveBeenCalledTimes(1);
+    expect(mockManipulate).toHaveBeenCalledWith('file:///in.jpg');
+    expect(mockResize).toHaveBeenCalledWith({ width: 1024 });
+    expect(mockSaveAsync).toHaveBeenCalledWith(
       expect.objectContaining({ format: SaveFormat.JPEG, compress: 0.65 }),
     );
   });
 
   it('lowers quality until output fits max bytes', async () => {
-    mockManipulate
+    mockSaveAsync
       .mockResolvedValueOnce({ uri: 'file:///big.jpg', width: 1, height: 1 })
       .mockResolvedValueOnce({ uri: 'file:///small.jpg', width: 1, height: 1 });
     mockGetInfo
@@ -62,9 +81,9 @@ describe('compressImageForMobileUpload', () => {
     const result = await compressImageForMobileUpload('file:///in.jpg');
 
     expect(result.uri).toBe('file:///small.jpg');
-    expect(mockManipulate).toHaveBeenCalledTimes(2);
-    expect(mockManipulate.mock.calls[0][2]).toMatchObject({ compress: 0.65 });
-    expect(mockManipulate.mock.calls[1][2]).toMatchObject({ compress: 0.6 });
+    expect(mockSaveAsync).toHaveBeenCalledTimes(2);
+    expect(mockSaveAsync.mock.calls[0][0]).toMatchObject({ compress: 0.65 });
+    expect(mockSaveAsync.mock.calls[1][0]).toMatchObject({ compress: 0.6 });
   });
 
   it('tries smaller width after exhausting qualities at larger width', async () => {
@@ -73,7 +92,7 @@ describe('compressImageForMobileUpload', () => {
       'file:///w900-first.jpg',
     ];
     let mi = 0;
-    mockManipulate.mockImplementation(async () => {
+    mockSaveAsync.mockImplementation(async () => {
       const uri = uris[mi] ?? `file:///extra-${mi}.jpg`;
       mi += 1;
       return { uri, width: 1, height: 1 };
@@ -89,16 +108,14 @@ describe('compressImageForMobileUpload', () => {
     const result = await compressImageForMobileUpload('file:///in.jpg');
 
     expect(result.uri).toBe('file:///w900-first.jpg');
-    const widths = mockManipulate.mock.calls.map(
-      (c) => (c[1] as [{ resize: { width: number } }])[0].resize.width,
-    );
+    const widths = resizedWidths();
     expect(widths.slice(0, 9).every((w) => w === 1024)).toBe(true);
     expect(widths[9]).toBe(900);
   });
 
   it('returns smallest output when still above max after all attempts', async () => {
     let idx = 0;
-    mockManipulate.mockImplementation(async () => {
+    mockSaveAsync.mockImplementation(async () => {
       idx += 1;
       return { uri: `file:///chunk-${idx}.jpg`, width: 1, height: 1 };
     });
@@ -111,7 +128,7 @@ describe('compressImageForMobileUpload', () => {
 
     const result = await compressImageForMobileUpload('file:///in.jpg');
 
-    expect(mockManipulate.mock.calls.length).toBe(4 * 9);
+    expect(mockSaveAsync.mock.calls).toHaveLength(4 * 9);
     expect(result.uri).toBe('file:///chunk-1.jpg');
   });
 
@@ -132,7 +149,7 @@ describe('compressImageForMobileUpload', () => {
     });
 
     it('uses fetch response size instead of getInfoAsync', async () => {
-      mockManipulate.mockResolvedValue({ uri: 'blob:http://localhost/out', width: 1, height: 1 });
+      mockSaveAsync.mockResolvedValue({ uri: 'blob:http://localhost/out', width: 1, height: 1 });
 
       const result = await compressImageForMobileUpload('blob:http://localhost/in');
 
@@ -142,7 +159,7 @@ describe('compressImageForMobileUpload', () => {
     });
 
     it('throws when fetch fails on web', async () => {
-      mockManipulate.mockResolvedValue({ uri: 'blob:http://localhost/out', width: 1, height: 1 });
+      mockSaveAsync.mockResolvedValue({ uri: 'blob:http://localhost/out', width: 1, height: 1 });
       fetchSpy.mockResolvedValue(new Response(undefined, { status: 404 }));
 
       await expect(compressImageForMobileUpload('blob:http://localhost/in')).rejects.toThrow(

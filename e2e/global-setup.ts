@@ -16,12 +16,13 @@ const DEFAULT_SUPABASE_SERVICE_ROLE_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 function resolvePsqlExecutable(): string {
-  const common = ['/opt/homebrew/bin/psql', '/usr/local/bin/psql'];
+  const common = ['/opt/homebrew/bin/psql', '/usr/local/bin/psql', '/usr/bin/psql'];
   for (const p of common) {
     if (existsSync(p)) return p;
   }
   try {
-    const w = execFileSync('which', ['psql'], { encoding: 'utf8' }).trim();
+    // Absolute path so the lookup tool itself cannot be shadowed via PATH.
+    const w = execFileSync('/usr/bin/which', ['psql'], { encoding: 'utf8' }).trim();
     if (w.length > 0) return w;
   } catch {
     // fall through

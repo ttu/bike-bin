@@ -66,7 +66,7 @@ function ItemSeparator() {
   );
 }
 
-function GroupedCell({ children, style, onLayout }: CellRendererProps<Item>) {
+function GroupedCell({ children, style, onLayout }: Readonly<CellRendererProps<Item>>) {
   return (
     <View onLayout={onLayout} style={[style, groupedCellStyles.cell]}>
       {children}

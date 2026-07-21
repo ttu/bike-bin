@@ -6,7 +6,10 @@ import { test, expect, navigateToBikes, expectFirstVisibleByText } from './fixtu
 
 async function waitForBikeDetail(page: import('@playwright/test').Page) {
   await page.waitForURL(/\/bikes\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-  await page.waitForTimeout(500);
+  // The appbar edit action only renders once the bike query has resolved.
+  await expect(page.getByRole('button', { name: /^Edit$/i }).first()).toBeVisible({
+    timeout: 10000,
+  });
 }
 
 test.describe('Add bike', () => {

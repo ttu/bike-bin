@@ -346,11 +346,9 @@ export default function ConversationDetailScreen() {
 
   const donateDialogConfig = useExchangeDialogConfig('donate');
   const sellDialogConfig = useExchangeDialogConfig('sell');
-  const exchangeDialogConfig = exchangeConfirm
-    ? exchangeConfirm.kind === 'donate'
-      ? donateDialogConfig
-      : sellDialogConfig
-    : null;
+  const confirmedExchangeDialogConfig =
+    exchangeConfirm?.kind === 'donate' ? donateDialogConfig : sellDialogConfig;
+  const exchangeDialogConfig = exchangeConfirm ? confirmedExchangeDialogConfig : undefined;
 
   const renderHeaderAvatar = () => {
     if (conversation && isGroupConversation(conversation)) {

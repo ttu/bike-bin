@@ -75,8 +75,10 @@ base.describe('Authentication', () => {
       });
       await page.getByTestId('confirm-dialog-cancel').click();
 
-      // Should still be on the profile page
-      await page.waitForTimeout(500);
+      // Should still be on the profile page once the dialog has closed
+      await expect(page.getByText('Are you sure you want to sign out?')).toBeHidden({
+        timeout: 5000,
+      });
       await expect(page.getByRole('button', { name: /Sign Out/i }).first()).toBeVisible();
     });
   });

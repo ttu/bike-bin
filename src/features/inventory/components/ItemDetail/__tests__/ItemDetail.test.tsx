@@ -36,14 +36,15 @@ describe('ItemDetail', () => {
     description: 'Good condition cassette',
   });
 
-  it('renders item name as-is (visual uppercase via CSS)', () => {
+  it.each([
+    { field: 'item name as-is (visual uppercase via CSS)', text: 'Shimano Cassette' },
+    { field: 'meta row with brand · model · age', text: 'Shimano · 105 R7000 · 2 years' },
+    { field: 'usage figure', text: '3000' },
+    { field: 'description', text: 'Good condition cassette' },
+    { field: 'photo gallery placeholder when no photos', text: 'No photos' },
+  ])('renders $field', ({ text }) => {
     const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Shimano Cassette')).toBeTruthy();
-  });
-
-  it('renders meta row with brand · model · age', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Shimano · 105 R7000 · 2 years')).toBeTruthy();
+    expect(getByText(text)).toBeTruthy();
   });
 
   it('translates age bracket key in the meta row', () => {
@@ -89,11 +90,6 @@ describe('ItemDetail', () => {
     expect(getAllByText('Garage shelf')).toHaveLength(1);
   });
 
-  it('renders usage figure', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('3000')).toBeTruthy();
-  });
-
   it('shows remaining fraction as display figure for consumables', () => {
     const item = createMockItem({
       category: ItemCategory.Consumable,
@@ -104,16 +100,6 @@ describe('ItemDetail', () => {
     });
     const { getByText } = renderWithProviders(<ItemDetail item={item} photos={[]} />);
     expect(getByText('40')).toBeTruthy();
-  });
-
-  it('renders description', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('Good condition cassette')).toBeTruthy();
-  });
-
-  it('renders photo gallery placeholder when no photos', () => {
-    const { getByText } = renderWithProviders(<ItemDetail item={baseItem} photos={[]} />);
-    expect(getByText('No photos')).toBeTruthy();
   });
 
   it('shows Mark as Donated when item is donatable', () => {

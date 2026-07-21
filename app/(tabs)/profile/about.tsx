@@ -9,7 +9,7 @@ import { BrandLockup } from '@/shared/components/BrandLockup';
 import { spacing } from '@/shared/theme';
 
 type ListIconProps = ComponentProps<typeof List.Icon>;
-type ListItemIconProps = Omit<ListIconProps, 'icon'>;
+type ListItemIconProps = Readonly<Omit<ListIconProps, 'icon'>>;
 
 function InfoIcon(props: ListItemIconProps) {
   return <List.Icon {...props} icon="information-outline" />;

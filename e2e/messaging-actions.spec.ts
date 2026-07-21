@@ -47,7 +47,7 @@ test.describe('Contact from listing', () => {
     await searchInput.press('Enter');
 
     // Wait for results
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 
@@ -86,7 +86,7 @@ test.describe('Contact from listing', () => {
     await searchInput.press('Enter');
 
     // Wait for results
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 

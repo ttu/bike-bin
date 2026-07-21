@@ -26,6 +26,7 @@ jest.mock('@/features/auth', () => mockAuthModule);
 
 // Import after mocks
 import { useBorrowRequests } from '../useBorrowRequests';
+import { supabase } from '@/shared/api/supabase';
 import { createQueryClientHookWrapper } from '@/test/queryTestUtils';
 
 const mockBorrowRow = {
@@ -185,8 +186,26 @@ describe('useBorrowRequests', () => {
     });
   });
 
-  it('is disabled when user is not authenticated', () => {
-    jest.resetModules();
+  it('is disabled when user is not authenticated', async () => {
+    const useAuthMock = jest.requireMock('@/features/auth');
+    const originalAuth = useAuthMock.useAuth;
+    useAuthMock.useAuth = () => ({ user: undefined, isAuthenticated: false });
+
+    try {
+      const { result } = renderHook(() => useBorrowRequests(), {
+        wrapper: createQueryClientHookWrapper(),
+      });
+
+      // `enabled: !!userId` keeps the query parked: pending status, no in-flight fetch.
+      await waitFor(() => {
+        expect(result.current.fetchStatus).toBe('idle');
+      });
+      expect(result.current.status).toBe('pending');
+      expect(result.current.data).toBeUndefined();
+      expect(supabase.from).not.toHaveBeenCalled();
+    } finally {
+      useAuthMock.useAuth = originalAuth;
+    }
   });
 
   it('handles missing profile map entries gracefully', async () => {

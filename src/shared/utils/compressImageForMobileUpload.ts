@@ -1,4 +1,4 @@
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { getInfoAsync } from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
@@ -41,10 +41,8 @@ export async function compressImageForMobileUpload(sourceUri: string): Promise<{
 
   for (const width of RESIZE_WIDTHS) {
     for (let quality = INITIAL_QUALITY; quality >= MIN_QUALITY - 1e-9; quality -= QUALITY_STEP) {
-      const { uri } = await manipulateAsync(sourceUri, [{ resize: { width } }], {
-        compress: quality,
-        format: SaveFormat.JPEG,
-      });
+      const image = await ImageManipulator.manipulate(sourceUri).resize({ width }).renderAsync();
+      const { uri } = await image.saveAsync({ compress: quality, format: SaveFormat.JPEG });
 
       const size = await getOutputSizeBytes(uri);
       if (size < bestSize) {

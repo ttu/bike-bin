@@ -11,7 +11,7 @@ test.describe('Public profile listings from search', () => {
     await searchInput.fill('Shimano Ultegra');
     await searchInput.press('Enter');
 
-    await expect(loggedInPage.getByText(/\d+ results? within \d+ km/)).toBeVisible({
+    await expect(loggedInPage.getByText(/\d{1,9} results? within \d{1,9} km/)).toBeVisible({
       timeout: 10000,
     });
 

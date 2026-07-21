@@ -15,8 +15,11 @@ export function randomUuidV4(): string {
     const hex = [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   }
-  // Last resort (tests / very old runtimes)
+  // Last resort (tests / very old runtimes) — only reached when neither crypto API exists.
+  // These UUIDs are database primary keys, never secrets or capability tokens: access is
+  // gated by RLS, so an unpredictable value is not a security requirement here.
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, (c) => {
+    // eslint-disable-next-line sonarjs/pseudo-random -- non-security-sensitive key generation
     const r = Math.trunc(Math.random() * 16);
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);

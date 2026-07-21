@@ -9,7 +9,7 @@ import { spacing, type AppTheme } from '@/shared/theme';
 import { navigateToTabRoot } from '@/shared/utils/navigateToTabRoot';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-function AppTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+function AppTabBar({ state, descriptors, navigation, insets }: Readonly<BottomTabBarProps>) {
   const theme = useTheme<AppTheme>();
 
   return (

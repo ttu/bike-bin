@@ -13,14 +13,14 @@ interface AuthGateProps {
   readonly fallback?: React.ReactNode;
 }
 
-export function AuthGate({ children, fallback }: AuthGateProps) {
+export function AuthGate({ children, fallback }: AuthGateProps): React.JSX.Element {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
-    return children;
+    return <>{children}</>;
   }
 
-  return fallback ?? null;
+  return <>{fallback}</>;
 }
 
 export function useAuthGate() {
