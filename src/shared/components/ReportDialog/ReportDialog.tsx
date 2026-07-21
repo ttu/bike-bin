@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, type StyleProp, type TextStyle } from 'react-native';
 import { Portal, Dialog, Button, RadioButton, TextInput, Text, useTheme } from 'react-native-paper';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,34 @@ interface ReportDialogProps {
   readonly onDismiss: () => void;
   readonly onSubmit: (reason: ReportReason, text: string | undefined) => void;
   readonly loading?: boolean;
+}
+
+interface ReportDetailsFieldProps {
+  readonly value: string;
+  readonly onChangeText: (text: string) => void;
+  readonly containerStyle: StyleProp<TextStyle>;
+}
+
+function ReportDetailsField({ value, onChangeText, containerStyle }: ReportDetailsFieldProps) {
+  const theme = useTheme<AppTheme>();
+  const { t } = useTranslation('profile');
+
+  return (
+    <View style={styles.detailsContainer}>
+      <TextInput
+        label={t('report.detailsLabel')}
+        placeholder={t('report.detailsPlaceholder')}
+        value={value}
+        onChangeText={onChangeText}
+        multiline
+        numberOfLines={3}
+        mode="flat"
+        style={[containerStyle, styles.textInput]}
+        underlineColor={colorWithAlpha(theme.colors.outlineVariant, 0.15)}
+        activeUnderlineColor={theme.colors.primary}
+      />
+    </View>
+  );
 }
 
 /**
@@ -110,20 +138,11 @@ export function ReportDialog({ visible, onDismiss, onSubmit, loading = false }: 
               </Text>
             ) : null}
 
-            <View style={styles.detailsContainer}>
-              <TextInput
-                label={t('report.detailsLabel')}
-                placeholder={t('report.detailsPlaceholder')}
-                value={details}
-                onChangeText={setDetails}
-                multiline
-                numberOfLines={3}
-                mode="flat"
-                style={[themeStyles.textInput, styles.textInput]}
-                underlineColor={colorWithAlpha(theme.colors.outlineVariant, 0.15)}
-                activeUnderlineColor={theme.colors.primary}
-              />
-            </View>
+            <ReportDetailsField
+              value={details}
+              onChangeText={setDetails}
+              containerStyle={themeStyles.textInput}
+            />
           </ScrollView>
         </Dialog.ScrollArea>
         <Dialog.Actions>

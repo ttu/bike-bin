@@ -44,6 +44,7 @@ module.exports = [
       ...prettierConfig.rules,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
+      'react/jsx-max-depth': ['error', { max: 4 }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     },

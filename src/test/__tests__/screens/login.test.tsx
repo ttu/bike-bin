@@ -25,6 +25,11 @@ jest.mock('@/shared/api/supabase', () => ({
 }));
 
 jest.mock('@/features/auth', () => ({
+  LoginMasthead: jest.requireActual('@/features/auth/components/LoginMasthead/LoginMasthead')
+    .LoginMasthead,
+  LoginActionPanel: jest.requireActual(
+    '@/features/auth/components/LoginActionPanel/LoginActionPanel',
+  ).LoginActionPanel,
   useAuth: () => ({
     signInWithGoogle: mockSignInWithGoogle,
     signInWithApple: mockSignInWithApple,

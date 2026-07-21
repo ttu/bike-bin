@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  type StyleProp,
+  type TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActivityIndicator, Avatar, Menu, Text, IconButton, useTheme } from 'react-native-paper';
@@ -73,6 +75,33 @@ function useThemedStyles(theme: AppTheme) {
         },
       }),
     [theme],
+  );
+}
+
+interface ConversationHeaderTitleProps {
+  readonly title: string;
+  readonly subtitle: string | undefined;
+  readonly titleStyle: StyleProp<TextStyle>;
+  readonly subtitleStyle: StyleProp<TextStyle>;
+}
+
+function ConversationHeaderTitle({
+  title,
+  subtitle,
+  titleStyle,
+  subtitleStyle,
+}: ConversationHeaderTitleProps) {
+  return (
+    <View style={styles.headerTextStack}>
+      <Text variant="titleMedium" style={[styles.headerTitle, titleStyle]} numberOfLines={1}>
+        {title}
+      </Text>
+      {subtitle ? (
+        <Text variant="labelSmall" style={subtitleStyle} numberOfLines={1}>
+          {subtitle}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
@@ -368,22 +397,20 @@ export default function ConversationDetailScreen() {
             testID="conversation-header-profile"
           >
             {renderHeaderAvatar()}
-            <View style={styles.headerTextStack}>
-              <Text
-                variant="titleMedium"
-                style={[styles.headerTitle, themed.headerName]}
-                numberOfLines={1}
-              >
-                {conversation && isGroupConversation(conversation)
+            <ConversationHeaderTitle
+              title={
+                conversation && isGroupConversation(conversation)
                   ? (conversation.groupName ?? t('conversation.groupConversation'))
-                  : conversation?.otherParticipantName || t('conversation.anonymousUser')}
-              </Text>
-              {borrowHistory && borrowHistory.borrowCount > 0 ? (
-                <Text variant="labelSmall" style={themed.trustSignal} numberOfLines={1}>
-                  {t('chat.trustSignal', { count: borrowHistory.borrowCount })}
-                </Text>
-              ) : null}
-            </View>
+                  : conversation?.otherParticipantName || t('conversation.anonymousUser')
+              }
+              subtitle={
+                borrowHistory && borrowHistory.borrowCount > 0
+                  ? t('chat.trustSignal', { count: borrowHistory.borrowCount })
+                  : undefined
+              }
+              titleStyle={themed.headerName}
+              subtitleStyle={themed.trustSignal}
+            />
           </Pressable>
           {canExchange && (
             <Menu
