@@ -38,6 +38,8 @@
     "test:e2e:remote-full": "playwright test -c playwright.remote-full.config.ts",
     "test:a11y": "playwright test e2e/accessibility.spec.ts",
     "capture:media": "playwright test -c playwright.media.config.ts",
+    "test:mutation": "stryker run",
+    "test:mutation:ci": "stryker run",
     "validate": "npm run format:check && npm run lint && npm run type-check && npm test",
     "validate:all": "npm run validate && npm run build:web && npm run db:start && npm run db:reset && npm run test:rls && npm run test:e2e",
     "marketing:dev": "npm run dev --prefix sites/marketing",
@@ -121,6 +123,9 @@
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
     "@playwright/test": "^1.58.2",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/jest-runner": "^9.6.1",
+    "@stryker-mutator/typescript-checker": "^9.6.1",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "29.5.14",
     "@types/react": "^19.2.14",
