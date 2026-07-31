@@ -50,6 +50,10 @@ export function useCreateGroup() {
         name: formData.name,
         description: formData.description,
         is_public: formData.isPublic,
+        postcode: formData.postcode,
+        country: formData.country,
+        area_name: formData.areaName,
+        coordinates: `POINT(${formData.longitude} ${formData.latitude})`,
       });
 
       if (groupError) throw groupError;
@@ -94,6 +98,10 @@ export function useUpdateGroup() {
           name: formData.name,
           description: formData.description,
           is_public: formData.isPublic,
+          postcode: formData.postcode,
+          country: formData.country,
+          area_name: formData.areaName,
+          coordinates: `POINT(${formData.longitude} ${formData.latitude})`,
         })
         .eq('id', id)
         .select()

@@ -53,11 +53,9 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
       const rows = (data ?? []) as RpcRow[];
 
       const ownerIds = [...new Set(rows.map((r) => r.owner_id).filter((v): v is string => !!v))];
-      const locationIds = [...new Set(rows.map((r) => r.pickup_location_id).filter(Boolean))];
 
-      const [ownerMap, locationMap, thumbMap] = await Promise.all([
+      const [ownerMap, thumbMap] = await Promise.all([
         fetchPublicProfilesMap(ownerIds),
-        fetchLocationAreaNames(locationIds as string[]),
         fetchFirstPhotoPaths({
           table: 'item_photos',
           idColumn: 'item_id',
@@ -65,7 +63,7 @@ export function useSearchItems({ filters, enabled = true }: UseSearchItemsOption
         }),
       ]);
 
-      const results = rows.map((row) => mapRow(row, ownerMap, locationMap, thumbMap));
+      const results = rows.map((row) => mapRow(row, ownerMap, thumbMap));
       const filtered = applyClientFilters(results, filters);
       return sortResults(filtered, filters.sortBy);
     },
@@ -155,29 +153,12 @@ interface RpcRow {
   created_at: string;
   updated_at: string;
   distance_meters: number | null;
-}
-
-async function fetchLocationAreaNames(locationIds: string[]): Promise<Map<string, string>> {
-  const map = new Map<string, string>();
-  if (locationIds.length === 0) return map;
-
-  const { data } = await supabase
-    .from('saved_locations')
-    .select('id, area_name')
-    .in('id', locationIds);
-
-  for (const row of data ?? []) {
-    if (row.area_name) {
-      map.set(row.id, row.area_name as string);
-    }
-  }
-  return map;
+  area_name: string | null;
 }
 
 function mapRow(
   row: RpcRow,
   ownerMap: Map<string, FetchedPublicProfile>,
-  locationMap: Map<string, string>,
   thumbMap: Map<string, string>,
 ): SearchResultItem {
   const owner = row.owner_id ? ownerMap.get(row.owner_id) : undefined;
@@ -204,7 +185,7 @@ function mapRow(
     ownerAvatarUrl: owner?.avatarUrl,
     ownerRatingAvg: owner?.ratingAvg ?? 0,
     ownerRatingCount: owner?.ratingCount ?? 0,
-    areaName: row.pickup_location_id ? locationMap.get(row.pickup_location_id) : undefined,
+    areaName: row.area_name ?? undefined,
     thumbnailStoragePath: thumbMap.get(row.id),
     groupId: (row.group_id as GroupId | null | undefined) ?? undefined,
     groupName: undefined,

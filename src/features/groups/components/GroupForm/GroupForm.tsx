@@ -1,15 +1,30 @@
 import { useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Appbar, Text, TextInput, Switch, HelperText, useTheme } from 'react-native-paper';
+import {
+  Appbar,
+  Text,
+  TextInput,
+  Switch,
+  HelperText,
+  ActivityIndicator,
+  useTheme,
+} from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import { GradientButton } from '@/shared/components/GradientButton';
-import { borderRadius, spacing, type AppTheme } from '@/shared/theme';
+import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
+import { geocodePostcode, type GeocodeResult } from '@/features/locations';
 
 export interface GroupFormSubmission {
   name: string;
   description: string | undefined;
   isPublic: boolean;
+  postcode: string;
+  country?: string;
+  areaName: string;
+  latitude: number;
+  longitude: number;
 }
 
 interface GroupFormProps {
@@ -19,15 +34,21 @@ interface GroupFormProps {
   readonly initialName?: string;
   readonly initialDescription?: string;
   readonly initialIsPublic?: boolean;
+  readonly initialPostcode?: string;
+  readonly initialCountry?: string;
+  readonly initialAreaName?: string;
+  readonly initialLatitude?: number;
+  readonly initialLongitude?: number;
   readonly isSubmitting: boolean;
   readonly onCancel: () => void;
   readonly onSubmit: (data: GroupFormSubmission) => void;
 }
 
 /**
- * Shared form used by the group create and edit screens. The two screens used
- * to be near-duplicates with divergent TextInput modes; this component is the
- * single source of truth so adding a new field is a one-place change.
+ * Shared form used by the group create and edit screens. Captures name,
+ * description, public flag and a postcode-derived location (geocoded via the
+ * Edge Function). Location is required so group-owned items have a pickup
+ * point for nearby search.
  */
 export function GroupForm({
   title,
@@ -36,6 +57,11 @@ export function GroupForm({
   initialName = '',
   initialDescription = '',
   initialIsPublic = false,
+  initialPostcode = '',
+  initialCountry,
+  initialAreaName,
+  initialLatitude,
+  initialLongitude,
   isSubmitting,
   onCancel,
   onSubmit,
@@ -46,7 +72,18 @@ export function GroupForm({
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   const [isPublic, setIsPublic] = useState(initialIsPublic);
-  const [nameError, setNameError] = useState('');
+  const [postcode, setPostcode] = useState(initialPostcode);
+  const [geocoded, setGeocoded] = useState<GeocodeResult | undefined>(
+    initialAreaName !== undefined && initialLatitude !== undefined && initialLongitude !== undefined
+      ? { areaName: initialAreaName, lat: initialLatitude, lng: initialLongitude }
+      : undefined,
+  );
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [errors, setErrors] = useState<{
+    name?: string;
+    postcode?: string;
+    geocode?: string;
+  }>({});
 
   const themeStyles = {
     container: { backgroundColor: theme.colors.background },
@@ -56,22 +93,67 @@ export function GroupForm({
       borderRadius: borderRadius.md,
     },
     description: { color: theme.colors.onSurfaceVariant },
+    areaPreview: { backgroundColor: theme.colors.secondaryContainer },
+    onSecondaryContainer: { color: theme.colors.onSecondaryContainer },
   };
   const underlineColor = colorWithAlpha(theme.colors.outlineVariant, 0.15);
   const activeUnderlineColor = theme.colors.primary;
 
+  const handleGeocodePostcode = useCallback(async () => {
+    const trimmed = postcode.trim();
+    if (!trimmed) return;
+
+    setIsGeocoding(true);
+    setGeocoded(undefined);
+    setErrors((prev) => ({ ...prev, geocode: undefined }));
+
+    try {
+      const result = await geocodePostcode(trimmed, initialCountry);
+      setGeocoded(result);
+    } catch {
+      setErrors((prev) => ({ ...prev, geocode: t('form.geocodeFailed') }));
+    } finally {
+      setIsGeocoding(false);
+    }
+  }, [postcode, initialCountry, t]);
+
   const handleSubmit = useCallback(() => {
+    const newErrors: { name?: string; postcode?: string; geocode?: string } = {};
     if (!name.trim()) {
-      setNameError(t('validation.nameRequired'));
+      newErrors.name = t('validation.nameRequired');
+    }
+    if (!postcode.trim()) {
+      newErrors.postcode = t('validation.postcodeRequired');
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    if (!geocoded) {
+      void handleGeocodePostcode();
       return;
     }
-    setNameError('');
+
     onSubmit({
       name: name.trim(),
       description: description.trim() || undefined,
       isPublic,
+      postcode: postcode.trim(),
+      country: initialCountry,
+      areaName: geocoded.areaName,
+      latitude: geocoded.lat,
+      longitude: geocoded.lng,
     });
-  }, [name, description, isPublic, onSubmit, t]);
+  }, [
+    name,
+    description,
+    isPublic,
+    postcode,
+    geocoded,
+    initialCountry,
+    handleGeocodePostcode,
+    onSubmit,
+    t,
+  ]);
 
   return (
     <View style={[styles.container, themeStyles.container]}>
@@ -89,19 +171,19 @@ export function GroupForm({
           value={name}
           onChangeText={(value) => {
             setName(value);
-            if (nameError && value.trim()) {
-              setNameError('');
+            if (errors.name && value.trim()) {
+              setErrors((prev) => ({ ...prev, name: undefined }));
             }
           }}
           placeholder={t('create.namePlaceholder')}
-          error={!!nameError}
+          error={!!errors.name}
           style={themeStyles.softInput}
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}
         />
-        {nameError ? (
+        {errors.name ? (
           <HelperText type="error" visible>
-            {nameError}
+            {errors.name}
           </HelperText>
         ) : null}
 
@@ -120,6 +202,57 @@ export function GroupForm({
           activeUnderlineColor={activeUnderlineColor}
         />
 
+        <Text variant="labelLarge" style={styles.label}>
+          {t('create.postcodeLabel')}
+        </Text>
+        <Text variant="bodySmall" style={[styles.fieldHelper, themeStyles.description]}>
+          {t('create.postcodeHelper')}
+        </Text>
+        <View style={styles.postcodeRow}>
+          <TextInput
+            mode="flat"
+            value={postcode}
+            onChangeText={(value) => {
+              setPostcode(value);
+              setGeocoded(undefined);
+              if (errors.postcode && value.trim()) {
+                setErrors((prev) => ({ ...prev, postcode: undefined }));
+              }
+            }}
+            placeholder={t('create.postcodePlaceholder')}
+            error={!!errors.postcode}
+            style={[themeStyles.softInput, styles.postcodeInput]}
+            underlineColor={underlineColor}
+            activeUnderlineColor={activeUnderlineColor}
+            onBlur={handleGeocodePostcode}
+            autoCapitalize="characters"
+            testID="group-form-postcode"
+          />
+          {isGeocoding ? <ActivityIndicator size="small" style={styles.geocodingSpinner} /> : null}
+        </View>
+        {errors.postcode ? (
+          <HelperText type="error" visible>
+            {errors.postcode}
+          </HelperText>
+        ) : null}
+        {geocoded ? (
+          <View style={[styles.areaPreview, themeStyles.areaPreview]}>
+            <MaterialCommunityIcons
+              name="map-marker-check"
+              size={iconSize.sm}
+              color={theme.colors.onSecondaryContainer}
+            />
+            <Text variant="bodyMedium" style={themeStyles.onSecondaryContainer}>
+              {geocoded.areaName}
+            </Text>
+          </View>
+        ) : null}
+        {errors.geocode ? (
+          <HelperText type="error" visible>
+            {errors.geocode}
+          </HelperText>
+        ) : null}
+
         <View style={styles.switchRow}>
           <View style={styles.switchLabel}>
             <Text variant="labelLarge">{t('create.publicLabel')}</Text>
@@ -133,8 +266,8 @@ export function GroupForm({
         <GradientButton
           testID={submitTestID}
           onPress={handleSubmit}
-          loading={isSubmitting}
-          disabled={isSubmitting}
+          loading={isSubmitting || isGeocoding}
+          disabled={isSubmitting || isGeocoding}
           style={styles.submitButton}
         >
           {submitLabel}
@@ -155,6 +288,27 @@ const styles = StyleSheet.create({
   label: {
     marginTop: spacing.base,
     marginBottom: spacing.xs,
+  },
+  fieldHelper: {
+    marginBottom: spacing.xs,
+  },
+  postcodeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  postcodeInput: {
+    flex: 1,
+  },
+  geocodingSpinner: {
+    marginLeft: spacing.sm,
+  },
+  areaPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: borderRadius.sm,
+    marginTop: spacing.sm,
+    gap: spacing.sm,
   },
   switchRow: {
     flexDirection: 'row',

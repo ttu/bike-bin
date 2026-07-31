@@ -60,7 +60,16 @@ export default function GroupsScreen() {
   }, []);
 
   const handleCreateSubmit = useCallback(
-    async (data: { name: string; description: string | undefined; isPublic: boolean }) => {
+    async (data: {
+      name: string;
+      description: string | undefined;
+      isPublic: boolean;
+      postcode: string;
+      country?: string;
+      areaName: string;
+      latitude: number;
+      longitude: number;
+    }) => {
       try {
         await createGroup.mutateAsync(data);
         showSnackbarAlert({

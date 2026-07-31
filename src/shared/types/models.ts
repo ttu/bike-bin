@@ -146,6 +146,9 @@ export interface Group {
   name: string;
   description: string | undefined;
   isPublic: boolean;
+  postcode: string | undefined;
+  country: string | undefined;
+  areaName: string | undefined;
   ratingAvg: number;
   ratingCount: number;
   createdAt: string;

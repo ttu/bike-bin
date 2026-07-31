@@ -66,13 +66,27 @@ export default function GroupDetailScreen() {
   const { data: pendingInvitations } = usePendingGroupInvitations(isAdmin ? groupId : undefined);
 
   const handleEditSubmit = useCallback(
-    async (data: { name: string; description: string | undefined; isPublic: boolean }) => {
+    async (data: {
+      name: string;
+      description: string | undefined;
+      isPublic: boolean;
+      postcode: string;
+      country?: string;
+      areaName: string;
+      latitude: number;
+      longitude: number;
+    }) => {
       try {
         await updateGroup.mutateAsync({
           id: groupId,
           name: data.name,
           description: data.description,
           isPublic: data.isPublic,
+          postcode: data.postcode,
+          country: data.country,
+          areaName: data.areaName,
+          latitude: data.latitude,
+          longitude: data.longitude,
         });
         setIsEditing(false);
       } catch {
@@ -249,6 +263,9 @@ export default function GroupDetailScreen() {
         initialName={group.name}
         initialDescription={group.description ?? ''}
         initialIsPublic={group.isPublic}
+        initialPostcode={group.postcode}
+        initialCountry={group.country}
+        initialAreaName={group.areaName}
         onCancel={() => setIsEditing(false)}
         onSubmit={handleEditSubmit}
         isSubmitting={updateGroup.isPending}
