@@ -38,6 +38,26 @@ jest.mock('@/shared/utils/tabScopedBack', () => ({
   tabScopedBack: jest.fn(),
 }));
 
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }),
+}));
+
+const mockCreateConversation = jest.fn(
+  (
+    _vars: unknown,
+    opts?: {
+      onSuccess?: (result: { conversationId: string; isExisting: boolean }) => void;
+      onError?: () => void;
+    },
+  ) => {
+    opts?.onSuccess?.({ conversationId: 'conv-1', isExisting: true });
+  },
+);
+jest.mock('@/features/messaging', () => ({
+  useCreateConversation: () => ({ mutate: mockCreateConversation, isPending: false }),
+}));
+
 const CURRENT_USER_ID = 'current-user' as UserId;
 const OTHER_USER_ID = 'other-user' as UserId;
 
@@ -94,6 +114,7 @@ function createRequest(overrides?: Partial<BorrowRequestWithDetails>): BorrowReq
     itemName: 'Test Item',
     itemStatus: ItemStatus.Reserved,
     itemOwnerId: CURRENT_USER_ID,
+    itemGroupId: undefined,
     itemAvailabilityTypes: [AvailabilityType.Borrowable],
     requesterName: 'Alice',
     requesterAvatarUrl: undefined,
@@ -268,6 +289,68 @@ describe('BorrowRequestsScreen', () => {
     fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
     await waitFor(() => {
       expect(screen.getByText(commonEn.errors.generic)).toBeTruthy();
+    });
+  });
+
+  it('opens the related conversation when a borrow request card is pressed', async () => {
+    mockRequests = [createRequest({ status: BorrowRequestStatus.Pending })];
+    renderWithProviders(<BorrowRequestsScreen />);
+    const card = screen.getByLabelText(
+      new RegExp(`${borrowEn.card.itemLabel.replace('{{itemName}}', 'Test Item')}`),
+    );
+    fireEvent.press(card);
+    await waitFor(() => {
+      expect(mockCreateConversation).toHaveBeenCalledWith(
+        { itemId: 'item-1', otherUserId: OTHER_USER_ID },
+        expect.any(Object),
+      );
+    });
+    expect(mockPush).toHaveBeenCalledWith('/messages/conv-1');
+  });
+
+  it('uses the owner as the other party when opening conversation from an outgoing request', async () => {
+    mockRequests = [
+      createRequest({
+        status: BorrowRequestStatus.Pending,
+        itemOwnerId: OTHER_USER_ID,
+        requesterId: CURRENT_USER_ID,
+      }),
+    ];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByText(borrowEn.tabs.outgoing));
+    const card = screen.getByLabelText(
+      new RegExp(`${borrowEn.card.itemLabel.replace('{{itemName}}', 'Test Item')}`),
+    );
+    fireEvent.press(card);
+    await waitFor(() => {
+      expect(mockCreateConversation).toHaveBeenCalledWith(
+        { itemId: 'item-1', otherUserId: OTHER_USER_ID },
+        expect.any(Object),
+      );
+    });
+  });
+
+  it('routes by groupId when the borrow request is for a group-owned item', async () => {
+    mockRequests = [
+      createRequest({
+        status: BorrowRequestStatus.Pending,
+        // Group-owned items have a NULL items.owner_id, surfaced as '' through the hook.
+        itemOwnerId: '' as UserId,
+        itemGroupId: 'group-1' as unknown as BorrowRequestWithDetails['itemGroupId'],
+        requesterId: CURRENT_USER_ID,
+      }),
+    ];
+    renderWithProviders(<BorrowRequestsScreen />);
+    fireEvent.press(screen.getByText(borrowEn.tabs.outgoing));
+    const card = screen.getByLabelText(
+      new RegExp(`${borrowEn.card.itemLabel.replace('{{itemName}}', 'Test Item')}`),
+    );
+    fireEvent.press(card);
+    await waitFor(() => {
+      expect(mockCreateConversation).toHaveBeenCalledWith(
+        { itemId: 'item-1', groupId: 'group-1' },
+        expect.any(Object),
+      );
     });
   });
 

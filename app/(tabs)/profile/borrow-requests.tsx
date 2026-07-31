@@ -2,7 +2,9 @@ import { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { tabScopedBack } from '@/shared/utils/tabScopedBack';
+import { useCreateConversation } from '@/features/messaging';
 import { spacing } from '@/shared/theme';
 import { EmptyState } from '@/shared/components/EmptyState/EmptyState';
 import { CenteredLoadingIndicator } from '@/shared/components/CenteredLoadingIndicator/CenteredLoadingIndicator';
@@ -43,6 +45,7 @@ function BorrowRequestsScreenContent() {
 
   const { user } = useAuth();
   const userId = (user?.id ?? '') as UserId;
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<Tab>('incoming');
   const { openConfirm, closeConfirm, confirmDialogProps } = useConfirmDialog();
@@ -52,6 +55,30 @@ function BorrowRequestsScreenContent() {
   const declineRequest = useDeclineBorrowRequest();
   const cancelRequest = useCancelBorrowRequest();
   const markReturned = useMarkReturned();
+  const { mutate: openConversation } = useCreateConversation();
+
+  const handleOpenConversation = useCallback(
+    (request: BorrowRequestWithDetails) => {
+      // Group-owned items: route by group (admins are the conversation participants).
+      // Personal items: pair the current user with the other party (requester or owner).
+      const params = request.itemGroupId
+        ? { itemId: request.itemId, groupId: request.itemGroupId }
+        : {
+            itemId: request.itemId,
+            otherUserId: request.itemOwnerId === userId ? request.requesterId : request.itemOwnerId,
+          };
+      openConversation(params, {
+        onSuccess: (result) => router.push(`/messages/${result.conversationId}`),
+        onError: () =>
+          showSnackbarAlert({
+            message: tCommon('errors.generic'),
+            variant: 'error',
+            duration: 'long',
+          }),
+      });
+    },
+    [userId, openConversation, router, showSnackbarAlert, tCommon],
+  );
 
   const incoming = useMemo(
     () =>
@@ -240,10 +267,11 @@ function BorrowRequestsScreenContent() {
           onDecline={handleDecline}
           onCancel={handleCancel}
           onMarkReturned={handleMarkReturned}
+          onPress={handleOpenConversation}
         />
       </View>
     ),
-    [userId, handleAccept, handleDecline, handleCancel, handleMarkReturned],
+    [userId, handleAccept, handleDecline, handleCancel, handleMarkReturned, handleOpenConversation],
   );
 
   const emptyConfig = {

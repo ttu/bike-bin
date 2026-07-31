@@ -6,6 +6,7 @@ import {
   BorrowRequestStatus,
   type AvailabilityType,
   type BorrowRequestId,
+  type GroupId,
   type ItemId,
   type ItemStatus,
   type UserId,
@@ -40,6 +41,7 @@ export function useBorrowRequests() {
             name,
             status,
             owner_id,
+            group_id,
             availability_types
           )
         `,
@@ -54,9 +56,9 @@ export function useBorrowRequests() {
       for (const row of data) {
         userIds.add(row.requester_id as string);
         const item = (Array.isArray(row.items) ? row.items[0] : row.items) as {
-          owner_id: string;
+          owner_id: string | null;
         } | null;
-        if (item) {
+        if (item?.owner_id) {
           userIds.add(item.owner_id);
         }
       }
@@ -68,12 +70,13 @@ export function useBorrowRequests() {
           id: string;
           name: string;
           status: string;
-          owner_id: string;
+          owner_id: string | null;
+          group_id: string | null;
           availability_types: string[];
         } | null;
 
         const requesterProfile = profileMap.get(row.requester_id as string);
-        const ownerProfile = item ? profileMap.get(item.owner_id) : undefined;
+        const ownerProfile = item?.owner_id ? profileMap.get(item.owner_id) : undefined;
 
         return {
           id: row.id as BorrowRequestId,
@@ -87,6 +90,7 @@ export function useBorrowRequests() {
           itemName: item?.name ?? 'Unknown item',
           itemStatus: (item?.status ?? 'stored') as ItemStatus,
           itemOwnerId: (item?.owner_id ?? '') as UserId,
+          itemGroupId: (item?.group_id ?? undefined) as GroupId | undefined,
           itemAvailabilityTypes: (item?.availability_types as AvailabilityType[]) ?? [],
           requesterName: requesterProfile?.displayName,
           requesterAvatarUrl: requesterProfile?.avatarUrl,

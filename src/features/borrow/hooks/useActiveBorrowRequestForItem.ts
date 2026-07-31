@@ -5,6 +5,7 @@ import {
   BorrowRequestStatus,
   type AvailabilityType,
   type BorrowRequestId,
+  type GroupId,
   type ItemId,
   type ItemStatus,
   type UserId,
@@ -47,6 +48,7 @@ export function useActiveBorrowRequestForItem(
             name,
             status,
             owner_id,
+            group_id,
             availability_types
           )
         `,
@@ -65,6 +67,7 @@ export function useActiveBorrowRequestForItem(
         name: string;
         status: string;
         owner_id: string;
+        group_id: string | null;
         availability_types: string[];
       } | null;
 
@@ -91,6 +94,7 @@ export function useActiveBorrowRequestForItem(
         itemName: item.name,
         itemStatus: item.status as ItemStatus,
         itemOwnerId: item.owner_id as UserId,
+        itemGroupId: (item.group_id ?? undefined) as GroupId | undefined,
         itemAvailabilityTypes: item.availability_types as AvailabilityType[],
         requesterName: requesterProfile?.displayName,
         requesterAvatarUrl: requesterProfile?.avatarUrl,

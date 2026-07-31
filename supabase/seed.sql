@@ -355,6 +355,45 @@ INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
   ('f1000001-0001-4000-8000-00000000000a', 'f0000001-000a-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'Need the crew shock pump tonight — setting sag on the Spectral before the Harz trip.', now() - interval '1 day'),
   ('f1000001-0002-4000-8000-00000000000a', 'f0000001-000a-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Swing by after 7, it is on the garage wall.', now() - interval '1 day' + interval '30 minutes');
 
+-- Conv 11: Nina asking Test about Park Tool Chain Checker (request f2…0002)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-000b-4000-8000-000000000001', 'd0000001-0003-4000-8000-000000000001', now() - interval '45 minutes');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-000b-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001'), -- Test (owner)
+  ('f0000001-000b-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007'); -- Nina (requester)
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-00000000000b', 'f0000001-000b-4000-8000-000000000001', 'a1b2c3d4-0007-4000-8000-000000000007', 'Hi! I need to check my chain wear before the race this weekend. Can I borrow it for a day?', now() - interval '45 minutes');
+
+-- Conv 12: Jonas borrowing Sarah's Kryptonite lock (request f2…0003, returned)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-000c-4000-8000-000000000001', 'd0000001-0002-4000-8000-000000000003', now() - interval '14 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-000c-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003'), -- Sarah (owner)
+  ('f0000001-000c-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004'); -- Jonas (requester)
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-00000000000c', 'f0000001-000c-4000-8000-000000000001', 'a1b2c3d4-0004-4000-8000-000000000004', 'Need to borrow for a week-long trip. Will take good care of it!', now() - interval '14 days'),
+  ('f1000001-0002-4000-8000-00000000000c', 'f0000001-000c-4000-8000-000000000001', 'a1b2c3d4-0003-4000-8000-000000000003', 'Sounds good — when do you need it?', now() - interval '14 days' + interval '2 hours');
+
+-- Conv 13: Marcus borrowing Test's Lezyne pump (request f2…0004, accepted)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-000d-4000-8000-000000000001', 'd0000001-0009-4000-8000-000000000001', now() - interval '3 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-000d-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001'), -- Test (owner)
+  ('f0000001-000d-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002'); -- Marcus (requester)
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-00000000000d', 'f0000001-000d-4000-8000-000000000001', 'a1b2c3d4-0002-4000-8000-000000000002', 'Need accurate pressure for race wheels.', now() - interval '3 days'),
+  ('f1000001-0002-4000-8000-00000000000d', 'f0000001-000d-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'All yours — grab it any evening this week.', now() - interval '2 days' - interval '4 hours');
+
+-- Conv 14: Kai borrowed Test's multi-tool (request f2…0005, returned)
+INSERT INTO conversations (id, item_id, created_at) VALUES
+  ('f0000001-000e-4000-8000-000000000001', 'd0000001-0004-4000-8000-000000000001', now() - interval '35 days');
+INSERT INTO conversation_participants (conversation_id, user_id) VALUES
+  ('f0000001-000e-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001'), -- Test (owner)
+  ('f0000001-000e-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006'); -- Kai (requester)
+INSERT INTO messages (id, conversation_id, sender_id, body, created_at) VALUES
+  ('f1000001-0001-4000-8000-00000000000e', 'f0000001-000e-4000-8000-000000000001', 'a1b2c3d4-0006-4000-8000-000000000006', 'Need a multi-tool for a weekend ride.', now() - interval '35 days'),
+  ('f1000001-0002-4000-8000-00000000000e', 'f0000001-000e-4000-8000-000000000001', 'a1b2c3d4-0001-4000-8000-000000000001', 'Sure — pick it up Friday after work.', now() - interval '34 days' - interval '8 hours');
+
 -- ── Borrow Requests ─────────────────────────────────────────
 
 INSERT INTO borrow_requests (id, item_id, requester_id, status, message, created_at, updated_at) VALUES
