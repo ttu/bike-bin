@@ -31,6 +31,7 @@ npm run dev              # Starts local Supabase, then Expo dev server
 | `npm run db:reset`         | Recreate DB from `supabase/migrations`                                                                                                                                                                                                                                                                                    |
 | `npm run db:seed`          | `db:reset` then image seed script (`scripts/seed-images.mjs`)                                                                                                                                                                                                                                                             |
 | `npm run db:seed:remote`   | Apply `supabase/seed.sql` then upload seed images (`scripts/seed-remote-sql.sh` + `scripts/seed-remote-images.mjs`). Env: `PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, and **`SUPABASE_SERVICE_ROLE_KEY`** (from the project’s API settings; skip the image step locally by omitting the service role) |
+| `npm run seed:appreview`   | Provision/refresh `appreview@bikebin.app` (App/Play Store review account) against `SUPABASE_DB_URL`. Idempotent. Env: `SUPABASE_DB_URL`, `APPREVIEW_PASSWORD`. See **App Store review account** below.                                                                                                                    |
 | `npm run db:nuke`          | Stop without backup, start local Supabase, then image seed (`scripts/seed-images.mjs`); does **not** run `supabase db reset`                                                                                                                                                                                              |
 | `npm run db:status`        | Services, ports, API keys (for local env)                                                                                                                                                                                                                                                                                 |
 | `npm run db:enable-signup` | Toggles `enable_signup` in `supabase/config.toml` (macOS `sed` — adjust on Linux if needed)                                                                                                                                                                                                                               |
@@ -135,6 +136,32 @@ The app uses Supabase Auth for Google OAuth. Client code lives in `src/features/
 - **Hosted:** [URL configuration](https://supabase.com/dashboard/project/_/auth/url-configuration) — set **Site URL** to your app origin (e.g. production web: `https://app.bikebin.app`; local web often `http://127.0.0.1:8081`). Add the same patterns under **Additional Redirect URLs** as needed (`bike-bin://**`, `exp://**`, and your deployed web origins). See [Redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls) and [Google login](https://supabase.com/docs/guides/auth/social-login/auth-google).
 
 **Git worktrees:** Each worktree is its own root — copy or symlink `.env.local` from the primary clone into the worktree (see [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) bootstrap steps), then run `npm install` there. When you finish a branch, push with **`git push -u origin <branch>`** (or **`git branch -u origin/<branch>`** if the remote already exists) so your editor shows a proper upstream; then open a **PR** to `main` — see the worktree “Finishing a Feature” section in those files.
+
+### App Store review account
+
+For App Store / Play Store reviewers we expose a real production user — `appreview@bikebin.app` — instead of any review-only login UI. Apple reviews the same binary that ships to users, so review-only UI would be visible to everyone; using a normal account avoids that.
+
+**Provisioning / refreshing the account**
+
+`scripts/seed-appreview.sh` (wrapped by `npm run seed:appreview`) runs `supabase/seed-appreview.sql` against `SUPABASE_DB_URL` to upsert the user, profile, a saved location, one bike, and three sample items. It is idempotent — re-run any time to rotate the password or restore the sample inventory.
+
+```bash
+# .env.local in the worktree (or export inline)
+SUPABASE_DB_URL=postgresql://postgres:...@db.<project>.supabase.co:5432/postgres
+APPREVIEW_PASSWORD=<strong-password>
+
+npm run seed:appreview
+```
+
+**App Store Connect / Play Console**
+
+Put the email and the same `APPREVIEW_PASSWORD` into the “App Review Information” / “App access” fields on each submission. Rotate the password (re-run the seed) when a reviewer no longer needs it.
+
+**Notes**
+
+- The mailbox `appreview@bikebin.app` is a forwarding alias (Cloudflare Email Routing) to the maintainer’s inbox so password resets and notifications land somewhere a human reads.
+- The fixed UUID is `a1b2c3d4-0008-4000-8000-000000000008`; the supporting rows (profile, saved location, bike, items) all use the matching `…-000000000008` suffix for traceability.
+- Local development does not need this script — the `bikebin.dev` users seeded by `supabase/seed.sql` already cover that role.
 
 ## Web production (EAS Hosting)
 
