@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
   Text,
@@ -16,6 +16,8 @@ import { borderRadius, iconSize, spacing, type AppTheme } from '@/shared/theme';
 import { colorWithAlpha } from '@/shared/utils/colorWithAlpha';
 import { geocodePostcode, type GeocodeResult } from '../../utils/geocoding';
 import { collectFormErrorMessages } from '@/shared/utils/formValidationFeedback';
+import { CountryPicker } from '@/shared/components/CountryPicker';
+import { getDefaultCountry } from '@/shared/utils/getDefaultCountry';
 
 export interface LocationFormData {
   postcode: string;
@@ -66,6 +68,7 @@ export function LocationForm({
   const activeUnderlineColor = theme.colors.primary;
 
   const [postcode, setPostcode] = useState(initialData?.postcode ?? '');
+  const [country, setCountry] = useState<string>(getDefaultCountry());
   const [label, setLabel] = useState(initialData?.label ?? '');
   const [isPrimary, setIsPrimary] = useState(initialData?.isPrimary ?? false);
   const [geocoded, setGeocoded] = useState<GeocodeResult | undefined>(undefined);
@@ -76,22 +79,43 @@ export function LocationForm({
     geocode?: string;
   }>({});
 
-  const handleGeocodePostcode = useCallback(async () => {
-    if (!postcode.trim()) return;
+  const geocodeRequestIdRef = useRef(0);
 
-    setIsGeocoding(true);
-    setGeocoded(undefined);
-    setErrors((prev) => ({ ...prev, geocode: undefined }));
+  const handleGeocodePostcode = useCallback(
+    async (countryOverride?: string) => {
+      if (!postcode.trim()) return;
 
-    try {
-      const result = await geocodePostcode(postcode);
-      setGeocoded(result);
-    } catch {
-      setErrors((prev) => ({ ...prev, geocode: t('errors.geocodeFailed') }));
-    } finally {
-      setIsGeocoding(false);
-    }
-  }, [postcode, t]);
+      const effectiveCountry = countryOverride ?? country;
+      const requestId = ++geocodeRequestIdRef.current;
+      setIsGeocoding(true);
+      setGeocoded(undefined);
+      setErrors((prev) => ({ ...prev, geocode: undefined }));
+
+      try {
+        const result = await geocodePostcode(postcode, effectiveCountry);
+        if (geocodeRequestIdRef.current !== requestId) return;
+        setGeocoded(result);
+      } catch {
+        if (geocodeRequestIdRef.current !== requestId) return;
+        setErrors((prev) => ({ ...prev, geocode: t('errors.geocodeFailed') }));
+      } finally {
+        if (geocodeRequestIdRef.current === requestId) {
+          setIsGeocoding(false);
+        }
+      }
+    },
+    [postcode, country, t],
+  );
+
+  const handleCountryChange = useCallback(
+    (next: string) => {
+      setCountry(next);
+      setGeocoded(undefined);
+      setErrors((prev) => ({ ...prev, geocode: undefined }));
+      if (postcode.trim()) void handleGeocodePostcode(next);
+    },
+    [postcode, handleGeocodePostcode],
+  );
 
   const handleSubmit = useCallback(() => {
     const newErrors: typeof errors = {};
@@ -126,6 +150,11 @@ export function LocationForm({
 
   return (
     <View style={styles.container}>
+      <CountryPicker
+        value={country}
+        onChange={handleCountryChange}
+        label={t('form.countryLabel')}
+      />
       {/* Postcode */}
       <Text variant="labelLarge" style={styles.fieldLabel}>
         {t('form.postcodeLabel')}
@@ -143,7 +172,9 @@ export function LocationForm({
           style={[softInputStyles.softInput, styles.postcodeInput]}
           underlineColor={underlineColor}
           activeUnderlineColor={activeUnderlineColor}
-          onBlur={handleGeocodePostcode}
+          onBlur={() => {
+            void handleGeocodePostcode();
+          }}
           autoCapitalize="characters"
         />
         {isGeocoding && <ActivityIndicator size="small" style={styles.geocodingSpinner} />}

@@ -10,6 +10,10 @@ jest.mock('../../../utils/geocoding', () => ({
   GeocodeError: class GeocodeError extends Error {},
 }));
 
+jest.mock('@/shared/utils/getDefaultCountry', () => ({
+  getDefaultCountry: () => 'fi',
+}));
+
 describe('LocationForm', () => {
   const onSave = jest.fn();
   const onCancel = jest.fn();
@@ -83,7 +87,7 @@ describe('LocationForm', () => {
     fireEvent(postcodeInput, 'blur');
 
     await waitFor(() => {
-      expect(mockGeocodePostcode).toHaveBeenCalledWith('SW1A 1AA');
+      expect(mockGeocodePostcode).toHaveBeenCalledWith('SW1A 1AA', 'fi');
     });
   });
 
@@ -150,5 +154,45 @@ describe('LocationForm', () => {
         geocoded: geocodeResult,
       });
     });
+  });
+
+  it('defaults the country from getDefaultCountry', () => {
+    const { getByText } = renderWithProviders(<LocationForm {...defaultProps} />);
+    expect(getByText('Finland')).toBeTruthy();
+  });
+
+  it('passes country to geocodePostcode on postcode blur', async () => {
+    mockGeocodePostcode.mockResolvedValue({ areaName: 'Helsinki', lat: 60.17, lng: 24.94 });
+    const { getByPlaceholderText } = renderWithProviders(<LocationForm {...defaultProps} />);
+    const input = getByPlaceholderText('Enter your postcode');
+    fireEvent.changeText(input, '00100');
+    fireEvent(input, 'blur');
+    await waitFor(() => {
+      expect(mockGeocodePostcode).toHaveBeenCalledWith('00100', 'fi');
+    });
+  });
+
+  it('clears the area preview and re-geocodes when the country changes', async () => {
+    mockGeocodePostcode.mockResolvedValueOnce({ areaName: 'Helsinki', lat: 60.17, lng: 24.94 });
+    const { getByPlaceholderText, getByText, queryByText } = renderWithProviders(
+      <LocationForm {...defaultProps} />,
+    );
+
+    const postcode = getByPlaceholderText('Enter your postcode');
+    fireEvent.changeText(postcode, '00100');
+    fireEvent(postcode, 'blur');
+    await waitFor(() => expect(getByText('Area: Helsinki')).toBeTruthy());
+
+    mockGeocodePostcode.mockResolvedValueOnce({ areaName: 'London', lat: 51.5, lng: -0.1 });
+    fireEvent.press(getByText('Finland'));
+    fireEvent.changeText(getByPlaceholderText('Search countries'), 'united king');
+    fireEvent.press(getByText('United Kingdom'));
+
+    expect(queryByText('Area: Helsinki')).toBeNull();
+
+    await waitFor(() => {
+      expect(mockGeocodePostcode).toHaveBeenLastCalledWith('00100', 'gb');
+    });
+    await waitFor(() => expect(getByText('Area: London')).toBeTruthy());
   });
 });
